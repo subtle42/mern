@@ -1,0 +1,16 @@
+.fixed-plugin {
+    height: 45px;
+    position: absolute;
+    top:120px;
+    right: 0px;
+    width: 64px;
+    background: rgba(0,0,0,.3);
+    border-radius: 8px 0 0 8px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.sideMenuIcon {
+    font-size: 25px;
+    padding-top: 9px;
+}

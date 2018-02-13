@@ -1,0 +1,11 @@
+.fixed-plugin-left {
+    height: 45px;
+    position: absolute;
+    top:120px;
+    left: 0px;
+    width: 64px;
+    background: rgba(0,0,0,.3);
+    border-radius: 0 8px 8px 0;
+    text-align: center;
+    cursor: pointer;
+}

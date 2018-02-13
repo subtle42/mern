@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+        "watch": false,
+        "module": "commonjs",
+        "noImplicitAny": false,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "sourceMap": true,
+        "jsx": "react",
+        "target": "es5",
+        "moduleResolution": "node",
+        "baseUrl": ".",
+        "paths":{
+            "myStore": ["./client/data/store"],
+            "myConstants": ["./common/constants"],
+            "myModels": ["./common/models"]
+        }
+    },
+    "include": [
+        "./server/**/*.ts",
+        "./client/**/*.tsx",
+        "./client/**/*.ts",
+        "./common/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
