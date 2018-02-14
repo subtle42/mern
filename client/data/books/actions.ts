@@ -25,6 +25,7 @@ class BookActions extends BaseActions{
         return axios.delete(`/api/books/${book._id}`)
         .then(res => res.data as undefined);
     }
+    
     update(book:IBook):Promise<void> {
         return axios.put(`/api/books`, book)
         .then(res => res.data as undefined);

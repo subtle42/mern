@@ -54,14 +54,16 @@ export default abstract class BaseActions {
         });
 
         nsp.on("message", (msg) => console.log(msg))
-        .on("addedOrChanged", (items:any[]) => this.addedOrChanged(items)
-            .then(() => {
-                if (this.isNewList && items.length > 0) {
-                    this.isNewList = false;
-                    return this.select(items[0]);
-                }
-            })
-        )
+        .on("addedOrChanged", (items:any[]) => {
+            if (this.isNewList && items.length > 0) {
+                this.isNewList = false;
+                this.addedOrChanged(items)
+                .then(() => this.select(items[0]))
+            }
+            else {
+                this.addedOrChanged(items);
+            }
+        })
         .on("removed", (items) => this.remove(items))
         .on("error", (err) => console.error(err));
 
@@ -72,7 +74,7 @@ export default abstract class BaseActions {
     joinRoom(room:string):Promise<void> {
         this.isNewList = true;
         return this.store.dispatch(new Promise((resolve) => resolve({
-            type: `select`,
+            type: `joinRoom`,
             payload: room,
             namespace: this.nameSpace
         })))
