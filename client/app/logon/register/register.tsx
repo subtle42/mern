@@ -49,6 +49,11 @@ export default class LoginPage extends React.Component<{}, State> {
         if (this.state.userName.length < 4) {
             this.setState({userNameErr: "error"})
         }
+        this.setState({
+            emailErr: null,
+            passwordErr: null,
+            userNameErr: null
+        });
     }
 
     isDisabled = ():boolean => {
