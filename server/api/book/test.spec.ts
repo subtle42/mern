@@ -27,9 +27,10 @@ describe("hello", () => {
         const testName = "unitTest";
         chai.request(`${baseUrl}`)
         .post("/api/books")
-        .send({name: testName})
+        .send({name: testName,
+        token: "yusuf"})
         .end((err:AxiosError, res) => {
-            expect(err).to.equal(null);
+            expect(err).not.to.equal(null);
             expect(res.status).to.equal(200);
             done();
         })

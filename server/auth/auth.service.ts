@@ -20,6 +20,7 @@ interface myRequest extends Request {
  * @param next 
  */
 export function isAuthenticated(req:myRequest, res:Response, next:NextFunction):void {
+    console.log(req.body)
     let token = req.body.token || req.query.token || req.headers['authorization'];
     if (!token) {
         return res.status(403).send({
@@ -27,7 +28,8 @@ export function isAuthenticated(req:myRequest, res:Response, next:NextFunction):
         }).end();
     }
     jwt.verify(token, config.shared.secret, (err, decoded) => {
-        console.log(decoded);
+        console.log("decode", decoded);
+        console.log("err", err);
         if (err) res.status(403).send("Failed to authenticate token");
         req.user = decoded;
         next();
