@@ -33,7 +33,7 @@ export default abstract class BaseActions {
         return this.sendDispatch(`storeSocket`, socket);
     }
 
-    public disconnect():Promise<void> {
+    disconnect():Promise<void> {
         return this.sendDispatch(`disconnect`, undefined);
     }
 

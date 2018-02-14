@@ -27,7 +27,7 @@ export const factory = {
         return {...state, socket:payload};
     },
     disconnect: (state:GenericStore, payload:undefined):GenericStore => {
-        return {...state, socket:undefined};
+        return new GenericStore();
     },
     joinRoom: (state:GenericStore, payload:string):GenericStore => {
         return {...state, list:[]};
