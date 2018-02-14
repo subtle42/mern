@@ -1,6 +1,7 @@
 import * as React from "react";
 import axios from "axios"
 import {FormControl, MenuItem, Modal, FormGroup, ControlLabel, HelpBlock, Button} from "react-bootstrap";
+import BookActions from "../../../data/books/actions";
 
 class State {
     showModal:boolean = false;
@@ -14,12 +15,8 @@ export default class CreateBookButton extends React.Component<{}, State> {
     state:State = new State();
 
     close = () => {
-        // pageActions.create(this.state.pageName)
-        // .then(() => this.setState({
-        //     showModal:false,
-        //     pageName: ""
-        // }));
-        this.setState({showModal:false})
+        BookActions.create(this.state.pageName)
+        .then(book => this.setState(new State()));
     }
 
     open = () => {
