@@ -8,6 +8,8 @@ import {IPage} from "myModels";
 import {PageConfigButton} from "../page/config";
 import {SourceConfigButton} from "../source/config";
 import {SourceCreateButton} from "../source/create";
+import {Widget} from "../widget/widget";
+
 
 
 interface TestProps {
@@ -37,6 +39,7 @@ const Content:React.StatelessComponent<TestProps> = (props:TestProps) => {
             })}
             <CreatePageButton />
         </Nav>
+        <Widget  />
         </div>
     );
 }
