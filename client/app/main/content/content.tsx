@@ -24,7 +24,7 @@ const Content:React.StatelessComponent<TestProps> = (props:TestProps) => {
 
     return (
         <div>
-        <PageConfigButton  _id={props.selected._id} />
+        <PageConfigButton  _id={props.selected ? props.selected._id : null} />
         <SourceConfigButton className="pull-right" />
         <SourceCreateButton />
         <Nav activeKey="1" bsStyle="tabs">
