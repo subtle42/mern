@@ -28,8 +28,11 @@ export function isAuthenticated(req:myRequest, res:Response, next:NextFunction):
         }).end();
     }
     jwt.verify(token, config.shared.secret, (err, decoded) => {
+<<<<<<< HEAD
         console.log("decode", decoded);
         console.log("err", err);
+=======
+>>>>>>> 8ff18b70469de62adf0e299eb65044ddd5c66ec7
         if (err) res.status(403).send("Failed to authenticate token");
         req.user = decoded;
         next();

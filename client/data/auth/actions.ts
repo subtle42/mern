@@ -85,7 +85,9 @@ class AuthActions {
             axios.defaults.headers.common['Authorization'] = undefined;
             this.deleteAuthCookie();
         })
-        .then(() => this.setUser(undefined));
+        .then(() => this.setUser(undefined))
+        .then(() => bookActions.disconnect())
+        .then(() => pageActions.disconnect());
     }
 
     private deleteAuthCookie() {

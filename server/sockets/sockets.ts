@@ -26,9 +26,7 @@ export default abstract class BaseSocket {
             this.onAddOrChange(this.getParentId(doc), [doc]);
         });
 
-        this.schema.post("remove", (err, doc) => {
-            console.error("err", err);
-            console.log("doc", doc);
+        this.schema.post("remove", (doc:Document) => {
             this.onDelete(this.getParentId(doc), [doc._id]);
         });
 
