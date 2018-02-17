@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Nav, NavItem, Button} from "react-bootstrap";
-import {CreatePageButton} from "../page/create/create"
-import {DeletePageButton} from "../page/delete/delete";
+import {CreatePageButton} from "../page/create"
+import {DeletePageButton} from "../page/delete";
 import {connect} from "react-redux"
 import pageActions from "../../../data/pages/actions";
 import {IPage} from "myModels";
