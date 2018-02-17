@@ -42,7 +42,6 @@ class AuthActions {
 
     private getCookieAuth():string|void {
         const myCookies = document.cookie.split(";");
-        console.log("COOKIES: ", myCookies);
         return myCookies.filter(cookie => {
             return cookie.trim().indexOf("authToken") === 0; 
         })[0];
@@ -61,10 +60,9 @@ class AuthActions {
         .then(() => pageActions.connect(token))
         .then(() => bookActions.joinRoom(this.store.getState().auth.me._id))
         .then(() => {
-            const store = this.store.getState()
-            if (!store.books) return;
-            return pageActions.joinRoom(store.books.selected._id);
-        })
+            if (store.getState().books.list.length === 0) return;
+            return bookActions.select(store.getState().books.list[0])
+        });
     }
 
     login(email:string, password:string):Promise<void> {

@@ -1,18 +1,16 @@
 import * as React from "react";
 import axios from "axios"
 import {Form, Col, ControlLabel, FormControl, Button, HelpBlock, FormGroup, NavItem} from "react-bootstrap";
-import AuthActions from "../../../data/auth/actions";
+import {Redirect} from "react-router-dom";
+import AuthActions from "../../data/auth/actions";
 
-var store:any;
-var actions:any;
 
 class State {
     email:string = "";
     password:string = "";
-    userName:string = "";
-    emailErr?:myStyle
-    passwordErr?:myStyle
-    userNameErr?:myStyle
+    validationState?: myStyle;
+    err:string;
+    loginSuccess:boolean = false;
 }
 
 
@@ -21,14 +19,6 @@ type myStyle = "success" | "warning" | "error";
 export default class LoginPage extends React.Component<{}, State> {
     state:State = new State();
 
-    createUser = () => {
-        AuthActions.create({
-            email: this.state.email,
-            password: this.state.password,
-            name: this.state.userName
-        })
-        .then(() => this.setState(new State()));
-    }
 
     handleChange = (event:React.FormEvent<FormControl>) => {
         const target:any = event.target
@@ -36,47 +26,34 @@ export default class LoginPage extends React.Component<{}, State> {
         this.setState({
             [target.name]: target.value
         });
-        this.getValidationState();
     }
 
-    getValidationState = ():void => {
-        if (this.state.email.indexOf("@") === -1) {
-            this.setState({emailErr: "error"})
-        }
-        if (this.state.password.length < 4) {
-            this.setState({passwordErr: "error"})            
-        } 
-        if (this.state.userName.length < 4) {
-            this.setState({userNameErr: "error"})
-        }
-        this.setState({
-            emailErr: null,
-            passwordErr: null,
-            userNameErr: null
-        });
+    getValidationState = (input:string):myStyle => {
+        if (input.length < 3) return "error";
+    }
+
+    tryLogin = () => {
+        AuthActions.login(this.state.email, this.state.password)
+        .then(() => this.setState({
+            ...(new State()),
+            loginSuccess: true
+        }))
+        .catch(err => {
+            console.log(err.response.data.message)
+        })
     }
 
     isDisabled = ():boolean => {
-        return !!this.state.emailErr || !!this.state.passwordErr || !!this.state.userNameErr;
+        return this.state.email.length <= 3 || (this.state.password.length <= 3);
     }
 
     render() {
+        if (this.state.loginSuccess) {
+            return (<Redirect to="home" />)
+        }
         return (
             <Form horizontal>
                 <FormGroup><Col xsOffset={3} xs={6}>
-                <FormGroup controlId="formName">
-                    <Col componentClass={ControlLabel} sm={2}>
-                        User Name
-                    </Col>
-                    <Col sm={10}>
-                        <FormControl
-                            type="text"
-                            name="userName"
-                            placeholder="User Name"
-                            onChange={this.handleChange}    
-                        />
-                    </Col>
-                </FormGroup>
                 <FormGroup controlId="formEmail">
                     <Col componentClass={ControlLabel} sm={2}>
                         Email
@@ -85,6 +62,7 @@ export default class LoginPage extends React.Component<{}, State> {
                         <FormControl
                             type="email"
                             name="email"
+                            value={this.state.email}
                             placeholder="Email"
                             onChange={this.handleChange}    
                         />
@@ -97,6 +75,7 @@ export default class LoginPage extends React.Component<{}, State> {
                     <Col sm={10}>
                         <FormControl
                             type="text"
+                            value={this.state.password}
                             name="password"
                             placeholder="Password"
                             onChange={this.handleChange}    
@@ -108,18 +87,14 @@ export default class LoginPage extends React.Component<{}, State> {
                     <Button disabled={this.isDisabled()}
                         className="pull-right"
                         type="button"
-                        onClick={() => this.createUser()}
+                        onClick={() => this.tryLogin()}
                     >
-                        Submit
+                        Sign in
                     </Button>
                 </Col>
                 </FormGroup>
                 </Col></FormGroup>
             </Form>
         );
-    }
-
-    handleSelect():number {
-        return 1;
     }
 }

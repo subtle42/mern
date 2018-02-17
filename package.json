@@ -6,7 +6,7 @@
   "scripts": {
     "start": "run-p build:live frontend",
     "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./server/app.ts",
-    "test:client": "mocha -r ts-node/register client/**/*.spec.tsx",
+    "test:client": "mocha -r ts-node/register client/**/*.spec.*",
     "test:server": "mocha -r ts-node/register server/**/*.spec.ts",
     "test": "npm run test:client && npm run test:server",
     "frontend": "webpack"
@@ -41,6 +41,7 @@
     "redux": "^3.7.2",
     "redux-promise": "^0.5.3",
     "redux-thunk": "^2.2.0",
+    "sinon": "^4.3.0",
     "socket.io": "^2.0.4",
     "style-loader": "^0.19.1",
     "ts-loader": "^3.2.0",
@@ -70,6 +71,7 @@
     "@types/react-router-dom": "^4.2.3",
     "@types/redux": "^3.6.0",
     "@types/redux-promise": "^0.5.28",
+    "@types/sinon": "^4.1.3",
     "@types/socket.io": "^1.4.31",
     "@types/socket.io-client": "^1.4.32"
   }
