@@ -3,9 +3,9 @@ import {DropdownButton, ButtonGroup, MenuItem} from "react-bootstrap";
 import {BrowserRouter as Router, Route} from "react-router-dom";
 import MainNavbar from "../nav/nav";
 import {MainConent} from "./content/content"
-import RegisterPage from "../logon/register/register";
+import RegisterPage from "../logon/register";
 import AuthActions from "../../data/auth/actions";
-import LoginPage from "../logon/login/login";
+import LoginPage from "../logon/login";
 import {IPage} from "myModels";
 
 class myState {

@@ -42,7 +42,6 @@ class AuthActions {
 
     private getCookieAuth():string|void {
         const myCookies = document.cookie.split(";");
-        console.log("COOKIES: ", myCookies);
         return myCookies.filter(cookie => {
             return cookie.trim().indexOf("authToken") === 0; 
         })[0];
