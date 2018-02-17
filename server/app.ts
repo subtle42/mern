@@ -3,13 +3,24 @@ import * as body from "body-parser"
 import * as http from "http";
 import * as io from "socket.io";
 import * as mongoose from "mongoose";
+import * as knex from 'knex';
 import * as passport from "passport";
-
 import socketAuth from "./auth/socket/auth";
 
-var mongoUri = "mongodb://localhost/merntest";
+knex({
+    client: 'mysql',
+    connection: {
+        host:MYSQL_URI,
+        user: 'root',
+        password: 'password',
+        database: 'app_test'
+    }
+});
 
-(<any>mongoose).connect(mongoUri, {
+var MONGO_URI = "mongodb://localhost/merntest";
+var MYSQL_URI = "127.0.0.1";
+
+(<any>mongoose).connect(MONGO_URI, {
     // useMongoClient: true
 });
 (<any>mongoose).Promise = global.Promise;
