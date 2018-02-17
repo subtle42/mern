@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Nav, NavItem, Button, Glyphicon} from "react-bootstrap";
+import {Nav, NavItem, Button} from "react-bootstrap";
 import {CreatePageButton} from "../page/create/create"
 import {DeletePageButton} from "../page/delete/delete";
 import {connect} from "react-redux"
@@ -24,7 +24,7 @@ const Content:React.StatelessComponent<TestProps> = (props:TestProps) => {
 
     return (
         <div>
-        <PageConfigButton  _id={props.selected ? props.selected._id : null} />
+        <PageConfigButton _id={props.selected ? props.selected._id : null} />
         <SourceConfigButton className="pull-right" />
         <SourceCreateButton />
         <Nav activeKey="1" bsStyle="tabs">
