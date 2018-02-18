@@ -1,3 +1,5 @@
+import {Layout} from "react-grid-layout"
+
 export interface IUser {
     _id:any;
     name:string;
@@ -14,10 +16,14 @@ export interface IPage {
     _id:any;
     bookId:string;
     name:string;
-    // owner:string;
-    // edit:string[];
-    // view:string[];
-    // isPublic:boolean;
+    isDraggable:boolean;
+    isResizable:boolean;
+    isRearrangeable:boolean;
+    preventCollision:boolean;
+    margin:[number, number];
+    containerPadding:[number, number];
+    cols:number;
+    layout:Layout[]
 }
 
 export interface IWidget {
