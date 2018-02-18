@@ -1,6 +1,7 @@
 import store from "../store";
 import BaseActions from "../baseActions";
 import axios from "axios";
+import {ISource} from "myModels";
 
 class SourceActions extends BaseActions{
     constructor(store) {
@@ -12,18 +13,16 @@ class SourceActions extends BaseActions{
         return null;
     }
 
-    create(input:string):Promise<any> {
-        return axios.post(`/source`, {
-            name:input
-        })
+    create(file:File):Promise<string> {
+        return axios.post(`/source`, file)
         .then(res => res.data);
     }
-    delete(page:string):Promise<void> {
-        return axios.delete(`/source/${page}`)
+    delete(sourceId:string):Promise<void> {
+        return axios.delete(`/source/${sourceId}`)
         .then(res => res.data as undefined);
     }
     
-    update(page:string):Promise<void> {
+    update(page:ISource):Promise<void> {
         return axios.put(`/source`, page)
         .then(res => res.data as undefined);
     }

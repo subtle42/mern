@@ -27,6 +27,8 @@ interface IUserDb extends myModels.IUser {
     encryptPassword(password:string):Promise<string>
 }
 
+export interface ISharedModel extends myModels.IShared, Document {}
 export interface IUserModel extends IUserDb, Document {}
-export interface IBookModel extends myModels.IBook, Document {}
+export interface IBookModel extends ISharedModel, myModels.IBook, Document {}
 export interface IPageModel extends myModels.IPage, Document {}
+export interface ISourceModel extends ISharedModel, myModels.ISource, Document {}

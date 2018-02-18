@@ -3,19 +3,8 @@ import * as body from "body-parser"
 import * as http from "http";
 import * as io from "socket.io";
 import * as mongoose from "mongoose";
-import * as knex from 'knex';
 import * as passport from "passport";
 import socketAuth from "./auth/socket/auth";
-
-knex({
-    client: 'mysql',
-    connection: {
-        host:MYSQL_URI,
-        user: 'root',
-        password: 'password',
-        database: 'app_test'
-    }
-});
 
 var MONGO_URI = "mongodb://localhost/merntest";
 var MYSQL_URI = "127.0.0.1";

@@ -1,19 +1,20 @@
-import {Book} from "./model";
-import {IBook} from "myModels";
-import {IBookModel} from "../../dbModels";
-import {Schema, Document} from "mongoose";
+import {ISharedModel} from "../dbModels";
+import {Schema, Document, Model} from "mongoose";
+
 declare var global:any;
 let myIO:SocketIO.Server = global.myIO;
 
 export default class BookSocket {
     private namespace:SocketIO.Namespace;
-    private name = "books";
 
     constructor(
-        protected schema:Schema
+        private name:string,
+        private schema:Schema,
+        private myModel:Model<ISharedModel>
     ) {
         this.namespace = myIO.of(this.name);
         this.setupSockEvents();
+        console.log(`Created Namespace: ${name}`);
     }
 
     private setupSockEvents() {
@@ -22,7 +23,7 @@ export default class BookSocket {
             this.onJoin(socket);
         });
 
-        this.schema.post("remove", (doc:IBookModel) => {
+        this.schema.post("remove", (doc:ISharedModel) => {
             this.onDelete(doc);
         });
     }
@@ -37,7 +38,7 @@ export default class BookSocket {
     }
 
     private getInitialState(userId:string) {
-        return Book.find({
+        return this.myModel.find({
             $or: [{
                 owner: userId
             }, {
@@ -50,11 +51,11 @@ export default class BookSocket {
         }).exec();
     }
 
-    private getAcl(book:IBook):string[] {
+    private getAcl(book:ISharedModel):string[] {
         return [book.owner].concat(book.editors, book.viewers);
     }
 
-    private onDelete(book:IBook) {
+    private onDelete(book:ISharedModel) {
         if (book.isPublic === true) {
             this.namespace.emit("removed", [book._id]);
         }
@@ -63,7 +64,7 @@ export default class BookSocket {
         }
     }
 
-    onAddOrChange(newBook:IBook, oldBook?:IBook) {
+    onAddOrChange(newBook:ISharedModel, oldBook?:ISharedModel) {
         if (!oldBook) {
             this.namespace.in(newBook.owner).emit("addedOrChanged", [newBook]);
         }

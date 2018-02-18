@@ -53,7 +53,7 @@ class AuthActions {
         this.loadConnections(token.split("=")[1]);
     }
 
-    private loadConnections(token:string):Promise<void> {
+    private loadConnections(token:string):promise<void> {
         return this.setToken(token)
         .then(() => this.me())
         .then(() => bookActions.connect(token))

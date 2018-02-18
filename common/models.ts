@@ -5,13 +5,9 @@ export interface IUser {
     password?:string;
 }
 
-export interface IBook {
+export interface IBook extends IShared {
     _id:any;
     name:string;
-    owner:string;
-    edit:string[];
-    view:string[];
-    isPublic:boolean;
 }
 
 export interface IPage {
@@ -30,13 +26,28 @@ export interface IWidget {
     sourceId:string;
 }
 
-export interface ISource {
+export interface ISource extends IShared{
     _id:any;
-    name:string;
-    owner:string;
-    edit:string[];
-    view:string[];
-    isPublic:boolean;
+    name: string;
+    location: string;
+    size: number;
+    rowCount: number;
+    columns: ISourceColumn[];
+}
+
+export interface IShared {
+    owner: string;
+    editors: string[];
+    viewers: string[];
+    isPublic: boolean;
+}
+
+export type ColumnType = "number" | "group" | "text" | "datetime";
+
+export interface ISourceColumn {
+    name: string;
+    ref: string;
+    type: ColumnType;
 }
 
 export interface IUser {

@@ -1,6 +1,9 @@
 import * as React from "react";
 import {Button, Glyphicon, Modal, Tabs, Tab, Well, Row, Col} from "react-bootstrap";
+import Dropzone, {ImageFile} from "react-dropzone";
+import SourceActions from "../../../data/sources/actions";
 import "./style.css";
+
 
 class State {
     showModal:boolean = false;
@@ -30,6 +33,19 @@ export class SourceCreateButton extends React.Component<Props, State> {
         this.setState(new State());
     }
 
+    onFileDrop(acceptedFiles:ImageFile[], rejectedFiles:ImageFile[]) {
+        // Needed to make sure there is no memory leak
+        acceptedFiles.forEach(file => window.URL.revokeObjectURL(file.preview));
+        rejectedFiles.forEach(file => window.URL.revokeObjectURL(file.preview));
+
+        const reader = new FileReader();
+        reader.onloadend = (event) => {
+            SourceActions.create(acceptedFiles[0])
+            .then(sourceId => {});
+        };
+        reader.readAsArrayBuffer(acceptedFiles[0]);
+    }
+
     getModal():JSX.Element {
         return (
             <Modal bsSize="large" show={this.state.showModal} onHide={this.cancel}>
@@ -56,13 +72,16 @@ export class SourceCreateButton extends React.Component<Props, State> {
         return (
             <Row>
                 <Col xs={8} xsOffset={2} >
+                <Dropzone style={{width:"100%", height:"100%"}} accept="csv" onDrop={this.onFileDrop}>
                     <Well style={{marginTop:"33px"}}>
-                        <h3 style={{display: 'flex', justifyContent: 'center'}}>
-                            Drag and Drop a file.
-                        </h3>
-                        <Glyphicon glyph="file" style={{fontSize:90, justifyContent: 'center', display: 'flex'}} />
-                        <br/><Button>Select File</Button>
+                            
+                            <h3 style={{display: 'flex', justifyContent: 'center'}}>
+                                Drag and Drop a file.
+                            </h3>
+                            <Glyphicon glyph="file" style={{fontSize:90, justifyContent: 'center', display: 'flex'}} />
+                            <br/><Button>Select File</Button>
                     </Well>
+                    </Dropzone>
                 </Col>
             </Row>
         );

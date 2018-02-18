@@ -1,8 +1,8 @@
-import * as mongoose from "mongoose";
+import {model, Schema} from "mongoose";
 import {IBookModel} from "../../dbModels";
 import BookSocket from "./socket";
 
-const BookSchema = new mongoose.Schema({
+const BookSchema = new Schema({
     name: {type: String, required: true},
     pages: [{type: String, required: true}],
     owner: {type: String, required: true},
@@ -12,4 +12,4 @@ const BookSchema = new mongoose.Schema({
 });
 
 export const bookSocket = new BookSocket(BookSchema);
-export const Book = mongoose.model<IBookModel>("Book", BookSchema);
+export const Book = model<IBookModel>("Book", BookSchema);
