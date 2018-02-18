@@ -2,6 +2,7 @@ import * as React from "react";
 import * as ReactGridLayout from "react-grid-layout";
 import { WidthProvider, Responsive } from "react-grid-layout";
 import {Button, Glyphicon} from "react-bootstrap";
+import {RemoveWidgetButton} from "./remove";
 
 export class Widget extends React.PureComponent {
     static defaultProps = {
@@ -9,7 +10,7 @@ export class Widget extends React.PureComponent {
         cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 },
         rowHeight: 100
     }
-    state
+    state;
 
     constructor(props) {
         super(props)
@@ -69,7 +70,7 @@ export class Widget extends React.PureComponent {
             <div className="panel panel-primary">
                 <div className="panel-heading" style={{padding:2}}>
                     <Button className="pull-left" bsStyle="primary" bsSize="small" ><Glyphicon glyph="cog" /></Button>
-                    <Button className="pull-right" bsStyle="primary" bsSize="small" ><Glyphicon glyph="remove" /></Button>
+                    <RemoveWidgetButton _id="hello" />
                     <div className="panel-title">imma header</div>
                 </div>
                 <div className="panel-body" style={{height:"100%"}}>so sexy</div>
