@@ -39,7 +39,7 @@ const Content:React.StatelessComponent<TestProps> = (props:TestProps) => {
             })}
             <CreatePageButton />
         </Nav>
-        <Widget  />
+        {/* <Widget  /> */}
         </div>
     );
 }

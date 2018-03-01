@@ -1,4 +1,5 @@
 .fixed-plugin-left {
+    z-index: 1;
     height: 45px;
     position: absolute;
     top:120px;

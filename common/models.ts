@@ -12,6 +12,10 @@ export interface IBook extends IShared {
     name:string;
 }
 
+interface WidgetLayout extends Layout {
+    _id:any;
+}
+
 export interface IPage {
     _id:any;
     bookId:string;
@@ -23,7 +27,7 @@ export interface IPage {
     margin:[number, number];
     containerPadding:[number, number];
     cols:number;
-    layout:Layout[]
+    layout:WidgetLayout[]
 }
 
 export interface IWidget {

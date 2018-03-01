@@ -6,8 +6,10 @@ import books from "./books/reducer";
 import pages from "./pages/reducer";
 import widgets from "./widgets/reducer";
 import auth from "./auth/reducer";
+import sources from "./sources/reducer";
 import booksModel from "./books/model";
 import pagesModel from "./pages/model";
+import sourcesModel from "./sources/model";
 // import widget from "./widgets/model";
 import authModel from "./auth/model";
 
@@ -15,7 +17,8 @@ interface myStore {
     books:booksModel,
     pages:pagesModel,
     // widget,
-    auth:authModel
+    auth:authModel,
+    sources:sourcesModel
 }
 
 const reducers = combineReducers({
@@ -23,6 +26,7 @@ const reducers = combineReducers({
     pages,
     // widgets,
     auth,
+    sources
 });
 
 const middleware = applyMiddleware(promiseMiddleware);
