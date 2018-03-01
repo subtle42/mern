@@ -1,15 +1,15 @@
-var webpack = require('webpack');
-var path = require('path');
-var LiveReloadPlugin = require('webpack-livereload-plugin');
+const webpack = require('webpack');
+const path = require('path');
+const LiveReloadPlugin = require('webpack-livereload-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
-var BUILD_DIR = path.resolve(__dirname, 'client/.dist');
-var APP_DIR = path.resolve(__dirname, 'client/app');
+const BUILD_DIR = path.resolve(__dirname, 'client/.dist');
+const APP_DIR = path.resolve(__dirname, 'client/app');
 
-var config = {
+const config = {
   watch:true,
   entry: {
-    app: APP_DIR + '/index.tsx',
-    vendor: ['react', 'react-dom']
+    app: APP_DIR + '/index.tsx'
   },
   output: {
     path: BUILD_DIR,
@@ -36,10 +36,16 @@ var config = {
   },
   plugins: [
     new webpack.optimize.CommonsChunkPlugin({
-      name: "vendor",
-      filename: "vendor.js"
+      name: "node-static",
+      filename: "vendor.js",
+      minChunks(module, count) {
+          return module.context && module.context.indexOf("node_modules") > -1;
+      }
     }),
-    new LiveReloadPlugin({})
+    new LiveReloadPlugin({}),
+    // new BundleAnalyzerPlugin({
+    //   analyzerMode: 'static'
+    // })
   ]
 };
 
