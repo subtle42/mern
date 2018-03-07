@@ -5,7 +5,9 @@ import {RemoveWidgetButton} from "./remove";
 import {IWidget} from "myModels";
 import store from "../../../data/store";
 
-interface Props extends IWidget{}
+interface Props {
+    _id:any;
+}
 
 class State {
     source:any;

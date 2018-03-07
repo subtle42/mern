@@ -17,11 +17,21 @@ interface NavProps {
 
 const NavComp:React.StatelessComponent<NavProps> = (props:NavProps) => {
     const getBookDropDown = () => {
-        if (!props.selectedBook) return;
+        if (!props.selectedBook) {
+           return (
+            <Nav>
+            <NavDropdown  title="No Book Selected" id="basic-nav-dropdown">
+                <MenuItem divider />
+                <AddBookButton />
+                <MenuItem key="add">Add Book</MenuItem>
+            </NavDropdown>
+        </Nav>
+           )
+        }
 
         return (
             <Nav>
-                <NavDropdown  title={props.selectedBook.name || "" } id="basic-nav-dropdown">
+                <NavDropdown  title={props.selectedBook.name || "No Book Selected" } id="basic-nav-dropdown">
                     {props.books.map(book => {
                         return (
                             <MenuItem

@@ -9,6 +9,7 @@ import {PageConfigButton} from "../page/config";
 import {SourceConfigButton} from "../source/config";
 import {SourceCreateButton} from "../source/create";
 import {Widget} from "../widget/widget";
+import {PageContent} from "../page/content"
 
 
 
@@ -39,6 +40,7 @@ const Content:React.StatelessComponent<TestProps> = (props:TestProps) => {
             })}
             <CreatePageButton />
         </Nav>
+        <PageContent />
         {/* <Widget  /> */}
         </div>
     );

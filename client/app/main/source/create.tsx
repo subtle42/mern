@@ -2,6 +2,7 @@ import * as React from "react";
 import {Button, Glyphicon, Modal, Tabs, Tab, Well, Row, Col} from "react-bootstrap";
 import Dropzone, {ImageFile} from "react-dropzone";
 import SourceActions from "../../../data/sources/actions";
+import widgetActions from "../../../data/widgets/actions";
 import "./style.css";
 
 
@@ -56,6 +57,9 @@ export class SourceCreateButton extends React.Component<Props, State> {
                         {this.getAddSourcePage()}
                     </Tab>
                     <Tab eventKey={2} title="Add Chart"></Tab>
+                    <Tab eventKey={3} title="Add Widget">
+                    <Button onClick={() => widgetActions.create()} />
+                    </Tab>
                 </Tabs>
             </Modal.Body>
             <Modal.Footer>

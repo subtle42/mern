@@ -1,6 +1,7 @@
 import store from "../store";
 import BaseActions from "../baseActions";
 import axios from "axios";
+import pageActions from "../pages/actions"
 
 class WidgetActions extends BaseActions{
     constructor(store) {
@@ -12,11 +13,21 @@ class WidgetActions extends BaseActions{
         return null;
     }
 
-    create(input:string):Promise<string> {
-        return axios.post(`/widget`, {
-            name:input
-        })
-        .then(res => res.data as string);
+    create():Promise<void> {
+        // return axios.post(`/widget`, {
+        //     name:input
+        // })
+        // .then(res => res.data as string);
+        let myPage = store.getState().pages.selected;
+        myPage.layout.push({
+            _id: myPage.layout.length +1,
+            x:0,
+            y:0,
+            w:1,
+            h:1
+        });
+
+        return pageActions.update(myPage);
     }
     delete(page:string):Promise<void> {
         return axios.delete(`/widget/${page}`)
