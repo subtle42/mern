@@ -6,7 +6,6 @@ import {Widget} from "../widget/widget";
 
 interface Props {
     page:IPage;
-    // widgets:IWidget[]
 }
 
 const ContentComponent:React.StatelessComponent<Props> = (props:Props) => {
@@ -28,6 +27,5 @@ const ContentComponent:React.StatelessComponent<Props> = (props:Props) => {
 export const PageContent = connect((store:any) => {
     return {
         page: store.pages.selected,
-        // widgets: store.widgets.list
     }
 })(ContentComponent);

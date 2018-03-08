@@ -6,6 +6,7 @@ export default (app:express.Application) => {
     app.use("/api/user", require("./api/user"));
     app.use("/api/books", require("./api/book"));
     app.use("/api/pages", require("./api/page"));
+    app.use("/api/widget", require("./api/widget"));
 
 
     app.use("/index", express.static(path.join(__dirname, "../client/index.html")));

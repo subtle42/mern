@@ -18,7 +18,7 @@ export class Widget extends React.Component<Props, State> {
     static defaultProps = {
         className: "layout",
         cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 },
-        rowHeight: 100
+        rowHeight: 30
     }
 
     componentDidMount() {
@@ -39,8 +39,8 @@ export class Widget extends React.Component<Props, State> {
             <div className="panel panel-primary">
                 <div className="panel-heading" style={{padding:2}}>
                     <Button className="pull-left" bsStyle="primary" bsSize="small" ><Glyphicon glyph="cog" /></Button>
-                    <RemoveWidgetButton _id="hello" />
-                    <div className="panel-title">imma header</div>
+                    <RemoveWidgetButton _id={this.props._id} />
+                    <div className="panel-title"> Widget {this.props._id}</div>
                 </div>
                 <div className="panel-body" style={{height:"100%"}}>so sexy</div>
             </div>
