@@ -20,7 +20,6 @@ interface myRequest extends Request {
  * @param next 
  */
 export function isAuthenticated(req:myRequest, res:Response, next:NextFunction):void {
-    console.log(req.body)
     let token = req.body.token || req.query.token || req.headers['authorization'];
     if (!token) {
         return res.status(403).send({

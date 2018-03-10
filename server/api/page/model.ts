@@ -1,6 +1,6 @@
 import {model, Schema} from "mongoose";
 import {IPageModel} from "../../dbModels";
-import PageSocket from "./socket";
+// import PageSocket from "./socket";
 
 var PageSchema = new Schema({
     bookId: {type: String, required:true},
@@ -29,5 +29,5 @@ var PageSchema = new Schema({
     layout: {type: Array, default: [], required: true}
 });
 
-const mySocket = new PageSocket(PageSchema);
+// const mySocket = new PageSocket(PageSchema);
 export default model<IPageModel>("Page", PageSchema);

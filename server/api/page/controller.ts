@@ -1,6 +1,9 @@
 import {Request, Response} from "express";
 import Page from "./model";
 import Util from "../utils";
+import {PageSocket} from "./socket";
+
+const pageSocket = new PageSocket();
 
 export default class PageController {
     public static create(req:Request, res:Response):void {
@@ -12,7 +15,11 @@ export default class PageController {
         myPage.validate()
         .then(() => Page.create(myPage))
         .then(Util.handleNoResult(res))
-        .then(Util.handleResponse(res))
+        .then(page => {
+            pageSocket.onAddOrChange(page);
+            return res.json(page._id);
+        })
+        // .then(Util.handleResponse(res))
         .catch(Util.handleError(res));
     }
 
@@ -23,8 +30,13 @@ export default class PageController {
 
         myPage.validate()
         .then(() => Page.findByIdAndUpdate(myId, req.body))
-        .then(Util.handleNoResult(res))
-        .then(Util.handleResponseNoData(res))
+        .then(() => {
+            console.log("updated")
+            pageSocket.onAddOrChange(myPage)
+            return res.json();
+        })
+        // .then(Util.handleNoResult(res))
+        // .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));
     }
 
@@ -35,12 +47,15 @@ export default class PageController {
         console.log(`myId: ${myId}`)
         Page.findById(myId)
         .then(page => {
-            var myPage = page;
+            myPage = page;
             return page
         })
         .then(page => page.remove())
         // Page.findByIdAndRemove(myId)
-        .then(() => res.json())
+        .then(() => {
+            pageSocket.onDelete(myPage);
+            return res.json();
+        })
         .catch(Util.handleError(res));
     }
 
