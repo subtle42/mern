@@ -8,9 +8,19 @@ export const factory = {
     addedOrChanged: (state:GenericStore, payload:any[]):GenericStore => {
         state = {...state};
         state.list = [...state.list];
-        payload.forEach(page => {
-            if (state.list.indexOf(page) === -1) {
-                state.list.push(page);
+        payload.forEach(item => {
+            let index = -1;
+            state.list.forEach((x, i) => {
+                if (x._id === item._id) {
+                    index = i;
+                } 
+            });
+
+            if (index === -1) {
+                state.list.push(item);
+            }
+            else {
+                state.list[index] = item;
             }
         })
         return state;

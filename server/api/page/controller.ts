@@ -25,8 +25,8 @@ export default class PageController {
 
     public static update(req:Request, res:Response):void {
         var myId:string = req.body._id;
-        delete req.body._id;
         var myPage = new Page(req.body);
+        delete req.body._id;
 
         myPage.validate()
         .then(() => Page.findByIdAndUpdate(myId, req.body))

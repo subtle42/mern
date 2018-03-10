@@ -18,7 +18,9 @@ class WidgetActions extends BaseActions{
         //     name:input
         // })
         // .then(res => res.data as string);
-        let myPage = store.getState().pages.selected;
+        let myPage = {...store.getState().pages.selected};
+        // Doing spreads do not modify the store
+        myPage.layout = [...myPage.layout];
         myPage.layout.push({
             _id: myPage.layout.length +1,
             x:0,

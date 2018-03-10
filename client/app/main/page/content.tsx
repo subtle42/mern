@@ -26,6 +26,7 @@ const ContentComponent:React.StatelessComponent<Props> = (props:Props) => {
 
 export const PageContent = connect((store:any) => {
     return {
-        page: store.pages.selected,
+        // Need to serve back the page from the list because it is the one that gets updated
+        page: store.pages.list.filter(x => x._id === store.pages.selected._id)[0],
     }
 })(ContentComponent);
