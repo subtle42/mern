@@ -20,19 +20,26 @@ const ContentComponent:React.StatelessComponent<Props> = (props:Props) => {
         { i: 'b', x: 1, y: 0, w: 3, h: 2, maxW: 5, maxH: 4 },
         { i: 'c', x: 4, y: 0, w: 1, h: 2, },
     ]
-    return (
-        <ReactGridLayout className="layout" width={1200} {...asdf} style={{position: 'fixed'}}>
-            {props.page.layout.map((asdf, index) => {
-                return <Widget key={asdf._id} _id={asdf._id}  />
-            })}
-        </ReactGridLayout>
-    )
+
+    const buildGrid = ():JSX.Element => {
+        if (!props.page) return <div />
+
+        return (
+            <ReactGridLayout className="layout" width={1200} {...asdf} style={{position: 'fixed'}}>
+                {props.page.layout.map((asdf, index) => {
+                    return <Widget key={asdf._id} _id={asdf._id}  />
+                })}
+            </ReactGridLayout>
+        );
+    }
+
+    return buildGrid();
 };
 
 
 export const PageContent = connect((store:any) => {
     return {
         // Need to serve back the page from the list because it is the one that gets updated
-        page: store.pages.list.filter(x => x._id === store.pages.selected._id)[0],
+        page: store.pages.selected ? store.pages.list.filter(x => x._id === store.pages.selected._id)[0] : undefined,
     }
 })(ContentComponent);

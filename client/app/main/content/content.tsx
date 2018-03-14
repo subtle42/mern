@@ -20,6 +20,7 @@ interface TestProps {
 
 const Content:React.StatelessComponent<TestProps> = (props:TestProps) => {
     const isSelected = (page:IPage):boolean => {
+        if (!props.selected) return false;
         return props.selected._id === page._id;
     }
 
