@@ -15,6 +15,11 @@ class PageActions extends BaseActions{
         // WidgetActions.joinRoom(page._id);
     }
 
+    mySelect(pageId:string) {
+        let myPage = this.store.getState().pages.list.filter(x => x._id === pageId)[0];
+        this.select(myPage);
+    }
+
     create(input:string):Promise<string> {
         return axios.post(`/api/pages`, {
             name: input,
