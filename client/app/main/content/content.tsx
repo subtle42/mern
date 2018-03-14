@@ -12,16 +12,29 @@ import {Widget} from "../widget/widget";
 import {PageContent} from "../page/content"
 
 
-
-interface TestProps {
+interface Props {
     pages:IPage[],
     selected:IPage
 }
 
-const Content:React.StatelessComponent<TestProps> = (props:TestProps) => {
+const Content:React.StatelessComponent<Props> = (props:Props) => {
     const isSelected = (page:IPage):boolean => {
         if (!props.selected) return false;
         return props.selected._id === page._id;
+    }
+
+    const buildTabs = ():JSX.Element[] => {
+        if (!props.pages) return [];
+
+        return props.pages.map((page, index) => {
+            return <NavItem
+                onClick={() => pageActions.select(page) }
+                active={isSelected(page)}
+                key={index}>
+                    {page.name}
+                <DeletePageButton pageName={page.name} _id={page._id} />
+            </NavItem>
+        });
     }
 
     return (
@@ -30,15 +43,7 @@ const Content:React.StatelessComponent<TestProps> = (props:TestProps) => {
         <SourceConfigButton className="pull-right" />
         <SourceCreateButton />
         <Nav activeKey="1" bsStyle="tabs">
-            {props.pages.map((page, index) => {
-                return <NavItem
-                    onClick={() => pageActions.select(page) }
-                    active={isSelected(page)}
-                    key={index}>
-                        {page.name}
-                    <DeletePageButton pageName={page.name} _id={page._id} />
-                </NavItem>
-            })}
+            {buildTabs()}
             <CreatePageButton />
         </Nav>
         <PageContent />
