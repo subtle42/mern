@@ -24,7 +24,10 @@ export class CreatePageButton extends React.Component<Props, State> {
     close = (event) => {
         event.stopPropagation();
         pageActions.create(this.state.pageName)
-        .then(() => this.setState(new State()));
+        .then(pageId => {
+            this.setState(new State())
+            return pageActions.mySelect(pageId)
+        });
     }
 
     open = () => {
