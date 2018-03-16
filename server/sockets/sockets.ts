@@ -55,7 +55,6 @@ export default abstract class BaseSocket {
     }
 
     protected _onAddOrChange(room:string, items:Document[]):void {
-        console.log(`room: ${room} - ${items}`)
         this.namespace.in(room).emit("addedOrChanged", items);
     }
 }
