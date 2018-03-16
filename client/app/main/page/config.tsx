@@ -192,14 +192,13 @@ export class PageConfigButton extends React.Component<Props, State> {
                 </Row>
                 <Row style={{paddingBottom:10}}>
                     <FormGroup>
-                    <Col xs={6} onClick={(event) => this.toggleCheckBox("isDraggable", event)}>
-                        <ControlLabel></ControlLabel>
-                        <Checkbox
-                            checked={this.state.page.isDraggable}
-                            onChange={this.handleCheckbox}
-                            name="isDraggable"
-                            ><b>Is Draggable {this.state.page.isDraggable.toString()}</b>
-                        </Checkbox>
+                    <Col xs={6}>
+                        <ControlLabel>Is Draggable</ControlLabel><br/>
+                        <Button bsStyle={this.state.page.isDraggable ? "success" : "danger"}
+                            onClick={(event) => this.toggleCheckBox("isDraggable", event)}
+                        >
+                            {this.state.page.isDraggable.toString().toLocaleUpperCase()}
+                        </Button>
                     </Col>
                     <Col xs={6}>
                         <ControlLabel>Is Resizable</ControlLabel><br/>
@@ -214,22 +213,20 @@ export class PageConfigButton extends React.Component<Props, State> {
                 <Row style={{paddingBottom:10}}>
                     <FormGroup>
                         <Col xs={6}>
-                            <ControlLabel></ControlLabel>
-                            <Checkbox
-                                checked={this.state.page.isRearrangeable}
-                                onChange={this.handleCheckbox}
-                                name="isRearrangeable"
-                                ><b>Is Rearrangeable</b>
-                            </Checkbox>
+                            <ControlLabel>Is Rearrangeable</ControlLabel><br/>
+                            <Button bsStyle={this.state.page.isRearrangeable ? "success" : "danger"}
+                                onClick={(event) => this.toggleCheckBox("isRearrangeable", event)}
+                            >
+                                {this.state.page.isRearrangeable.toString().toLocaleUpperCase()}
+                            </Button>
                         </Col>
                         <Col xs={6}>
-                            <ControlLabel></ControlLabel>
-                            <Checkbox
-                                checked={this.state.page.preventCollision}
-                                onChange={this.handleCheckbox}
-                                name="preventCollision"
-                                ><b>Prevent Collisions</b>
-                            </Checkbox>
+                            <ControlLabel>Prevent Collisions</ControlLabel><br/>
+                            <Button bsStyle={this.state.page.preventCollision ? "success" : "danger"}
+                                onClick={(event) => this.toggleCheckBox("preventCollision", event)}
+                            >
+                                {this.state.page.preventCollision.toString().toLocaleUpperCase()}
+                            </Button>
                         </Col>
                     </FormGroup>
                 </Row>
@@ -238,7 +235,7 @@ export class PageConfigButton extends React.Component<Props, State> {
                 <Button bsStyle="warning" onClick={this.cancel}>Cancel</Button>
                 <Button bsStyle="primary"
                     onClick={this.close}
-                >Done</Button>
+                >Save</Button>
             </Modal.Footer>
         </Modal>)
     }
