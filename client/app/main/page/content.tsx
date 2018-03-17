@@ -14,11 +14,7 @@ interface Props {
 const ContentComponent:React.StatelessComponent<Props> = (props:Props) => {
     const defaultLayoutConfig = {
         // draggableHandle: "panel-title"
-        onLayoutChange: (layout:ReactGridLayout.Layout[]) => {},
-        onDragStop: (layout: ReactGridLayout.Layout[]) => {
-            PageActions.update(extend({}, props.page, {layout}));
-        },
-        onResizeStop: (layout: ReactGridLayout.Layout[]) => {
+        onLayoutChange: (layout:ReactGridLayout.Layout[]) => {
             PageActions.update(extend({}, props.page, {layout}));
         }
     };
