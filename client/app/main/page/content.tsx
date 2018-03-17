@@ -4,6 +4,7 @@ import {connect} from "react-redux";
 import {IPage, IWidget} from "myModels";
 import {Widget} from "../widget/widget";
 import {extend} from "lodash";
+import PageActions from "../../../data/pages/actions";
 
 interface Props {
     page:IPage;
@@ -12,7 +13,11 @@ interface Props {
 const ContentComponent:React.StatelessComponent<Props> = (props:Props) => {
     const defaultLayoutConfig = {
         // draggableHandle: "panel-title"
-        onLayoutChange: (layout:ReactGridLayout.Layout[]) => {}
+        onLayoutChange: (layout:ReactGridLayout.Layout[]) => {},
+        onDragStop: (layout: ReactGridLayout.Layout[], oldItem, newItem,
+            placeholder, e: MouseEvent, element: HTMLElement) => {
+                PageActions.update(extend({}, props.page, {layout}));
+            }
     };
     const asdf = extend({}, defaultLayoutConfig, props.page)
 
@@ -31,8 +36,8 @@ const ContentComponent:React.StatelessComponent<Props> = (props:Props) => {
 
         return (
             <ReactGridLayout className="layout" width={1200} {...asdf} style={{position: 'fixed'}}>
-                {props.page.layout.map((asdf, index) => {
-                    return <div style={{backgroundColor:"red"}} key={asdf._id} >hello</div>
+                {props.page.layout.map((asdf) => {
+                    return <div style={{backgroundColor:"red"}} key={asdf.i} >hello</div>
                 })}
             </ReactGridLayout>
         );
