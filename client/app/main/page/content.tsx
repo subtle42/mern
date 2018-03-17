@@ -11,7 +11,8 @@ interface Props {
 
 const ContentComponent:React.StatelessComponent<Props> = (props:Props) => {
     const defaultLayoutConfig = {
-        draggableHandle: "panel-title"
+        // draggableHandle: "panel-title"
+        onLayoutChange: (layout:ReactGridLayout.Layout[]) => {}
     };
     const asdf = extend({}, defaultLayoutConfig, props.page)
 
@@ -21,13 +22,17 @@ const ContentComponent:React.StatelessComponent<Props> = (props:Props) => {
         { i: 'c', x: 4, y: 0, w: 1, h: 2, },
     ]
 
+    const onLayoutChange = (layout:ReactGridLayout.Layout[]) => {
+        asdf.onLayoutChange(layout);
+    }
+
     const buildGrid = ():JSX.Element => {
         if (!props.page) return <div />
 
         return (
             <ReactGridLayout className="layout" width={1200} {...asdf} style={{position: 'fixed'}}>
                 {props.page.layout.map((asdf, index) => {
-                    return <Widget key={asdf._id} _id={asdf._id}  />
+                    return <div style={{backgroundColor:"red"}} key={asdf._id} >hello</div>
                 })}
             </ReactGridLayout>
         );
