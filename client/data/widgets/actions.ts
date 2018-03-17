@@ -22,7 +22,7 @@ class WidgetActions extends BaseActions{
         // Doing spreads do not modify the store
         myPage.layout = [...myPage.layout];
         myPage.layout.push({
-            _id: myPage.layout.length +1,
+            i: (myPage.layout.length +1).toString(),
             x:0,
             y:0,
             w:1,
