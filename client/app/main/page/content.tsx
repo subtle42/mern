@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as ReactGridLayout from "react-grid-layout";
+import "react-grid-layout/css/styles.css";
 import {connect} from "react-redux";
 import {IPage, IWidget} from "myModels";
 import {Widget} from "../widget/widget";
@@ -13,31 +14,19 @@ interface Props {
 const ContentComponent:React.StatelessComponent<Props> = (props:Props) => {
     const defaultLayoutConfig = {
         // draggableHandle: "panel-title"
-        onLayoutChange: (layout:ReactGridLayout.Layout[]) => {},
-        onDragStop: (layout: ReactGridLayout.Layout[], oldItem, newItem,
-            placeholder, e: MouseEvent, element: HTMLElement) => {
-                PageActions.update(extend({}, props.page, {layout}));
-            }
+        onLayoutChange: (layout:ReactGridLayout.Layout[]) => {
+            PageActions.update(extend({}, props.page, {layout}));
+        }
     };
     const asdf = extend({}, defaultLayoutConfig, props.page)
-
-    var layout = [
-        { i: 'a', x: 0, y: 0, w: 1, h: 2, static: true },
-        { i: 'b', x: 1, y: 0, w: 3, h: 2, maxW: 5, maxH: 4 },
-        { i: 'c', x: 4, y: 0, w: 1, h: 2, },
-    ]
-
-    const onLayoutChange = (layout:ReactGridLayout.Layout[]) => {
-        asdf.onLayoutChange(layout);
-    }
 
     const buildGrid = ():JSX.Element => {
         if (!props.page) return <div />
 
         return (
             <ReactGridLayout className="layout" width={1200} {...asdf} style={{position: 'fixed'}}>
-                {props.page.layout.map((asdf) => {
-                    return <div style={{backgroundColor:"red"}} key={asdf.i} >hello</div>
+                {props.page.layout.map((layoutItem) => {
+                    return <div style={{backgroundColor:"red"}} key={layoutItem.i} >hello</div>
                 })}
             </ReactGridLayout>
         );
