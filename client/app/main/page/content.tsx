@@ -13,7 +13,7 @@ interface Props {
 
 const ContentComponent:React.StatelessComponent<Props> = (props:Props) => {
     const defaultLayoutConfig = {
-        // draggableHandle: "panel-title"
+        draggableHandle: ".panel-title",
         onLayoutChange: (layout:ReactGridLayout.Layout[]) => {
             PageActions.update(extend({}, props.page, {layout}));
         }
@@ -26,7 +26,9 @@ const ContentComponent:React.StatelessComponent<Props> = (props:Props) => {
         return (
             <ReactGridLayout className="layout" width={1200} {...asdf} style={{position: 'fixed'}}>
                 {props.page.layout.map((layoutItem) => {
-                    return <div style={{backgroundColor:"red"}} key={layoutItem.i} >hello</div>
+                    return <div key={layoutItem.i} >
+                        <Widget _id={layoutItem.i} />
+                    </div>
                 })}
             </ReactGridLayout>
         );

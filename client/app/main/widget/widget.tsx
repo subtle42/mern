@@ -36,13 +36,13 @@ export class Widget extends React.Component<Props, State> {
 
     render() {
         return (
-            <div className="panel panel-primary">
+            <div className="panel panel-primary" style={{height:"100%"}}>
                 <div className="panel-heading" style={{padding:2}}>
                     <Button className="pull-left" bsStyle="primary" bsSize="small" ><Glyphicon glyph="cog" /></Button>
                     <RemoveWidgetButton _id={this.props._id} />
                     <div className="panel-title"> Widget {this.props._id}</div>
                 </div>
-                <div className="panel-body" style={{height:"100%"}}>so sexy</div>
+                <div className="panel-body">so sexy</div>
             </div>
         )
     }
