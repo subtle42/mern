@@ -1,9 +1,7 @@
 import {Request, Response} from "express";
 import Page from "./model";
 import Util from "../utils";
-import {PageSocket} from "./socket";
-
-const pageSocket = new PageSocket();
+import {pageSocket} from "./socket";
 
 export default class PageController {
     public static create(req:Request, res:Response):void {
