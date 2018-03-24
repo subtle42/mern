@@ -1,4 +1,3 @@
-// import * as IO from "socket.io";
 import {Document} from "mongoose";
 
 declare var global:any;
