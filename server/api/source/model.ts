@@ -1,6 +1,5 @@
 import {Schema, model} from "mongoose";
 import {ISourceModel} from "../../dbModels";
-import UserSocket from "../../sockets/userSocket";
 
 var SourceSchema = new Schema({
     title: {type:String, required:true},
@@ -15,4 +14,3 @@ var SourceSchema = new Schema({
 });
 
 export const Source = model<ISourceModel>('Source', SourceSchema);
-export const SourceSocket = new UserSocket("source", SourceSchema, Source);

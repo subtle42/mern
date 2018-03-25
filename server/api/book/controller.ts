@@ -1,4 +1,5 @@
-import {Book, bookSocket} from "./model";
+import {Book} from "./model";
+import {BookSocket} from "./socket";
 import {Request, Response} from "express";
 import Util from "../utils";
 
@@ -12,7 +13,7 @@ export default class BookController {
         myBook.validate()
         .then(() => Book.create(myBook))
         .then(data => {
-            bookSocket.onAddOrChange(myBook);
+            BookSocket.onAddOrChange(myBook);
             return data;
         })
         .then(Util.handleNoResult(res))
@@ -28,24 +29,22 @@ export default class BookController {
         myBook.validate()
         .then(pass => Book.findById(myId))
         .then(oldBook => {
-            Book.findByIdAndUpdate(myId, myBook).exec()
-            .then(data => bookSocket.onAddOrChange(myBook, oldBook))
-            .then(Util.handleNoResult(res))
-            .then(Util.handleResponseNoData(res))
-            .catch(Util.handleError(res));
-        });
-        // myBook.validate()
-        // .then(pass => Book.findByIdAndUpdate(myId, myBook).exec())
-        // .then(Util.handleNoResult(res))
-        // .then(Util.handleResponseNoData(res))
-        // .catch(Util.handleError(res));
+            return Book.findByIdAndUpdate(myId, myBook).exec()
+            .then(data => BookSocket.onAddOrChange(myBook, oldBook))
+        })
+        .then(Util.handleResponseNoData(res))
+        .catch(Util.handleError(res));
     }
 
     public static remove(req:Request, res:Response):void {
         var myId:string = req.params.id;
 
-        Book.findByIdAndRemove(myId).exec()
-        .then(() => res.json())
+        Book.findById(myId).exec()
+        .then(book => {
+            return book.remove()
+            .then(() => BookSocket.onDelete(book))
+        })
+        .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));
     }
 

@@ -1,30 +1,26 @@
 import {Source} from "./model";
-import {MongoClient, Db, Server} from "mongodb";
+import {SourceSocket} from "./socket";
+import {MongoClient} from "mongodb";
 import {Request, Response} from "express";
 import {createReadStream, unlink} from "fs";
 import {ISourceColumn, ColumnType} from "myModels";
 import {ISourceModel} from "../../dbModels";
 import * as Promise from "bluebird";
 import Util from "../utils";
-var csv = require("fast-csv");
+const csv = require("fast-csv");
 
 
 class SourceController {
     private parseCSV(req:Request):Promise<string[][]> {
-        return new Promise((resolve:Function, reject:Function) => {
+        return new Promise(resolve => {
             var response = [];
-            console.log('starting');
             var stream = createReadStream(req.file.path);
             var csvStream = csv.parse({
                 ignoreEmpty:true,
                 trim:true
             })
             .on("data", (data:Array<string>) => response.push(data))
-            .on("end", () => {
-                console.log(`done: ${response.length}`)
-                console.log(`col count: ${response[0].length}`)
-                resolve(response)
-            });
+            .on("end", () => resolve(response));
     
             stream.pipe(csvStream);
         });
@@ -50,9 +46,7 @@ class SourceController {
         const dataSubSet:string[][] = data.slice(0, 100);
         const dataByCol:string[][] = [];
         dataSubSet[0].forEach((item, index) => dataByCol.push([]))
-        console.log(`data by col: ${dataByCol.length}`)
         dataSubSet[0].forEach((item, index) => dataByCol[index].push(item));
-
         
         dataByCol.forEach(column => calls.push(this.getSingleColumnType(column)));
         return Promise.all(calls)
@@ -92,10 +86,9 @@ class SourceController {
     private importData(rows:Array<any[]>, columnTypes:ColumnType[]):Promise<string> {
         var headers:Array<string> = [];
         var name = "mean_" + new Date().getTime();
-        // var myDb = new Db("mean-data", new Server("localhost", 27017));
+
         return MongoClient.connect(`mongodb://localhost:27017`)
         .then(client => {
-            console.log("have client")
             const db = client.db("mean-data");
             return db.createCollection(name)
             .then(collect => {
@@ -111,7 +104,6 @@ class SourceController {
                             item[index] = entry;
                         }
                     });
-                    // console.log(entry)
                     batch.insert(item)
                 });
                 return batch.execute()
@@ -160,13 +152,22 @@ class SourceController {
     update(req:Request, res:Response):void {
         const id = req.body._id;
         delete req.body._id;
-        Source.findByIdAndUpdate(id, req.body).exec()
-        .then(Util.handleResponse(res))
+
+        Source.findById(id).exec()
+        .then(source => {
+            return source.update(req.body).exec()
+            .then(updated => SourceSocket.onAddOrChange(updated))
+        })
+        .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));
     }
 
     remove(req:Request, res:Response):void {
-        Source.findByIdAndRemove(req.params.id).exec()
+        Source.findById(req.params.id).exec()
+        .then(source => {
+            return source.remove()
+            .then(() => SourceSocket.onDelete(source))
+        })
         .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));
     }
@@ -191,7 +192,7 @@ class SourceController {
         .then(collectionName => this.buildSourceObject(req, headers, columnTypes, collectionName, fileData.length))
         .then(mySource => Source.create(mySource))
         .then(newSource => {
-            console.log('source: ', newSource)
+            SourceSocket.onAddOrChange(newSource);
             unlink("./" + req.file.path, () => {
                 res.json(newSource)
             });
