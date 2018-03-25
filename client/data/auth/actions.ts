@@ -88,7 +88,9 @@ class AuthActions {
         })
         .then(() => this.setUser(undefined))
         .then(() => bookActions.disconnect())
-        .then(() => pageActions.disconnect());
+        .then(() => pageActions.disconnect())
+        .then(() => widgetActions.disconnect())
+        .then(() => sourceActions.disconnect());
     }
 
     private deleteAuthCookie() {
