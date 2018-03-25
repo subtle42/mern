@@ -1,8 +1,9 @@
 import * as React from "react";
-import {Button, Glyphicon, Modal, Tabs, Tab, Well, Row, Col} from "react-bootstrap";
+import {Button, Glyphicon, Modal, Tabs, Tab, Well, Row, Col, ListGroup, ListGroupItem} from "react-bootstrap";
 import Dropzone, {ImageFile} from "react-dropzone";
 import SourceActions from "../../../data/sources/actions";
 import widgetActions from "../../../data/widgets/actions";
+import store from "../../../data/store";
 import "./style.css";
 
 
@@ -13,9 +14,6 @@ class State {
 interface Props {
     className?:string;
 }
-
-
-type myStyle = "success" | "warning" | "error";
 
 export class SourceCreateButton extends React.Component<Props, State> {
     state:State = new State();
@@ -42,23 +40,23 @@ export class SourceCreateButton extends React.Component<Props, State> {
         const reader = new FileReader();
         reader.onloadend = (event) => {
             SourceActions.create(acceptedFiles[0])
-            .then(sourceId => {});
+            .then(sourceId => alert("done"));
         };
         reader.readAsArrayBuffer(acceptedFiles[0]);
     }
 
     getModal():JSX.Element {
-        return (
-            <Modal bsSize="large" show={this.state.showModal} onHide={this.cancel}>
+        const sources = store.getState().sources.list;
+
+        return (<Modal bsSize="large" show={this.state.showModal} onHide={this.cancel}>
             <Modal.Header>Add Content</Modal.Header>
             <Modal.Body>
-                <Tabs defaultActiveKey={2} id="create-source-tabs">
+                <Tabs justified={true} defaultActiveKey={ sources.length === 0 ? 1 : 2 } id="create-source-tabs">
                     <Tab eventKey={1} title="Add Source">
                         {this.getAddSourcePage()}
                     </Tab>
-                    <Tab eventKey={2} title="Add Chart"></Tab>
-                    <Tab eventKey={3} title="Add Widget">
-                    <Button onClick={() => widgetActions.create()} >New Widget</Button>
+                    <Tab eventKey={2} title="Add Chart">
+                        {this.getSelectSourcePage()}
                     </Tab>
                 </Tabs>
             </Modal.Body>
@@ -68,27 +66,38 @@ export class SourceCreateButton extends React.Component<Props, State> {
                     onClick={this.close}
                 >Create</Button>
             </Modal.Footer>
-        </Modal>
-        );
+        </Modal>);
+    }
+
+    getSelectSourcePage():JSX.Element {
+        return (<Row>
+            <Col xs={6}>
+                <ListGroup>
+                    <ListGroupItem href="#">Item 1</ListGroupItem>
+                    <ListGroupItem href="#">Item 2</ListGroupItem>
+                </ListGroup>
+            </Col>
+            <Col xs={6}>
+                <Well></Well>
+            </Col>
+        </Row>);
     }
 
     getAddSourcePage():JSX.Element {
-        return (
-            <Row>
-                <Col xs={8} xsOffset={2} >
-                <Dropzone style={{width:"100%", height:"100%"}} accept="csv" onDrop={this.onFileDrop}>
-                    <Well style={{marginTop:"33px"}}>
-                            
-                            <h3 style={{display: 'flex', justifyContent: 'center'}}>
-                                Drag and Drop a file.
-                            </h3>
-                            <Glyphicon glyph="file" style={{fontSize:90, justifyContent: 'center', display: 'flex'}} />
-                            <br/><Button>Select File</Button>
-                    </Well>
-                    </Dropzone>
-                </Col>
-            </Row>
-        );
+        return (<Row>
+            <Col xs={8} xsOffset={2} >
+            <Dropzone style={{width:"100%", height:250}} accept="" onDrop={this.onFileDrop}>
+                <Well style={{marginTop:"33px"}}>
+                    <h3 style={{display: 'flex', justifyContent: 'center'}}>
+                        Drag and Drop a file.
+                    </h3>
+                    <Glyphicon glyph="file" style={{fontSize:90, justifyContent: 'center', display: 'flex'}} />
+                    <br/>
+                    <Button>Select File</Button>
+                </Well>
+            </Dropzone>
+            </Col>
+        </Row>);
     }
 
     render() {
