@@ -24,6 +24,33 @@ npm start
 * Express then sends and empty response or the _id of a created document as a REST response back to the client.
 * Client can then execute logic on the response.
 
-## Tour
-### Client
-The frontend is built using React, Redux, and Bootstrap. The app folder contains all the React templates while the data folder contains all of Redux. To maintain organization all data logic is 
+## Client
+The frontend is built using React, Redux, and Bootstrap. The app folder contains all the React templates while the data folder contains all of Redux. To maintain organization all data logic is handled via Action classes.
+
+## Client/Data
+Modules in data have three files:
+* Actions
+    * A wrapper of dispatches to Redux, REST calls, and connections to the SocketIO Client
+    * Publicly available actions can be used by React or other actions
+* Model
+    * The data structure to be put into Redux
+* Reducer
+    * The handler of reducers for the module
+
+Note: All reducers are combined and need to have logic to check their own unique namespace.
+
+### Client/Store.ts
+This file adds the reducers to Redux and aggregates the models into the store.
+
+## Server
+The server is built using Node.js, Express, and Mongoose. The API folder contains everything to handle REST calls. Auth is module to handle authentication using Passport. Sockets is a module with base classes for SocketIO. DbModels is a list of all the model interfaces for MongoDB.
+
+## Server/Routes.ts
+Sets top level routing for the application. 
+
+## Server/Api
+Modules have 4 files:
+* Model
+    * MongoDB schema used to validate data before CRUD operaitons
+* Index
+    * The 

@@ -11,7 +11,7 @@ class PageActions extends BaseActions{
 
     select(page:IPage) {
         return this._select(page)
-        .then(() => {});
+        .then(() => WidgetActions.joinRoom(page._id));
         // WidgetActions.joinRoom(page._id);
     }
 

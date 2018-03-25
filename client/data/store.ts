@@ -10,13 +10,13 @@ import sources from "./sources/reducer";
 import booksModel from "./books/model";
 import pagesModel from "./pages/model";
 import sourcesModel from "./sources/model";
-// import widget from "./widgets/model";
+import widgetsModel from "./widgets/model";
 import authModel from "./auth/model";
 
 interface myStore {
     books:booksModel,
     pages:pagesModel,
-    // widget,
+    widget:widgetsModel,
     auth:authModel,
     sources:sourcesModel
 }
@@ -24,7 +24,7 @@ interface myStore {
 const reducers = combineReducers({
     books,
     pages,
-    // widgets,
+    widgets,
     auth,
     sources
 });

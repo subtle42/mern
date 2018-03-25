@@ -14,29 +14,30 @@ class WidgetActions extends BaseActions{
     }
 
     create():Promise<void> {
-        // return axios.post(`/widget`, {
-        //     name:input
-        // })
-        // .then(res => res.data as string);
-        let myPage = {...store.getState().pages.selected};
+        const myPage = store.getState().pages.selected;
+        
+        return axios.post(`/api/widgets`, {
+            pageId: myPage._id
+        })
+        .then(res => undefined);
         // Doing spreads do not modify the store
-        myPage.layout = [...myPage.layout];
-        myPage.layout.push({
-            i: (myPage.layout.length +1).toString(),
-            x:0,
-            y:0,
-            w:1,
-            h:1
-        });
+        // myPage.layout = [...myPage.layout];
+        // myPage.layout.push({
+        //     i: (myPage.layout.length +1).toString(),
+        //     x:0,
+        //     y:0,
+        //     w:1,
+        //     h:1
+        // });
 
-        return pageActions.update(myPage);
+        // return pageActions.update(myPage);
     }
-    delete(page:string):Promise<void> {
-        return axios.delete(`/widget/${page}`)
+    delete(id:string):Promise<void> {
+        return axios.delete(`/api/widgets/${id}`)
         .then(res => res.data as undefined);
     }
     update(page:string):Promise<void> {
-        return axios.put(`/widget`, page)
+        return axios.put(`/api/widgets`, page)
         .then(res => res.data as undefined);
     }
 }

@@ -3,7 +3,7 @@ import Page from "./model";
 import {Schema, Document} from "mongoose";
 import BaseSocket from "../../sockets/sockets";
 
-export class PageSocket extends BaseSocket {
+class PageSocket extends BaseSocket {
     constructor() {
         super("pages");
     }
@@ -26,3 +26,5 @@ export class PageSocket extends BaseSocket {
         this._onDelete(this.getParentId(model), [model._id]);
     }
 };
+
+export const pageSocket = new PageSocket();

@@ -58,6 +58,7 @@ class AuthActions {
         .then(() => this.me())
         .then(() => bookActions.connect(token))
         .then(() => pageActions.connect(token))
+        .then(() => widgetActions.connect(token))
         .then(() => bookActions.joinRoom(this.store.getState().auth.me._id))
         .then(() => {
             if (store.getState().books.list.length === 0) return;

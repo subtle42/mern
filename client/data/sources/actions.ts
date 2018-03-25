@@ -8,22 +8,28 @@ class SourceActions extends BaseActions{
         super(store, "sources");
     }
 
-    select() {
-        console.warn("This does nothing");
-        return null;
+    select(source:ISource) {
+        return this._select(source);
     }
 
     create(file:File):Promise<string> {
-        return axios.post(`/source`, file)
+        var data = new FormData();
+        data.append("file", file);
+
+        return axios.post(`/api/sources`, data, {
+            // headers: {
+            //     'Content-Type': 'multipart/form-data'
+            // }
+        })
         .then(res => res.data);
     }
     delete(sourceId:string):Promise<void> {
-        return axios.delete(`/source/${sourceId}`)
+        return axios.delete(`/api/sources/${sourceId}`)
         .then(res => res.data as undefined);
     }
     
-    update(page:ISource):Promise<void> {
-        return axios.put(`/source`, page)
+    update(source:ISource):Promise<void> {
+        return axios.put(`/api/sources`, source)
         .then(res => res.data as undefined);
     }
 }

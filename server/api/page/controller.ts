@@ -1,9 +1,7 @@
 import {Request, Response} from "express";
 import Page from "./model";
 import Util from "../utils";
-import {PageSocket} from "./socket";
-
-const pageSocket = new PageSocket();
+import {pageSocket} from "./socket";
 
 export default class PageController {
     public static create(req:Request, res:Response):void {
@@ -19,7 +17,6 @@ export default class PageController {
             pageSocket.onAddOrChange(page);
             return res.json(page._id);
         })
-        // .then(Util.handleResponse(res))
         .catch(Util.handleError(res));
     }
 
@@ -30,13 +27,8 @@ export default class PageController {
 
         myPage.validate()
         .then(() => Page.findByIdAndUpdate(myId, req.body))
-        .then(() => {
-            console.log("updated")
-            pageSocket.onAddOrChange(myPage)
-            return res.json();
-        })
-        // .then(Util.handleNoResult(res))
-        // .then(Util.handleResponseNoData(res))
+        .then(() => pageSocket.onAddOrChange(myPage))
+        .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));
     }
 

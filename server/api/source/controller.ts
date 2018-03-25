@@ -8,24 +8,29 @@ import * as Promise from "bluebird";
 import Util from "../utils";
 var csv = require("fast-csv");
 
-export default class SourceController {
-    private static parseCSV(req:Request):Promise<string[][]> {
+
+class SourceController {
+    private parseCSV(req:Request):Promise<string[][]> {
         return new Promise((resolve:Function, reject:Function) => {
             var response = [];
-
+            console.log('starting');
             var stream = createReadStream(req.file.path);
             var csvStream = csv.parse({
                 ignoreEmpty:true,
                 trim:true
             })
             .on("data", (data:Array<string>) => response.push(data))
-            .on("end", () => resolve(response));
-
+            .on("end", () => {
+                console.log(`done: ${response.length}`)
+                console.log(`col count: ${response[0].length}`)
+                resolve(response)
+            });
+    
             stream.pipe(csvStream);
         });
     }
 
-    private static rowsToColumns(rows:Array<string[]>):Promise<string[][]> {
+    private rowsToColumns(rows:Array<string[]>):Promise<string[][]> {
         return new Promise((resolve:Function) => {
             var response:Array<Array<string>> = [];
 
@@ -40,16 +45,20 @@ export default class SourceController {
         });
     }
 
-    private static getColumnTypes(data:Array<Array<string>>):Promise<ColumnType[]> {
-        return new Promise((resolve:Function) => {
-            var calls:Array<Promise<string>> = [];
-            data.forEach(column => calls.push(this.getSingleColumnType(column)));
-            Promise.all(calls)
-            .then(columnTypes => resolve(columnTypes));
-        });
+    private getColumnTypes(data:Array<Array<string>>):Promise<ColumnType[]> {
+        var calls:Array<Promise<string>> = [];
+        const dataSubSet:string[][] = data.slice(0, 100);
+        const dataByCol:string[][] = [];
+        dataSubSet[0].forEach((item, index) => dataByCol.push([]))
+        console.log(`data by col: ${dataByCol.length}`)
+        dataSubSet[0].forEach((item, index) => dataByCol[index].push(item));
+
+        
+        dataByCol.forEach(column => calls.push(this.getSingleColumnType(column)));
+        return Promise.all(calls)
     }
 
-    private static getSingleColumnType(data:any[]):Promise<ColumnType> {
+    private getSingleColumnType(data:any[]):Promise<ColumnType> {
         return new Promise((resolve:Function) => {
             var number = 0;
             var group = 0;
@@ -80,42 +89,48 @@ export default class SourceController {
         });
     }
 
-    private static importData(rows:Array<any[]>, columnTypes:ColumnType[]):Promise<string> {
+    private importData(rows:Array<any[]>, columnTypes:ColumnType[]):Promise<string> {
         var headers:Array<string> = [];
         var name = "mean_" + new Date().getTime();
-        var myDb = new Db("mean-data", new Server("localhost", 27017));
-        return myDb.open()
-        .then(db => {
-            var myCollection = db.collection(name);
-            var batch = myCollection.initializeUnorderedBulkOp();
-
-            rows.forEach(row => {
-                row.forEach((entry, index) => {
-                    row[index] = entry.replace("$", "");
-                    if (columnTypes[index] === "number") {
-                        row[index] = parseInt(entry);
-                    }
+        // var myDb = new Db("mean-data", new Server("localhost", 27017));
+        return MongoClient.connect(`mongodb://localhost:27017`)
+        .then(client => {
+            console.log("have client")
+            const db = client.db("mean-data");
+            return db.createCollection(name)
+            .then(collect => {
+                const batch = collect.initializeUnorderedBulkOp();
+                rows.forEach(row => {
+                    let item = {};
+                    row.forEach((entry, index) => {
+                        if (columnTypes[index] === "number") {
+                            row[index] = entry.replace("$", "");
+                            item[index] = parseInt(entry);
+                        }
+                        else {
+                            item[index] = entry;
+                        }
+                    });
+                    // console.log(entry)
+                    batch.insert(item)
                 });
-                batch.insert(row)
-            });
-
-            return batch.execute()
-        })
-        .then(bulkResult => {
-            myDb.close();
-            if (bulkResult.nInserted !== rows.length) {
-                throw `Only ${bulkResult.nInserted} out of ${rows.length} in collection ${name}`;
-            }
-            return name;
-        })
-        .catch(err => {
-            try {myDb.close();}
-            catch(myerr) {}
-            throw err;
+                return batch.execute()
+            })
+            .then(bulkResult => {
+                client.close();
+                if (bulkResult.nInserted !== rows.length) {
+                    throw `Only ${bulkResult.nInserted} out of ${rows.length} in collection ${name}`;
+                }
+                return name;
+            })
+            .catch(err => {
+                client.close();
+                throw err;
+            })
         }) as Promise<string>;
     }
 
-    private static buildSourceObject(req:Request, headers:string[], columnTypes:ColumnType[], location:string, rowCount:number):Promise<ISourceModel> {
+    private buildSourceObject(req:Request, headers:string[], columnTypes:ColumnType[], location:string, rowCount:number):Promise<ISourceModel> {
         return new Promise((resolve, reject) => {
             var myColumns:ISourceColumn[] = [];
 
@@ -142,7 +157,7 @@ export default class SourceController {
         });
     }
 
-    public static update(req:Request, res:Response):void {
+    update(req:Request, res:Response):void {
         const id = req.body._id;
         delete req.body._id;
         Source.findByIdAndUpdate(id, req.body).exec()
@@ -150,13 +165,13 @@ export default class SourceController {
         .catch(Util.handleError(res));
     }
 
-    public static remove(req:Request, res:Response):void {
+    remove(req:Request, res:Response):void {
         Source.findByIdAndRemove(req.params.id).exec()
         .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));
     }
 
-    public static create(req:Request, res:Response):void {
+    create(req:Request, res:Response):void {
         var fileData:string[][] = [];
         var headers:string[] = [];
         var columnTypes:ColumnType[] = [];
@@ -168,7 +183,6 @@ export default class SourceController {
             fileData.splice(0, 1);
             return data;
         })
-        .then(data => this.rowsToColumns(data))
         .then(data => this.getColumnTypes(data))
         .then(colTypes => {
             columnTypes = colTypes;
@@ -177,14 +191,18 @@ export default class SourceController {
         .then(collectionName => this.buildSourceObject(req, headers, columnTypes, collectionName, fileData.length))
         .then(mySource => Source.create(mySource))
         .then(newSource => {
+            console.log('source: ', newSource)
             unlink("./" + req.file.path, () => {
                 res.json(newSource)
             });
         })
         .catch(err => {
             unlink("./" + req.file.path, () => {
+                console.error(err)
                 res.status(500).json(err)
             });
         });
     }
 }
+
+export const controller = new SourceController();

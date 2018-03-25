@@ -1,13 +1,11 @@
 import {Schema, model} from "mongoose";
-import {IPageModel} from "../../dbModels";
-// import PageSocket from "./socket";
+import {IWidgetModel} from "../../dbModels";
 
 var WidgetSchema = new Schema({
     pageId: {type: String, required:true},
     sourceId: {type:String, required:true},
-    groups: [],
-    series: []
+    groups: {type:Array, required:true, default: []},
+    series: {type:Array, required:true, default: []}
 });
 
-// const mySocket = new PageSocket(PageSchema);
-export default model<IPageModel>("Widget", WidgetSchema);
+export const Widget =  model<IWidgetModel>("Widget", WidgetSchema);
