@@ -8,7 +8,7 @@ var PageSchema = new Schema({
     isDraggable: {type: Boolean, required: true, default: true},
     isResizable: {type: Boolean, required: true, default: true},
     isRearrangeable: {type: Boolean, required: true, default: true},
-    preventCollision: {type: Boolean, required: true, default: true},
+    preventCollision: {type: Boolean, required: true, default: false},
     margin: {
         type: [{type: Number}],
         validate: [(val:number[]) => {
