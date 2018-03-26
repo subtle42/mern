@@ -34,7 +34,7 @@ export interface IWidget {
 
 export interface ISource extends IShared{
     _id:any;
-    name: string;
+    title: string;
     location: string;
     size: number;
     rowCount: number;

@@ -4,11 +4,14 @@ import Dropzone, {ImageFile} from "react-dropzone";
 import SourceActions from "../../../data/sources/actions";
 import widgetActions from "../../../data/widgets/actions";
 import store from "../../../data/store";
+import {ISource} from 'myModels';
 import "./style.css";
 
 
 class State {
     showModal:boolean = false;
+    sources:ISource[] = [];
+    selected:ISource;
 }
 
 interface Props {
@@ -24,7 +27,10 @@ export class SourceCreateButton extends React.Component<Props, State> {
     }
 
     open = () => {
-        this.setState({showModal:true});
+        this.setState({
+            showModal:true,
+            sources: store.getState().sources.list
+        });
     }
 
     cancel = (event) => {
@@ -49,19 +55,27 @@ export class SourceCreateButton extends React.Component<Props, State> {
         const sources = store.getState().sources.list;
 
         return (<Modal bsSize="large" show={this.state.showModal} onHide={this.cancel}>
-            <Modal.Header>Add Content</Modal.Header>
+            <Modal.Header>Sources 
+                    <Dropzone style={{height: 24, width: 24}} onDrop={this.onFileDrop}>
+                <Button>
+                        <Glyphicon glyph="plus" style={{fontSize:12, justifyContent: 'center', display: 'flex'}}/>
+                </Button>
+                    </Dropzone>
+            </Modal.Header>
             <Modal.Body>
-                <Tabs justified={true} defaultActiveKey={ sources.length === 0 ? 1 : 2 } id="create-source-tabs">
-                    <Tab eventKey={1} title="Add Source">
-                        {this.getAddSourcePage()}
-                    </Tab>
-                    <Tab eventKey={2} title="Add Chart">
-                        {this.getSelectSourcePage()}
-                    </Tab>
-                    <Tab eventKey={3} title="Add Widget">
-                        <button onClick={() => widgetActions.create()}>asdf</button>
-                    </Tab>
-                </Tabs>
+                <Row>
+                    <Col xs={6}> <ListGroup>
+                        {this.state.sources.map((source) => <ListGroupItem 
+                            className={source == this.state.selected ? 'active' : '' } 
+                            href="#" 
+                            key={source._id} 
+                            onClick={(e) => this.setSource(e, source)}> {source.title}
+                            </ListGroupItem>)}
+                        </ListGroup></Col>
+                    <Col xs={6}> 
+                        {this.sourceDetails()}
+                    </Col>
+                </Row>
             </Modal.Body>
             <Modal.Footer>
                 <Button bsStyle="warning" onClick={this.cancel}>Cancel</Button>
@@ -70,6 +84,10 @@ export class SourceCreateButton extends React.Component<Props, State> {
                 >Create</Button>
             </Modal.Footer>
         </Modal>);
+    }
+
+    setSource(event, source){
+        this.setState({selected: source});
     }
 
     getSelectSourcePage():JSX.Element {
@@ -81,9 +99,29 @@ export class SourceCreateButton extends React.Component<Props, State> {
                 </ListGroup>
             </Col>
             <Col xs={6}>
-                <Well></Well>
+                
             </Col>
         </Row>);
+    }
+
+    sourceDetails():JSX.Element{
+        if(!this.state.selected ) {
+            return <div></div>
+        } 
+
+        return (
+            <Well>
+            title: {this.state.selected.title} <br/>
+            rowCound: {this.state.selected.rowCount} <br/>
+            owner: {this.state.selected.owner} <br/>
+            size: {this.state.selected.size} <br/>
+        </Well>
+        )
+
+    }
+
+    createWidget(){
+        widgetActions.create()
     }
 
     getAddSourcePage():JSX.Element {
