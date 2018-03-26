@@ -1,12 +1,10 @@
 import "mocha";
-import {assert} from "chai";
+import {expect} from "chai";
 import {spy, SinonSpy, stub, SinonStub} from "sinon";
 import * as passport from 'passport';
 import * as tokenService from "../auth.service";
 import auth from "./passport";
 import config from "../../config/environment";
-
-
 
 describe("Local Auth", () => {
     let authenticate:SinonStub,
@@ -34,7 +32,7 @@ describe("Local Auth", () => {
     describe("Authenticate", () => {
         it("should set the first arg to 'local'", done => {
             authenticate.callsFake((type, cb) => {
-                assert(type === "local");
+                expect(type).to.equal("local");
                 done();
             })
 
@@ -48,7 +46,7 @@ describe("Local Auth", () => {
                 done();
             });
             auth.authenticate(null, res, next);
-            assert(res.status.calledWith(401));
+            expect(res.status.calledWith(401)).equals(true);
         });
 
         it("should send back a 404 if there is no error but no data", done => {
@@ -57,7 +55,7 @@ describe("Local Auth", () => {
                 done();
             });
             auth.authenticate(null, res, next);
-            assert(res.status.calledWith(404));
+            expect(res.status.calledWith(404)).equals(true);
         });
 
         it("should call signToken with user._id and and user.role", done => {
@@ -67,7 +65,8 @@ describe("Local Auth", () => {
             };
             authenticate.callsFake((type, cb) => {
                 cb(undefined, user);
-                assert(mySignToken.calledWith(user._id, user.role))
+
+                expect(mySignToken.calledWith(user._id, user.role)).equals(true)
                 done();
             });
             auth.authenticate(null, res, next);
@@ -81,7 +80,7 @@ describe("Local Auth", () => {
             };
             authenticate.callsFake((type, cb) => {
                 cb(undefined, user);
-                assert(res.json.callCount === 1);
+                expect(res.json.callCount).equals(1);
                 done();
             });
 

@@ -1,5 +1,5 @@
 import "mocha";
-import {assert} from "chai";
+import {expect} from "chai";
 import {spy, SinonSpy, stub, SinonStub} from "sinon";
 import * as jwt from "jsonwebtoken";
 import auth from "./auth";
@@ -36,21 +36,22 @@ describe("Socket Auth", () => {
 
         it("should not call next if socket.handshake.query.token does not exist", () => {
             auth(socketServer);
-            assert(myNext.callCount === 0);
+            expect(myNext.callCount).equals(0);
         });
 
         it("should call jwt.verify if socket.handshake.query.token exists", () => {
             mySocket.handshake.query.token = "test";
             auth(socketServer);
-            assert(myJwt.callCount === 1);
+            expect(myJwt.callCount).equals(1);
         });
 
-        it("should call jwt.verify with socket.handshake.query.token and the secret key", () => {
+        it("should call jwt.verify with socket.handshake.query.token and the secret key", done => {
             mySocket.handshake.query.token = test;
 
             myJwt.callsFake((secret, token, cb) => {
-                assert(secret === test);
-                assert(token === config.shared.secret);
+                expect(secret).equals(test);
+                expect(token).equals(config.shared.secret);
+                done();
             })
             auth(socketServer);
         });
@@ -61,10 +62,10 @@ describe("Socket Auth", () => {
             myJwt.callsFake((secret, token, cb) => {
                 cb(error, null);
             });
-            assert(mySocket.emit.callCount === 0);
+            expect(mySocket.emit.callCount).equals(0);
             auth(socketServer);
-            assert(mySocket.emit.callCount === 1);
-            assert(mySocket.emit.calledWith("error", error));
+            expect(mySocket.emit.callCount).equals(1);
+            expect(mySocket.emit.calledWith("error", error)).equals(true);
         });
 
         it("should not call nextFn if jwt.verify fails", () => {
@@ -73,7 +74,7 @@ describe("Socket Auth", () => {
                 cb("error", null);
             });
             auth(socketServer);
-            assert(myNext.callCount === 0);
+            expect(myNext.callCount).equals(0);
         });
 
         it("should call nextFn if jwt.verify has no error", () => {
@@ -82,7 +83,7 @@ describe("Socket Auth", () => {
                 cb(undefined, "");
             });
             auth(socketServer);
-            assert(myNext.callCount === 1);
+            expect(myNext.callCount).equals(1);
         })
     });
 });
