@@ -58,6 +58,9 @@ export class SourceCreateButton extends React.Component<Props, State> {
                     <Tab eventKey={2} title="Add Chart">
                         {this.getSelectSourcePage()}
                     </Tab>
+                    <Tab eventKey={3} title="Add Widget">
+                        <button onClick={() => widgetActions.create()}>asdf</button>
+                    </Tab>
                 </Tabs>
             </Modal.Body>
             <Modal.Footer>
