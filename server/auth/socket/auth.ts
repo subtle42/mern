@@ -7,7 +7,6 @@ export default (socketServer:SocketIO.Server) => {
         if (socket.handshake.query && socket.handshake.query.token) {
             jwt.verify(socket.handshake.query.token, config.shared.secret, (err, decoded) => {
                 if (err) return socket.emit("error", err);
-                console.log("socket login successful");
                 next();
             });
         }

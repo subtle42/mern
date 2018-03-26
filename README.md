@@ -27,6 +27,9 @@ npm start
 ## Client
 The frontend is built using React, Redux, and Bootstrap. The app folder contains all the React templates while the data folder contains all of Redux. To maintain organization all data logic is handled via Action classes.
 
+## Client/App
+This is holds all the application specific templates. Most of the React templates are dumb, only handling rendering. Any React template directly connected to Redux must be stateless. There should be as little logic in templates as possible. 
+
 ## Client/Data
 Modules in data have three files:
 * Actions
@@ -51,6 +54,30 @@ Sets top level routing for the application.
 ## Server/Api
 Modules have 4 files:
 * Model
-    * MongoDB schema used to validate data before CRUD operaitons
+    * Mongoose schema used to validate data before MongoDB CRUD operaitons.
 * Index
-    * The 
+    * The express sub routes that call middleware to do authentication and controller logic.
+* Controller
+    * CRUD logic is here using the exports from Model and Socket.
+* Socket
+    * Implementation of generic socket or socket with ACL to be used to keep data updated in real time.
+
+## Testing (Mocha, Chai, Sinon)
+Unit and integration testing is handled with Mocha and Chai. Sinon is being used as a mocking library. There are three major way to mock imports:
+* Spy
+    * Best used to see if function was called and what arguments were passed.
+* Stub
+    * Like a spy but replaces the target function.
+    * Used to replace problematic pieces of code.
+* Mock
+    * Has both aspects of spies and stubs but can be overly specific.
+    * Used when a funtion needs to verify multiple specific behaviors.
+
+To test must have already have the server running:
+```
+npm start
+```
+To start testing use another command prompt:
+```
+npm test
+```
