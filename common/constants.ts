@@ -12,3 +12,7 @@ export const CHANNELS = {
     ADDORCHANGE: "addedOrChanged",
     REMOVE: "removed"
 }
+
+export type ChartType = "histogram" | "pie";
+
+export type ColumnType = "number" | "group" | "text" | "datetime";

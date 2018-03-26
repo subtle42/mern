@@ -1,4 +1,5 @@
 import {Layout} from "react-grid-layout"
+import {ColumnType} from "./constants";
 
 export interface IUser {
     _id:any;
@@ -48,7 +49,6 @@ export interface IShared {
     isPublic: boolean;
 }
 
-export type ColumnType = "number" | "group" | "text" | "datetime";
 
 export interface ISourceColumn {
     name: string;
