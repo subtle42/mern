@@ -5,7 +5,6 @@ import Page from "../page/model";
 import {pageSocket} from "../page/socket"
 import {widgetSocket} from "./socket"
 import {Layout} from "react-grid-layout"
-import {extend} from "lodash"
 
 const widgetLayout:Layout = {
     x: 1, y: 1, w: 1, h: 1
@@ -23,7 +22,7 @@ export default class WidgetController {
         .then(widget => {
             return Page.findById(widget.pageId)
             .then(page => {
-                page.layout.push(extend({}, widgetLayout, {i:widget._id}));
+                page.layout.push(Object.assign({}, widgetLayout, {i:widget._id}));
                 return page.update(page).exec()
                 .then(() => widgetSocket.onAddOrChange(widget))
                 .then(() => pageSocket.onAddOrChange(page));

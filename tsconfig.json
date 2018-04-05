@@ -5,6 +5,7 @@
         "noImplicitAny": false,
         "removeComments": true,
         "preserveConstEnums": true,
+        "lib": ["es6", "dom"],
         "sourceMap": true,
         "jsx": "react",
         "target": "es5",

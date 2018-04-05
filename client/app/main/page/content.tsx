@@ -4,7 +4,6 @@ import "react-grid-layout/css/styles.css";
 import {connect} from "react-redux";
 import {IPage, IWidget} from "myModels";
 import {Widget} from "../widget/widget";
-import {extend} from "lodash";
 import PageActions from "../../../data/pages/actions";
 
 interface Props {
@@ -15,10 +14,10 @@ const ContentComponent:React.StatelessComponent<Props> = (props:Props) => {
     const defaultLayoutConfig = {
         draggableHandle: ".panel-title",
         onLayoutChange: (layout:ReactGridLayout.Layout[]) => {
-            PageActions.update(extend({}, props.page, {layout}));
+            PageActions.update(Object.assign({}, props.page, {layout}));
         }
     };
-    const asdf = extend({}, defaultLayoutConfig, props.page)
+    const asdf = Object.assign({}, defaultLayoutConfig, props.page)
 
     const buildGrid = ():JSX.Element => {
         if (!props.page) return <div />

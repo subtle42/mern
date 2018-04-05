@@ -1,4 +1,4 @@
-const webpack = require('webpack');
+// const webpack = require('webpack');
 const path = require('path');
 const LiveReloadPlugin = require('webpack-livereload-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
@@ -6,22 +6,21 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const BUILD_DIR = path.resolve(__dirname, 'client/.dist');
 const APP_DIR = path.resolve(__dirname, 'client/app');
 
-const config = {
+
+module.exports = {
   watch:true,
-  entry: {
-    app: APP_DIR + '/index.tsx'
-  },
+  mode: "development",
+  entry: APP_DIR + '/index.tsx',
   output: {
     path: BUILD_DIR,
     filename: 'bundle.js'
   },
-  devtool: "source-map",
   resolve: {
-    extensions: ['.tsx', '.ts', '.js', '.jsx', '.css']
+    extensions: ['.tsx', '.ts', '.js','.css']
   },
   module: {
-    loaders: [{
-      test: /\.(tsx|ts)?$/,
+    rules: [{
+      test: /\.tsx?$/,
       loader: 'ts-loader'
     }, {
       test: /\.css$/,
@@ -32,21 +31,23 @@ const config = {
       options: {
         limit: 10000
       }
-    }]
+    }],
+  },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          name: "vendors",
+          chunks: "initial"
+        }
+      }
+    },
   },
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "node-static",
-      filename: "vendor.js",
-      minChunks(module, count) {
-          return module.context && module.context.indexOf("node_modules") > -1;
-      }
-    }),
     new LiveReloadPlugin({}),
     // new BundleAnalyzerPlugin({
     //   analyzerMode: 'static'
     // })
   ]
 };
-
-module.exports = config;

@@ -5,7 +5,7 @@ import {Request, Response} from "express";
 import {createReadStream, unlink} from "fs";
 import {ISourceColumn, ColumnType} from "myModels";
 import {ISourceModel} from "../../dbModels";
-import * as Promise from "bluebird";
+import * as myProm from "bluebird";
 import Util from "../utils";
 const csv = require("fast-csv");
 
@@ -49,7 +49,7 @@ class SourceController {
         dataSubSet[0].forEach((item, index) => dataByCol[index].push(item));
         
         dataByCol.forEach(column => calls.push(this.getSingleColumnType(column)));
-        return Promise.all(calls)
+        return Promise.all(calls) as Promise<ColumnType[]>
     }
 
     private getSingleColumnType(data:any[]):Promise<ColumnType> {

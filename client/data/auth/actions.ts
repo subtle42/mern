@@ -5,8 +5,6 @@ import pageActions from "../pages/actions";
 import widgetActions from "../widgets/actions";
 import sourceActions from "../sources/actions";
 import { IUser } from "common/models";
-import * as promise from "bluebird";
-
 
 class AuthActions {
     private nameSpace = "auth";
@@ -15,8 +13,8 @@ class AuthActions {
         private store
     ) {}
 
-    private sendDispatch(type:string, payload:any):promise<void> {
-        return this.store.dispatch(new promise((resolve) => {
+    private sendDispatch(type:string, payload:any):Promise<void> {
+        return this.store.dispatch(new Promise((resolve) => {
             resolve({
                 type,
                 payload,
@@ -53,7 +51,7 @@ class AuthActions {
         this.loadConnections(token.split("=")[1]);
     }
 
-    private loadConnections(token:string):promise<void> {
+    private loadConnections(token:string):Promise<void> {
         return this.setToken(token)
         .then(() => this.me())
         .then(() => bookActions.connect(token))
@@ -79,7 +77,7 @@ class AuthActions {
     logout():Promise<void> {
         return axios.get("/api/auth/logout")
         .then(() => this._logout())
-        .then(() => promise.all([
+        .then(() => Promise.all([
             bookActions.disconnect(),
         ]))
         .then(() => {
@@ -101,15 +99,15 @@ class AuthActions {
         document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
     }
 
-    private _logout():promise<void> {
+    private _logout():Promise<void> {
         return this.sendDispatch("logout", undefined);
     }
 
-    private setUser(user:IUser):promise<void> {
+    private setUser(user:IUser):Promise<void> {
         return this.sendDispatch("set_user", user);
     }
 
-    private setToken(token:string):promise<void> {
+    private setToken(token:string):Promise<void> {
         this.setAuths(token);
         return this.sendDispatch("set_token", token);
     }

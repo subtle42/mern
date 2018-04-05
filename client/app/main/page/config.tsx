@@ -6,7 +6,6 @@ import store from "../../../data/store";
 import {IPage} from "myModels";
 import { ReactElement } from "react";
 import "./page.css";
-import {extend, isNumber, toNumber} from "lodash";
 
 class State {
     page?:IPage;
@@ -35,7 +34,7 @@ export class PageConfigButton extends React.Component<Props, State> {
         .pages.list.filter(page => page._id === this.props._id)[0];
         this.setState({
             showModal:true,
-            page: extend({}, myPage)
+            page: Object.assign({}, myPage)//extend({}, myPage)
         });
     }
 
@@ -48,7 +47,7 @@ export class PageConfigButton extends React.Component<Props, State> {
         const target:any = event.target
         const value:string = target.value.trim();
         console.log(this.state)
-        let myPage = extend({}, this.state.page, {
+        let myPage = Object.assign({}, this.state.page, {
             [target.name]: target.value
         });
         console.log(myPage)
@@ -76,9 +75,9 @@ export class PageConfigButton extends React.Component<Props, State> {
         let myArray = this.state.page[targetName];
 
 
-        myArray[targetIndex] = toNumber(target.value);
+        myArray[targetIndex] = parseInt(target.value);
         console.log(this.state.page)
-        let myPage = extend({}, this.state.page, {
+        let myPage = Object.assign({}, this.state.page, {
             [targetName]: myArray
         });
         this.setState({
@@ -88,9 +87,9 @@ export class PageConfigButton extends React.Component<Props, State> {
 
     isValidNumber = (event:React.FormEvent<FormControl>):boolean => {
         const target:any = event.target;
-        const value:number = toNumber(target.value);
-        const min:number = toNumber(target.min);
-        const max:number = toNumber(target.max);
+        const value:number = parseInt(target.value);
+        const min:number = parseInt(target.min);
+        const max:number = parseInt(target.max);
         if (value === NaN) return false;
         if (value < min) return false;
         if (value > max) return false;
