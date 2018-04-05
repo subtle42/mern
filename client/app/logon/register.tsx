@@ -1,6 +1,6 @@
 import * as React from "react";
 import axios from "axios"
-import {Form, Col, ControlLabel, FormControl, Button, HelpBlock, FormGroup, NavItem} from "react-bootstrap";
+import {Form, Col, ControlLabel, FormControl, Button, HelpBlock, FormGroup, NavItem} from "reactstrap";
 import AuthActions from "../../data/auth/actions";
 
 var store:any;
