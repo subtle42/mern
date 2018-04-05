@@ -16,7 +16,7 @@
   "dependencies": {
     "axios": "^0.17.1",
     "bluebird": "^3.5.1",
-    "bootstrap": "^3.3.7",
+    "bootstrap": "^4.0.0",
     "chai": "^4.1.2",
     "chai-http": "^3.0.0",
     "css-loader": "^0.28.7",
@@ -40,6 +40,7 @@
     "react-grid-layout": "^0.16.3",
     "react-redux": "^5.0.6",
     "react-router-dom": "^4.2.2",
+    "reactstrap": "^5.0.0",
     "redux": "^3.7.2",
     "redux-promise": "^0.5.3",
     "redux-thunk": "^2.2.0",
