@@ -5,6 +5,7 @@ import SourceActions from "../../../data/sources/actions";
 import widgetActions from "../../../data/widgets/actions";
 import store from "../../../data/store";
 import {ISource} from 'myModels';
+import {CreateWidget} from '../widget/create';
 import "./style.css";
 
 
@@ -12,6 +13,7 @@ class State {
     showModal:boolean = false;
     sources:ISource[] = [];
     selected:ISource;
+    confirmedSource:boolean = false;
 }
 
 interface Props {
@@ -55,35 +57,62 @@ export class SourceCreateButton extends React.Component<Props, State> {
         const sources = store.getState().sources.list;
 
         return (<Modal bsSize="large" show={this.state.showModal} onHide={this.cancel}>
-            <Modal.Header>Sources 
+            {this.renderHeader()}
+            {this.renderBody()}
+            {this.renderFooter()}
+        </Modal>);
+    }
+
+    renderHeader():JSX.Element {
+        return (
+            <Modal.Header> {this.state.selected ? 'Select Chart' :'Sources' }  
                     <Dropzone style={{height: 24, width: 24}} onDrop={this.onFileDrop}>
                 <Button>
                         <Glyphicon glyph="plus" style={{fontSize:12, justifyContent: 'center', display: 'flex'}}/>
                 </Button>
                     </Dropzone>
             </Modal.Header>
+        )
+    }
+
+    renderBody():JSX.Element {
+        return (
             <Modal.Body>
+                {!this.state.selected ? (
                 <Row>
-                    <Col xs={6}> <ListGroup>
-                        {this.state.sources.map((source) => <ListGroupItem 
-                            className={source == this.state.selected ? 'active' : '' } 
-                            href="#" 
-                            key={source._id} 
-                            onClick={(e) => this.setSource(e, source)}> {source.title}
-                            </ListGroupItem>)}
-                        </ListGroup></Col>
-                    <Col xs={6}> 
-                        {this.sourceDetails()}
-                    </Col>
-                </Row>
+                <Col xs={6}> <ListGroup>
+                    {this.state.sources.map((source) => <ListGroupItem 
+                        className={source == this.state.selected ? 'active' : '' } 
+                        href="#" 
+                        key={source._id} 
+                        onClick={(e) => this.setSource(e, source)}> {source.title}
+                        </ListGroupItem>)}
+                    </ListGroup></Col>
+                <Col xs={6}> 
+                    {this.sourceDetails()}
+                </Col>
+            </Row>
+                ): (
+                    <CreateWidget />
+                )}
+
             </Modal.Body>
+        )
+        
+    }
+
+    renderFooter():JSX.Element {
+        return (
             <Modal.Footer>
                 <Button bsStyle="warning" onClick={this.cancel}>Cancel</Button>
                 <Button bsStyle="primary"
-                    onClick={this.close}
-                >Create</Button>
+                    onClick={this.proceed}
+                > {this.state.selected ? 'Create' : 'Next' }</Button>
             </Modal.Footer>
-        </Modal>);
+        )
+    }
+    proceed() {
+        this.state.confirmedSource ? this.close : this.setState({confirmedSource: true})
     }
 
     setSource(event, source){
