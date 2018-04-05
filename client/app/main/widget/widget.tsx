@@ -49,7 +49,7 @@ export const Widget = MyComponent;
 //         return (
 //             <div className="panel panel-primary" style={{height:"100%"}}>
 //                 <div className="panel-heading" style={{padding:2}}>
-//                     <Button className="pull-left" bsStyle="primary" bsSize="small" ><Glyphicon glyph="cog" /></Button>
+//                     <Button className="pull-left" color="primary" size="small" ><Glyphicon glyph="cog" /></Button>
 //                     <RemoveWidgetButton _id={this.props._id} />
 //                     <div className="panel-title"> Widget {this.props._id}</div>
 //                 </div>
