@@ -105,13 +105,13 @@ export class Navigation extends React.Component<NavProps, NavState> {
                         <NavLink href="/home">Home</NavLink>
                     </NavItem>
                         { !this.props.user
-                            ? <NavItem><NavLink href="/register">Register</NavLink></NavItem>
+                            ? <NavItem><Link to="/register">Register</Link></NavItem>
                             : undefined
                         }
                     <NavItem>
                         { this.props.user
-                            ? <NavLink onClick={() => authActions.logout()} href="/home">Logout</NavLink>
-                            : <NavLink href="/login">Login</NavLink>
+                            ? <Link onClick={() => authActions.logout()} to="/home">Logout</Link>
+                            : <Link to="/login">Login</Link>
                         }                
                     </NavItem>
                 </Nav>
