@@ -1,6 +1,6 @@
 import * as React from "react";
 import axios from "axios"
-import {Row, Col, Checkbox, Modal, ControlLabel, FormControl, Button, Glyphicon, HelpBlock, FormGroup, NavItem} from "react-bootstrap";
+import {FormText, Label, ModalBody, ModalFooter, ModalHeader, Row, Col, Input, Modal, Button, FormGroup, NavItem} from "reactstrap";
 import PageActions from "../../../data/pages/actions";
 import store from "../../../data/store";
 import {IPage} from "myModels";
@@ -38,12 +38,12 @@ export class PageConfigButton extends React.Component<Props, State> {
         });
     }
 
-    cancel = (event) => {
+    cancel = () => {
         if (event) event.stopPropagation();
         this.setState(new State());
     }
 
-    handleChange = (event:React.FormEvent<FormControl>) => {
+    handleChange = (event:React.FormEvent<any>) => {
         const target:any = event.target
         const value:string = target.value.trim();
         console.log(this.state)
@@ -57,7 +57,7 @@ export class PageConfigButton extends React.Component<Props, State> {
         });
     }
 
-    handleCheckbox = (event:React.FormEvent<Checkbox>) => {
+    handleCheckbox = (event:React.FormEvent<any>) => {
         event.nativeEvent.preventDefault();
         // event.stopPropagation();
         // const target:any = event.target;
@@ -69,7 +69,7 @@ export class PageConfigButton extends React.Component<Props, State> {
         // console.log(this.state.page[target.name]);
     }
 
-    handleArray = (event:React.FormEvent<FormControl>) => {
+    handleArray = (event:React.FormEvent<any>) => {
         const target:any = event.target;
         const [targetName, targetIndex] = target.name.split("-");
         let myArray = this.state.page[targetName];
@@ -85,7 +85,7 @@ export class PageConfigButton extends React.Component<Props, State> {
         });
     }
 
-    isValidNumber = (event:React.FormEvent<FormControl>):boolean => {
+    isValidNumber = (event:React.FormEvent<any>):boolean => {
         const target:any = event.target;
         const value:number = parseInt(target.value);
         const min:number = parseInt(target.min);
@@ -100,7 +100,7 @@ export class PageConfigButton extends React.Component<Props, State> {
         if (input.length < 3) return "error";
     }
 
-    toggleCheckBox = (name:string, event:React.FormEvent<Col>) => {
+    toggleCheckBox = (name:string, event:React.FormEvent<any>) => {
         event.stopPropagation();
         event.preventDefault();
         let tmp:IPage = {...this.state.page};
@@ -112,25 +112,25 @@ export class PageConfigButton extends React.Component<Props, State> {
 
     getModal():JSX.Element {
         if (!this.state.page) return;
-        return (<Modal bsSize="large" show={this.state.showModal} onHide={this.cancel}>
-            <Modal.Header>Page Config</Modal.Header>
-            <Modal.Body>
+        return (<Modal size="large" isOpen={this.state.showModal} onClosed={this.cancel}>
+            <ModalHeader>Page Config</ModalHeader>
+            <ModalBody>
                 <Row style={{paddingBottom:10}}>
                     <FormGroup>
                         <Col xs={6}>
-                            <ControlLabel>Name:</ControlLabel>
-                            <FormControl 
+                            <Label>Name:</Label>
+                            <Input 
                                 type="text"
                                 value={this.state.page.name}
                                 name="pageName"
                                 placeholder="Enter Name"
                                 onChange={this.handleChange}
                             />
-                            {!this.state.validationState || <HelpBlock>Name must be at least 3 characters.</HelpBlock>}
+                            {!this.state.validationState || <FormText>Name must be at least 3 characters.</FormText>}
                         </Col>
                         <Col xs={6}>
-                            <ControlLabel>Column Count</ControlLabel>
-                            <FormControl
+                            <Label>Column Count</Label>
+                            <Input
                                     type="number"
                                     min={1}
                                     max={20}
@@ -144,8 +144,8 @@ export class PageConfigButton extends React.Component<Props, State> {
                 <Row style={{paddingBottom:10}}>
                     <FormGroup>
                         <Col xs={3}>
-                            <ControlLabel>Margins</ControlLabel>
-                            <FormControl
+                            <Label>Margins</Label>
+                            <Input
                                 type="number"
                                 min={0}
                                 max={100}
@@ -155,8 +155,8 @@ export class PageConfigButton extends React.Component<Props, State> {
                             />
                         </Col>
                         <Col xs={3}>
-                            <ControlLabel>Margins</ControlLabel>
-                            <FormControl
+                            <Label>Margins</Label>
+                            <Input
                                 type="number"
                                 min={0}
                                 max={100}
@@ -166,8 +166,8 @@ export class PageConfigButton extends React.Component<Props, State> {
                             />
                         </Col>
                         <Col xs={3}>
-                            <ControlLabel>Padding</ControlLabel>
-                            <FormControl
+                            <Label>Padding</Label>
+                            <Input
                                 type="number"
                                 min={0}
                                 max={100}
@@ -177,8 +177,8 @@ export class PageConfigButton extends React.Component<Props, State> {
                             />
                         </Col>
                         <Col xs={3}>
-                            <ControlLabel>Padding</ControlLabel>
-                            <FormControl
+                            <Label>Padding</Label>
+                            <Input
                                 type="number"
                                 min={0}
                                 max={100}
@@ -192,16 +192,16 @@ export class PageConfigButton extends React.Component<Props, State> {
                 <Row style={{paddingBottom:10}}>
                     <FormGroup>
                     <Col xs={6}>
-                        <ControlLabel>Is Draggable</ControlLabel><br/>
-                        <Button bsStyle={this.state.page.isDraggable ? "success" : "danger"}
+                        <Label>Is Draggable</Label><br/>
+                        <Button color={this.state.page.isDraggable ? "success" : "danger"}
                             onClick={(event) => this.toggleCheckBox("isDraggable", event)}
                         >
                             {this.state.page.isDraggable.toString().toLocaleUpperCase()}
                         </Button>
                     </Col>
                     <Col xs={6}>
-                        <ControlLabel>Is Resizable</ControlLabel><br/>
-                        <Button bsStyle={this.state.page.isResizable ? "success" : "danger"}
+                        <Label>Is Resizable</Label><br/>
+                        <Button color={this.state.page.isResizable ? "success" : "danger"}
                             onClick={(event) => this.toggleCheckBox("isResizable", event)}
                         >
                             {this.state.page.isResizable.toString().toLocaleUpperCase()}
@@ -212,16 +212,16 @@ export class PageConfigButton extends React.Component<Props, State> {
                 <Row style={{paddingBottom:10}}>
                     <FormGroup>
                         <Col xs={6}>
-                            <ControlLabel>Is Rearrangeable</ControlLabel><br/>
-                            <Button bsStyle={this.state.page.isRearrangeable ? "success" : "danger"}
+                            <Label>Is Rearrangeable</Label><br/>
+                            <Button color={this.state.page.isRearrangeable ? "success" : "danger"}
                                 onClick={(event) => this.toggleCheckBox("isRearrangeable", event)}
                             >
                                 {this.state.page.isRearrangeable.toString().toLocaleUpperCase()}
                             </Button>
                         </Col>
                         <Col xs={6}>
-                            <ControlLabel>Prevent Collisions</ControlLabel><br/>
-                            <Button bsStyle={this.state.page.preventCollision ? "success" : "danger"}
+                            <Label>Prevent Collisions</Label><br/>
+                            <Button color={this.state.page.preventCollision ? "success" : "danger"}
                                 onClick={(event) => this.toggleCheckBox("preventCollision", event)}
                             >
                                 {this.state.page.preventCollision.toString().toLocaleUpperCase()}
@@ -229,13 +229,13 @@ export class PageConfigButton extends React.Component<Props, State> {
                         </Col>
                     </FormGroup>
                 </Row>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button bsStyle="warning" onClick={this.cancel}>Cancel</Button>
-                <Button bsStyle="primary"
+            </ModalBody>
+            <ModalFooter>
+                <Button color="warning" onClick={this.cancel}>Cancel</Button>
+                <Button color="primary"
                     onClick={this.close}
                 >Save</Button>
-            </Modal.Footer>
+            </ModalFooter>
         </Modal>)
     }
 
@@ -243,7 +243,8 @@ export class PageConfigButton extends React.Component<Props, State> {
         return (
             <div className="fixed-plugin" onClick={this.open}>
                 <div>
-                    <Glyphicon className="sideMenuIcon" glyph="cog"/>
+                <i className="material-icons">settings</i> 
+                    {/* <Glyphicon className="sideMenuIcon" glyph="cog"/> */}
                     {this.getModal()}
                 </div>
             </div>
