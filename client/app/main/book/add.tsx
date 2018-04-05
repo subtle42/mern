@@ -1,6 +1,6 @@
 import * as React from "react";
 import axios from "axios"
-import {ModalHeader, ModalBody, ModalFooter, Modal, FormGroup, DropdownItem, Button} from "reactstrap";
+import {FormText, Input, Label, ModalHeader, ModalBody, ModalFooter, Modal, FormGroup, DropdownItem, Button } from "reactstrap";
 import BookActions from "../../../data/books/actions";
 // import { ModalHeader } from "react-bootstrap";
 
@@ -49,25 +49,22 @@ export default class CreateBookButton extends React.Component<{}, State> {
                 <Modal size="small" isOpen={this.state.showModal} onClosed={this.close}>
                     <ModalHeader>Create Book</ModalHeader>
                     <ModalBody>
-                        <FormGroup
-                            controlId="createPageForm"
-                            validationState={this.state.validationState}
-                        >
-                            <ControlLabel>Name:</ControlLabel>
-                            <FormControl 
+                        <FormGroup>
+                            <Label>Name:</Label>
+                            <Input 
                                 type="text"
                                 value={this.state.pageName}
                                 name="pageName"
                                 placeholder="Enter Name"
                                 onChange={this.handleChange}
                             />
-                            {!this.state.validationState || <HelpBlock>Name must be at least 3 characters.</HelpBlock>}
+                            {!this.state.validationState || <FormText>Name must be at least 3 characters.</FormText>}
                             
                         </FormGroup>
                     </ModalBody>
                     <ModalFooter>
-                        <Button bsStyle="warning" onClick={this.cancel}>Cancel</Button>
-                        <Button bsStyle="primary"
+                        <Button color="warning" onClick={this.cancel}>Cancel</Button>
+                        <Button color="primary"
                             disabled={!!this.state.validationState || this.state.pageName.length === 0} 
                             onClick={this.close}
                         >Create</Button>
