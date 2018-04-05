@@ -26,7 +26,7 @@ const NavComp:React.StatelessComponent<NavProps> = (props:NavProps) => {
                 <MenuItem key="add">Add Book</MenuItem>
             </NavDropdown>
         </Nav>
-           )
+        )
         }
 
         return (
