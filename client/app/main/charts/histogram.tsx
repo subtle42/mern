@@ -1,6 +1,7 @@
 import * as React from "react";
 import {IWidget} from "myModels";
 import * as d3 from "d3";
+import "./style.css"
 
 interface Props {
     _id?:any;
@@ -18,12 +19,9 @@ export class Histogram extends React.Component<{}, State> {
     drawChart() {
         const data = d3.range(1000).map(d3.randomBates(10));
         const formatCount = d3.format(",.0f");
-    
         let svg = d3.select(this.node);
         
-        console.log("offsetHeight", this.node.parentElement.offsetHeight);
-        console.log("element", this.node.parentElement);
-        let outside = this.node.parentElement.getBoundingClientRect();
+        console.log("offsetHeight", this.node.height);
         let margin = {top:10, right:10, left:10, bottom:10};
         // let width = (svg.attr("width") as any ) - margin.left - margin.right,
         let width = this.node.parentElement.parentElement.offsetWidth - margin.left - margin.right,
@@ -31,7 +29,6 @@ export class Histogram extends React.Component<{}, State> {
         height = this.node.parentElement.offsetHeight - margin.top - margin.bottom -22*2,
         g = svg.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
     
-        console.log(`calc offsetHeight: ${height}`)
         const xScale = d3.scaleLinear()
             .rangeRound([0, width]);
     
