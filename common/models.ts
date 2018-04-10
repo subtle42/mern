@@ -1,6 +1,5 @@
 import {Layout} from "react-grid-layout"
 import {ColumnType} from "./constants";
-export type ColumnType = "number" | "group" | "text" | "datetime";
 
 export type ColumnType = "number" | "group" | "text" | "datetime";
 

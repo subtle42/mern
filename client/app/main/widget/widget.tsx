@@ -4,6 +4,7 @@ import {Button, Glyphicon} from "react-bootstrap";
 import {RemoveWidgetButton} from "./remove";
 import {IWidget} from "myModels";
 import store from "../../../data/store";
+import {Histogram} from "../charts/histogram";
 
 interface Props {
     _id?:any;
@@ -17,7 +18,7 @@ const MyComponent:React.StatelessComponent<Props> = (props:Props) => {
                 <RemoveWidgetButton _id={props._id} />
                 <div className="panel-title"> Widget {props._id}</div>
             </div>
-            <div className="panel-body">so sexy</div>
+            <div className="panel-body"><Histogram /></div>
         </div>
     );
 }
