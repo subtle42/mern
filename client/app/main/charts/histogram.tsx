@@ -12,7 +12,7 @@ export class Histogram extends React.Component<{}, State> {
     node;
 
     componentDidMount() {
-        setTimeout(() => this.drawChart(), 1000);
+        setTimeout(() => this.drawChart(), 0);
     }
 
     drawChart() {
@@ -21,17 +21,17 @@ export class Histogram extends React.Component<{}, State> {
     
         let svg = d3.select(this.node);
         
-        console.log("width", this.node.parentElement.offsetHeight);
+        console.log("offsetHeight", this.node.parentElement.offsetHeight);
         console.log("element", this.node.parentElement);
         let outside = this.node.parentElement.getBoundingClientRect();
         let margin = {top:10, right:10, left:10, bottom:10};
         // let width = (svg.attr("width") as any ) - margin.left - margin.right,
         let width = this.node.parentElement.parentElement.offsetWidth - margin.left - margin.right,
         // height = (svg.attr("height") as any ) - margin.top - margin.bottom,
-        height = this.node.parentElement.parentElement.offsetHeight - margin.top - margin.bottom - 44,
+        height = this.node.parentElement.offsetHeight - margin.top - margin.bottom -22*2,
         g = svg.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
     
-        console.log(`calc width: ${width}`)
+        console.log(`calc offsetHeight: ${height}`)
         const xScale = d3.scaleLinear()
             .rangeRound([0, width]);
     
@@ -69,7 +69,6 @@ export class Histogram extends React.Component<{}, State> {
     }
 
     render() {
-        return <svg ref={node => this.node = node} style={{height:"100%", width: "100%"}}>
-        </svg>
+        return <svg ref={node => this.node = node} style={{height:"100%", width: "100%"}}></svg>
     }
 }
