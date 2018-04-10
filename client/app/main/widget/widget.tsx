@@ -12,13 +12,13 @@ interface Props {
 
 const MyComponent:React.StatelessComponent<Props> = (props:Props) => {
     return (
-        <div className="panel panel-primary" style={{height:"100%"}}>
-            <div className="panel-heading" style={{padding:2}}>
+        <div className="panel panel-primary" style={{height:"100%",flexDirection:"column", display:"flex", margin:0}}>
+            <div className="panel-heading" style={{alignItems:"stretch", padding:2}}>
                 <Button className="pull-left" bsStyle="primary" bsSize="small" ><Glyphicon glyph="cog" /></Button>
                 <RemoveWidgetButton _id={props._id} />
                 <div className="panel-title"> Widget {props._id}</div>
             </div>
-            <div className="panel-body"><Histogram /></div>
+            <div className="" style={{height:"100%", alignItems:"stretch",}}><Histogram /></div>
         </div>
     );
 }

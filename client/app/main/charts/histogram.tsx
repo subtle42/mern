@@ -9,24 +9,29 @@ interface Props {
 class State {}
 
 export class Histogram extends React.Component<{}, State> {
-    node:SVGSVGElement;
+    node;
 
     componentDidMount() {
+        setTimeout(() => this.drawChart(), 1000);
+    }
+
+    drawChart() {
         const data = d3.range(1000).map(d3.randomBates(10));
         const formatCount = d3.format(",.0f");
     
         let svg = d3.select(this.node);
         
-        console.log("width", this.node.parentElement.parentElement.offsetWidth);
+        console.log("width", this.node.parentElement.offsetHeight);
+        console.log("element", this.node.parentElement);
         let outside = this.node.parentElement.getBoundingClientRect();
         let margin = {top:10, right:10, left:10, bottom:10};
-        let width = (svg.attr("width") as any ) - margin.left - margin.right,
-        // let width = this.node.parentElement.parentElement.offsetWidth - margin.left - margin.right,
-        height = (svg.attr("height") as any ) - margin.top - margin.bottom,
-        // height = this.node.parentElement.parentElement.offsetHeight - margin.top - margin.bottom - 22,
+        // let width = (svg.attr("width") as any ) - margin.left - margin.right,
+        let width = this.node.parentElement.parentElement.offsetWidth - margin.left - margin.right,
+        // height = (svg.attr("height") as any ) - margin.top - margin.bottom,
+        height = this.node.parentElement.parentElement.offsetHeight - margin.top - margin.bottom - 44,
         g = svg.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
     
-        console.log(`width: ${width}`)
+        console.log(`calc width: ${width}`)
         const xScale = d3.scaleLinear()
             .rangeRound([0, width]);
     
@@ -64,8 +69,7 @@ export class Histogram extends React.Component<{}, State> {
     }
 
     render() {
-        return <svg ref={node => this.node = node}
-            width="100" height="100">
+        return <svg ref={node => this.node = node} style={{height:"100%", width: "100%"}}>
         </svg>
     }
 }
