@@ -25,6 +25,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
     
     close = (event) => {
         event.stopPropagation();
+        this.createWidget();
         this.setState(new State());
     }
 
@@ -106,13 +107,13 @@ export class SourceCreateButton extends React.Component<Props, State> {
             <Modal.Footer>
                 <Button bsStyle="warning" onClick={this.cancel}>Cancel</Button>
                 <Button bsStyle="primary"
-                    onClick={this.proceed}
+                    onClick={(event) =>this.proceed(event)}
                 > {this.state.selected ? 'Create' : 'Next' }</Button>
             </Modal.Footer>
         )
     }
-    proceed() {
-        this.state.confirmedSource ? this.close : this.setState({confirmedSource: true})
+    proceed(event) {
+        this.state.confirmedSource ? this.close(event) : this.setState({confirmedSource: true})
     }
 
     setSource(event, source){

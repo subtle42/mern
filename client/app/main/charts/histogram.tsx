@@ -24,7 +24,7 @@ export class Histogram extends React.Component<{}, State> {
         console.log("offsetHeight", this.node.height);
         let margin = {top:10, right:10, left:10, bottom:10};
         // let width = (svg.attr("width") as any ) - margin.left - margin.right,
-        let width = this.node.parentElement.parentElement.offsetWidth - margin.left - margin.right,
+        let width = this.node.parentElement.offsetWidth - margin.left - margin.right,
         // height = (svg.attr("height") as any ) - margin.top - margin.bottom,
         height = this.node.parentElement.offsetHeight - margin.top - margin.bottom -22*2,
         g = svg.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
