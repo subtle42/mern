@@ -34,6 +34,12 @@ export interface IWidget {
     _id:any;
     pageId:string;
     sourceId:string;
+    margins: {
+        top:number,
+        bottom:number,
+        left:number,
+        right:number
+    }
 }
 
 export interface ISource extends IShared{
