@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Nav, NavItem, Button} from "reactstrap";
+import {Nav, NavItem, Button, NavLink} from "reactstrap";
 import {CreatePageButton} from "../page/create"
 import {DeletePageButton} from "../page/delete";
 import {connect} from "react-redux"
@@ -28,11 +28,11 @@ const Content:React.StatelessComponent<Props> = (props:Props) => {
 
         return props.pages.map((page, index) => {
             return <NavItem
-                onClick={() => pageActions.select(page) }
-                active={isSelected(page)}
-                key={index}>
+                onClick={() => pageActions.select(page) }>
+                <NavLink active={isSelected(page)}>
                     {page.name}
-                <DeletePageButton pageName={page.name} _id={page._id} />
+                    <DeletePageButton pageName={page.name} _id={page._id} />
+                </NavLink>
             </NavItem>
         });
     }

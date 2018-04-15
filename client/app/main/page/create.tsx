@@ -1,7 +1,8 @@
 import * as React from "react";
 import axios from "axios"
-import {Modal, ModalBody, ModalHeader, ModalFooter, Label, Input, Button, FormText, FormGroup, NavItem} from "reactstrap";
+import {Modal, ModalBody, ModalHeader, ModalFooter, Label, Input, Button, FormText, FormGroup, NavItem, NavLink} from "reactstrap";
 import pageActions from "../../../data/pages/actions";
+import * as FontAwesome from "react-fontawesome";
 
 var actions:any;
 
@@ -55,9 +56,9 @@ export class CreatePageButton extends React.Component<Props, State> {
     render() {
         return (
             <NavItem onClick={this.open}>
-                {/* <Glyphicon glyph="plus"/> */}
-                <i className="material-icons">add</i>
-
+                <NavLink>
+                    <FontAwesome name="plus" />
+                </NavLink>
                 <Modal size="small" isOpen={this.state.showModal} onClosed={this.cancel}>
                     <ModalHeader>Create Page</ModalHeader>
                     <ModalBody>

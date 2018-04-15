@@ -6,6 +6,7 @@ import widgetActions from "../../../data/widgets/actions";
 import store from "../../../data/store";
 import {ISource} from 'myModels';
 import {CreateWidget} from '../widget/create';
+import * as FontAwesome from "react-fontawesome";
 import "./style.css";
 
 
@@ -104,10 +105,10 @@ export class SourceCreateButton extends React.Component<Props, State> {
     renderFooter():JSX.Element {
         return (
             <ModalFooter>
-                <Button color="warning" onClick={this.cancel}>Cancel</Button>
                 <Button color="primary"
                     onClick={(event) =>this.proceed(event)}
                 > {this.state.selected ? 'Create' : 'Next' }</Button>
+                <Button color="secondary" onClick={this.cancel}>Cancel</Button>
             </ModalFooter>
         )
     }
@@ -173,7 +174,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
     render() {
         return (<div className="fixed-plugin-left" onClick={this.open}>
             <div>
-                {/* <Glyphicon className="sideMenuIcon" glyph="plus"/> */}
+                <FontAwesome style={{paddingTop:6}} size="2x" name="plus" />
                 {this.getModal()}
             </div>
         </div>);

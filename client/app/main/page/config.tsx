@@ -5,6 +5,7 @@ import PageActions from "../../../data/pages/actions";
 import store from "../../../data/store";
 import {IPage} from "myModels";
 import { ReactElement } from "react";
+import * as FontAwesome from "react-fontawesome";
 import "./page.css";
 
 class State {
@@ -112,7 +113,7 @@ export class PageConfigButton extends React.Component<Props, State> {
 
     getModal():JSX.Element {
         if (!this.state.page) return;
-        return (<Modal size="large" isOpen={this.state.showModal} onClosed={this.cancel}>
+        return (<Modal size="lg" isOpen={this.state.showModal} onClosed={this.cancel}>
             <ModalHeader>Page Config</ModalHeader>
             <ModalBody>
                 <Row style={{paddingBottom:10}}>
@@ -231,10 +232,10 @@ export class PageConfigButton extends React.Component<Props, State> {
                 </Row>
             </ModalBody>
             <ModalFooter>
-                <Button color="warning" onClick={this.cancel}>Cancel</Button>
                 <Button color="primary"
                     onClick={this.close}
                 >Save</Button>
+                <Button color="secondary" onClick={this.cancel}>Cancel</Button>
             </ModalFooter>
         </Modal>)
     }
@@ -243,8 +244,7 @@ export class PageConfigButton extends React.Component<Props, State> {
         return (
             <div className="fixed-plugin" onClick={this.open}>
                 <div>
-                <i className="material-icons">settings</i> 
-                    {/* <Glyphicon className="sideMenuIcon" glyph="cog"/> */}
+                    <FontAwesome style={{paddingTop:6}} size="2x" name="cog" />
                     {this.getModal()}
                 </div>
             </div>

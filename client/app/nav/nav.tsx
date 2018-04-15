@@ -101,20 +101,22 @@ export class Navigation extends React.Component<NavProps, NavState> {
                 <Collapse isOpen={this.state.isOpen} navbar>
                 {this.getBookDropDown()}
                 <Nav>
-                    <NavItem>
+                    <NavItem key={1}>
                         <NavLink>
                             <Link to="/home">Home</Link>
                         </NavLink>
                     </NavItem>
                         { !this.props.user
-                            ? <NavItem><Link to="/register">Register</Link></NavItem>
+                            ? <NavItem key={2}><NavLink><Link to="/register">Register</Link></NavLink></NavItem>
                             : undefined
                         }
-                    <NavItem>
+                    <NavItem key={3}>
+                        <NavLink>
                         { this.props.user
                             ? <Link onClick={() => authActions.logout()} to="/home">Logout</Link>
                             : <Link to="/login">Login</Link>
-                        }                
+                        }
+                        </NavLink>        
                     </NavItem>
                 </Nav>
                 </Collapse>

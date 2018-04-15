@@ -1,6 +1,7 @@
 import * as React from "react";
 import {Modal, ModalBody, ModalFooter, ModalHeader, Button} from "reactstrap";
 import WidgetActions from "../../../data/widgets/actions";
+import * as FontAwesome from "react-fontawesome";
 
 class State {
     showModal:boolean = false;
@@ -38,15 +39,16 @@ export class RemoveWidgetButton extends React.Component<Props, State> {
                 Are you sure you want to delete this widget?
             </ModalBody>
             <ModalFooter>
-                <Button color="warning" onClick={this.cancel}>Cancel</Button>
                 <Button color="primary" onClick={this.close}>Confirm</Button>
+                <Button color="secondary" onClick={this.cancel}>Cancel</Button>
             </ModalFooter>
         </Modal>
     }
 
     render() {
         return <Button onClick={this.open} className="pull-right" color="primary" size="small">
-            {/* <Glyphicon glyph="remove" /> */}
+            <FontAwesome name="times" />
+
             {this.getModal()}
         </Button>
     }

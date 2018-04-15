@@ -3,6 +3,8 @@ import axios from "axios"
 import {Modal, ModalBody, ModalFooter, ModalHeader, Input, Button, FormGroup, NavItem} from "reactstrap";
 import pageActions from "../../../data/pages/actions";
 import {IPage} from "myModels";
+import * as FontAwesome from "react-fontawesome";
+
 
 class State {
     showModal:boolean = false;
@@ -34,9 +36,11 @@ export class DeletePageButton extends React.Component<Props, State> {
     
     render() {
         return (
-            <Button className="close"
+            <div
                 onClick={this.open}
-            >x
+                style={{float:"right"}}
+            >
+                <FontAwesome style={{paddingLeft:5, paddingTop:3}} name="times" />
                 <Modal size="small" isOpen={this.state.showModal} onClosed={this.cancel}>
                     <ModalHeader>Delete Page</ModalHeader>
                     <ModalBody>Are you sure you want to delete <b>{this.props.pageName}</b>?</ModalBody>
@@ -50,7 +54,7 @@ export class DeletePageButton extends React.Component<Props, State> {
                         </Button>
                     </ModalFooter>
                 </Modal>
-            </Button>
+            </div>
         );
     }
 }
