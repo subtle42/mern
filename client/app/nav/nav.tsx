@@ -1,5 +1,4 @@
 import * as React from "react";
-import {Navbar, Nav, NavItem, NavDropdown, MenuItem} from "react-bootstrap";
 import authActions from "../../data/auth/actions";
 import bookActions from "../../data/books/actions";
 import {connect, Dispatch} from "react-redux";
@@ -8,73 +7,120 @@ import store from "../../data/store";
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
 import AddBookButton from "../main/book/add";
 
-
+import {
+    Collapse,
+    Navbar,
+    NavbarToggler,
+    NavbarBrand,
+    Nav,
+    NavItem,
+    NavLink,
+    UncontrolledDropdown,
+    DropdownToggle,
+    DropdownMenu,
+    DropdownItem } from 'reactstrap';
+  
 interface NavProps {
     user:IUser,
     books:IBook[],
     selectedBook?:IBook
 }
+interface NavState {
+    isOpen?:boolean,
+}
 
-const NavComp:React.StatelessComponent<NavProps> = (props:NavProps) => {
-    const getBookDropDown = () => {
-        if (!props.selectedBook) {
+export class Navigation extends React.Component<NavProps, NavState> {
+    constructor(props) {
+        super(props);
+    
+        this.toggle = this.toggle.bind(this);
+        this.state = {
+          isOpen: false
+        };
+      }
+      toggle() {
+        this.setState({
+          isOpen: !this.state.isOpen
+        });
+      }
+
+
+      getBookDropDown() {
+        if (!this.props.selectedBook) {
            return (
             <Nav>
-            <NavDropdown  title="No Book Selected" id="basic-nav-dropdown">
-                <MenuItem divider />
-                <AddBookButton />
-                <MenuItem key="add">Add Book</MenuItem>
-            </NavDropdown>
+            <UncontrolledDropdown nav inNavbar>
+                <DropdownToggle nav caret> No Book Selected </DropdownToggle>
+                <DropdownMenu right>
+                  <DropdownItem>
+                    Option 1
+                  </DropdownItem>
+                  <AddBookButton />
+                  <DropdownItem divider />
+                  <DropdownItem key="add">
+                    Add Book
+                  </DropdownItem>
+                </DropdownMenu>
+
+            </UncontrolledDropdown>
         </Nav>
-           )
+        )
         }
 
         return (
             <Nav>
-                <NavDropdown  title={props.selectedBook.name || "No Book Selected" } id="basic-nav-dropdown">
-                    {props.books.map(book => {
+                <UncontrolledDropdown>
+                <DropdownToggle nav caret>
+                {this.props.selectedBook.name || "No Book Selected" }
+                </DropdownToggle>
+                <DropdownMenu right>
+                    {this.props.books.map(book => {
                         return (
-                            <MenuItem
+                            <DropdownItem
                                 key={book._id}
                                 onClick={() => bookActions.select(book)}
                             >
                                 {book.name}
-                            </MenuItem>
+                            </DropdownItem>
                         );
                     })}
-                    <MenuItem divider />
+                    <DropdownItem divider />
                     <AddBookButton />
                     {/* <MenuItem key="add">Add Book</MenuItem> */}
-                </NavDropdown>
+                    </DropdownMenu>
+                </UncontrolledDropdown >
             </Nav>
         );
     }
-
-    return (
-        <Navbar>
-            <Navbar.Header>
-                <Navbar.Brand>
-                    <a href="#">WhIM</a>
-                </Navbar.Brand>
-            </Navbar.Header>
-            {getBookDropDown()}
-            <Nav pullRight>
-                <NavItem>
-                    <Link to="/home">Home</Link>
-                </NavItem>
-                    { !props.user
-                        ? <NavItem><Link to="/register">Register</Link></NavItem>
-                        : undefined
-                    }
-                <NavItem>
-                    { props.user
-                        ? <Link onClick={() => authActions.logout()} to="/home">Logout</Link>
-                        : <Link to="/login">Login</Link>
-                    }                
-                </NavItem>
-            </Nav>
-        </Navbar>
-    );
+      
+      render() {
+        return (
+            <Navbar color="light" light expand="md"> 
+                    <NavbarBrand> WhIM </NavbarBrand>
+    
+                <Collapse isOpen={this.state.isOpen} navbar>
+                {this.getBookDropDown()}
+                <Nav>
+                    <NavItem>
+                        <NavLink>
+                            <Link to="/home">Home</Link>
+                        </NavLink>
+                    </NavItem>
+                        { !this.props.user
+                            ? <NavItem><Link to="/register">Register</Link></NavItem>
+                            : undefined
+                        }
+                    <NavItem>
+                        { this.props.user
+                            ? <Link onClick={() => authActions.logout()} to="/home">Logout</Link>
+                            : <Link to="/login">Login</Link>
+                        }                
+                    </NavItem>
+                </Nav>
+                </Collapse>
+            </Navbar>
+        );
+      }
 }
 
 export default connect((store:any) => {
@@ -85,4 +131,4 @@ export default connect((store:any) => {
     }
 }, (dispatch:Dispatch<any>) => {
     return {};
-})(NavComp);
+})(Navigation);

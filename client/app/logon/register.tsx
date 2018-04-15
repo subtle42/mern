@@ -1,6 +1,6 @@
 import * as React from "react";
 import axios from "axios"
-import {Form, Col, ControlLabel, FormControl, Button, HelpBlock, FormGroup, NavItem} from "react-bootstrap";
+import {Form, Col, Label, Input, Button, FormGroup, NavItem} from "reactstrap";
 import AuthActions from "../../data/auth/actions";
 
 var store:any;
@@ -30,7 +30,7 @@ export default class LoginPage extends React.Component<{}, State> {
         .then(() => this.setState(new State()));
     }
 
-    handleChange = (event:React.FormEvent<FormControl>) => {
+    handleChange = (event:React.FormEvent<any>) => {
         const target:any = event.target
         const value:string = target.value.trim();
         this.setState({
@@ -62,14 +62,14 @@ export default class LoginPage extends React.Component<{}, State> {
 
     render() {
         return (
-            <Form horizontal>
-                <FormGroup><Col xsOffset={3} xs={6}>
-                <FormGroup controlId="formName">
-                    <Col componentClass={ControlLabel} sm={2}>
+            <Form>
+                <FormGroup><Col xs={{size:6, offset:3}}>
+                <FormGroup id="formName">
+                    <Col sm={2}>
                         User Name
                     </Col>
                     <Col sm={10}>
-                        <FormControl
+                        <Input
                             type="text"
                             name="userName"
                             placeholder="User Name"
@@ -77,12 +77,12 @@ export default class LoginPage extends React.Component<{}, State> {
                         />
                     </Col>
                 </FormGroup>
-                <FormGroup controlId="formEmail">
-                    <Col componentClass={ControlLabel} sm={2}>
+                <FormGroup id="formEmail">
+                    <Col sm={2}>
                         Email
                     </Col>
                     <Col sm={10}>
-                        <FormControl
+                        <Input
                             type="email"
                             name="email"
                             placeholder="Email"
@@ -90,12 +90,12 @@ export default class LoginPage extends React.Component<{}, State> {
                         />
                     </Col>
                 </FormGroup>
-                <FormGroup controlId="formPassword">
-                    <Col componentClass={ControlLabel} sm={2}>
+                <FormGroup id="formPassword">
+                    <Col sm={2}>
                         Password
                     </Col>
                     <Col sm={10}>
-                        <FormControl
+                        <Input
                             type="text"
                             name="password"
                             placeholder="Password"
@@ -104,7 +104,7 @@ export default class LoginPage extends React.Component<{}, State> {
                     </Col>
                 </FormGroup>
                 <FormGroup>
-                <Col smOffset={2} sm={10}>
+                <Col sm={{size:10, offset:2}}>
                     <Button disabled={this.isDisabled()}
                         className="pull-right"
                         type="button"

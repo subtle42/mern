@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Button, Glyphicon, Modal, Col, Row} from "react-bootstrap";
+import {Button, Modal, Col, Row, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 
 class State {
     showModal:boolean = false;
@@ -15,7 +15,7 @@ type myStyle = "success" | "warning" | "error";
 export class SourceConfigButton extends React.Component<Props, State> {
     state:State = new State();
     
-    close = (event) => {
+    close = () => {
         event.stopPropagation();
         this.setState(new State());
     }
@@ -30,20 +30,21 @@ export class SourceConfigButton extends React.Component<Props, State> {
     }
 
     render() {
-        return (<Button bsSize="large" className={this.props.className} onClick={this.open}>
-            <Glyphicon glyph="hhd" />
-            <Modal bsSize="large" show={this.state.showModal} onHide={this.cancel}>
-                <Modal.Header>Source Configuration</Modal.Header>
-                <Modal.Body>
+        return (<Button size="large" className={this.props.className} onClick={this.open}>
+            {/* <Glyphicon glyph="hhd" /> */}
+            <i className="material-icons">file_upload</i>
+            <Modal size="large" isOpen={this.state.showModal} onClosed={this.close}>
+                <ModalHeader>Source Configuration</ModalHeader>
+                <ModalBody>
                     <Row>
                         <Col xs={6}>hi</Col>
                         <Col xs={6}>bye</Col>
                     </Row>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button bsStyle="warning" onClick={this.cancel}>Cancel</Button>
-                    <Button bsStyle="primary" onClick={this.close}>Done</Button>
-                </Modal.Footer>
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="warning" onClick={this.cancel}>Cancel</Button>
+                    <Button color="primary" onClick={this.close}>Done</Button>
+                </ModalFooter>
             </Modal>
         </Button>);
     }

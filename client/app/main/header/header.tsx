@@ -1,9 +1,23 @@
 import * as React from "react";
-import {Navbar, Nav, NavItem, NavDropdown, MenuItem} from "react-bootstrap";
+// import {Navbar, Nav, NavItem, NavDropdown, MenuItem} from "react-bootstrap";
+import {Link} from 'react-router-dom'
 import authActions from "../../../data/auth/actions";
 import bookActions from "../../../data/books/actions";
 import {connect, Dispatch} from "react-redux";
 import {IBook} from "myModels";
+import {
+    Collapse,
+    Navbar,
+    NavbarToggler,
+    NavbarBrand,
+    Nav,
+    NavItem,
+    NavLink,
+    UncontrolledDropdown,
+    DropdownToggle,
+    DropdownMenu,
+    DropdownItem, Dropdown } from 'reactstrap';
+
 
 interface NavProps {
     login:()=>void,
@@ -14,23 +28,21 @@ const NavComp:React.StatelessComponent<NavProps> = (props:NavProps) => {
 
     return (
         <Navbar>
-            <Navbar.Header>
-                <Navbar.Brand>
-                    <a href="#">WhIM</a>
-                </Navbar.Brand>
-            </Navbar.Header>
+            <NavbarBrand> WhIM </NavbarBrand>
+            
             <Nav>
-                <NavItem onClick={()=>props.login()} href="#">
-                    Connect
+                <NavItem onClick={()=>props.login()}>
+                    <Link to="/login"> Connect</Link>
                 </NavItem>
-                <NavDropdown id="bookDropDown" title="Books">
-                    {props.books.map((book, index) => {
-                        return (<MenuItem key={index}
-                        onClick={() => bookActions.select(book)}>
-                            {book.name}
-                        </MenuItem>);
-                    })}
-                </NavDropdown>
+                <Dropdown id="bookDropDown">
+                <DropdownToggle nav caret> Books </DropdownToggle>
+                {props.books.map((book, index) => {
+                    return (<DropdownItem key={index}
+                    onClick={() => bookActions.select(book)}>
+                        {book.name}
+                    </DropdownItem>);
+                })}
+                </Dropdown>
             </Nav>
         </Navbar>
     );
@@ -46,23 +58,19 @@ export default connect((store:any) => {
     };
 })(NavComp)
 
-// export class MainNavbar extends React.Component<{}, {}> {
-//     render() {
-//         return <Navbar>
-//             <Navbar.Header>
-//                 <Navbar.Brand>
-//                     <a href="#">WhIM</a>
-//                 </Navbar.Brand>
-//             </Navbar.Header>
-//             <Nav>
-//                 <NavItem href="#">
-//                     Link
-//                 </NavItem>
-//             </Nav>
-//         </Navbar>
-//     }
+export class MainNavbar extends React.Component<{}, {}> {
+    render() {
+        return <Navbar>
+            <NavbarBrand> WhIM </NavbarBrand>
+            <Nav>
+                <NavItem >
+                    <NavLink href="#"> Link </NavLink> 
+                </NavItem>
+            </Nav>
+        </Navbar>
+    }
 
-//     test():boolean {
-//         return true;
-//     }
-// }
+    test():boolean {
+        return true;
+    }
+}

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Button, Glyphicon, Row, Col} from "react-bootstrap";
+import {Button, Row, Col} from "reactstrap";
 import {ChartType, ColumnType} from "myConstants"
 import WidgetActions from "../../../data/widgets/actions"
 
@@ -128,8 +128,8 @@ export class CreateWidget extends React.Component<Props, State> {
             {row.map(col => {
                 return (<Col xs={12/this.rowSize}><Button
                     onClick={() => this.selectConfig(col)}
-                    bsStyle={col === this.state.selected ? "primary": "warning"}
-                    bsSize="large">
+                    color={col === this.state.selected ? "primary": "warning"}
+                    size="large">
                         {col.name}
                     </Button>
                 </Col>)

@@ -1,7 +1,8 @@
 import * as React from "react";
 import axios from "axios"
-import {FormControl, MenuItem, Modal, FormGroup, ControlLabel, HelpBlock, Button} from "react-bootstrap";
+import {FormText, Input, Label, ModalHeader, ModalBody, ModalFooter, Modal, FormGroup, DropdownItem, Button } from "reactstrap";
 import BookActions from "../../../data/books/actions";
+// import { ModalHeader } from "react-bootstrap";
 
 class State {
     showModal:boolean = false;
@@ -23,12 +24,12 @@ export default class CreateBookButton extends React.Component<{}, State> {
         this.setState({showModal:true});
     }
     
-    cancel = (event:React.FormEvent<Button>) => {
+    cancel = (event:React.FormEvent<any>) => {
         event.stopPropagation();
         this.setState(new State());
     }
 
-    handleChange = (event:React.FormEvent<FormControl>) => {
+    handleChange = (event:React.FormEvent<any>) => {
         const target:any = event.target
         const value:string = target.value.trim();
         this.setState({
@@ -43,37 +44,33 @@ export default class CreateBookButton extends React.Component<{}, State> {
 
     render() {
         return (
-            <MenuItem onClick={() => this.open()}>
+            <DropdownItem onClick={() => this.open()}>
                 Add Book
-                <Modal bsSize="small" show={this.state.showModal} onHide={this.close}>
-                    <Modal.Header>Create Book</Modal.Header>
-                    <Modal.Body>
-                        <FormGroup
-                            controlId="createPageForm"
-                            validationState={this.state.validationState}
-                        >
-                            <ControlLabel>Name:</ControlLabel>
-                            <FormControl 
+                <Modal size="small" isOpen={this.state.showModal} onClosed={this.close}>
+                    <ModalHeader>Create Book</ModalHeader>
+                    <ModalBody>
+                        <FormGroup>
+                            <Label>Name:</Label>
+                            <Input 
                                 type="text"
                                 value={this.state.pageName}
                                 name="pageName"
                                 placeholder="Enter Name"
                                 onChange={this.handleChange}
                             />
-                            {/* <FormControl.Feedback /> */}
-                            {!this.state.validationState || <HelpBlock>Name must be at least 3 characters.</HelpBlock>}
+                            {!this.state.validationState || <FormText>Name must be at least 3 characters.</FormText>}
                             
                         </FormGroup>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button bsStyle="warning" onClick={this.cancel}>Cancel</Button>
-                        <Button bsStyle="primary"
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="warning" onClick={this.cancel}>Cancel</Button>
+                        <Button color="primary"
                             disabled={!!this.state.validationState || this.state.pageName.length === 0} 
                             onClick={this.close}
                         >Create</Button>
-                    </Modal.Footer>
+                    </ModalFooter>
                 </Modal>
-            </MenuItem>
+            </DropdownItem>
         );
     }
 }

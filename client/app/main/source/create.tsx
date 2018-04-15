@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Button, Glyphicon, Modal, Tabs, Tab, Well, Row, Col, ListGroup, ListGroupItem} from "react-bootstrap";
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader, NavItem, NavLink, Row, Col, ListGroup, ListGroupItem} from "reactstrap";
 import Dropzone, {ImageFile} from "react-dropzone";
 import SourceActions from "../../../data/sources/actions";
 import widgetActions from "../../../data/widgets/actions";
@@ -23,8 +23,7 @@ interface Props {
 export class SourceCreateButton extends React.Component<Props, State> {
     state:State = new State();
     
-    close = (event) => {
-        event.stopPropagation();
+    close = () => {
         this.createWidget();
         this.setState(new State());
     }
@@ -57,7 +56,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
     getModal():JSX.Element {
         const sources = store.getState().sources.list;
 
-        return (<Modal bsSize="large" show={this.state.showModal} onHide={this.cancel}>
+        return (<Modal size="large" isOpen={this.state.showModal} onClosed={this.close}>
             {this.renderHeader()}
             {this.renderBody()}
             {this.renderFooter()}
@@ -66,19 +65,19 @@ export class SourceCreateButton extends React.Component<Props, State> {
 
     renderHeader():JSX.Element {
         return (
-            <Modal.Header> {this.state.selected ? 'Select Chart' :'Sources' }  
+            <ModalHeader> {this.state.selected ? 'Select Chart' :'Sources' }  
                     <Dropzone style={{height: 24, width: 24}} onDrop={this.onFileDrop}>
                 <Button>
-                        <Glyphicon glyph="plus" style={{fontSize:12, justifyContent: 'center', display: 'flex'}}/>
+                        {/* <Glyphicon glyph="plus" style={{fontSize:12, justifyContent: 'center', display: 'flex'}}/> */}
                 </Button>
                     </Dropzone>
-            </Modal.Header>
+            </ModalHeader>
         )
     }
 
     renderBody():JSX.Element {
         return (
-            <Modal.Body>
+            <ModalBody>
                 {!this.state.selected ? (
                 <Row>
                 <Col xs={6}> <ListGroup>
@@ -97,23 +96,23 @@ export class SourceCreateButton extends React.Component<Props, State> {
                     <CreateWidget />
                 )}
 
-            </Modal.Body>
+            </ModalBody>
         )
         
     }
 
     renderFooter():JSX.Element {
         return (
-            <Modal.Footer>
-                <Button bsStyle="warning" onClick={this.cancel}>Cancel</Button>
-                <Button bsStyle="primary"
+            <ModalFooter>
+                <Button color="warning" onClick={this.cancel}>Cancel</Button>
+                <Button color="primary"
                     onClick={(event) =>this.proceed(event)}
                 > {this.state.selected ? 'Create' : 'Next' }</Button>
-            </Modal.Footer>
+            </ModalFooter>
         )
     }
     proceed(event) {
-        this.state.confirmedSource ? this.close(event) : this.setState({confirmedSource: true})
+        this.state.confirmedSource ? this.close() : this.setState({confirmedSource: true})
     }
 
     setSource(event, source){
@@ -140,12 +139,12 @@ export class SourceCreateButton extends React.Component<Props, State> {
         } 
 
         return (
-            <Well>
+            <div>
             title: {this.state.selected.title} <br/>
             rowCound: {this.state.selected.rowCount} <br/>
             owner: {this.state.selected.owner} <br/>
             size: {this.state.selected.size} <br/>
-        </Well>
+        </div>
         )
 
     }
@@ -156,16 +155,16 @@ export class SourceCreateButton extends React.Component<Props, State> {
 
     getAddSourcePage():JSX.Element {
         return (<Row>
-            <Col xs={8} xsOffset={2} >
+            <Col xs={{size:8, offset:2}} >
             <Dropzone style={{width:"100%", height:250}} accept="" onDrop={this.onFileDrop}>
-                <Well style={{marginTop:"33px"}}>
+                <div style={{marginTop:"33px"}}>
                     <h3 style={{display: 'flex', justifyContent: 'center'}}>
                         Drag and Drop a file.
                     </h3>
-                    <Glyphicon glyph="file" style={{fontSize:90, justifyContent: 'center', display: 'flex'}} />
+                    {/* <Glyphicon glyph="file" style={{fontSize:90, justifyContent: 'center', display: 'flex'}} /> */}
                     <br/>
                     <Button>Select File</Button>
-                </Well>
+                </div>
             </Dropzone>
             </Col>
         </Row>);
@@ -174,7 +173,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
     render() {
         return (<div className="fixed-plugin-left" onClick={this.open}>
             <div>
-                <Glyphicon className="sideMenuIcon" glyph="plus"/>
+                {/* <Glyphicon className="sideMenuIcon" glyph="plus"/> */}
                 {this.getModal()}
             </div>
         </div>);

@@ -1,6 +1,6 @@
 import * as React from "react";
 import axios from "axios"
-import {Modal, ControlLabel, FormControl, Button, Glyphicon, HelpBlock, FormGroup, NavItem} from "react-bootstrap";
+import {Modal, ModalBody, ModalFooter, ModalHeader, Input, Button, FormGroup, NavItem} from "reactstrap";
 import pageActions from "../../../data/pages/actions";
 import {IPage} from "myModels";
 
@@ -27,7 +27,7 @@ export class DeletePageButton extends React.Component<Props, State> {
         this.setState({showModal:true});
     }
 
-    cancel = (event) => {
+    cancel = () => {
         if (event) event.stopPropagation();
         this.setState(new State());
     }
@@ -37,18 +37,18 @@ export class DeletePageButton extends React.Component<Props, State> {
             <Button className="close"
                 onClick={this.open}
             >x
-                <Modal bsSize="small" show={this.state.showModal} onHide={this.cancel}>
-                    <Modal.Header>Delete Page</Modal.Header>
-                    <Modal.Body>Are you sure you want to delete <b>{this.props.pageName}</b>?</Modal.Body>
-                    <Modal.Footer>
-                        <Button bsStyle="warning" onClick={this.cancel}>
+                <Modal size="small" isOpen={this.state.showModal} onClosed={this.cancel}>
+                    <ModalHeader>Delete Page</ModalHeader>
+                    <ModalBody>Are you sure you want to delete <b>{this.props.pageName}</b>?</ModalBody>
+                    <ModalFooter>
+                        <Button color="warning" onClick={this.cancel}>
                             Cancel
                         </Button>
-                        <Button bsStyle="primary"
+                        <Button color="primary"
                         onClick={this.close}>
                             Confirm
                         </Button>
-                    </Modal.Footer>
+                    </ModalFooter>
                 </Modal>
             </Button>
         );

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Modal, Button, Glyphicon} from "react-bootstrap";
+import {Modal, ModalBody, ModalFooter, ModalHeader, Button} from "reactstrap";
 import WidgetActions from "../../../data/widgets/actions";
 
 class State {
@@ -26,27 +26,27 @@ export class RemoveWidgetButton extends React.Component<Props, State> {
         })
     }
 
-    cancel = (event) => {
+    cancel = () => {
         if (event) event.stopPropagation();
         this.setState(new State());        
     }
 
     getModal():JSX.Element {
-        return <Modal bsSize="small" show={this.state.showModal} onHide={this.cancel}>
-            <Modal.Header>Delete Widget</Modal.Header>
-            <Modal.Body>
+        return <Modal size="small" isOpen={this.state.showModal} onClosed={this.cancel}>
+            <ModalHeader>Delete Widget</ModalHeader>
+            <ModalBody>
                 Are you sure you want to delete this widget?
-            </Modal.Body>
-            <Modal.Footer>
-                <Button bsStyle="warning" onClick={this.cancel}>Cancel</Button>
-                <Button bsStyle="primary" onClick={this.close}>Confirm</Button>
-            </Modal.Footer>
+            </ModalBody>
+            <ModalFooter>
+                <Button color="warning" onClick={this.cancel}>Cancel</Button>
+                <Button color="primary" onClick={this.close}>Confirm</Button>
+            </ModalFooter>
         </Modal>
     }
 
     render() {
-        return <Button onClick={this.open} className="pull-right" bsStyle="primary" bsSize="small">
-            <Glyphicon glyph="remove" />
+        return <Button onClick={this.open} className="pull-right" color="primary" size="small">
+            {/* <Glyphicon glyph="remove" /> */}
             {this.getModal()}
         </Button>
     }
