@@ -102,7 +102,9 @@ export class Navigation extends React.Component<NavProps, NavState> {
                 {this.getBookDropDown()}
                 <Nav>
                     <NavItem>
-                        <NavLink href="/home">Home</NavLink>
+                        <NavLink>
+                            <Link to="/home">Home</Link>
+                        </NavLink>
                     </NavItem>
                         { !this.props.user
                             ? <NavItem><Link to="/register">Register</Link></NavItem>
