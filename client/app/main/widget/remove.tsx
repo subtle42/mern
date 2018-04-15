@@ -33,7 +33,7 @@ export class RemoveWidgetButton extends React.Component<Props, State> {
     }
 
     getModal():JSX.Element {
-        return <Modal size="small" isOpen={this.state.showModal} onClosed={this.cancel}>
+        return <Modal size="sm" isOpen={this.state.showModal} onClosed={this.cancel}>
             <ModalHeader>Delete Widget</ModalHeader>
             <ModalBody>
                 Are you sure you want to delete this widget?

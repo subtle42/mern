@@ -54,11 +54,11 @@ export default class CreateBookButton extends React.Component<{}, State> {
                             <Input 
                                 type="text"
                                 value={this.state.pageName}
-                                name="pageName"
+                                name="bookName"
                                 placeholder="Enter Name"
                                 onChange={this.handleChange}
                             />
-                            {!this.state.validationState || <FormText>Name must be at least 3 characters.</FormText>}
+                            {/* {!this.state.validationState || <FormText>Name must be at least 3 characters.</FormText>} */}
                             
                         </FormGroup>
                     </ModalBody>

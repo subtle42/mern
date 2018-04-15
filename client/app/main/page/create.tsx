@@ -56,10 +56,10 @@ export class CreatePageButton extends React.Component<Props, State> {
     render() {
         return (
             <NavItem onClick={this.open}>
-                <NavLink>
+                <NavLink style={{height:42}}>
                     <FontAwesome name="plus" />
                 </NavLink>
-                <Modal size="small" isOpen={this.state.showModal} onClosed={this.cancel}>
+                <Modal size="sm" isOpen={this.state.showModal} onClosed={this.cancel}>
                     <ModalHeader>Create Page</ModalHeader>
                     <ModalBody>
                         <FormGroup>
@@ -71,16 +71,16 @@ export class CreatePageButton extends React.Component<Props, State> {
                                 placeholder="Enter Name"
                                 onChange={this.handleChange}
                             />
-                            {!this.state.validationState || <FormText>Name must be at least 3 characters.</FormText>}
+                            {/* {!this.state.validationState || <FormText>Name must be at least 3 characters.</FormText>} */}
                             
                         </FormGroup>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="warning" onClick={this.cancel}>Cancel</Button>
                         <Button color="primary"
                             disabled={!!this.state.validationState || this.state.pageName.length === 0} 
                             onClick={this.close}
                         >Create</Button>
+                        <Button color="secondary" onClick={this.cancel}>Cancel</Button>
                     </ModalFooter>
                 </Modal>
             </NavItem>

@@ -41,16 +41,16 @@ export class DeletePageButton extends React.Component<Props, State> {
                 style={{float:"right"}}
             >
                 <FontAwesome style={{paddingLeft:5, paddingTop:3}} name="times" />
-                <Modal size="small" isOpen={this.state.showModal} onClosed={this.cancel}>
+                <Modal size="sm" isOpen={this.state.showModal} onClosed={this.cancel}>
                     <ModalHeader>Delete Page</ModalHeader>
                     <ModalBody>Are you sure you want to delete <b>{this.props.pageName}</b>?</ModalBody>
                     <ModalFooter>
-                        <Button color="warning" onClick={this.cancel}>
-                            Cancel
-                        </Button>
                         <Button color="primary"
                         onClick={this.close}>
                             Confirm
+                        </Button>
+                        <Button color="secondary" onClick={this.cancel}>
+                            Cancel
                         </Button>
                     </ModalFooter>
                 </Modal>
