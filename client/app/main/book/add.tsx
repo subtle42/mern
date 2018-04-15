@@ -46,7 +46,7 @@ export default class CreateBookButton extends React.Component<{}, State> {
         return (
             <DropdownItem onClick={() => this.open()}>
                 Add Book
-                {/* <Modal size="small" isOpen={this.state.showModal} onClosed={this.close}>
+                <Modal size="small" isOpen={this.state.showModal} onClosed={this.close}>
                     <ModalHeader>Create Book</ModalHeader>
                     <ModalBody>
                         <FormGroup>
@@ -69,7 +69,7 @@ export default class CreateBookButton extends React.Component<{}, State> {
                             onClick={this.close}
                         >Create</Button>
                     </ModalFooter>
-                </Modal> */}
+                </Modal>
             </DropdownItem>
         );
     }
