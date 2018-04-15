@@ -16,7 +16,7 @@ import authModel from "./auth/model";
 interface myStore {
     books:booksModel,
     pages:pagesModel,
-    widget:widgetsModel,
+    widgets:widgetsModel,
     auth:authModel,
     sources:sourcesModel
 }

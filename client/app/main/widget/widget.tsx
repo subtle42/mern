@@ -11,6 +11,45 @@ interface Props {
     _id?:any;
 }
 
+class State {
+    widgetConfig:IWidget;
+}
+
+export class Widget extends React.Component<Props, State> {
+    state = new State();
+    unsubscribe:Function;
+
+    componentDidMount() {
+        this.unsubscribe = store.subscribe(() => {
+            let newValue = store.getState().widgets.list.filter(w => w._id === this.props._id)[0]
+            if (this.state.widgetConfig !== newValue) {
+                this.setState({
+                    widgetConfig: newValue
+                });
+            }
+        })
+    }
+
+    componentWillUnmount() {
+        this.unsubscribe();
+    }
+
+    render() {
+        return (<Card style={{height:"100%"}}>
+            <CardHeader style={{padding:0, border:0, backgroundColor:"#007bff"}}>
+                <Button className="pull-left" color="primary" size="small" >
+                    <FontAwesome name="cog" />
+                </Button>
+                <RemoveWidgetButton _id={this.props._id} />
+                <CardTitle style={{color:"white", margin:0}}> Widget {this.props._id}</CardTitle>
+            </CardHeader>
+            <CardBody style={{height:"100%"}}>
+                <Histogram />
+            </CardBody>
+        </Card>);
+    }
+}
+
 const MyComponent:React.StatelessComponent<Props> = (props:Props) => {
     return (
         <Card style={{height:"100%"}}>
@@ -33,7 +72,7 @@ const MyComponent:React.StatelessComponent<Props> = (props:Props) => {
     );
 }
 
-export const Widget = MyComponent;
+// export const Widget = MyComponent;
 
 // export const Widget = connect((store:any) => {
 //     return {
