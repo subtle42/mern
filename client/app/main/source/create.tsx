@@ -17,9 +17,7 @@ class State {
     confirmedSource:boolean = false;
 }
 
-interface Props {
-    className?:string;
-}
+interface Props {}
 
 export class SourceCreateButton extends React.Component<Props, State> {
     state:State = new State();
@@ -55,9 +53,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
     }
 
     getModal():JSX.Element {
-        const sources = store.getState().sources.list;
-
-        return (<Modal size="large" isOpen={this.state.showModal} onClosed={this.close}>
+        return (<Modal size="lg" isOpen={this.state.showModal} onClosed={this.close}>
             {this.renderHeader()}
             {this.renderBody()}
             {this.renderFooter()}
@@ -67,71 +63,62 @@ export class SourceCreateButton extends React.Component<Props, State> {
     renderHeader():JSX.Element {
         return (
             <ModalHeader> {this.state.selected ? 'Select Chart' :'Sources' }  
-                    <Dropzone style={{height: 24, width: 24}} onDrop={this.onFileDrop}>
-                <Button>
-                        {/* <Glyphicon glyph="plus" style={{fontSize:12, justifyContent: 'center', display: 'flex'}}/> */}
-                </Button>
-                    </Dropzone>
+                <Dropzone style={{height: 24, width: 24}} onDrop={this.onFileDrop}>
+                    <Button color="general">
+                        <FontAwesome name="file" />
+                    </Button>
+                </Dropzone>
             </ModalHeader>
         )
+    }
+
+    getSourceListPreview():JSX.Element {
+        return <Row>
+            <Col xs={6}> <ListGroup>
+                {this.state.sources.map((source) => <ListGroupItem 
+                    className={source == this.state.selected ? 'active' : '' } 
+                    href="#" 
+                    key={source._id} 
+                    onClick={() => this.setSource(source)}> {source.title}
+                    </ListGroupItem>)}
+                </ListGroup></Col>
+            <Col xs={6}> 
+                {this.sourceDetails()}
+            </Col>
+        </Row>
     }
 
     renderBody():JSX.Element {
         return (
             <ModalBody>
-                {!this.state.selected ? (
-                <Row>
-                <Col xs={6}> <ListGroup>
-                    {this.state.sources.map((source) => <ListGroupItem 
-                        className={source == this.state.selected ? 'active' : '' } 
-                        href="#" 
-                        key={source._id} 
-                        onClick={(e) => this.setSource(e, source)}> {source.title}
-                        </ListGroupItem>)}
-                    </ListGroup></Col>
-                <Col xs={6}> 
-                    {this.sourceDetails()}
-                </Col>
-            </Row>
-                ): (
-                    <CreateWidget />
-                )}
-
+                {!this.state.confirmedSource && this.getSourceListPreview()}
+                {this.state.confirmedSource && <CreateWidget />}
             </ModalBody>
         )
-        
     }
 
     renderFooter():JSX.Element {
         return (
             <ModalFooter>
-                <Button color="primary"
-                    onClick={(event) =>this.proceed(event)}
-                > {this.state.selected ? 'Create' : 'Next' }</Button>
+                <Button color="primary" disabled={!this.state.selected}
+                    onClick={() =>this.proceed()}
+                > {this.state.confirmedSource ? 'Create' : 'Next' }</Button>
                 <Button color="secondary" onClick={this.cancel}>Cancel</Button>
+                {this.state.confirmedSource ? <Button color="secondary" onClick={() => this.back()} style={{float:"left"}}>Back</Button> : null}
             </ModalFooter>
         )
     }
-    proceed(event) {
+
+    proceed() {
         this.state.confirmedSource ? this.close() : this.setState({confirmedSource: true})
     }
 
-    setSource(event, source){
-        this.setState({selected: source});
+    back() {
+        this.setState({confirmedSource: false});
     }
 
-    getSelectSourcePage():JSX.Element {
-        return (<Row>
-            <Col xs={6}>
-                <ListGroup>
-                    <ListGroupItem href="#">Item 1</ListGroupItem>
-                    <ListGroupItem href="#">Item 2</ListGroupItem>
-                </ListGroup>
-            </Col>
-            <Col xs={6}>
-                
-            </Col>
-        </Row>);
+    setSource(source){
+        this.setState({selected: source});
     }
 
     sourceDetails():JSX.Element{
@@ -139,36 +126,16 @@ export class SourceCreateButton extends React.Component<Props, State> {
             return <div></div>
         } 
 
-        return (
-            <div>
+        return (<div>
             title: {this.state.selected.title} <br/>
             rowCound: {this.state.selected.rowCount} <br/>
             owner: {this.state.selected.owner} <br/>
             size: {this.state.selected.size} <br/>
-        </div>
-        )
-
+        </div>)
     }
 
     createWidget(){
         widgetActions.create()
-    }
-
-    getAddSourcePage():JSX.Element {
-        return (<Row>
-            <Col xs={{size:8, offset:2}} >
-            <Dropzone style={{width:"100%", height:250}} accept="" onDrop={this.onFileDrop}>
-                <div style={{marginTop:"33px"}}>
-                    <h3 style={{display: 'flex', justifyContent: 'center'}}>
-                        Drag and Drop a file.
-                    </h3>
-                    {/* <Glyphicon glyph="file" style={{fontSize:90, justifyContent: 'center', display: 'flex'}} /> */}
-                    <br/>
-                    <Button>Select File</Button>
-                </div>
-            </Dropzone>
-            </Col>
-        </Row>);
     }
 
     render() {

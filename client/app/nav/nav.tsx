@@ -131,6 +131,4 @@ export default connect((store:any) => {
         books: store.books.list,
         selectedBook: store.books.selected
     }
-}, (dispatch:Dispatch<any>) => {
-    return {};
 })(Navigation);
