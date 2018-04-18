@@ -10,6 +10,7 @@ const APP_DIR = path.resolve(__dirname, 'client/app');
 module.exports = {
   watch:true,
   mode: "development",
+  devtool: "source-map",
   entry: APP_DIR + '/index.tsx',
   output: {
     path: BUILD_DIR,
