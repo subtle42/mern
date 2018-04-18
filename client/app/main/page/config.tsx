@@ -116,119 +116,129 @@ export class PageConfigButton extends React.Component<Props, State> {
         return (<Modal size="lg" isOpen={this.state.showModal} onClosed={this.cancel}>
             <ModalHeader>Page Config</ModalHeader>
             <ModalBody>
-                <Row style={{paddingBottom:10}}>
-                    <FormGroup>
-                        <Col xs={6}>
-                            <Label>Name:</Label>
-                            <Input 
-                                type="text"
-                                value={this.state.page.name}
-                                name="pageName"
-                                placeholder="Enter Name"
+                <Row>
+                    <Col xs={6}>
+                        <FormGroup>
+                        <Label>Name:</Label>
+                        <Input 
+                            type="text"
+                            value={this.state.page.name}
+                            name="pageName"
+                            placeholder="Enter Name"
+                            onChange={this.handleChange}
+                        />
+                        {!this.state.validationState || <FormText>Name must be at least 3 characters.</FormText>}
+                        </FormGroup>
+                    </Col>
+                    <Col xs={6}>
+                        <Label>Column Count</Label>
+                        <Input
+                                type="number"
+                                min={1}
+                                max={20}
+                                value={this.state.page.cols}
                                 onChange={this.handleChange}
-                            />
-                            {!this.state.validationState || <FormText>Name must be at least 3 characters.</FormText>}
-                        </Col>
-                        <Col xs={6}>
-                            <Label>Column Count</Label>
-                            <Input
-                                    type="number"
-                                    min={1}
-                                    max={20}
-                                    value={this.state.page.cols}
-                                    onChange={this.handleChange}
-                                    name="cols"
-                            />
-                        </Col>
-                    </FormGroup>
+                                name="cols"
+                        />
+                    </Col>
                 </Row>
-                <Row style={{paddingBottom:10}}>
-                    <FormGroup>
-                        <Col xs={3}>
-                            <Label>Margins</Label>
-                            <Input
-                                type="number"
-                                min={0}
-                                max={100}
-                                value={this.state.page.margin[0]}
-                                onChange={this.handleArray}
-                                name="margin-0"
-                            />
-                        </Col>
-                        <Col xs={3}>
-                            <Label>Margins</Label>
-                            <Input
-                                type="number"
-                                min={0}
-                                max={100}
-                                value={this.state.page.margin[1]}
-                                onChange={this.handleArray}
-                                name="margin-1"
-                            />
-                        </Col>
-                        <Col xs={3}>
-                            <Label>Padding</Label>
-                            <Input
-                                type="number"
-                                min={0}
-                                max={100}
-                                value={this.state.page.containerPadding[0]}
-                                onChange={this.handleArray}
-                                name="containerPadding-0"
-                            />
-                        </Col>
-                        <Col xs={3}>
-                            <Label>Padding</Label>
-                            <Input
-                                type="number"
-                                min={0}
-                                max={100}
-                                value={this.state.page.containerPadding[1]}
-                                onChange={this.handleArray}
-                                name="containerPadding-1"
-                            />
-                        </Col>
-                    </FormGroup>
+                <Row>
+                    <Col xs={3}>
+                        <Label>Margins</Label>
+                        <Input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={this.state.page.margin[0]}
+                            onChange={this.handleArray}
+                            name="margin-0"
+                        />
+                    </Col>
+                    <Col xs={3}>
+                        <Label>Margins</Label>
+                        <Input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={this.state.page.margin[1]}
+                            onChange={this.handleArray}
+                            name="margin-1"
+                        />
+                    </Col>
+                    <Col xs={3}>
+                        <Label>Padding</Label>
+                        <Input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={this.state.page.containerPadding[0]}
+                            onChange={this.handleArray}
+                            name="containerPadding-0"
+                        />
+                    </Col>
+                    <Col xs={3}>
+                        <Label>Padding</Label>
+                        <Input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={this.state.page.containerPadding[1]}
+                            onChange={this.handleArray}
+                            name="containerPadding-1"
+                        />
+                    </Col>
                 </Row>
-                <Row style={{paddingBottom:10}}>
-                    <FormGroup>
+                <Row style={{paddingTop:20}}>
                     <Col xs={6}>
-                        <Label>Is Draggable</Label><br/>
-                        <Button color={this.state.page.isDraggable ? "success" : "danger"}
-                            onClick={(event) => this.toggleCheckBox("isDraggable", event)}
-                        >
-                            {this.state.page.isDraggable.toString().toLocaleUpperCase()}
-                        </Button>
+                        <FormGroup row>
+                            <Label xs={6}>Is Draggable</Label>
+                            <Col xs={6}>
+                                <Button color={this.state.page.isDraggable ? "success" : "danger"}
+                                    onClick={(event) => this.toggleCheckBox("isDraggable", event)}
+                                >
+                                    {this.state.page.isDraggable.toString().toLocaleUpperCase()}
+                                </Button>
+                            </Col>
+                        </FormGroup>
                     </Col>
                     <Col xs={6}>
-                        <Label>Is Resizable</Label><br/>
-                        <Button color={this.state.page.isResizable ? "success" : "danger"}
-                            onClick={(event) => this.toggleCheckBox("isResizable", event)}
-                        >
-                            {this.state.page.isResizable.toString().toLocaleUpperCase()}
-                        </Button>
+                        <FormGroup row>
+                            <Label xs={6}>Is Resizable</Label>
+                            <Col xs={6}>
+                                <Button color={this.state.page.isResizable ? "success" : "danger"}
+                                    onClick={(event) => this.toggleCheckBox("isResizable", event)}
+                                >
+                                    {this.state.page.isResizable.toString().toLocaleUpperCase()}
+                                </Button>
+                            </Col>
+                        </FormGroup>
                     </Col>
-                    </FormGroup>
                 </Row>
-                <Row style={{paddingBottom:10}}>
-                    <FormGroup>
-                        <Col xs={6}>
-                            <Label>Is Rearrangeable</Label><br/>
-                            <Button color={this.state.page.isRearrangeable ? "success" : "danger"}
-                                onClick={(event) => this.toggleCheckBox("isRearrangeable", event)}
-                            >
-                                {this.state.page.isRearrangeable.toString().toLocaleUpperCase()}
-                            </Button>
-                        </Col>
-                        <Col xs={6}>
-                            <Label>Prevent Collisions</Label><br/>
-                            <Button color={this.state.page.preventCollision ? "success" : "danger"}
-                                onClick={(event) => this.toggleCheckBox("preventCollision", event)}
-                            >
-                                {this.state.page.preventCollision.toString().toLocaleUpperCase()}
-                            </Button>
-                        </Col>
-                    </FormGroup>
+                <Row style={{paddingTop:20}}>
+                    <Col xs={6}>
+                        <FormGroup row>
+                            <Label xs={6}>Is Rearrangeable</Label>
+                            <Col xs={6}>
+                                <Button color={this.state.page.isRearrangeable ? "success" : "danger"}
+                                    onClick={(event) => this.toggleCheckBox("isRearrangeable", event)}
+                                >
+                                    {this.state.page.isRearrangeable.toString().toLocaleUpperCase()}
+                                </Button>
+                            </Col>
+                        </FormGroup>
+                    </Col>
+                    <Col xs={6}>
+                        <FormGroup row>
+                            <Label xs={6}>Prevent Collisions</Label>
+                            <Col xs={6}>
+                                <Button color={this.state.page.preventCollision ? "success" : "danger"}
+                                    onClick={(event) => this.toggleCheckBox("preventCollision", event)}
+                                >
+                                    {this.state.page.preventCollision.toString().toLocaleUpperCase()}
+                                </Button>
+                            </Col>
+                        </FormGroup>
+                    </Col>
                 </Row>
             </ModalBody>
             <ModalFooter>
