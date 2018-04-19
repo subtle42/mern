@@ -96,11 +96,10 @@ export class Navigation extends React.Component<NavProps, NavState> {
       render() {
         return (
             <Navbar color="light" light expand="md"> 
-                    <NavbarBrand> WhIM </NavbarBrand>
-    
-                <Collapse isOpen={this.state.isOpen} navbar>
+                <NavbarBrand> WhIM </NavbarBrand>
+                <Collapse isOpen={this.state.isOpen} navbar style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
                 {this.getBookDropDown()}
-                <Nav>
+                <Nav >
                     <NavItem key={1}>
                         <NavLink>
                             <Link to="/home">Home</Link>
