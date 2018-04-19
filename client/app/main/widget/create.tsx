@@ -6,6 +6,7 @@ import * as FontAwesome from "react-fontawesome";
 
 interface Props {
     sourceId?:any;
+    setType:(type:ChartType) => void
 }
 
 class State {
@@ -55,10 +56,11 @@ export class CreateWidget extends React.Component<Props, State> {
         }
     }
 
-    selectConfig(item) {
-        this.setState({
-            selected:item
-        })
+    selectConfig(item:ChartConf) {
+        this.props.setType(item.type)
+        // this.setState({
+        //     selected:item
+        // })
     }
 
     buildRows():JSX.Element[] {

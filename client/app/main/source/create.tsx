@@ -6,6 +6,7 @@ import widgetActions from "../../../data/widgets/actions";
 import store from "../../../data/store";
 import { ISource } from 'myModels';
 import { CreateWidget } from '../widget/create';
+import {ChartType} from "myConstants";
 import * as FontAwesome from "react-fontawesome";
 import "./style.css";
 
@@ -16,7 +17,7 @@ class State {
     selected: ISource;
     confirmedSource: boolean = false;
     tooltipOpen: boolean = false;
-    chartType:string;
+    chartType:ChartType;
 }
 
 interface Props { }
@@ -63,7 +64,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
         reader.readAsArrayBuffer(acceptedFiles[0]);
     }
 
-    setChartType = (type:string) => {
+    setChartType = (type:ChartType) => {
         this.setState({
             chartType:type
         });
@@ -81,7 +82,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
         return (
             <div className='modal-header'>
                 <h5>{this.state.selected ? 'Select Chart' : 'Sources'}</h5>
-                {!this.state.selected &&
+                {!this.state.confirmedSource &&
                     <Dropzone onDrop={this.onFileDrop} style={{ width: 'max-content' }} >
                         <Button color="general" id="TooltipExample">
                             <FontAwesome name="file" />
@@ -115,7 +116,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
         return (
             <ModalBody>
                 {!this.state.confirmedSource && this.getSourceListPreview()}
-                {this.state.confirmedSource && <CreateWidget />}
+                {this.state.confirmedSource && <CreateWidget setType={(type) => this.setChartType(type)} />}
             </ModalBody>
         )
     }
