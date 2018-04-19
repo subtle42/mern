@@ -42,9 +42,9 @@ export class SourceCreateButton extends React.Component<Props, State> {
 
     toggle = () => {
         this.setState({
-          tooltipOpen: !this.state.tooltipOpen
+            tooltipOpen: !this.state.tooltipOpen
         });
-      }
+    }
 
     onFileDrop(acceptedFiles: ImageFile[], rejectedFiles: ImageFile[]) {
         // Needed to make sure there is no memory leak
@@ -69,17 +69,19 @@ export class SourceCreateButton extends React.Component<Props, State> {
 
     renderHeader(): JSX.Element {
         return (
-                <div className='modal-header'> 
-                    <h5>{this.state.selected ? 'Select Chart' : 'Sources'}</h5> 
-                    <Dropzone onDrop={this.onFileDrop} style={{width: 'max-content'}} >
+            <div className='modal-header'>
+                <h5>{this.state.selected ? 'Select Chart' : 'Sources'}</h5>
+                {!this.state.selected &&
+                    <Dropzone onDrop={this.onFileDrop} style={{ width: 'max-content' }} >
                         <Button color="general" id="TooltipExample">
                             <FontAwesome name="file" />
                         </Button>
+                        <Tooltip placement="bottom" isOpen={this.state.tooltipOpen} target="TooltipExample" toggle={this.toggle}>
+                            Import File
+                                </Tooltip>
                     </Dropzone>
-                    <Tooltip placement="bottom" isOpen={this.state.tooltipOpen} target="TooltipExample" toggle={this.toggle}>          
-                        Import File
-                    </Tooltip>
-                </div>
+                }
+            </div>
         )
     }
 
@@ -115,7 +117,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
                     {this.state.confirmedSource && <Button color="secondary" onClick={() => this.back()}>Back</Button>}
                 </div>
                 <div>
-                    <Button color="primary" disabled={!this.state.selected} style={{marginRight: 20}}
+                    <Button color="primary" disabled={!this.state.selected} style={{ marginRight: 20 }}
                         onClick={() => this.proceed()}
                     > {this.state.confirmedSource ? 'Create' : 'Next'}</Button>
                     <Button color="secondary" onClick={this.cancel}>Cancel</Button>
@@ -132,8 +134,10 @@ export class SourceCreateButton extends React.Component<Props, State> {
         this.setState({ confirmedSource: false });
     }
 
-    setSource(source) {
-        this.setState({ selected: source });
+    setSource(source:ISource):void {
+        this.setState({ 
+            selected: this.state.selected === source ? undefined : source
+        });
     }
 
     sourceDetails(): JSX.Element {
