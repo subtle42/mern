@@ -15,6 +15,7 @@ class State {
     sources:ISource[] = [];
     selected:ISource;
     confirmedSource:boolean = false;
+    chartType:string;
 }
 
 interface Props {}
@@ -23,7 +24,10 @@ export class SourceCreateButton extends React.Component<Props, State> {
     state:State = new State();
     
     close = () => {
-        this.createWidget();
+        widgetActions.create({
+            source: this.state.selected,
+            type: this.state.chartType
+        });
         this.setState(new State());
     }
 
@@ -34,7 +38,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
         });
     }
 
-    cancel = (event) => {
+    cancel = (event?) => {
         if (event) event.stopPropagation();
         this.setState(new State());
     }
@@ -52,8 +56,14 @@ export class SourceCreateButton extends React.Component<Props, State> {
         reader.readAsArrayBuffer(acceptedFiles[0]);
     }
 
+    setChartType = (type:string) => {
+        this.setState({
+            chartType:type
+        });
+    }
+
     getModal():JSX.Element {
-        return (<Modal size="lg" isOpen={this.state.showModal} onClosed={this.close}>
+        return (<Modal size="lg" isOpen={this.state.showModal}>
             {this.renderHeader()}
             {this.renderBody()}
             {this.renderFooter()}
@@ -100,11 +110,11 @@ export class SourceCreateButton extends React.Component<Props, State> {
     renderFooter():JSX.Element {
         return (
             <ModalFooter>
+                {this.state.confirmedSource && <Button color="secondary" onClick={() => this.back()} style={{float:"left"}}>Back</Button>}
                 <Button color="primary" disabled={!this.state.selected}
                     onClick={() =>this.proceed()}
                 > {this.state.confirmedSource ? 'Create' : 'Next' }</Button>
                 <Button color="secondary" onClick={this.cancel}>Cancel</Button>
-                {this.state.confirmedSource ? <Button color="secondary" onClick={() => this.back()} style={{float:"left"}}>Back</Button> : null}
             </ModalFooter>
         )
     }
@@ -132,10 +142,6 @@ export class SourceCreateButton extends React.Component<Props, State> {
             owner: {this.state.selected.owner} <br/>
             size: {this.state.selected.size} <br/>
         </div>)
-    }
-
-    createWidget(){
-        widgetActions.create()
     }
 
     render() {

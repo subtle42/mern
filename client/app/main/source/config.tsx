@@ -30,8 +30,7 @@ export class SourceConfigButton extends React.Component<Props, State> {
     }
 
     render() {
-        return (<Button size="large" className={this.props.className} onClick={this.open}>
-            {/* <Glyphicon glyph="hhd" /> */}
+        return (<Button size="lg" className={this.props.className} onClick={this.open}>
             <i className="material-icons">file_upload</i>
             <Modal size="large" isOpen={this.state.showModal} onClosed={this.close}>
                 <ModalHeader>Source Configuration</ModalHeader>

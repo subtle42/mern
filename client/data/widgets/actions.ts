@@ -2,6 +2,7 @@ import store from "../store";
 import BaseActions from "../baseActions";
 import axios from "axios";
 import pageActions from "../pages/actions"
+import { ISource } from "myModels";
 
 class WidgetActions extends BaseActions{
     constructor(store) {
@@ -13,11 +14,13 @@ class WidgetActions extends BaseActions{
         return null;
     }
 
-    create():Promise<void> {
+    create(config:{source:ISource, type:string}):Promise<void> {
         const myPage = store.getState().pages.selected;
         
         return axios.post(`/api/widgets`, {
-            pageId: myPage._id
+            pageId: myPage._id,
+            sourceId: config.source._id,
+            type: config.type
         })
         .then(res => undefined);
         // Doing spreads do not modify the store
