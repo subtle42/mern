@@ -38,7 +38,9 @@ export interface IWidget {
         bottom:number,
         left:number,
         right:number
-    }
+    },
+    measures:[{ref:string}];
+    dimensions:string[];
 }
 
 export interface ISource extends IShared{

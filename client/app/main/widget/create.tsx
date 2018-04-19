@@ -2,6 +2,7 @@ import * as React from "react";
 import {Button, Row, Col} from "reactstrap";
 import {ChartType, ColumnType} from "myConstants"
 import WidgetActions from "../../../data/widgets/actions"
+import * as FontAwesome from "react-fontawesome";
 
 interface Props {
     sourceId?:any;
@@ -23,55 +24,6 @@ class ChartConfReq {
 }
 
 const chartConfList:ChartConf[] = [{
-    name: "Histogram",
-    type: "histogram",
-    requires: [{
-        count: 1,
-        colType: "number"
-    }]
-}, {
-    name: "Histogram",
-    type: "histogram",
-    requires: [{
-        count: 1,
-        colType: "number"
-    }]
-}, {
-    name: "Histogram",
-    type: "histogram",
-    requires: [{
-        count: 1,
-        colType: "number"
-    }]
-}, {
-    name: "Histogram",
-    type: "histogram",
-    requires: [{
-        count: 1,
-        colType: "number"
-    }]
-}, {
-    name: "Histogram",
-    type: "histogram",
-    requires: [{
-        count: 1,
-        colType: "number"
-    }]
-}, {
-    name: "Histogram",
-    type: "histogram",
-    requires: [{
-        count: 1,
-        colType: "number"
-    }]
-}, {
-    name: "Histogram",
-    type: "histogram",
-    requires: [{
-        count: 1,
-        colType: "number"
-    }]
-}, {
     name: "Histogram",
     type: "histogram",
     requires: [{
@@ -101,7 +53,6 @@ export class CreateWidget extends React.Component<Props, State> {
             sourceId: this.props.sourceId,
             type: this.state.selected.type
         }
-        WidgetActions.create()
     }
 
     selectConfig(item) {
@@ -130,6 +81,7 @@ export class CreateWidget extends React.Component<Props, State> {
                     onClick={() => this.selectConfig(col)}
                     color={col === this.state.selected ? "primary": "warning"}
                     size="large">
+                        <FontAwesome name="puzzle-piece" size="4x" /><br/>
                         {col.name}
                     </Button>
                 </Col>)

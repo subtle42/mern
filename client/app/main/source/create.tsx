@@ -16,6 +16,7 @@ class State {
     selected: ISource;
     confirmedSource: boolean = false;
     tooltipOpen: boolean = false;
+    chartType:string;
 }
 
 interface Props { }
@@ -24,7 +25,10 @@ export class SourceCreateButton extends React.Component<Props, State> {
     state: State = new State();
 
     close = () => {
-        this.createWidget();
+        widgetActions.create({
+            source: this.state.selected,
+            type: this.state.chartType
+        });
         this.setState(new State());
     }
 
@@ -35,7 +39,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
         });
     }
 
-    cancel = (event) => {
+    cancel = (event?) => {
         if (event) event.stopPropagation();
         this.setState(new State());
     }
@@ -59,8 +63,14 @@ export class SourceCreateButton extends React.Component<Props, State> {
         reader.readAsArrayBuffer(acceptedFiles[0]);
     }
 
-    getModal(): JSX.Element {
-        return (<Modal size="lg" isOpen={this.state.showModal} onClosed={this.close}>
+    setChartType = (type:string) => {
+        this.setState({
+            chartType:type
+        });
+    }
+
+    getModal():JSX.Element {
+        return (<Modal size="lg" isOpen={this.state.showModal}>
             {this.renderHeader()}
             {this.renderBody()}
             {this.renderFooter()}
@@ -151,10 +161,6 @@ export class SourceCreateButton extends React.Component<Props, State> {
             owner: {this.state.selected.owner} <br />
             size: {this.state.selected.size} <br />
         </div>)
-    }
-
-    createWidget() {
-        widgetActions.create()
     }
 
     render() {

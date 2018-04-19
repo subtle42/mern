@@ -10,8 +10,9 @@ var WidgetSchema = new Schema({
         left:{type:Number, required:true, default: 10},
         right:{type:Number, required:true, default: 10},
     },
-    groups: {type:Array, required:true, default: []},
-    series: {type:Array, required:true, default: []}
+    dimensions: {type:Array, required:true, default: []},
+    measures: {type:Array, required:true, default: []},
+    type: {type:String, required:true}
 });
 
 export const Widget =  model<IWidgetModel>("Widget", WidgetSchema);
