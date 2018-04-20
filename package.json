@@ -2,10 +2,9 @@
   "name": "automation",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "start": "run-p build:live frontend",
-    "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./server/app.ts",
+    "build:live": "nodemon --exec ./node_modules/.bin/ts-node --inspect=5858 ./server/app.ts",
     "test:client": "mocha -r ts-node/register client/**/*.spec.*",
     "test:server": "mocha -r ts-node/register server/**/*.spec.ts",
     "test": "npm run test:client && npm run test:server",
