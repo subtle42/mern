@@ -6,7 +6,6 @@ import {connect} from "react-redux"
 import pageActions from "../../../data/pages/actions";
 import {IPage} from "myModels";
 import {PageConfigButton} from "../page/config";
-import {SourceConfigButton} from "../source/config";
 import {SourceCreateButton} from "../source/create";
 import {Widget} from "../widget/widget";
 import {PageContent} from "../page/content"
@@ -40,7 +39,6 @@ const Content:React.StatelessComponent<Props> = (props:Props) => {
     return (
         <div>
         <PageConfigButton _id={props.selected ? props.selected._id : null} />
-        <SourceConfigButton className="pull-right" />
         <SourceCreateButton />
         <Nav tabs>
             {buildTabs()}

@@ -7,6 +7,7 @@ import store from "../../../data/store";
 import { ISource } from 'myModels';
 import { CreateWidget } from '../widget/create';
 import {ChartType} from "myConstants";
+import {EditSource} from "./edit";
 import * as FontAwesome from "react-fontawesome";
 import "./style.css";
 
@@ -17,7 +18,8 @@ class State {
     selected: ISource;
     confirmedSource: boolean = false;
     tooltipOpen: boolean = false;
-    chartType:ChartType;
+    chartType: ChartType;
+    editSource: ISource;
 }
 
 interface Props { }
@@ -64,6 +66,13 @@ export class SourceCreateButton extends React.Component<Props, State> {
         reader.readAsArrayBuffer(acceptedFiles[0]);
     }
 
+    editSource = (event:React.MouseEvent<FontAwesome>, source:ISource):void => {
+        if (event) event.stopPropagation();
+        this.setState({
+            editSource:source
+        })
+    }
+
     setChartType = (type:ChartType) => {
         this.setState({
             chartType:type
@@ -104,6 +113,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
                     href="#"
                     key={source._id}
                     onClick={() => this.setSource(source)}> {source.title}
+                    <FontAwesome onClick={(event => this.editSource(event, source))} name="edit" />
                 </ListGroupItem>)}
             </ListGroup></Col>
             <Col xs={6}>
@@ -115,8 +125,9 @@ export class SourceCreateButton extends React.Component<Props, State> {
     renderBody(): JSX.Element {
         return (
             <ModalBody>
-                {!this.state.confirmedSource && this.getSourceListPreview()}
-                {this.state.confirmedSource && <CreateWidget setType={(type) => this.setChartType(type)} />}
+                {!this.state.confirmedSource && !this.state.editSource && this.getSourceListPreview()}
+                {this.state.confirmedSource && !this.state.editSource && <CreateWidget setType={(type) => this.setChartType(type)} />}
+                {this.state.editSource && <EditSource _id={this.state.editSource._id} />}
             </ModalBody>
         )
     }
