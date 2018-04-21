@@ -11,7 +11,12 @@ interface Props {
     _id:any;
 }
 
-const dropDownOptions = [{
+interface dropOption {
+    label:string;
+    value:ColumnType;
+}
+
+const dropDownOptions:dropOption[] = [{
     label: "Number",
     value: "number"
 }, {
@@ -22,9 +27,10 @@ const dropDownOptions = [{
     value: "text"
 }]
 
-interface DropProps {
-    colType:ColumnType;
+interface DropProps extends ISourceColumn {
     color:string;
+    colRef:string;
+    selectType:(ref:string, type:ColumnType) => void;
 }
 
 class ColumnTypeDropdown extends React.Component<DropProps, {}> {
@@ -40,13 +46,16 @@ class ColumnTypeDropdown extends React.Component<DropProps, {}> {
     }
 
     render() {
-        return <Dropdown style={{float:"right"}} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+        return <Dropdown size="sm" style={{float:"right"}} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
             <DropdownToggle outline color={this.props.color !== "" ? this.props.color : "secondary"} caret>
-                {dropDownOptions.filter(option => option.value === this.props.colType)[0].label}
+                {dropDownOptions.filter(option => option.value === this.props.type)[0].label}
             </DropdownToggle>
             <DropdownMenu>
-                {dropDownOptions.map((option, index) => {
-                    return <DropdownItem key={index}>{option.label}</DropdownItem>
+                {dropDownOptions
+                .filter(option => option.value !== this.props.type)
+                .map((option, index) => {
+                    console.log(this.props)
+                    return <DropdownItem key={index} onClick={() => this.props.selectType(this.props.colRef, option.value)}>{option.label}</DropdownItem>
                 })}
             </DropdownMenu>
         </Dropdown>
@@ -63,14 +72,23 @@ export class EditSource extends React.Component<Props, State> {
         });
     }
 
+    setColumnType(ref:string, newType:ColumnType) {
+        let toEditCol = this.state.toEdit.columns.filter(col => col.ref === ref)[0];
+        toEditCol.type = newType;
+        this.setState({
+            toEdit: this.state.toEdit
+        });
+    }
+
     renderColumns(columns:ISourceColumn[]):JSX.Element {
         return <ListGroup style={{height:300, overflowY:"auto"}}>
             {this.state.toEdit.columns.map(sourceCol => {
+                console.log(sourceCol)
                 return <ListGroupItem
                     color={this.getColumnColor(sourceCol)}
                     key={sourceCol.ref}>
                     {sourceCol.name}
-                    <ColumnTypeDropdown colType={sourceCol.type} color={this.getColumnColor(sourceCol)} />
+                    <ColumnTypeDropdown selectType={(ref, type) => this.setColumnType(ref, type)} colRef={sourceCol.ref} {...sourceCol} color={this.getColumnColor(sourceCol)} />
                 </ListGroupItem>
             })}
         </ListGroup>
