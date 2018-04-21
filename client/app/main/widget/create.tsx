@@ -58,9 +58,9 @@ export class CreateWidget extends React.Component<Props, State> {
 
     selectConfig(item:ChartConf) {
         this.props.setType(item.type)
-        // this.setState({
-        //     selected:item
-        // })
+        this.setState({
+            selected:item
+        })
     }
 
     buildRows():JSX.Element[] {

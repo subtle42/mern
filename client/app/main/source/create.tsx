@@ -81,7 +81,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
     renderHeader(): JSX.Element {
         return (
             <div className='modal-header'>
-                <h5>{this.state.selected ? 'Select Chart' : 'Sources'}</h5>
+                <h5>{this.state.confirmedSource ? 'Select Chart' : 'Sources'}</h5>
                 {!this.state.confirmedSource &&
                     <Dropzone onDrop={this.onFileDrop} style={{ width: 'max-content' }} >
                         <Button color="general" id="TooltipExample">
@@ -89,7 +89,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
                         </Button>
                         <Tooltip placement="bottom" isOpen={this.state.tooltipOpen} target="TooltipExample" toggle={this.toggle}>
                             Import File
-                                </Tooltip>
+                        </Tooltip>
                     </Dropzone>
                 }
             </div>
@@ -128,9 +128,12 @@ export class SourceCreateButton extends React.Component<Props, State> {
                     {this.state.confirmedSource && <Button color="secondary" onClick={() => this.back()}>Back</Button>}
                 </div>
                 <div>
-                    <Button color="primary" disabled={!this.state.selected} style={{ marginRight: 20 }}
+                    {this.state.confirmedSource && <Button color="primary" disabled={!this.state.chartType} style={{marginRight:20}}
                         onClick={() => this.proceed()}
-                    > {this.state.confirmedSource ? 'Create' : 'Next'}</Button>
+                    >Create</Button>}
+                    {!this.state.confirmedSource && <Button color="primary" disabled={!this.state.selected} style={{marginRight:20}}
+                        onClick={() => this.proceed()}
+                    >Next</Button>}
                     <Button color="secondary" onClick={this.cancel}>Cancel</Button>
                 </div>
             </ModalFooter>
