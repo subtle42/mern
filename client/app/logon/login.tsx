@@ -74,7 +74,7 @@ export default class LoginPage extends React.Component<{}, State> {
                     </Col>
                     <Col sm={10}>
                         <Input
-                            type="text"
+                            type="password"
                             value={this.state.password}
                             name="password"
                             placeholder="Password"

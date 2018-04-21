@@ -2,21 +2,27 @@ import * as React from "react";
 import axios from "axios"
 import {FormText, Input, Label, ModalHeader, ModalBody, ModalFooter, Modal, FormGroup, DropdownItem, Button } from "reactstrap";
 import BookActions from "../../../data/books/actions";
-// import { ModalHeader } from "react-bootstrap";
+import * as FontAwesome from "react-fontawesome";
 
 class State {
     showModal:boolean = false;
-    pageName:string = "";
+    bookName:string = "";
     validationState?: myStyle = undefined;
+}
+
+class Props {
+    name: string
+    _id: string
+    canEdit:boolean
 }
 
 type myStyle = "success" | "warning" | "error";
 
-export default class CreateBookButton extends React.Component<{}, State> {
+export default class EditBookButton extends React.Component<Props, State> {
     state:State = new State();
 
     close = () => {
-        BookActions.create(this.state.pageName)
+        BookActions.create(this.state.bookName)
         .then(book => this.setState(new State()));
     }
 
@@ -43,17 +49,19 @@ export default class CreateBookButton extends React.Component<{}, State> {
     }
 
     render() {
+
         return (
-            <DropdownItem onClick={() => this.open()}>
-                Add Book
+            <DropdownItem style={{ padding: '0.25rem 1.0rem' }}>
+                {this.props.name}
+                {this.props.canEdit && <FontAwesome onClick={() => this.open()} className="float-right text-muted sidemenuicon" name="edit" />}
                 <Modal size="small" isOpen={this.state.showModal} onClosed={this.close}>
-                    <ModalHeader>Create Book</ModalHeader>
+                    <ModalHeader>Edit Book</ModalHeader>
                     <ModalBody>
                         <FormGroup>
                             <Label>Name:</Label>
                             <Input 
                                 type="text"
-                                value={this.state.pageName}
+                                value={this.state.bookName}
                                 name="bookName"
                                 placeholder="Enter Name"
                                 onChange={this.handleChange}
@@ -64,10 +72,10 @@ export default class CreateBookButton extends React.Component<{}, State> {
                     </ModalBody>
                     <ModalFooter>
                         <Button color="primary"
-                            disabled={!!this.state.validationState || this.state.pageName.length === 0} 
+                            disabled={!!this.state.validationState || this.state.bookName.length === 0} 
                             onClick={this.close}
                         >Create</Button>
-                          <Button color="secondary" onClick={this.cancel}>Cancel</Button>
+                        <Button color="secondary" onClick={this.cancel}>Cancel</Button>     
                     </ModalFooter>
                 </Modal>
             </DropdownItem>

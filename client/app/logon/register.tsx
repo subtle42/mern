@@ -1,7 +1,8 @@
 import * as React from "react";
 import axios from "axios"
-import {Form, Col, Label, Input, Button, FormGroup, NavItem} from "reactstrap";
+import {Form, Col, Label, Input, Button, FormGroup, NavItem,InputGroupAddon, InputGroup} from "reactstrap";
 import AuthActions from "../../data/auth/actions";
+import * as FontAwesome from "react-fontawesome";
 
 var store:any;
 var actions:any;
@@ -96,7 +97,7 @@ export default class LoginPage extends React.Component<{}, State> {
                     </Col>
                     <Col sm={10}>
                         <Input
-                            type="text"
+                            type="password"
                             name="password"
                             placeholder="Password"
                             onChange={this.handleChange}    
@@ -113,6 +114,12 @@ export default class LoginPage extends React.Component<{}, State> {
                         Submit
                     </Button>
                 </Col>
+                <InputGroup>
+            <Input placeholder="and..." />
+            <InputGroupAddon addonType="append">
+            <FontAwesome className="btn-lg btn-outline-secondary" size="2x" name="edit" />
+            </InputGroupAddon>
+            </InputGroup>
                 </FormGroup>
                 </Col></FormGroup>
             </Form>
