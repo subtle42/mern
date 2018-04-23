@@ -15,11 +15,11 @@ import "./style.css";
 class State {
     showModal: boolean = false;
     sources: ISource[] = [];
-    selected: ISource;
+    selected: ISource = undefined;
     confirmedSource: boolean = false;
     tooltipOpen: boolean = false;
-    chartType: ChartType;
-    editSource: ISource;
+    chartType: ChartType = undefined;
+    editSource: ISource = undefined;
 }
 
 interface Props { }
@@ -113,7 +113,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
                     href="#"
                     key={source._id}
                     onClick={() => this.setSource(source)}> {source.title}
-                    <FontAwesome onClick={(event => this.editSource(event, source))} name="edit" />
+                    <FontAwesome onClick={(event => this.editSource(event, source))} name="edit" style={{float:"right"}} />
                 </ListGroupItem>)}
             </ListGroup></Col>
             <Col xs={6}>
