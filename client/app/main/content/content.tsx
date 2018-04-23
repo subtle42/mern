@@ -26,7 +26,7 @@ const Content:React.StatelessComponent<Props> = (props:Props) => {
         if (!props.pages) return [];
 
         return props.pages.map((page, index) => {
-            return <NavItem
+            return <NavItem key={index}
                 onClick={() => pageActions.select(page) }>
                 <NavLink active={isSelected(page)}>
                     {page.name}
