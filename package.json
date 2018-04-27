@@ -3,12 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "run-p build:live frontend",
-    "build:live": "nodemon --exec ./node_modules/.bin/ts-node --inspect=5858 ./server/app.ts",
-    "test:client": "mocha -r ts-node/register client/**/*.spec.*",
-    "test:server": "mocha -r ts-node/register server/**/*.spec.ts",
-    "test": "npm run test:client && npm run test:server",
-    "frontend": "webpack"
+    "start": "run-p dev:*",
+    "dev:client": "webpack",
+    "dev:server": "nodemon --inspect=5858 ./server/app.ts",
+    "test": "run-p test:*",
+    "test:client": "mocha --opts ./mocha.opts client/**/*.spec.* --watch",
+    "test:server": "mocha --opts ./mocha.opts server/**/*.spec.ts --watch",
+    "coverage": "nyc --all run-s coverage:*",
+    "coverage:client": "mocha --opts ./mocha.opts client/**/*.spec.*",
+    "coverage:server": "mocha --opts ./mocha.opts server/**/*.spec.*"
   },
   "author": "",
   "license": "ISC",
@@ -83,6 +86,27 @@
     "@types/sinon": "^4.1.3",
     "@types/socket.io": "^1.4.31",
     "@types/socket.io-client": "^1.4.32",
+    "nyc": "^11.7.1",
+    "source-map-support": "^0.5.5",
     "webpack-cli": "^2.0.13"
+  },
+  "nodemonConfig": {
+    "ignore": ["server/**/*.spec.*"],
+    "ext": "ts",
+    "exec": "./node_modules/.bin/ts-node"
+  },
+  "nyc": {
+    "include": ["**/*.ts", "**/*.tsx"],
+    "extension": [".ts",".tsx"],
+    "require": [
+      "ts-node/register",
+      "source-map-support/register"
+    ],
+    "reporter": [
+      "text-summary",
+      "html"
+    ],
+    "sourceMap": true,
+    "instrument": true
   }
 }

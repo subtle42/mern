@@ -29,7 +29,7 @@ describe("AuthActions", () => {
         // spy(actions, );
 
 
-        actions.login("", "")
-        .then(res => console.log(res))
+        // actions.login("", "")
+        // .then(res => console.log(res))
     })
 })

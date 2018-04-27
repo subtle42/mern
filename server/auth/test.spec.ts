@@ -17,7 +17,7 @@ describe("Auth Service", () => {
     })
     
     describe("isAuthenticated", () => {
-        it ("should do", done => {
+        xit ("should do", done => {
             const req = {
                 body: {},
                 query: {},

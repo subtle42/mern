@@ -2,3 +2,5 @@
 /server/**/*.js
 /client/.dist
 /uploads
+/coverage
+/.nyc_output
