@@ -20,7 +20,7 @@ module.exports = {
         extensions: ['.tsx', '.ts', '.js','.css'],
         alias: {
             "data": path.resolve(__dirname, "client/data"),
-            "common": path.resolve(__dirname, "")
+            "common": path.resolve(__dirname, "common")
         }
     },
     module: {
