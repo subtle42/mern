@@ -36,7 +36,6 @@ export default class PageController {
         var myId:string = req.params.id;
         //TODO: look through pages and widgets and remove first
         var myPage;
-        console.log(`myId: ${myId}`)
         Page.findById(myId)
         .then(page => {
             myPage = page;

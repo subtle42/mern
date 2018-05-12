@@ -81,12 +81,12 @@ export class Widget extends React.Component<Props, State> {
 
     render() {
         return (<Card style={{height:"100%"}}>
-            <CardHeader style={{padding:0, border:0, backgroundColor:"#007bff"}}>
-                <Button className="pull-left" color="primary" size="small" >
+            <CardHeader style={{padding:0, border:0}} color="secondary">
+                <Button className="pull-left" color="secondary" outline size="small" >
                     <FontAwesome name="cog" />
                 </Button>
                 <RemoveWidgetButton _id={this.props._id} />
-                <CardTitle style={{color:"white", margin:0}}>{this.state.source ? this.state.source.title : "Loading.."}</CardTitle>
+                <CardTitle style={{margin:0}}>{this.state.source ? this.state.source.title : "Loading.."}</CardTitle>
             </CardHeader>
             <CardBody style={{height:"100%"}}>
                 {this.getDropdown()}

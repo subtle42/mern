@@ -15,7 +15,6 @@ const widgetLayout:Layout = {
 class WidgetController {
     create(req:Request, res:Response) {
         const {pageId, sourceId, type} = req.body;
-        console.log(req.body)
 
         let myWidget = new Widget({
             pageId: pageId,

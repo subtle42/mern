@@ -39,7 +39,6 @@ class ColumnTypeDropdown extends React.Component<DropProps, {}> {
     };
 
     toggle = () => {
-        console.log(this.state)
         this.setState({
             dropdownOpen: !this.state.dropdownOpen
         });
@@ -54,8 +53,11 @@ class ColumnTypeDropdown extends React.Component<DropProps, {}> {
                 {dropDownOptions
                 .filter(option => option.value !== this.props.type)
                 .map((option, index) => {
-                    console.log(this.props)
-                    return <DropdownItem key={index} onClick={() => this.props.selectType(this.props.colRef, option.value)}>{option.label}</DropdownItem>
+                    return (<DropdownItem
+                        key={index}
+                        onClick={() => this.props.selectType(this.props.colRef, option.value)}>
+                            {option.label}
+                    </DropdownItem>)
                 })}
             </DropdownMenu>
         </Dropdown>
@@ -83,7 +85,6 @@ export class EditSource extends React.Component<Props, State> {
     renderColumns(columns:ISourceColumn[]):JSX.Element {
         return <ListGroup style={{height:300, overflowY:"auto"}}>
             {this.state.toEdit.columns.map(sourceCol => {
-                console.log(sourceCol)
                 return <ListGroupItem
                     color={this.getColumnColor(sourceCol)}
                     key={sourceCol.ref}>

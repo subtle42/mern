@@ -38,9 +38,7 @@ export default class LoginPage extends React.Component<{}, State> {
             ...(new State()),
             loginSuccess: true
         }))
-        .catch(err => {
-            console.log(err.response.data.message)
-        })
+        .catch(err => console.error(err.response.data.message))
     }
 
     isDisabled = ():boolean => {

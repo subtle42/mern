@@ -47,11 +47,9 @@ export class PageConfigButton extends React.Component<Props, State> {
     handleChange = (event:React.FormEvent<any>) => {
         const target:any = event.target
         const value:string = target.value.trim();
-        console.log(this.state)
         let myPage = Object.assign({}, this.state.page, {
             [target.name]: target.value
         });
-        console.log(myPage)
         this.setState({
             page: myPage,
             validationState: this.getValidationState(value)
@@ -67,7 +65,6 @@ export class PageConfigButton extends React.Component<Props, State> {
         // this.setState({
         //     page: tmp
         // });
-        // console.log(this.state.page[target.name]);
     }
 
     handleArray = (event:React.FormEvent<any>) => {
@@ -77,7 +74,6 @@ export class PageConfigButton extends React.Component<Props, State> {
 
 
         myArray[targetIndex] = parseInt(target.value);
-        console.log(this.state.page)
         let myPage = Object.assign({}, this.state.page, {
             [targetName]: myArray
         });
