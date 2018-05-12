@@ -1,18 +1,83 @@
 import * as React from "react";
-import {IWidget} from "myModels"
+import {IWidget, ISource, ISourceColumn, ColumnType} from "myModels"
+import {ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem} from "reactstrap"
+import store from "data/store";
 
-interface Props extends IWidget {
-}
+interface Props extends IWidget {}
 
 class State {
     height:number;
     width:number;
+    source:ISource
+}
+
+class DropdownState {
+    dropdownOpen:boolean = false;
+    columns:ISourceColumn[] = [];
+}
+
+interface DropdownProps {
+    sourceId:any;
+    colId:any;
+    colType:ColumnType;
+    onColUpdate:(item)=>void;
+}
+
+export class MeasureDropdown extends React.Component<DropdownProps, DropdownState> {
+    state:DropdownState = new DropdownState();
+    source:ISource;
+
+    componentDidMount() {
+        this.source = store.getState().sources.list.filter(s => s._id === this.props.sourceId)[0];
+        this.setState({
+            columns: this.source.columns
+        });
+    }
+
+    toggle = () => {
+        this.setState({
+            dropdownOpen: !this.state.dropdownOpen
+        });
+    }
+
+    getSelectedColumn = ():ISourceColumn => {
+        return this.state.columns.filter(col => col.ref === this.props.colId)[0];
+    }
+
+    render() {
+        return (
+            <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+                <DropdownToggle caret>
+                    {this.getSelectedColumn() ? this.getSelectedColumn().name : ""}
+                </DropdownToggle>
+                <DropdownMenu>
+                    {this.state.columns
+                        .filter(col => col.type === this.props.colType)
+                        .filter(col => col.ref !== this.props.colId)
+                        .map(col => {
+                        return (<DropdownItem key={col.ref} onClick={(e) => this.props.onColUpdate(col)}>
+                            {col.name}
+                        </DropdownItem>);
+                    })}
+                </DropdownMenu>
+            </ButtonDropdown>
+        );
+    }
 }
 
 export class Chart extends React.Component<Props, State> {
+    state:State = new State();
     node:SVGGElement;
     width:number;
     height:number;
+
+    componentDidMount() {
+        // setTimeout(() => this.getDimensions(), 0);
+        const mySource = store.getState().sources.list.filter(source => source._id === this.props.sourceId)[0];
+        this.setState({
+            source: mySource
+        })
+    }
 
     getDimensions() {
         // let margin = {top:10, right:10, left:10, bottom:10};
@@ -21,10 +86,17 @@ export class Chart extends React.Component<Props, State> {
     }
 
     render() {
-        this.getDimensions();
+        if (!this.props.measures) {
+            return <div></div>
+        }
+        // this.getDimensions();
         return (
-            <svg ref={node => this.node = node} width={this.state.height} height={this.state.height}>
-            </svg>
+            <div>
+                {/* <MeasureDropdown sourceId={this.props.sourceId} colId={this.props.measures[0].ref} colType="number"/> */}
+                <svg ref={node => this.node = node} width={300} height={300}>
+                </svg>
+            </div>
+            
         );
     }
 }

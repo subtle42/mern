@@ -87,7 +87,7 @@ class WidgetController {
 
         myWidget.validate()
         .then(() => Widget.findByIdAndUpdate(myId, req.body))
-        .then(Utils.handleNoResult(res))
+        .then(() => widgetSocket.onAddOrChange(myWidget))
         .then(Utils.handleResponseNoData(res))
         .catch(Utils.handleError(res));
     }

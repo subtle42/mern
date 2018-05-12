@@ -2,7 +2,7 @@ import store from "../store";
 import BaseActions from "../baseActions";
 import axios from "axios";
 import pageActions from "../pages/actions"
-import { ISource } from "myModels";
+import { ISource, IWidget } from "myModels";
 
 class WidgetActions extends BaseActions{
     constructor(store) {
@@ -39,8 +39,8 @@ class WidgetActions extends BaseActions{
         return axios.delete(`/api/widgets/${id}`)
         .then(res => res.data as undefined);
     }
-    update(page:string):Promise<void> {
-        return axios.put(`/api/widgets`, page)
+    update(widget:IWidget):Promise<void> {
+        return axios.put(`/api/widgets`, widget)
         .then(res => res.data as undefined);
     }
 }
