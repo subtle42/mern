@@ -1,5 +1,5 @@
 import * as React from "react";
-import {IWidget} from "myModels";
+import {IWidget} from "common/models";
 import * as d3 from "d3";
 import "./style.css"
 

@@ -1,7 +1,7 @@
 import store from "../store";
 import BaseActions from "../baseActions";
 import axios from "axios";
-import {ISource} from "myModels";
+import {ISource} from "common/models";
 
 class SourceActions extends BaseActions{
     constructor(store) {

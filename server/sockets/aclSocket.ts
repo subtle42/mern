@@ -1,4 +1,4 @@
-import {IBook} from "myModels";
+import {IBook} from "common/models";
 import { Document, Model} from "mongoose";
 import { ISharedModel } from "../dbModels";
 declare var global:any;

@@ -6,7 +6,7 @@ import {Source} from "../source/model"
 import {pageSocket} from "../page/socket"
 import {widgetSocket} from "./socket"
 import {Layout} from "react-grid-layout"
-import { IWidget, ISource } from "myModels";
+import { IWidget, ISource } from "common/models";
 
 const widgetLayout:Layout = {
     x: 1, y: 1, w: 1, h: 1

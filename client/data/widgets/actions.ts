@@ -2,7 +2,7 @@ import store from "../store";
 import BaseActions from "../baseActions";
 import axios from "axios";
 import pageActions from "../pages/actions"
-import { ISource, IWidget } from "myModels";
+import { ISource, IWidget } from "common/models";
 
 class WidgetActions extends BaseActions{
     constructor(store) {

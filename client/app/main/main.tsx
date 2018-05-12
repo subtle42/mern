@@ -5,7 +5,7 @@ import {MainConent} from "./content/content"
 import RegisterPage from "../logon/register";
 import AuthActions from "../../data/auth/actions";
 import LoginPage from "../logon/login";
-import {IPage} from "myModels";
+import {IPage} from "common/models";
 
 class myState {
     currentPage?:IPage;

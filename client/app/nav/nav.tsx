@@ -1,9 +1,9 @@
 import * as React from "react";
-import authActions from "../../data/auth/actions";
-import bookActions from "../../data/books/actions";
+import authActions from "data/auth/actions";
+import bookActions from "data/books/actions";
 import {connect, Dispatch} from "react-redux";
-import {IUser, IBook} from "myModels";
-import store from "../../data/store";
+import {IUser, IBook} from "common/models";
+import store from "data/store";
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
 import AddBookButton from "../main/book/add";
 

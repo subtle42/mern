@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Row, Col, ListGroup, ListGroupItem, Dropdown, DropdownToggle, DropdownMenu, DropdownItem} from "reactstrap";
 import store from "../../../data/store";
-import {ISource, ISourceColumn, ColumnType} from "myModels";
+import {ISource, ISourceColumn, ColumnType} from "common/models";
 
 class State {
     toEdit:ISource;

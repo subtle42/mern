@@ -3,7 +3,7 @@ import {SourceSocket} from "./socket";
 import {MongoClient} from "mongodb";
 import {Request, Response} from "express";
 import {createReadStream, unlink} from "fs";
-import {ISourceColumn, ColumnType} from "myModels";
+import {ISourceColumn, ColumnType} from "common/models";
 import {ISourceModel} from "../../dbModels";
 import * as myProm from "bluebird";
 import Util from "../utils";

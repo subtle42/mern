@@ -1,4 +1,4 @@
-import {ISource} from "myModels";
+import {ISource} from "common/models";
 import {GenericStore} from "../baseReducer"
 
 export default class SourceStore extends GenericStore {

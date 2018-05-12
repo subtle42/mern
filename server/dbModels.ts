@@ -1,4 +1,4 @@
-import * as myModels from "myModels";
+import * as myModels from "common/models";
 import {Document} from "mongoose";
 import {Request} from "express" 
 

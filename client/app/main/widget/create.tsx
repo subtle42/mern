@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Button, Row, Col} from "reactstrap";
-import {ChartType, ColumnType} from "myConstants"
+import {ChartType, ColumnType} from "common/constants"
 import WidgetActions from "../../../data/widgets/actions"
 import * as FontAwesome from "react-fontawesome";
 

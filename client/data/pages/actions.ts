@@ -1,6 +1,6 @@
 import axios from "axios";
 import store from "../store";
-import {IPage} from "myModels";
+import {IPage} from "common/models";
 import BaseActions from "../baseActions";
 import WidgetActions from "../widgets/actions";
 

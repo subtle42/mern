@@ -1,5 +1,5 @@
 import * as React from "react";
-import {IWidget, ISource, ISourceColumn, ColumnType} from "myModels"
+import {IWidget, ISource, ISourceColumn, ColumnType} from "common/models"
 import {ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem} from "reactstrap"
 import store from "data/store";
 

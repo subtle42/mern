@@ -1,7 +1,7 @@
 import * as React from "react";
 import {connect} from "react-redux";
 import {RemoveWidgetButton} from "./remove";
-import {IWidget, ISource, ISourceColumn} from "myModels";
+import {IWidget, ISource, ISourceColumn} from "common/models";
 import store from "data/store";
 import WidgetActions from "data/widgets/actions"
 import {Histogram} from "../charts/histogram";

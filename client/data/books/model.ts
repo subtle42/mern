@@ -1,5 +1,5 @@
 import {factory, GenericStore} from "../baseReducer";
-import {IBook} from "myModels";
+import {IBook} from "common/models";
 
 export default class BookStore extends GenericStore {
     list:IBook[] = [];

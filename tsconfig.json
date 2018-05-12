@@ -12,9 +12,6 @@
         "moduleResolution": "node",
         "baseUrl": ".",
         "paths":{
-            "myStore": ["./client/data/store"],
-            "myConstants": ["./common/constants"],
-            "myModels": ["./common/models"],
             "data/*": ["./client/data/*"],
             "common/*": ["./common/*"]
         }
