@@ -1,5 +1,5 @@
 export class GenericStore {
-    list:any[];
+    list:any[]= [];
     socket?:SocketIOClient.Socket;
     selected?:any;
 }

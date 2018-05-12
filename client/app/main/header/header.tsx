@@ -1,10 +1,10 @@
 import * as React from "react";
 // import {Navbar, Nav, NavItem, NavDropdown, MenuItem} from "react-bootstrap";
 import {Link} from 'react-router-dom'
-import authActions from "../../../data/auth/actions";
-import bookActions from "../../../data/books/actions";
+import authActions from "data/auth/actions";
+import bookActions from "data/books/actions";
 import {connect, Dispatch} from "react-redux";
-import {IBook} from "myModels";
+import {IBook} from "common/models";
 import {
     Collapse,
     Navbar,

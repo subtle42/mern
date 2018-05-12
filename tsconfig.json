@@ -14,7 +14,9 @@
         "paths":{
             "myStore": ["./client/data/store"],
             "myConstants": ["./common/constants"],
-            "myModels": ["./common/models"]
+            "myModels": ["./common/models"],
+            "data/*": ["./client/data/*"],
+            "common/*": ["./common/*"]
         }
     },
     "include": [

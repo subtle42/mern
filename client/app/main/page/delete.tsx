@@ -1,8 +1,8 @@
 import * as React from "react";
 import axios from "axios"
 import {Modal, ModalBody, ModalFooter, ModalHeader, Input, Button, FormGroup, NavItem} from "reactstrap";
-import pageActions from "../../../data/pages/actions";
-import {IPage} from "myModels";
+import pageActions from "data/pages/actions";
+import {IPage} from "common/models";
 import * as FontAwesome from "react-fontawesome";
 
 

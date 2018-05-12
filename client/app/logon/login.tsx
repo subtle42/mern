@@ -2,7 +2,7 @@ import * as React from "react";
 import axios from "axios"
 import {Form, Col, Label, Input, Button, FormText, FormGroup, NavItem} from "reactstrap";
 import {Redirect} from "react-router-dom";
-import AuthActions from "../../data/auth/actions";
+import AuthActions from "data/auth/actions";
 
 
 class State {

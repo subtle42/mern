@@ -4,7 +4,7 @@ import "react-grid-layout/css/styles.css";
 import {connect} from "react-redux";
 import {IPage, IWidget} from "myModels";
 import {Widget} from "../widget/widget";
-import PageActions from "../../../data/pages/actions";
+import PageActions from "data/pages/actions";
 
 interface Props {
     page:IPage;

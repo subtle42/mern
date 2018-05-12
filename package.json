@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "start": "run-p dev:*",
-    "dev:client": "webpack",
+    "dev:client": "webpack --watch --mode=development",
     "dev:server": "nodemon --inspect=5858 ./server/app.ts",
     "test": "run-p test:*",
     "test:client": "mocha --opts ./mocha.opts client/**/*.spec.* --watch",

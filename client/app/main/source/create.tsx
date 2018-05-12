@@ -1,9 +1,9 @@
 import * as React from "react";
 import { Button, Modal, ModalBody, Tooltip, ModalFooter, ModalHeader, NavItem, NavLink, Row, Col, ListGroup, ListGroupItem } from "reactstrap";
 import Dropzone, { ImageFile } from "react-dropzone";
-import SourceActions from "../../../data/sources/actions";
-import widgetActions from "../../../data/widgets/actions";
-import store from "../../../data/store";
+import SourceActions from "data/sources/actions";
+import widgetActions from "data/widgets/actions";
+import store from "data/store";
 import { ISource } from 'myModels';
 import { CreateWidget } from '../widget/create';
 import {ChartType} from "myConstants";
@@ -113,7 +113,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
                     href="#"
                     key={source._id}
                     onClick={() => this.setSource(source)}> {source.title}
-                    <FontAwesome onClick={(event => this.editSource(event, source))} name="edit" style={{float:"right"}} />
+                    <FontAwesome onClick={event => this.editSource(event, source)} name="edit" style={{float:"right"}} />
                 </ListGroupItem>)}
             </ListGroup></Col>
             <Col xs={6}>

@@ -3,8 +3,8 @@ import {Nav, NavItem, Button, NavLink} from "reactstrap";
 import {CreatePageButton} from "../page/create"
 import {DeletePageButton} from "../page/delete";
 import {connect} from "react-redux"
-import pageActions from "../../../data/pages/actions";
-import {IPage} from "myModels";
+import pageActions from "data/pages/actions";
+import {IPage} from "common/models";
 import {PageConfigButton} from "../page/config";
 import {SourceCreateButton} from "../source/create";
 import {Widget} from "../widget/widget";

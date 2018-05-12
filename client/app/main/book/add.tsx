@@ -1,7 +1,7 @@
 import * as React from "react";
 import axios from "axios"
 import {FormText, Input, Label, ModalHeader, ModalBody, ModalFooter, Modal, FormGroup, DropdownItem, Button } from "reactstrap";
-import BookActions from "../../../data/books/actions";
+import BookActions from "data/books/actions";
 // import { ModalHeader } from "react-bootstrap";
 
 class State {
