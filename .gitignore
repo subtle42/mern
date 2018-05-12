@@ -1,6 +1,6 @@
 /node_modules
-/server/**/*.js
 /client/.dist
 /uploads
 /coverage
+/docs
 /.nyc_output

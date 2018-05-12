@@ -40,7 +40,7 @@ Modules in data have three files:
 * Reducer
     * The handler of reducers for the module
 
-Note: All reducers are combined and need to have logic to check their own unique namespace.
+Note: All reducers are combined into a single list. All reducer methods need a globally unique name or need to have logic to scope their logic to a specific namespace.
 
 ### Client/Store.ts
 This file adds the reducers to Redux and aggregates the models into the store.
@@ -81,3 +81,17 @@ To start testing use another command prompt:
 ```
 npm test
 ```
+## Coverage
+To get a full report on code coverage run:
+```
+npm run coverage
+```
+Coverage report will be located in the coverage directory.
+Note: This may take a while to run.
+
+## Documentation
+To get JavaDocs on this project run:
+```
+npm run docs
+```
+Documentation will be located in the docs directory.

@@ -11,7 +11,8 @@
     "test:server": "mocha --opts ./mocha.opts server/**/*.spec.ts --watch",
     "coverage": "nyc --all run-s coverage:*",
     "coverage:client": "mocha --opts ./mocha.opts client/**/*.spec.*",
-    "coverage:server": "mocha --opts ./mocha.opts server/**/*.spec.*"
+    "coverage:server": "mocha --opts ./mocha.opts server/**/*.spec.*",
+    "docs": "typedoc --exclude **/*.spec.* --out ./docs ./client/data ./server ./common"
   },
   "author": "",
   "license": "ISC",
@@ -88,16 +89,25 @@
     "@types/socket.io-client": "^1.4.32",
     "nyc": "^11.7.1",
     "source-map-support": "^0.5.5",
+    "typedoc": "^0.11.1",
     "webpack-cli": "^2.0.13"
   },
   "nodemonConfig": {
-    "ignore": ["server/**/*.spec.*"],
+    "ignore": [
+      "server/**/*.spec.*"
+    ],
     "ext": "ts",
     "exec": "./node_modules/.bin/ts-node"
   },
   "nyc": {
-    "include": ["**/*.ts", "**/*.tsx"],
-    "extension": [".ts",".tsx"],
+    "include": [
+      "**/*.ts",
+      "**/*.tsx"
+    ],
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
     "require": [
       "ts-node/register",
       "source-map-support/register"
