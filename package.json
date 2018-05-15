@@ -8,7 +8,8 @@
     "dev:server": "nodemon --inspect=5858 ./server/app.ts",
     "test": "run-p test:*",
     "test:client": "mocha --opts ./mocha.opts client/**/*.spec.* --watch",
-    "test:server": "mocha --opts ./mocha.opts server/**/*.spec.ts --watch",
+    "test:server": "mocha --opts ./mocha.opts server/**/*.spec.* --watch",
+    "test:integration": "mocha --opts ./mocha.opts server/**/*.int.* --watch",
     "coverage": "nyc --all run-s coverage:*",
     "coverage:client": "mocha --opts ./mocha.opts client/**/*.spec.*",
     "coverage:server": "mocha --opts ./mocha.opts server/**/*.spec.*",
@@ -103,6 +104,10 @@
     "include": [
       "**/*.ts",
       "**/*.tsx"
+    ],
+    "exclude": [
+      "**/*.spec.*",
+      "**/*.int.*"
     ],
     "extension": [
       ".ts",

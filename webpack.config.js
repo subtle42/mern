@@ -1,7 +1,7 @@
 // const webpack = require('webpack');
 const path = require('path');
 const LiveReloadPlugin = require('webpack-livereload-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const BUILD_DIR = path.resolve(__dirname, 'client/.dist');
 const APP_DIR = path.resolve(__dirname, 'client/app');

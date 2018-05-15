@@ -7,7 +7,6 @@ import * as passport from "passport";
 import socketAuth from "./auth/socket/auth";
 
 var MONGO_URI = "mongodb://localhost/merntest";
-var MYSQL_URI = "127.0.0.1";
 
 (<any>mongoose).connect(MONGO_URI, {
     // useMongoClient: true

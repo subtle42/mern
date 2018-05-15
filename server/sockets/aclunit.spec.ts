@@ -26,10 +26,9 @@ global.myIO = {
 
 import {AclSocket} from "./aclSocket"
 import { Promise } from "bluebird";
-class TmpClass extends AclSocket {}
 
 describe("AclSocket Base class", () => {
-    let tmpClass:TmpClass;
+    let tmpClass:AclSocket;
 
     beforeEach(() => {
         // global.myIO.of.returns = "hello"
@@ -46,13 +45,13 @@ describe("AclSocket Base class", () => {
     describe("constructor", () => {
         it("should create a namespace base on first input", () => {
             let name = "asdfasdf";
-            let tmp = new TmpClass(name, null);
+            let tmp = new AclSocket(name, null);
             assert(global.myIO.of.calledWith(name))
         });
 
         it("should call socket.on channel with 'join'", () => {
             expect(mySocket.on.callCount).equals(0);
-            let tmp = new TmpClass("asdf", null);
+            let tmp = new AclSocket("asdf", null);
             expect(mySocket.on.callCount).equals(1);
             expect(mySocket.on.calledWith("join")).equals(true);
         });
@@ -75,7 +74,7 @@ describe("AclSocket Base class", () => {
 
         it("should call socket.leaveAll", () => {
             expect(mySocket.leaveAll.callCount).equals(0);
-            new TmpClass("",  fakeModel);
+            new AclSocket("",  fakeModel);
             expect(mySocket.leaveAll.callCount).equals(1);
         })
 
@@ -84,7 +83,7 @@ describe("AclSocket Base class", () => {
             mySocket.on = stub().callsFake((channel, cb) => {
                 cb(room);
             })
-            new TmpClass("",  fakeModel);
+            new AclSocket("",  fakeModel);
             expect(mySocket.join.calledWith(room)).equals(true);
         })
 
@@ -93,7 +92,7 @@ describe("AclSocket Base class", () => {
             mySocket.on = stub().callsFake((channel, cb) => {
                 cb(room);
             })
-            new TmpClass("",  fakeModel);
+            new AclSocket("",  fakeModel);
             // expect(emitSpy.callCount).equals(1);
             
         })
