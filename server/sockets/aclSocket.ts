@@ -1,6 +1,8 @@
 import {IBook} from "common/models";
 import { Document, Model} from "mongoose";
 import { ISharedModel } from "../dbModels";
+import * as jwt from "jsonwebtoken";
+import config from "../config/environment";
 declare var global:any;
 let myIO:SocketIO.Server = global.myIO;
 
@@ -18,7 +20,14 @@ export class AclSocket {
     private setupSockEvents() {
         this.namespace.on("connection", socket => {
             console.log(`Joined Namespace: ${this.name}`);
-            this.onJoin(socket);
+            // this.onJoin(socket);
+            jwt.verify(socket.handshake.query.token, config.shared.secret, (err, decoded) => {
+                if (err) return;
+                socket.join(decoded._id);
+                this.getInitialState(decoded._id)
+                .then(data => this.namespace.in(decoded._id).emit("addedOrChanged", data));
+            });
+            // console.log(socket.handshake.query.token)
         });
         console.log(`Created Namespace: ${this.name}`);
     }

@@ -4,9 +4,13 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 import {AxiosResponse, AxiosError} from "axios"
+import * as io from "socket.io-client";
 import config from "../../config/environment";
 import {MongoClient} from "mongodb";
 import {login, logout, createUser, removeAllUsers} from "../user/test.int"
+import { IBook } from "common/models";
+import * as jwt from "jsonwebtoken";
+import axios from "axios"
 
 
 const baseUrl = "http://localhost:3333";
@@ -22,10 +26,14 @@ export const removeAllBooks = ():Promise<void> => {
 
 describe("Book API", () => {
     let token:string = "";
+    let nsp:SocketIOClient.Socket;
+    let myId:string;
+    let books:IBook[] =[];
+
     const name = "fwalelk",
         email = "weahf@awefj.com",
         password = "230498lkjewrf";
-    beforeEach(done => {
+    before(done => {
         Promise.all([
             removeAllUsers(),
             removeAllBooks()
@@ -33,15 +41,33 @@ describe("Book API", () => {
         .then(() => createUser(name, email, password))
         .then(() => login(email, password))
         .then(myToken => token = myToken)
+        .then(() => {
+            jwt.verify(token, config.shared.secret, (err, decoded:any) => {
+                if (err) return;
+                myId = decoded._id;
+            })
+        })
+        .then(() => {
+            nsp = io.connect(`${baseUrl}/books`, {
+                query: {token}
+            })
+            nsp.on("addedOrChanged", (data:IBook[]) => {
+                data.forEach(item => {
+                    books = books.filter(book => book._id !== item._id)
+                    books.push(item);
+                })
+            })
+        })
         .then(() => done())
         .catch(err => console.error(err))
     });
 
-    afterEach(done => {
+    after(done => {
         Promise.all([
-            removeAllUsers(),
-            removeAllBooks()
+            // removeAllUsers(),
+            // removeAllBooks()
         ])
+        // .then(() => nsp.disconnect().close())
         .then(() => done())
     });
 
@@ -65,6 +91,10 @@ describe("Book API", () => {
             .send({name: testName})
             .end((err:AxiosError, res) => {
                 expect(res.status).to.equal(200);
+                const bookId = JSON.parse(res.text);
+                let foundBook:IBook = books.filter(b => b._id === bookId)[0];
+                expect(foundBook.name).to.equal(testName);
+                expect(foundBook.owner).to.equal(myId);
                 done();
             })
         });

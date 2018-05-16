@@ -14,9 +14,10 @@ export default class BookController {
         .then(() => Book.create(myBook))
         .then(data => {
             BookSocket.onAddOrChange(myBook);
-            return data;
+            return myBook;
         })
         .then(Util.handleNoResult(res))
+        .then(data => data._id)
         .then(Util.handleResponse(res))
         .catch(Util.handleError(res));
     }
