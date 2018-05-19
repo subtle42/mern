@@ -20,6 +20,7 @@
         "./server/**/*.ts",
         "./client/**/*.tsx",
         "./client/**/*.ts",
+        "./tests/**/*.ts",
         "./common/**/*.ts"
     ],
     "exclude": [

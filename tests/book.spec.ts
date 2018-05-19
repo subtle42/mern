@@ -3,54 +3,26 @@ import {expect} from "chai";
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
-import {AxiosResponse, AxiosError} from "axios"
-import * as io from "socket.io-client";
-import config from "../../config/environment";
-import {MongoClient} from "mongodb";
-import {login, logout, createUser, removeAllUsers} from "../user/test.int"
 import { IBook } from "common/models";
-import * as jwt from "jsonwebtoken";
-import axios from "axios"
-
-
-const baseUrl = "http://localhost:3333";
-export const removeAllBooks = ():Promise<void> => {
-    return MongoClient.connect(`mongodb://${config.db.mongoose.app.host}:${config.db.mongoose.app.port}`)
-    .then(client => {
-        return client.db(config.db.mongoose.app.dbname)
-        .collection("Book")
-        .deleteMany({})
-        .then(res => client.close(true))
-    });
-}
+import * as utils from "./utils";
 
 describe("Book API", () => {
     let token:string = "";
     let nsp:SocketIOClient.Socket;
     let myId:string;
     let books:IBook[] =[];
+    const baseUrl = utils.getBaseUrl();
 
-    const name = "fwalelk",
-        email = "weahf@awefj.com",
-        password = "230498lkjewrf";
     before(done => {
-        Promise.all([
-            removeAllUsers(),
-            removeAllBooks()
-        ])
-        .then(() => createUser(name, email, password))
-        .then(() => login(email, password))
-        .then(myToken => token = myToken)
-        .then(() => {
-            jwt.verify(token, config.shared.secret, (err, decoded:any) => {
-                if (err) return;
-                myId = decoded._id;
-            })
+        utils.cleanDb()
+        .then(() => utils.createUserAndLogin(utils.USERS[0]))
+        .then(myToken => {
+            token = myToken;
+            return utils.decodeToken(token);
         })
-        .then(() => {
-            nsp = io.connect(`${baseUrl}/books`, {
-                query: {token}
-            })
+        .then(decoded => {
+            myId = decoded._id;
+            nsp = utils.websocketConnect("books", token)
             nsp.on("addedOrChanged", (data:IBook[]) => {
                 data.forEach(item => {
                     books = books.filter(book => book._id !== item._id)
@@ -63,12 +35,10 @@ describe("Book API", () => {
     });
 
     after(done => {
-        Promise.all([
-            removeAllUsers(),
-            removeAllBooks()
-        ])
-        .then(() => nsp.disconnect().close())
+        utils.cleanDb()
+        .then(() => nsp.disconnect())
         .then(() => done())
+        .catch(err => console.error(err))
     });
 
     describe("create function", () => {
@@ -78,7 +48,7 @@ describe("Book API", () => {
             chai.request(`${baseUrl}`)
             .post("/api/books")
             .send({name: testName})
-            .end((err:AxiosError, res) => {
+            .end((err, res) => {
                 expect(res.status).not.to.equal(200);
                 done();
             })
@@ -89,7 +59,7 @@ describe("Book API", () => {
             .post("/api/books")
             .set("Authorization", token)
             .send({name: testName})
-            .end((err:AxiosError, res) => {
+            .end((err, res) => {
                 expect(res.status).to.equal(200);
                 const bookId = JSON.parse(res.text);
                 let foundBook:IBook = books.filter(b => b._id === bookId)[0];

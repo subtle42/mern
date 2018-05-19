@@ -3,49 +3,11 @@ import {expect} from "chai";
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
-import axios, {AxiosResponse, AxiosError} from "axios"
-import config from "../../config/environment"
+import * as utils from "./utils";
 
-const baseUrl = "http://localhost:3333";
-import {MongoClient} from "mongodb";
+const baseUrl = utils.getBaseUrl();
 import { IUser } from "common/models";
 
-
-export const removeAllUsers = ():Promise<void> => {
-    return MongoClient.connect(`mongodb://${config.db.mongoose.app.host}:${config.db.mongoose.app.port}`)
-    .then(client => {
-        return client.db(config.db.mongoose.app.dbname)
-        .collection("User")
-        .deleteMany({})
-        .then(res => client.close(true))
-    });
-}
-
-export const createUser = (name:string, email:string, password:string):Promise<void> => {
-    return axios.post(`${baseUrl}/api/user`, {
-        name,
-        email,
-        password
-    })
-    .then(res => res.data as undefined)
-}
-
-export const login = (email, password):Promise<string> => {
-    return axios.post(`${baseUrl}/api/auth/local`, {
-        email,
-        password
-    })
-    .then(res => res.data.token as string)
-}
-
-export const logout = (token:string):Promise<void> => {
-    return axios.get(`${baseUrl}/api/auth/logout`, {
-        headers: {
-            Authorization: token
-        }
-    })
-    .then(res => undefined)
-}
 
 
 describe("User API", () => {
@@ -54,12 +16,12 @@ describe("User API", () => {
     const password = "testPass";
 
     before(done => {
-        removeAllUsers()
+        utils.cleanDb()
         .then(() => done())
     })
 
     after(done => {
-        removeAllUsers()
+        utils.cleanDb()
         .then(() => done())
     })
 
@@ -72,7 +34,7 @@ describe("User API", () => {
                 email: email,
                 password: password
             })
-            .end((err:AxiosError, res) => {
+            .end((err, res) => {
                 expect(res.status).to.equal(200);
                 done();
             });
@@ -86,7 +48,7 @@ describe("User API", () => {
                 email: email,
                 password: password
             })
-            .end((err:AxiosError, res) => {
+            .end((err, res) => {
                 expect(res.status).not.to.equal(200);
                 done();
             });
@@ -95,14 +57,10 @@ describe("User API", () => {
     
     describe("get information about me", () => {
         let token:string = "";
+        const myUser = utils.USERS[1];
         before(done => {
-            login(email, password)
+            utils.createUserAndLogin(myUser)
             .then(myToken => token = myToken)
-            .then(() => done())
-        })
-
-        after(done => {
-            logout(token)
             .then(() => done())
         })
 
@@ -124,8 +82,8 @@ describe("User API", () => {
             .end((err, res) => {
                 expect(res.status).to.equal(200);
                 const user:IUser = JSON.parse(res.text)
-                expect(user.email).to.equal(email)
-                expect(user.name).to.equal(userName)
+                expect(user.email).to.equal(myUser.email)
+                expect(user.name).to.equal(myUser.name)
                 done();
             })            
         })
