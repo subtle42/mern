@@ -64,10 +64,10 @@ describe("Book API", () => {
 
     after(done => {
         Promise.all([
-            // removeAllUsers(),
-            // removeAllBooks()
+            removeAllUsers(),
+            removeAllBooks()
         ])
-        // .then(() => nsp.disconnect().close())
+        .then(() => nsp.disconnect().close())
         .then(() => done())
     });
 
@@ -100,20 +100,47 @@ describe("Book API", () => {
         });
     })
 
-    
+    describe("update function", () => {
+        it("should broadcast the updated item", done => {
+            expect(books.length).to.be.greaterThan(0);
+            let myBook = {...books[0]};
+            const newName = "updateTest";
+            myBook.name = newName;
+            chai.request(`${baseUrl}`)
+            .put("/api/books")
+            .set("Authorization", token)
+            .send(myBook)
+            .end((err, res) => {
+                expect(res.status).to.equal(200);
+                const updatedBook:IBook = books.filter(b => b._id === myBook._id)[0];
+                expect(updatedBook.name).equals(newName);
+                done();
+            })
+        })
+    })
 
+    describe("delete function", () => {
+        let removed:string[] = [];
+        before(() => {
+            nsp.on("removed", (ids:string[]) => {
+                removed = removed.concat(ids);
+            })
+        })
 
-    // it("should do something", () => {
-    //     expect(1).to.equal(1);
-    // });
-
-    // it("should make a REST call", done => {
-    //     chai.request("http://localhost:3333")
-    //     .get("/")
-    //     .end((err:AxiosError, res:AxiosResponse) => {
-    //         expect(err).to.equal(null);
-    //         // console.log(res.text)
-    //         done();
-    //     })
-    // })
+        after(() => nsp.removeListener("removed"))
+        
+        it("should broadcast the id of the deleted item", done => {
+            expect(books.length).to.be.greaterThan(0);
+            let myId = books[0]._id;
+            expect(removed.indexOf(myId)).to.equal(-1);
+            chai.request(`${baseUrl}`)
+            .delete(`/api/books/${myId}`)
+            .set("Authorization", token)
+            .end((err, res) => {
+                expect(res.status).to.equal(200);
+                expect(removed.indexOf(myId)).not.to.equal(-1);
+                done();
+            })
+        })
+    })
 })

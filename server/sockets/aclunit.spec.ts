@@ -1,12 +1,19 @@
 import "mocha";
-import {stub, spy} from "sinon"
+import {stub, spy, SinonStub} from "sinon"
 import {expect, assert, should} from "chai"
+import {Model} from "mongoose";
 
 declare var global;
 const mySocket = {
     on: spy(),
     leaveAll: spy(),
-    join: spy()
+    join: spy(),
+    emit: spy(),
+    handshake: {
+        query: {
+            token: "test"
+        }
+    }
 }
 
 const emitSpy = spy();
@@ -26,79 +33,98 @@ global.myIO = {
 
 import {AclSocket} from "./aclSocket"
 import { Promise } from "bluebird";
+import * as jwt from "jsonwebtoken";
+import { ISharedModel } from "../dbModels";
+import { Socket } from "dgram";
+import { timeout } from "d3";
 
 describe("AclSocket Base class", () => {
     let tmpClass:AclSocket;
+    let verify:SinonStub;
 
     beforeEach(() => {
-        // global.myIO.of.returns = "hello"
-        // tmpClass = new TmpClass("", null);
-        // global.myIO.of.returnValue = "test";
+        verify = stub(jwt, "verify").callsFake((token, secret, cb) => {
+            cb(undefined, {
+                _id: "daniel"
+            })
+        })
     });
 
     afterEach(() => {
-        Object.keys(mySocket).forEach(key => mySocket[key].resetHistory())
+        Object.keys(mySocket).forEach(key => {
+            if (key === "handshake") return;
+            mySocket[key].resetHistory()
+        })
+        verify.restore();
         Object.keys(ofResponse).forEach(key => ofResponse[key].resetHistory())
         emitSpy.resetHistory();
     })
 
     describe("constructor", () => {
+        let modelMock:any;
+        beforeEach(() => {
+            modelMock =  {
+                find: stub().returns({
+                    exec: () => new Promise(r => r({}))
+                })
+            }
+        })
+
         it("should create a namespace base on first input", () => {
             let name = "asdfasdf";
-            let tmp = new AclSocket(name, null);
-            assert(global.myIO.of.calledWith(name))
-        });
+            let tmp = new AclSocket("asdf", modelMock);
+            expect(global.myIO.of.calledWith(name))
+        })
 
-        it("should call socket.on channel with 'join'", () => {
-            expect(mySocket.on.callCount).equals(0);
-            let tmp = new AclSocket("asdf", null);
-            expect(mySocket.on.callCount).equals(1);
-            expect(mySocket.on.calledWith("join")).equals(true);
-        });
+        it("should call jwt.verify", () => {
+            expect(verify.callCount).equals(0);
+            let tmp = new AclSocket("asdf", modelMock);
+            expect(verify.callCount).to.equal(1)
+        })
 
-        // it("should call ")
-    });
-
-    describe("onJoin", () => {
-        const room = "TestRoom";
-        const fakeModel:any = {
-            find: stub().returns({
-                exec:stub().returns(new Promise(res => res()))
-            })
-        };
-        beforeEach(() => {
-            mySocket.on = stub().callsFake((channel, cb) => {
-                cb(room);
+        it("should call socket.join if auth token can be decoded", done => {
+            expect(mySocket.join.callCount).equal(0)
+            let tmp = new AclSocket("asdf", modelMock);
+            timeout(() => {
+                expect(mySocket.join.callCount).equal(1)
+                done()
             })
         })
 
-        it("should call socket.leaveAll", () => {
-            expect(mySocket.leaveAll.callCount).equals(0);
-            new AclSocket("",  fakeModel);
-            expect(mySocket.leaveAll.callCount).equals(1);
-        })
-
-        it("should call socket.join with the input", () => {
-            expect(mySocket.join.callCount).equals(0);
-            mySocket.on = stub().callsFake((channel, cb) => {
-                cb(room);
+        it("should NOT call socket.join if auth token cannot be decoded", done => {
+            verify.resetBehavior();
+            verify.callsFake((token, secret, cb) => {
+                cb("hello", null)
             })
-            new AclSocket("",  fakeModel);
-            expect(mySocket.join.calledWith(room)).equals(true);
-        })
-
-        it("should call emit with the response from the model query on the 'addedOrChanged' channel", () => {
-            expect(emitSpy.callCount).equals(0);
-            mySocket.on = stub().callsFake((channel, cb) => {
-                cb(room);
-            })
-            new AclSocket("",  fakeModel);
-            // expect(emitSpy.callCount).equals(1);
             
+            expect(mySocket.join.callCount).equals(0)
+            let tmp = new AclSocket("asdf", modelMock);
+            timeout(() => {
+                expect(mySocket.join.callCount).equals(0)
+                done();
+            })
         })
-    })
+
+        it("should emit the error if auth token cannot be decoded", done => {
+            const myErr = "wafjwjef"
+            
+            verify.resetBehavior();
+            verify.callsFake((token, secret, cb) => {
+                cb(myErr, null)
+            })
+            expect(mySocket.emit.callCount).equals(0);
+            let tmp = new AclSocket("asdf", modelMock);
+            timeout(() => {
+                expect(mySocket.emit.calledWith("error", myErr))
+                done()
+            })
+        })
+    });
 
     describe("onAddOrChange", () => {})
 
-    describe("onDelete", () => {})
+    describe("onDelete", () => {
+        it("should call emit on 'removed' channel if model is public", () => {})
+        it("should call emit 'removed' for each user in the ACL if model is NOT public", () => {})
+    })
 });

@@ -3,6 +3,7 @@ import { Document, Model} from "mongoose";
 import { ISharedModel } from "../dbModels";
 import * as jwt from "jsonwebtoken";
 import config from "../config/environment";
+import { reject } from "bluebird";
 declare var global:any;
 let myIO:SocketIO.Server = global.myIO;
 
@@ -18,27 +19,26 @@ export class AclSocket {
     }
 
     private setupSockEvents() {
-        this.namespace.on("connection", socket => {
-            console.log(`Joined Namespace: ${this.name}`);
-            // this.onJoin(socket);
-            jwt.verify(socket.handshake.query.token, config.shared.secret, (err, decoded) => {
-                if (err) return;
+        this.namespace.on("connection", (socket:any) => {
+            this.veryifyToken(socket.handshake.query.token)
+            .then(decoded => {
                 socket.join(decoded._id);
-                this.getInitialState(decoded._id)
-                .then(data => this.namespace.in(decoded._id).emit("addedOrChanged", data));
+                return this.getInitialState(decoded._id)
+                .then(data => this.namespace.in(decoded._id).emit("addedOrChanged", data))
+            })
+            .catch(err => {
+                socket.emit("error", err)
             });
-            // console.log(socket.handshake.query.token)
         });
-        console.log(`Created Namespace: ${this.name}`);
     }
 
-    private onJoin(socket:SocketIO.Socket) {
-        socket.on("join", (room:string) => {
-            socket.leaveAll();
-            socket.join(room);
-            this.getInitialState(room)
-            .then(data => this.namespace.in(room).emit("addedOrChanged", data));
-        });
+    private veryifyToken(token:string):Promise<any> {
+        return new Promise((resolve, reject) => {
+            jwt.verify(token, config.shared.secret, (err, decoded) => {
+                if (err) return reject(err);
+                resolve(decoded);
+            });
+        })
     }
 
     private getInitialState(userId:string) {

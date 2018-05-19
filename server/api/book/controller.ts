@@ -24,13 +24,12 @@ export default class BookController {
 
     public static update(req:Request, res:Response):void {
         var myId:string = req.body._id;
-        delete req.body._id;
         var myBook = new Book(req.body);
-
+        delete req.body._id;
         myBook.validate()
         .then(pass => Book.findById(myId))
         .then(oldBook => {
-            return Book.findByIdAndUpdate(myId, myBook).exec()
+            return Book.findByIdAndUpdate(myId, req.body).exec()
             .then(data => BookSocket.onAddOrChange(myBook, oldBook))
         })
         .then(Util.handleResponseNoData(res))
