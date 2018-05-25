@@ -5,7 +5,6 @@ const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 import * as utils from "./utils"
 import { IPage } from "common/models";
-import { timeout } from "d3";
 
 describe("Page API", () => {
     const userName = "test",
@@ -55,7 +54,7 @@ describe("Page API", () => {
             .end((err, res) => {
                 expect(res.status).to.equal(200);
                 const myId = JSON.parse(res.text);
-                timeout(() => {
+                setTimeout(() => {
                     expect(pages.filter(p => p._id === myId).length).to.equal(1);
                     done();
                 }, 20)

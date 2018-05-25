@@ -1,8 +1,7 @@
 import "mocha";
 import {expect} from "chai";
-const chai = require("chai");
-const chaiHttp = require("chai-http");
-chai.use(chaiHttp);
+import * as chai from "chai";
+import "chai-http";
 import { IBook } from "common/models";
 import * as utils from "./utils";
 
@@ -62,10 +61,12 @@ describe("Book API", () => {
             .end((err, res) => {
                 expect(res.status).to.equal(200);
                 const bookId = JSON.parse(res.text);
-                let foundBook:IBook = books.filter(b => b._id === bookId)[0];
-                expect(foundBook.name).to.equal(testName);
-                expect(foundBook.owner).to.equal(myId);
-                done();
+                setTimeout(() => {
+                    let foundBook:IBook = books.filter(b => b._id === bookId)[0];
+                    expect(foundBook.name).to.equal(testName);
+                    expect(foundBook.owner).to.equal(myId);
+                    done();
+                }, 20)
             })
         });
     })
@@ -104,7 +105,7 @@ describe("Book API", () => {
             let myId = books[0]._id;
             expect(removed.indexOf(myId)).to.equal(-1);
             chai.request(`${baseUrl}`)
-            .delete(`/api/books/${myId}`)
+            .del(`/api/books/${myId}`)
             .set("Authorization", token)
             .end((err, res) => {
                 expect(res.status).to.equal(200);

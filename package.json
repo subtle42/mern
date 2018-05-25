@@ -102,7 +102,7 @@
   },
   "nodemonConfig": {
     "ignore": [
-      "server/**/*.spec.*"
+      "/**/*.spec.*"
     ],
     "ext": "ts",
     "exec": "./node_modules/.bin/ts-node"
