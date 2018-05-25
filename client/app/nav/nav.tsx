@@ -29,105 +29,62 @@ interface NavState {
     isOpen?:boolean,
 }
 
-export class Navigation extends React.Component<NavProps, NavState> {
-    constructor(props) {
-        super(props);
-    
-        this.toggle = this.toggle.bind(this);
-        this.state = {
-          isOpen: false
-        };
-      }
-      toggle() {
-        this.setState({
-          isOpen: !this.state.isOpen
-        });
-      }
-
-
-      getBookDropDown() {
-        if (!this.props.selectedBook) {
-           return (
-            <Nav>
-            <UncontrolledDropdown nav inNavbar>
-                <DropdownToggle nav caret> No Book Selected </DropdownToggle>
-                <DropdownMenu right>
-                  <DropdownItem>
-                    Option 1
-                  </DropdownItem>
-                  <AddBookButton />
-                  <DropdownItem divider />
-                  <DropdownItem key="add">
-                    Add Book
-                  </DropdownItem>
-                </DropdownMenu>
-
-            </UncontrolledDropdown>
-        </Nav>
-        )
-        }
-
+const myComponent:React.StatelessComponent<NavProps> = (props:NavProps) =>  {
+    const getBookDropDown = ():JSX.Element => {
         return (
             <Nav>
-                <UncontrolledDropdown>
-                <DropdownToggle nav caret>
-                {this.props.selectedBook.name || "No Book Selected" }
-                </DropdownToggle>
-                <DropdownMenu right>
-                    {this.props.books.map(book => {
-                        return (
-                            <DropdownItem
-                                key={book._id}
-                                onClick={() => bookActions.select(book)}
-                            >
-                                {book.name}
-                            </DropdownItem>
-                        );
-                    })}
-                    <DropdownItem divider />
-                    <AddBookButton />
-                    {/* <MenuItem key="add">Add Book</MenuItem> */}
-                    </DropdownMenu>
-                </UncontrolledDropdown >
+                <UncontrolledDropdown nav inNavbar>
+                 <DropdownToggle nav caret>{props.selectedBook.name || "No Book Selected"}</DropdownToggle>
+                 <DropdownMenu right>
+                     {props.books.map((book, index) => {
+                         return <DropdownItem
+                            key={index}
+                            onClick={() => bookActions.select(book)}>
+                            {book.name}
+                        </DropdownItem>
+                     })}
+                     <DropdownItem divider />
+                     <AddBookButton />
+                 </DropdownMenu>
+
+             </UncontrolledDropdown>
             </Nav>
         );
     }
       
-      render() {
-        return (
-            <Navbar color="light" light expand="md"> 
-                <NavbarBrand> WhIM </NavbarBrand>
-                <Collapse isOpen={this.state.isOpen} navbar style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
-                {this.getBookDropDown()}
-                <Nav >
-                    <NavItem key={1}>
-                        <NavLink>
-                            <Link to="/home">Home</Link>
-                        </NavLink>
-                    </NavItem>
-                        { !this.props.user
-                            ? <NavItem key={2}><NavLink><Link to="/register">Register</Link></NavLink></NavItem>
-                            : undefined
-                        }
-                    <NavItem key={3}>
-                        <NavLink>
-                        { this.props.user
-                            ? <Link onClick={() => authActions.logout()} to="/home">Logout</Link>
-                            : <Link to="/login">Login</Link>
-                        }
-                        </NavLink>        
-                    </NavItem>
-                </Nav>
-                </Collapse>
-            </Navbar>
-        );
-      }
+    return (
+        <Navbar color="light" light expand="md"> 
+            <NavbarBrand> WhIM </NavbarBrand>
+            <Collapse navbar style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
+            {getBookDropDown()}
+            <Nav >
+                <NavItem key={1}>
+                    <NavLink>
+                        <Link to="/home">Home</Link>
+                    </NavLink>
+                </NavItem>
+                    { !props.user
+                        ? <NavItem key={2}><NavLink><Link to="/register">Register</Link></NavLink></NavItem>
+                        : undefined
+                    }
+                <NavItem key={3}>
+                    <NavLink>
+                    { props.user
+                        ? <Link onClick={() => authActions.logout()} to="/home">Logout</Link>
+                        : <Link to="/login">Login</Link>
+                    }
+                    </NavLink>        
+                </NavItem>
+            </Nav>
+            </Collapse>
+        </Navbar>
+    );
 }
 
 export default connect((store:any) => {
     return {
         user: store.auth.me,
         books: store.books.list,
-        selectedBook: store.books.selected
+        selectedBook: store.books.selected || {}
     }
-})(Navigation);
+})(myComponent);

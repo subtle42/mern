@@ -2,11 +2,11 @@ import * as React from "react";
 import axios from "axios"
 import {FormText, Input, Label, ModalHeader, ModalBody, ModalFooter, Modal, FormGroup, DropdownItem, Button } from "reactstrap";
 import BookActions from "data/books/actions";
-// import { ModalHeader } from "react-bootstrap";
+import store from "data/store"
 
 class State {
     showModal:boolean = false;
-    pageName:string = "";
+    bookName:string = "";
     validationState?: myStyle = undefined;
 }
 
@@ -16,17 +16,25 @@ export default class CreateBookButton extends React.Component<{}, State> {
     state:State = new State();
 
     close = () => {
-        BookActions.create(this.state.pageName)
+        BookActions.create(this.state.bookName)
         .then(book => this.setState(new State()));
     }
 
-    open = () => {
-        this.setState({showModal:true});
+    toggle = () => {
+        this.setState({showModal:!this.state.showModal});
     }
     
     cancel = (event:React.FormEvent<any>) => {
         event.stopPropagation();
         this.setState(new State());
+    }
+
+    save = (event:React.FormEvent<any>) => {
+        event.stopPropagation();
+        BookActions.create(this.state.bookName)
+        .then(bookId => store.getState().books.list.filter(book => book._id === bookId)[0])
+        .then(newBook => BookActions.select(newBook))
+        .then(() => this.toggle())
     }
 
     handleChange = (event:React.FormEvent<any>) => {
@@ -44,16 +52,16 @@ export default class CreateBookButton extends React.Component<{}, State> {
 
     render() {
         return (
-            <DropdownItem onClick={() => this.open()}>
+            <DropdownItem onClick={this.toggle}>
                 Add Book
-                <Modal size="small" isOpen={this.state.showModal} onClosed={this.close}>
+                <Modal size="sm" isOpen={this.state.showModal}>
                     <ModalHeader>Create Book</ModalHeader>
                     <ModalBody>
                         <FormGroup>
                             <Label>Name:</Label>
                             <Input 
                                 type="text"
-                                value={this.state.pageName}
+                                value={this.state.bookName}
                                 name="bookName"
                                 placeholder="Enter Name"
                                 onChange={this.handleChange}
@@ -63,11 +71,11 @@ export default class CreateBookButton extends React.Component<{}, State> {
                         </FormGroup>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="warning" onClick={this.cancel}>Cancel</Button>
                         <Button color="primary"
-                            disabled={!!this.state.validationState || this.state.pageName.length === 0} 
-                            onClick={this.close}
+                            disabled={!!this.state.validationState || this.state.bookName.length === 0} 
+                            onClick={this.save}
                         >Create</Button>
+                        <Button color="secondary" onClick={this.cancel}>Cancel</Button>
                     </ModalFooter>
                 </Modal>
             </DropdownItem>
