@@ -40,7 +40,7 @@ describe("Book API", () => {
         .catch(err => console.error(err))
     });
 
-    describe("create function", () => {
+    describe("post /api/books", () => {
         const testName = "unitTest";
 
         it("should throw an error if not logged in", done => {
@@ -71,7 +71,7 @@ describe("Book API", () => {
         });
     })
 
-    describe("update function", () => {
+    describe("put /api/books", () => {
         it("should broadcast the updated item", done => {
             expect(books.length).to.be.greaterThan(0);
             let myBook = {...books[0]};
@@ -90,7 +90,7 @@ describe("Book API", () => {
         })
     })
 
-    describe("delete function", () => {
+    describe("delete /api/books", () => {
         let removed:string[] = [];
         before(() => {
             nsp.on("removed", (ids:string[]) => {
@@ -111,6 +111,23 @@ describe("Book API", () => {
                 expect(res.status).to.equal(200);
                 expect(removed.indexOf(myId)).not.to.equal(-1);
                 done();
+            })
+        })
+
+        xit("should stop a delete if user is not the owner", done => {
+            utils.createBook(token, "cannotRemove")
+            .then(bookId => {
+                utils.createUserAndLogin(utils.USERS[1])
+                .then(secondToken =>  {
+                    chai.request(baseUrl)
+                    .del(`api/books/${bookId}`)
+                    .set("Authorization", secondToken)
+                    .end((err, res) => {
+                        console.log("res", err)
+                        expect(res.status).not.to.equal(200);
+                        done()
+                    })
+                })
             })
         })
     })

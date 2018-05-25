@@ -77,3 +77,12 @@ export const createBook = (token:string, name:string):Promise<string> => {
     })
     .then(res => res.data as string);
 }
+
+export const createPage = (token:string, bookId:string, name:string):Promise<String> => {
+    return axios.post(`${getBaseUrl()}/api/pages`, {name, bookId}, {
+        headers: {
+            Authorization: token
+        }
+    })
+    .then(res => res.data as string)
+}

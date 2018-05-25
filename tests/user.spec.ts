@@ -25,7 +25,7 @@ describe("User API", () => {
         .then(() => done())
     })
 
-    describe("create user", () => {
+    describe("post /api/user", () => {
         it("should create a user", done => {
             chai.request(`${baseUrl}`)
             .post("/api/user")
@@ -55,7 +55,7 @@ describe("User API", () => {
         })
     })
     
-    describe("get information about me", () => {
+    describe("get /api/user/me", () => {
         let token:string = "";
         const myUser = utils.USERS[1];
         before(done => {
