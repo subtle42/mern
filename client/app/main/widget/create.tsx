@@ -76,10 +76,10 @@ export class CreateWidget extends React.Component<Props, State> {
         });
 
 
-        return rows.map(row => {
-            return (<Row>
-            {row.map(col => {
-                return (<Col xs={12/this.rowSize}><Button
+        return rows.map((row, rowIndex) => {
+            return (<Row key={rowIndex}>
+            {row.map((col, colIndex) => {
+                return (<Col key={colIndex} xs={12/this.rowSize}><Button
                     onClick={() => this.selectConfig(col)}
                     color={col === this.state.selected ? "primary": "warning"}
                     size="large">

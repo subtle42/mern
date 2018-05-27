@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, Modal, ModalBody, Tooltip, ModalFooter, ModalHeader, NavItem, NavLink, Row, Col, ListGroup, ListGroupItem } from "reactstrap";
+import { Button, Modal, ModalBody, Tooltip, ModalFooter, ModalHeader, NavItem, NavLink, Row, Col, ListGroup, ListGroupItem, Progress } from "reactstrap";
 import Dropzone, { ImageFile } from "react-dropzone";
 import SourceActions from "data/sources/actions";
 import widgetActions from "data/widgets/actions";
@@ -20,6 +20,7 @@ class State {
     tooltipOpen: boolean = false;
     chartType: ChartType = undefined;
     editSource: ISource = undefined;
+    isLoading:boolean = false;
 }
 
 interface Props { }
@@ -66,18 +67,21 @@ export class SourceCreateButton extends React.Component<Props, State> {
         });
     }
 
-    onFileDrop= (acceptedFiles: ImageFile[], rejectedFiles: ImageFile[]) => {
+    onFileDrop = (acceptedFiles: ImageFile[], rejectedFiles: ImageFile[]) => {
         // Needed to make sure there is no memory leak
         acceptedFiles.forEach(file => window.URL.revokeObjectURL(file.preview));
         rejectedFiles.forEach(file => window.URL.revokeObjectURL(file.preview));
 
         const reader = new FileReader();
         reader.onloadend = (event) => {
+            this.setState({isLoading:true});
             SourceActions.create(acceptedFiles[0])
             .then(sourceId => {
+                this.setState({isLoading:false});
                 this.setSource(this.state.sources.filter(s => s._id === sourceId)[0])
                 this.proceed();
-            });
+            })
+            .catch(err => this.setState({isLoading:false}));
         };
         reader.readAsArrayBuffer(acceptedFiles[0]);
     }
@@ -108,7 +112,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
             <div className='modal-header'>
                 <h5>{this.state.confirmedSource ? 'Select Chart' : 'Sources'}</h5>
                 {!this.state.confirmedSource &&
-                    <Dropzone onDrop={this.onFileDrop} style={{ width: 'max-content' }} >
+                    <Dropzone disabled={this.state.isLoading} onDrop={this.onFileDrop} style={{ width: 'max-content' }} >
                         <Button color="general" id="TooltipExample">
                             <FontAwesome name="file" />
                         </Button>
@@ -122,6 +126,8 @@ export class SourceCreateButton extends React.Component<Props, State> {
     }
 
     getSourceListPreview(): JSX.Element {
+        if (this.state.isLoading) return this.getLoadingBar()
+
         return <Row>
             <Col xs={6}> <ListGroup>
                 {this.state.sources.map((source) => <ListGroupItem
@@ -158,10 +164,10 @@ export class SourceCreateButton extends React.Component<Props, State> {
                     {this.state.confirmedSource && <Button color="primary" disabled={!this.state.chartType} style={{marginRight:20}}
                         onClick={() => this.proceed()}
                     >Create</Button>}
-                    {!this.state.confirmedSource && <Button color="primary" disabled={!this.state.selected} style={{marginRight:20}}
+                    {!this.state.confirmedSource && <Button color="primary" disabled={!this.state.selected || this.state.isLoading} style={{marginRight:20}}
                         onClick={() => this.proceed()}
                     >Next</Button>}
-                    <Button color="secondary" onClick={this.cancel}>Cancel</Button>
+                    <Button disabled={this.state.isLoading} color="secondary" onClick={this.cancel}>Cancel</Button>
                 </div>
             </ModalFooter>
         )
@@ -172,13 +178,20 @@ export class SourceCreateButton extends React.Component<Props, State> {
     }
 
     back() {
-        this.setState({ confirmedSource: false });
+        this.setState({
+            confirmedSource: false,
+            chartType: undefined
+        });
     }
 
     setSource = (source:ISource):void => {
         this.setState({ 
             selected: this.state.selected === source ? undefined : source
         });
+    }
+
+    getLoadingBar():JSX.Element {
+        return <Progress animated color="info" value={100}></Progress>
     }
 
     sourceDetails(): JSX.Element {
