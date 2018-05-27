@@ -27,6 +27,20 @@ interface Props { }
 export class SourceCreateButton extends React.Component<Props, State> {
     state: State = new State();
 
+    componentDidMount() {
+        store.subscribe(() => {
+            const storeSources = store.getState().sources.list;
+            if (storeSources === this.state.sources) return;
+            this.setState({
+                sources: storeSources
+            })
+        })
+
+        this.setState({
+            sources: store.getState().sources.list
+        })
+    }
+
     close = () => {
         widgetActions.create({
             source: this.state.selected,
@@ -37,8 +51,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
 
     open = () => {
         this.setState({
-            showModal: true,
-            sources: store.getState().sources.list
+            showModal: true
         });
     }
 
@@ -53,7 +66,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
         });
     }
 
-    onFileDrop(acceptedFiles: ImageFile[], rejectedFiles: ImageFile[]) {
+    onFileDrop= (acceptedFiles: ImageFile[], rejectedFiles: ImageFile[]) => {
         // Needed to make sure there is no memory leak
         acceptedFiles.forEach(file => window.URL.revokeObjectURL(file.preview));
         rejectedFiles.forEach(file => window.URL.revokeObjectURL(file.preview));
@@ -61,7 +74,10 @@ export class SourceCreateButton extends React.Component<Props, State> {
         const reader = new FileReader();
         reader.onloadend = (event) => {
             SourceActions.create(acceptedFiles[0])
-                .then(sourceId => alert("done"));
+            .then(sourceId => {
+                this.setSource(this.state.sources.filter(s => s._id === sourceId)[0])
+                this.proceed();
+            });
         };
         reader.readAsArrayBuffer(acceptedFiles[0]);
     }
@@ -109,7 +125,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
         return <Row>
             <Col xs={6}> <ListGroup>
                 {this.state.sources.map((source) => <ListGroupItem
-                    className={source == this.state.selected && 'active'}
+                    className={source === this.state.selected && 'active'}
                     href="#"
                     key={source._id}
                     onClick={() => this.setSource(source)}> {source.title}
@@ -159,7 +175,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
         this.setState({ confirmedSource: false });
     }
 
-    setSource(source:ISource):void {
+    setSource = (source:ISource):void => {
         this.setState({ 
             selected: this.state.selected === source ? undefined : source
         });

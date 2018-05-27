@@ -194,7 +194,7 @@ class SourceController {
         .then(newSource => {
             SourceSocket.onAddOrChange(newSource);
             unlink("./" + req.file.path, () => {
-                res.json(newSource)
+                res.json(newSource._id)
             });
         })
         .catch(err => {
