@@ -1,20 +1,28 @@
 import {expect} from "chai";
 import * as chai from 'chai';
 import {default as chaiWebdriver} from "chai-webdriverio"
+import * as utils from "../integration/utils"
 chai.use(chaiWebdriver(browser));
 
-describe("my first test", () => {
+describe("Basic User Authentication", () => {
     beforeEach(() => {
         browser.url('./');
         browser.waitForText('body');
     })
 
+    before(() => {
+        utils.cleanDb()
+    })
+
+    after(done => {
+        utils.cleanDb()
+    })
+
     it("should be able to open the page", () => {
-        console.log(browser.getTitle())
         expect(browser.getTitle()).to.equal("Testing")
     })
 
-    xit("should register a user", () => {
+    it("should register a user", () => {
         browser.click("a=Register")
         browser.waitForExist("div.form-group")
         browser.setValue("input[name='userName']", "autouser")

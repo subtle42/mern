@@ -9,7 +9,7 @@
     "test": "run-p test:*",
     "test:client": "mocha --opts ./mocha.opts client/**/*.spec.* --watch",
     "test:server": "mocha --opts ./mocha.opts server/**/*.spec.* --watch",
-    "test:integration": "mocha --opts ./mocha.opts tests/**/*.spec.* --watch",
+    "test:integration": "mocha --opts ./mocha.opts integration/**/*.spec.* --watch",
     "coverage": "nyc --all run-s coverage:*",
     "coverage:client": "mocha --opts ./mocha.opts client/**/*.spec.*",
     "coverage:server": "mocha --opts ./mocha.opts server/**/*.spec.*",

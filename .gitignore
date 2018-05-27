@@ -1,6 +1,7 @@
 /node_modules
 /client/.dist
-/uploads
+/.uploads
 /coverage
 /docs
 /.nyc_output
+/.errorShots
