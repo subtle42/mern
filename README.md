@@ -63,7 +63,7 @@ Modules have 4 files:
     * Implementation of generic socket or socket with ACL to be used to keep data updated in real time.
 
 ## Testing (Mocha, Chai, Sinon)
-Unit and integration testing is handled with Mocha and Chai. Sinon is being used as a mocking library. There are three major way to mock imports:
+Unit, integration, and E2E testing is handled with Mocha and Chai. Sinon is being used as a mocking library. There are three major way to mock imports:
 * Spy
     * Best used to see if function was called and what arguments were passed.
 * Stub
@@ -73,14 +73,13 @@ Unit and integration testing is handled with Mocha and Chai. Sinon is being used
     * Has both aspects of spies and stubs but can be overly specific.
     * Used when a funtion needs to verify multiple specific behaviors.
 
-To test must have already have the server running:
-```
-npm start
-```
-To start testing use another command prompt:
+To test must have already have the server running. To start testing open a command prompt and enter:
 ```
 npm test
+npm run e2e
 ```
+* Before and after each set of tests, for integration and E2E, the database should be reset.
+
 ## Coverage
 To get a full report on code coverage run:
 ```
