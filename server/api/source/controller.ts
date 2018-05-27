@@ -5,6 +5,7 @@ import {Request, Response} from "express";
 import {createReadStream, unlink} from "fs";
 import {ISourceColumn, ColumnType} from "common/models";
 import {ISourceModel} from "../../dbModels";
+import config from "../../config/environment"
 import * as myProm from "bluebird";
 import Util from "../utils";
 const csv = require("fast-csv");
@@ -85,11 +86,11 @@ class SourceController {
 
     private importData(rows:Array<any[]>, columnTypes:ColumnType[]):Promise<string> {
         var headers:Array<string> = [];
-        var name = "mean_" + new Date().getTime();
+        var name = "mern_" + new Date().getTime();
 
-        return MongoClient.connect(`mongodb://localhost:27017`)
+        return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
         .then(client => {
-            const db = client.db("mean-data");
+            const db = client.db(config.db.mongoose.data.dbname);
             return db.createCollection(name)
             .then(collect => {
                 const batch = collect.initializeUnorderedBulkOp();

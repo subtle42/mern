@@ -4,11 +4,6 @@ import axios from "axios";
 import * as jwt from "jsonwebtoken"
 import * as io from "socket.io-client";
 
-
-const PROTOCOL = "http",
-    LOCATTION = "localhost",
-    PORT = "3333";
-
 interface FakeUser {
     email:string;
     password:string;
@@ -29,9 +24,18 @@ export const USERS:FakeUser[] = [{
     name: "Test3"
 }]
 
-export const cleanDb = ():Promise<void[]> => {
+export const cleanDb = ():Promise<void> => {
     const collections = ["User", "Book", "Page", "Widget", "Source"];
     return Promise.all(collections.map(name => removeDbRecords(name)))
+    .then(() => removeDataDb())
+}
+
+const removeDataDb = ():Promise<void> => {
+    return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
+    .then(client => {
+        return client.db(config.db.mongoose.data.dbname).dropDatabase()
+        .then(() => client.close())
+    })
 }
 
 const removeDbRecords = (collectionName:string):Promise<void> => {
@@ -45,7 +49,7 @@ const removeDbRecords = (collectionName:string):Promise<void> => {
 }
 
 export const getBaseUrl = ():string => {
-    return `${PROTOCOL}://${LOCATTION}:${PORT}`;
+    return `${config.server.protocol}://${config.server.location}:${config.server.port}`;
 } 
 
 export const websocketConnect = (channel:string, token:string):SocketIOClient.Socket => {
