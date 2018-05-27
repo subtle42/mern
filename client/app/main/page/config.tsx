@@ -119,7 +119,7 @@ export class PageConfigButton extends React.Component<Props, State> {
                         <Input 
                             type="text"
                             value={this.state.page.name}
-                            name="pageName"
+                            name="name"
                             placeholder="Enter Name"
                             onChange={this.handleChange}
                         />

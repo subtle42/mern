@@ -1,9 +1,6 @@
 import config from "../config/environment";
 import {Request, Response, NextFunction} from "express";
 import * as jwt from "jsonwebtoken";
-import * as mongoose from "mongoose";
-// import {IMongooseModels} from "IMongooseModels";
-import {} from "myModels";
 
 
 interface myRequest extends Request {
