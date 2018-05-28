@@ -67,16 +67,11 @@ export default abstract class BaseActions {
         .on("error", (err) => console.error(err));
 
         return this.storeSocket(nsp)
-        // .then(() => this.joinRoom());
     }
 
     joinRoom(room:string):Promise<void> {
         this.isNewList = true;
-        return this.store.dispatch(new Promise((resolve) => resolve({
-            type: `joinRoom`,
-            payload: room,
-            namespace: this.nameSpace
-        })))
+        return this.sendDispatch("joinRoom", room)
         .then(() => {
             let myState = this.store.getState();
             let mySocket:SocketIOClient.Socket = myState[this.nameSpace].socket;

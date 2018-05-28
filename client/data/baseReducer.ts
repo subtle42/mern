@@ -39,7 +39,7 @@ export const factory = {
     disconnect: (state:GenericStore, payload:undefined):GenericStore => {
         return new GenericStore();
     },
-    joinRoom: (state:GenericStore, payload:string):GenericStore => {
+    joinRoom: (state:GenericStore, payload:undefined):GenericStore => {
         return {...state, list:[]};
     }
 }

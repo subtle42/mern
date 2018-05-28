@@ -12,8 +12,8 @@
     "test:integration": "mocha --opts ./mocha.opts 'integration/**/*.spec.*' --watch",
     "coverage": "nyc --all run-s coverage:*",
     "coverage:client": "mocha --opts ./mocha.opts 'client/**/*.spec.*'",
-    "coverage:server": "mocha --opts ./mocha.opts 'server/**/*.spec.'*",
-    "docs": "typedoc --exclude **/*.spec.* --out ./docs ./client/data ./server ./common",
+    "coverage:server": "mocha --opts ./mocha.opts 'server/**/*.spec.*'",
+    "docs": "typedoc --exclude '**/*.spec.*' --out ./docs ./client/data ./server ./common",
     "e2e": "wdio"
   },
   "author": "",
@@ -113,8 +113,10 @@
       "**/*.tsx"
     ],
     "exclude": [
-      "**/*.spec.*",
-      "**/*.int.*"
+      "./integration/**/*",
+      "./common/**/*",
+      "./e2e/**/*",
+      "**/model.ts"
     ],
     "extension": [
       ".ts",
