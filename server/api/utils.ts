@@ -4,7 +4,6 @@ export default class Util {
     public static handleError = (res:Response, statusCode?:number):any => {
         statusCode = statusCode || 500;
         return (err) => {
-            console.error(err);
             res.status(statusCode).send(err);
         }
     }

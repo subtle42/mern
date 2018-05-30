@@ -23,13 +23,24 @@ describe("AuthActions", () => {
         mySandbox.restore();
     });
 
-    it("should do soemthing", () => {
-        const res = new Promise((r) => r({data: ""}));
-        mySandbox.stub(axios, `post`).returns(res);
-        // spy(actions, );
-
-
-        // actions.login("", "")
-        // .then(res => console.log(res))
+    describe("create function", () => {
+        xit("should send a post request", () => {})
+        xit("should send the input as the request body", () => {})
+        xit("should return request response in a promise", () => {})        
     })
+
+    describe("update function", () => {
+        xit("should send a put request", () => {})
+        xit("should send the input as the request body", () => {})
+        xit("should return a promise void", () => {})  
+        xit("should send the request response to the store", () => {})  
+    })
+
+    describe("preload function", () => {
+        xit("should do nothing if auth token is NOT in cookies", () => {})
+        xit("should set axios auth header", () => {})
+    })
+    describe("login function", () => {})
+    describe("logout function", () => {})
+    
 })

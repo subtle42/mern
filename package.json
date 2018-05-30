@@ -91,6 +91,8 @@
     "@types/socket.io-client": "^1.4.32",
     "@types/webdriverio": "^4.10.1",
     "chai-webdriverio": "^0.4.3",
+    "jsdom": "^11.11.0",
+    "jsdom-global": "^3.0.2",
     "nyc": "^11.7.3",
     "source-map-support": "^0.5.5",
     "typedoc": "^0.11.1",
