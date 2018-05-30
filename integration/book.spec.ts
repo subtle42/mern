@@ -6,22 +6,23 @@ import { IBook } from "common/models";
 import * as utils from "./utils";
 
 describe("Book API", () => {
-    let token:string = "";
+    let tokens:string[];
     let nsp:SocketIOClient.Socket;
-    let myId:string;
+    let userIds:string[];
     let books:IBook[] =[];
     const baseUrl = utils.getBaseUrl();
 
     before(done => {
         utils.cleanDb()
-        .then(() => utils.createUserAndLogin(utils.USERS[0]))
-        .then(myToken => {
-            token = myToken;
-            return utils.decodeToken(token);
-        })
-        .then(decoded => {
-            myId = decoded._id;
-            nsp = utils.websocketConnect("books", token)
+        .then(() => Promise.all([
+            utils.createUserAndLogin(utils.USERS[0]),
+            utils.createUserAndLogin(utils.USERS[1])
+        ]))
+        .then(authTokens => tokens = authTokens)
+        .then(() => Promise.all(tokens.map(token => utils.decodeToken(token))))
+        .then(decodedTokens => userIds = decodedTokens.map(decoded => decoded._id))
+        .then(() => {
+            nsp = utils.websocketConnect("books", tokens[0])
             nsp.on("addedOrChanged", (data:IBook[]) => {
                 data.forEach(item => {
                     books = books.filter(book => book._id !== item._id)
@@ -40,7 +41,7 @@ describe("Book API", () => {
         .catch(err => console.error(err))
     });
 
-    describe("post /api/books", () => {
+    describe("POST /api/books", () => {
         const testName = "unitTest";
 
         it("should throw an error if not logged in", done => {
@@ -56,41 +57,102 @@ describe("Book API", () => {
         it("should create a new book", done => {
             chai.request(`${baseUrl}`)
             .post("/api/books")
-            .set("Authorization", token)
+            .set("Authorization", tokens[0])
             .send({name: testName})
             .end((err, res) => {
                 expect(res.status).to.equal(200);
-                const bookId = JSON.parse(res.text);
+                const bookId = res.body;
                 setTimeout(() => {
                     let foundBook:IBook = books.filter(b => b._id === bookId)[0];
                     expect(foundBook.name).to.equal(testName);
-                    expect(foundBook.owner).to.equal(myId);
+                    expect(foundBook.owner).to.equal(userIds[0]);
                     done();
                 }, 20)
             })
         });
     })
 
-    describe("put /api/books", () => {
-        it("should broadcast the updated item", done => {
-            expect(books.length).to.be.greaterThan(0);
-            let myBook = {...books[0]};
-            const newName = "updateTest";
-            myBook.name = newName;
-            chai.request(`${baseUrl}`)
+    describe("PUT /api/books", () => {
+        it("should return an error if user is NOT logged in", done => {
+            expect(books[0]).not.to.be.undefined;
+            chai.request(baseUrl)
             .put("/api/books")
-            .set("Authorization", token)
+            .send(books[0])
+            .end((err, res) => {
+                expect(res.status).not.to.equal(200)
+                done()
+            })
+        })
+
+        it("should return an error if user is NOT owner or editor", done => {
+            expect(books[0]).not.to.be.undefined;
+            expect(books[0].owner).not.to.equal(userIds[1]);
+            chai.request(baseUrl)
+            .put("/api/books")
+            .set("authorization", tokens[1])
+            .send(books[0])
+            .end((err, res) => {
+                expect(res.status).not.to.equal(200)
+                done()
+            })
+        })
+
+        it("should return successfully if user is the owner", done => {
+            expect(books[0]).not.to.be.undefined;
+            expect(books[0].owner).to.equal(userIds[0]);
+            chai.request(baseUrl)
+            .put("/api/books")
+            .set("authorization", tokens[0])
+            .send(books[0])
+            .end((err, res) => {
+                expect(res.status).to.equal(200)
+                done()
+            })
+        })
+
+        it("should return successfully if user is an editor", done => {
+            expect(books[0]).not.to.be.undefined;
+            let myBook = {...books[0]};
+            myBook.editors = [];
+            myBook.editors.push(userIds[1])
+            expect(books[0].editors.indexOf(userIds[1])).to.equal(-1)
+
+            chai.request(baseUrl)
+            .put("/api/books")
+            .set("authorization", tokens[0])
             .send(myBook)
             .end((err, res) => {
-                expect(res.status).to.equal(200);
-                const updatedBook:IBook = books.filter(b => b._id === myBook._id)[0];
-                expect(updatedBook.name).equals(newName);
+                expect(res.status).to.equal(200)
+                const newName = "editor update"
+                myBook.name = newName;
+                chai.request(baseUrl)
+                .put("/api/books")
+                .set("authorization", tokens[1])
+                .send(myBook)
+                .end((err, res) => {
+                    expect(res.status).to.equal(200)
+                    expect(books[0].name).to.equal(newName)
+                    done();
+                })
+            })
+        })
+
+        it("should throw an error if schema does NOT match", done => {
+            expect(books.length).to.be.greaterThan(0);
+            let myBook:any = {...books[0]};
+            myBook.name = {bad: "data"};
+            chai.request(`${baseUrl}`)
+            .put("/api/books")
+            .set("Authorization", tokens[0])
+            .send(myBook)
+            .end((err, res) => {
+                expect(res.status).not.to.equal(200);
                 done();
             })
         })
     })
 
-    describe("delete /api/books", () => {
+    describe("DELETE /api/books", () => {
         let removed:string[] = [];
         before(() => {
             nsp.on("removed", (ids:string[]) => {
@@ -99,34 +161,42 @@ describe("Book API", () => {
         })
 
         after(() => nsp.removeListener("removed"))
-        
-        it("should broadcast the id of the deleted item", done => {
-            expect(books.length).to.be.greaterThan(0);
-            let myId = books[0]._id;
-            expect(removed.indexOf(myId)).to.equal(-1);
-            chai.request(`${baseUrl}`)
-            .del(`/api/books/${myId}`)
-            .set("Authorization", token)
+
+        it("should return an error if user is NOT logged in", done => {
+            chai.request(baseUrl)
+            .del(`/api/books/myBookID`)
             .end((err, res) => {
-                expect(res.status).to.equal(200);
-                expect(removed.indexOf(myId)).not.to.equal(-1);
+                expect(res.status).not.to.equal(200);
                 done();
             })
         })
+        
+        it("should broadcast the id of the deleted item", done => {
+            expect(books.length).to.be.greaterThan(0);
+            let myBookID = books[0]._id;
+            expect(removed.indexOf(myBookID)).to.equal(-1);
+            utils.createBook(tokens[0], "testinglkwe")
+            .then(secondBookId => {
+                chai.request(`${baseUrl}`)
+                .del(`/api/books/${myBookID}`)
+                .set("Authorization", tokens[0])
+                .end((err, res) => {
+                    expect(res.status).to.equal(200);
+                    expect(removed.indexOf(myBookID)).not.to.equal(-1);
+                    done();
+                })
+            })
+        })
 
-        xit("should stop a delete if user is not the owner", done => {
-            utils.createBook(token, "cannotRemove")
+        it("should stop a delete if user is NOT the owner", done => {
+            utils.createBook(tokens[0], "cannot remove")
             .then(bookId => {
-                utils.createUserAndLogin(utils.USERS[1])
-                .then(secondToken =>  {
-                    chai.request(baseUrl)
-                    .del(`api/books/${bookId}`)
-                    .set("Authorization", secondToken)
-                    .end((err, res) => {
-                        console.log("res", err)
-                        expect(res.status).not.to.equal(200);
-                        done()
-                    })
+                chai.request(`${baseUrl}`)
+                .del(`/api/books/${bookId}`)
+                .set("Authorization", tokens[1])
+                .end((err, res) => {
+                    expect(res.status).not.to.equal(200);
+                    done();
                 })
             })
         })
