@@ -1,28 +1,31 @@
 import "mocha";
 import {expect} from "chai";
-const chai = require("chai");
-const chaiHttp = require("chai-http");
-chai.use(chaiHttp);
+import * as chai from "chai";
+import "chai-http";
 import * as utils from "./utils"
-import { IPage } from "common/models";
+import { IPage, IBook } from "common/models";
 
 describe("Page API", () => {
     const userName = "test",
         email = "test@test.com",
         password = "asdf";
-    let token:string,
-        bookId:string,
+    let bookId:string,
+        tokens:string[],
         nsp:SocketIOClient.Socket,
-        pages = [];
+        pages:IPage[] = [];
 
     before(done => {
         utils.cleanDb()
-        .then(() => utils.createUserAndLogin(utils.USERS[1]))
-        .then(myToken => token = myToken)
-        .then(() => utils.createBook(token, "myBook"))
+        .then(() => Promise.all([
+            utils.createUserAndLogin(utils.USERS[0]),
+            utils.createUserAndLogin(utils.USERS[1]),
+            utils.createUserAndLogin(utils.USERS[2])
+        ]))
+        .then(myTokens => tokens = myTokens)
+        .then(() => utils.createBook(tokens[0], "myBook"))
         .then(id => bookId = id)
         .then(() => {
-            nsp = utils.websocketConnect("pages", token)
+            nsp = utils.websocketConnect("pages", tokens[0])
             nsp.on("addedOrChanged", (data:IPage[]) => {
                 data.forEach(item => {
                     pages = pages.filter(book => book._id !== item._id)
@@ -45,32 +48,114 @@ describe("Page API", () => {
         it("should return the created pageId", done => {
             chai.request(utils.getBaseUrl())
             .post("/api/pages")
-            .set("Authorization", token)
+            .set("authorization", tokens[0])
             .send({
                 name: "afwehjlkw",
                 bookId: bookId
             })
             .end((err, res) => {
                 expect(res.status).to.equal(200);
-                const myId = JSON.parse(res.text);
-                setTimeout(() => {
-                    expect(pages.filter(p => p._id === myId).length).to.equal(1);
-                    done();
-                }, 20)
+                expect(typeof res.body).to.equal("string")
+                done();
+                // setTimeout(() => {
+                //     expect(pages.filter(p => p._id === myId).length).to.equal(1);
+                //     done();
+                // }, 20)
             })            
         })
 
-        xit("should send a broadcast on the addedOrChanged channel of the sent book", () => {})
-        xit("should NOT send a broadcast on the addedOrChanged channel of a different book", () => {})
+        it("should return an error if user is NOT logged in", done => {
+            chai.request(utils.getBaseUrl())
+            .post("/api/pages")
+            .send({
+                name: "afwehjlkw",
+                bookId: bookId
+            })
+            .end((err, res) => {
+                expect(res.status).to.equal(401);
+                done()
+            })
+        })
+
+        // xit("should send a broadcast on the addedOrChanged channel of the sent book", () => {})
+        // xit("should NOT send a broadcast on the addedOrChanged channel of a different book", () => {})
     })
 
     describe("PUT /api/pages", () => {
-        xit("should return a success", () => {})
-        xit("should return a success if user has owner access", () => {})
-        xit("should return a success if user has edit access", () => {})
-        xit("should return a failure if user has view access", () => {})
-        xit("should return a failure if schema does not match", () => {})
-        xit("should return a failure user is not logged in", () => {})
+        let bookNsp:SocketIOClient.Socket,
+            books:IBook[] = [];
+
+        before(done => {
+            bookNsp = utils.websocketConnect("books", tokens[0])
+            bookNsp.on("addedOrChanged", (data:IBook[]) => {
+                data.forEach(item => {
+                    books = books.filter(book => book._id !== item._id);
+                })
+                books = books.concat(data);
+            })
+            done()
+        })
+
+        after(() => {
+            bookNsp.close()
+        })
+
+        it("should return an error if user is NOT logged in", done => {
+            chai.request(utils.getBaseUrl())
+            .put("/api/pages")
+            .send({})
+            .then(res => expect(res.status).to.equal(401))
+            .then(() => done())
+        })
+
+        it("should return a success if user is the owner of the parent book", done => {
+            expect(pages[0]).not.to.be.undefined;
+            let myPage:IPage = {...pages[0]};
+
+            chai.request(utils.getBaseUrl())
+            .put("/api/pages")
+            .set("authorization", tokens[0])
+            .send(pages[0])
+            .then(res => expect(res.status).to.equal(200))
+            .then(() => done())
+        })
+
+        it("should return a success if user is an editor of the parent book", done => {
+            let myBook:IBook = books.filter(b => b._id === bookId)[0],
+                myPage:IPage = pages.filter(p => p.bookId === myBook._id)[0];
+            expect(myPage).not.to.be.undefined;
+            
+            utils.decodeToken(tokens[1])
+            .then(decoded => myBook.editors.push(decoded._id))
+            .then(() => utils.updateBook(tokens[0], myBook))
+            .then(() => {
+                return chai.request(utils.getBaseUrl())
+                .put("/api/pages")
+                .set("authorization", tokens[1])
+                .send(myPage)
+            })
+            .then(res => expect(res.status).to.equal(200))
+            .then(() => done())
+        })
+        
+        it("should return a failure if user NOT an owner or an editor", done => {
+            let myBook:IBook = books.filter(b => b._id === bookId)[0],
+                myPage:IPage = pages.filter(p => p.bookId === myBook._id)[0];
+            expect(myPage).not.to.be.undefined;
+
+            chai.request(utils.getBaseUrl())
+            .put("/api/pages")
+            .set("authorization", tokens[2])
+            .send(myPage)
+            .then(res => expect(res.status).not.to.equal(200))
+            .then(() => done())
+            
+        })
+
+        it("should return a failure if schema does not match", done => {
+            done();
+        })
+
         xit("should send a broadcast in the book's room", () => {})
         xit("should NOT send a broadcast to any other book's room", () => {})
     })

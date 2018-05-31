@@ -83,9 +83,6 @@ UserSchema
                 reject("This email address is already taken");
             }
         })
-        .catch(err => {
-            throw err;
-        });
     });
 });
 

@@ -259,7 +259,8 @@ class SourceController {
                 const db = client.db(config.db.mongoose.data.dbname);
                 db.collection(source.location).aggregate(query,{}, (err, data:any) => {
                     if (err) return reject(err);
-                    data.toArray().then(results => {
+                    const cursor:AggregationCursor = data;
+                    cursor.toArray().then(results => {
                         client.close();
                         resolve(results);
                     });

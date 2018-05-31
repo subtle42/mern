@@ -1,5 +1,6 @@
 import {Request, Response} from "express";
 import Page from "./model";
+import {Book} from "../book/model"
 import Util from "../utils";
 import {pageSocket} from "./socket";
 
@@ -35,8 +36,18 @@ export default class PageController {
         var myPage = new Page(req.body);
         delete req.body._id;
 
+
         myPage.validate()
-        .then(() => Page.findByIdAndUpdate(myId, req.body))
+        .then(() => Page.findById(myId))
+        .then(page => {
+            return Book.findById(page.bookId)
+            .then(book => {
+                if (book.owner !== req.user._id && book.editors.indexOf(req.user._id) === -1) {
+                    return Promise.reject(`User ${req.user._id} does not have edit rights to Book: ${book._id}`);
+                }
+                return page.update(page)
+            })
+        })
         .then(() => pageSocket.onAddOrChange(myPage))
         .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));

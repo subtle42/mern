@@ -44,14 +44,12 @@ describe("Book API", () => {
     describe("POST /api/books", () => {
         const testName = "unitTest";
 
-        it("should throw an error if not logged in", done => {
+        it("should return an error if user is NOT logged in", done => {
             chai.request(`${baseUrl}`)
             .post("/api/books")
             .send({name: testName})
-            .end((err, res) => {
-                expect(res.status).not.to.equal(200);
-                done();
-            })
+            .then(res => expect(res.status).not.to.equal(200))
+            .then(() => done())
         })
         
         it("should create a new book", done => {
@@ -59,7 +57,7 @@ describe("Book API", () => {
             .post("/api/books")
             .set("Authorization", tokens[0])
             .send({name: testName})
-            .end((err, res) => {
+            .then(res => {
                 expect(res.status).to.equal(200);
                 const bookId = res.body;
                 setTimeout(() => {
@@ -78,10 +76,8 @@ describe("Book API", () => {
             chai.request(baseUrl)
             .put("/api/books")
             .send(books[0])
-            .end((err, res) => {
-                expect(res.status).not.to.equal(200)
-                done()
-            })
+            .then(res => expect(res.status).to.equal(401))
+            .then(() => done())
         })
 
         it("should return an error if user is NOT owner or editor", done => {
@@ -91,10 +87,8 @@ describe("Book API", () => {
             .put("/api/books")
             .set("authorization", tokens[1])
             .send(books[0])
-            .end((err, res) => {
-                expect(res.status).not.to.equal(200)
-                done()
-            })
+            .then(res => expect(res.status).not.to.equal(200))
+            .then(() => done())
         })
 
         it("should return successfully if user is the owner", done => {
@@ -104,13 +98,12 @@ describe("Book API", () => {
             .put("/api/books")
             .set("authorization", tokens[0])
             .send(books[0])
-            .end((err, res) => {
-                expect(res.status).to.equal(200)
-                done()
-            })
+            .then(res => expect(res.status).to.equal(200))
+            .then(() => done())
         })
 
         it("should return successfully if user is an editor", done => {
+            const newName = "editor update"
             expect(books[0]).not.to.be.undefined;
             let myBook = {...books[0]};
             myBook.editors = [];
@@ -121,23 +114,22 @@ describe("Book API", () => {
             .put("/api/books")
             .set("authorization", tokens[0])
             .send(myBook)
-            .end((err, res) => {
+            .then(res => {
                 expect(res.status).to.equal(200)
-                const newName = "editor update"
                 myBook.name = newName;
-                chai.request(baseUrl)
+                return chai.request(baseUrl)
                 .put("/api/books")
                 .set("authorization", tokens[1])
-                .send(myBook)
-                .end((err, res) => {
-                    expect(res.status).to.equal(200)
-                    expect(books[0].name).to.equal(newName)
-                    done();
-                })
+                .send(myBook);
             })
+            .then(res => {
+                expect(res.status).to.equal(200)
+                expect(books[0].name).to.equal(newName)
+            })
+            .then(() => done())
         })
 
-        it("should throw an error if schema does NOT match", done => {
+        it("should return an error if schema does NOT match", done => {
             expect(books.length).to.be.greaterThan(0);
             let myBook:any = {...books[0]};
             myBook.name = {bad: "data"};
@@ -145,10 +137,8 @@ describe("Book API", () => {
             .put("/api/books")
             .set("Authorization", tokens[0])
             .send(myBook)
-            .end((err, res) => {
-                expect(res.status).not.to.equal(200);
-                done();
-            })
+            .then(res => expect(res.status).not.to.equal(200))
+            .then(() => done())
         })
     })
 
@@ -165,10 +155,8 @@ describe("Book API", () => {
         it("should return an error if user is NOT logged in", done => {
             chai.request(baseUrl)
             .del(`/api/books/myBookID`)
-            .end((err, res) => {
-                expect(res.status).not.to.equal(200);
-                done();
-            })
+            .then(res => expect(res.status).to.equal(401))
+            .then(() => done())
         })
         
         it("should broadcast the id of the deleted item", done => {
@@ -177,28 +165,26 @@ describe("Book API", () => {
             expect(removed.indexOf(myBookID)).to.equal(-1);
             utils.createBook(tokens[0], "testinglkwe")
             .then(secondBookId => {
-                chai.request(`${baseUrl}`)
+                return chai.request(`${baseUrl}`)
                 .del(`/api/books/${myBookID}`)
                 .set("Authorization", tokens[0])
-                .end((err, res) => {
-                    expect(res.status).to.equal(200);
-                    expect(removed.indexOf(myBookID)).not.to.equal(-1);
-                    done();
-                })
             })
+            .then(res => {
+                expect(res.status).to.equal(200);
+                expect(removed.indexOf(myBookID)).not.to.equal(-1);
+            })
+            .then(() => done())
         })
 
         it("should stop a delete if user is NOT the owner", done => {
             utils.createBook(tokens[0], "cannot remove")
             .then(bookId => {
-                chai.request(`${baseUrl}`)
+                return chai.request(`${baseUrl}`)
                 .del(`/api/books/${bookId}`)
                 .set("Authorization", tokens[1])
-                .end((err, res) => {
-                    expect(res.status).not.to.equal(200);
-                    done();
-                })
             })
+            .then(res => expect(res.status).not.to.equal(200))
+            .then(() => done())
         })
     })
 })

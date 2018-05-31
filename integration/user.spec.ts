@@ -1,9 +1,8 @@
 import "mocha";
 import {expect} from "chai";
-const chai = require("chai");
-const chaiHttp = require("chai-http");
-chai.use(chaiHttp);
-import * as utils from "./utils";
+import * as chai from "chai";
+import "chai-http";
+import * as utils from "./utils"
 
 const baseUrl = utils.getBaseUrl();
 import { IUser } from "common/models";
@@ -34,10 +33,8 @@ describe("User API", () => {
                 email: email,
                 password: password
             })
-            .end((err, res) => {
-                expect(res.status).to.equal(200);
-                done();
-            });
+            .then(res => expect(res.status).to.equal(200))
+            .then(() => done())
         })
     
         it("should not create a user if the email already exists", done => {
@@ -48,10 +45,8 @@ describe("User API", () => {
                 email: email,
                 password: password
             })
-            .end((err, res) => {
-                expect(res.status).not.to.equal(200);
-                done();
-            });
+            .then(res => expect(res.status).not.to.equal(200))
+            .then(() => done())
         })
     })
     
@@ -64,28 +59,24 @@ describe("User API", () => {
             .then(() => done())
         })
 
-        it("should throw an error if not logged in", done => {
+        it("should return an error user if is NOT logged in", done => {
             chai.request(`${baseUrl}`)
             .get('/api/user/me')
-            .send()
-            .end((err, res) => {
-                expect(res.status).not.to.equal(200);
-                done();
-            })            
+            .then(res => expect(res.status).to.equal(401))
+            .then(() => done())          
         })
 
         it("should get current user's info", done => {
             chai.request(`${baseUrl}`)
             .get('/api/user/me')
             .set("Authorization", token)
-            .send()
-            .end((err, res) => {
+            .then(res => {
                 expect(res.status).to.equal(200);
-                const user:IUser = JSON.parse(res.text)
+                const user:IUser = res.body;
                 expect(user.email).to.equal(myUser.email)
                 expect(user.name).to.equal(myUser.name)
-                done();
-            })            
+            })
+            .then(() => done())
         })
     })
 })

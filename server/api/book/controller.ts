@@ -41,7 +41,7 @@ export default class BookController {
         .then(pass => Book.findById(myId))
         .then(oldBook => {
             if (oldBook.owner !== req.user._id && oldBook.editors.indexOf(req.user._id) === -1) {
-                throw Error(`User: ${req.user._id} is neither an owner or editor of Book: ${myId}`)
+                return Promise.reject(`User: ${req.user._id} is neither an owner or editor of Book: ${myId}`)
             }
 
             return Book.findByIdAndUpdate(myId, req.body).exec()
@@ -62,7 +62,7 @@ export default class BookController {
         Book.findById(myId).exec()
         .then(book => {
             if (book.owner !== req.user._id) {
-                throw `User ${req.user._id} is not owner and cannot delete book: ${book._id}`
+                return Promise.reject(`User ${req.user._id} is not owner and cannot delete book: ${book._id}`)
             }
             return book.remove()
             .then(() => BookSocket.onDelete(book))

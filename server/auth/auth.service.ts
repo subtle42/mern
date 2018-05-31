@@ -19,12 +19,12 @@ interface myRequest extends Request {
 export function isAuthenticated(req:myRequest, res:Response, next:NextFunction):void {
     let token = req.body.token || req.query.token || req.headers['authorization'];
     if (!token) {
-        return res.status(403).send({
+        return res.status(401).send({
             message: "No token provided"
         }).end();
     }
     jwt.verify(token, config.shared.secret, (err, decoded) => {
-        if (err) return res.status(403).send("Failed to authenticate token");
+        if (err) return res.status(401).send("Failed to authenticate token");
         req.user = decoded;
         next();
     });

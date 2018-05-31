@@ -3,6 +3,7 @@ import config from "../server/config/environment";
 import axios from "axios";
 import * as jwt from "jsonwebtoken"
 import * as io from "socket.io-client";
+import { IBook } from "common/models";
 
 interface FakeUser {
     email:string;
@@ -80,6 +81,15 @@ export const createBook = (token:string, name:string):Promise<string> => {
         }
     })
     .then(res => res.data as string);
+}
+
+export const updateBook = (token:string, item:IBook):Promise<void> => {
+    return axios.put(`${getBaseUrl()}/api/books`, item, {
+        headers: {
+            Authorization: token
+        }
+    })
+    .then(res => res.data as undefined);
 }
 
 export const createPage = (token:string, bookId:string, name:string):Promise<String> => {

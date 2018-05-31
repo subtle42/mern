@@ -9,7 +9,7 @@ export default class LocalAuth {
             email:email.toLocaleLowerCase()
         })
         .then(user => {
-            if(!user) throw {message: "This email is not registered"};
+            if(!user) return Promise.reject({message: "This email is not registered"});
             return user.authenticate(password)
         })
         .then(user => done(null, user))

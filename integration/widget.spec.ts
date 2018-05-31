@@ -13,7 +13,7 @@ describe("Widget API", () => {
     afterEach(() => {})
 
     describe("delete /api/widgets", () => {
-        it("should return an error if user is NOT logged in", () => {
+        xit("should return an error if user is NOT logged in", () => {
             
         })
         xit("should return an error if user does NOT have edit access", () => {})
