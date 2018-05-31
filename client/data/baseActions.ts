@@ -1,6 +1,7 @@
 import {Store} from "redux";
 import axios from "axios";
 import * as io from "socket.io-client";
+import store from "./store"
 
 export default abstract class BaseActions {
     private isNewList:boolean = true;
@@ -10,7 +11,7 @@ export default abstract class BaseActions {
         private nameSpace:string
     ) {}
 
-    private sendDispatch(type:string, payload:any):Promise<void> {
+    protected sendDispatch(type:string, payload:any):Promise<void> {
         return this.store.dispatch(new Promise((resolve) => {
             resolve({
                 type,
@@ -32,7 +33,15 @@ export default abstract class BaseActions {
         return this.sendDispatch(`storeSocket`, socket);
     }
 
+    /**
+     * Disconnect on channel
+     */
     disconnect():Promise<void> {
+        let mySocket:SocketIOClient.Socket = this.store.getState()[this.nameSpace].socket;
+        if (mySocket) {
+            mySocket.disconnect()
+        }
+
         return this.sendDispatch(`disconnect`, undefined);
     }
 
@@ -40,12 +49,20 @@ export default abstract class BaseActions {
         return this.sendDispatch(`select`, item);
     }
 
-    abstract select(item:any):Promise<void>
+    abstract select(item:any):Promise<void>;
     abstract create(item:any):Promise<any>;
     abstract update(item:any):Promise<any>;
     abstract delete(item:any):Promise<void>;
 
+    /**
+     * Connect to socket channel
+     * @param auth 
+     */
     connect(auth:string):Promise<void> {
+        if (this.store.getState()[this.nameSpace].socket) {
+            return new Promise((resolve, reject) => reject(`Already connected to ${this.nameSpace}`))
+        }
+
         let nsp = io.connect(`/${this.nameSpace}`, {
             query: {
                 token: auth
@@ -69,7 +86,15 @@ export default abstract class BaseActions {
         return this.storeSocket(nsp)
     }
 
+    /**
+     * Join different room on channel
+     * @param room 
+     */
     joinRoom(room:string):Promise<void> {
+        if (!this.store.getState()[this.nameSpace].socket) {
+            return new Promise((resolve, reject) => reject(`Cannot join room in ${this.nameSpace} channel. No socket connection`))
+        }
+
         this.isNewList = true;
         return this.sendDispatch("joinRoom", room)
         .then(() => {

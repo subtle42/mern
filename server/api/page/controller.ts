@@ -4,6 +4,11 @@ import Util from "../utils";
 import {pageSocket} from "./socket";
 
 export default class PageController {
+    /**
+     * Creates a page as part of a book
+     * @param req 
+     * @param res 
+     */
     public static create(req:Request, res:Response):void {
         var myPage = new Page({
             name: req.body.name,
@@ -20,6 +25,11 @@ export default class PageController {
         .catch(Util.handleError(res));
     }
 
+    /**
+     * Updates a page, only the owner or editors of the assocated book can make updates
+     * @param req 
+     * @param res 
+     */
     public static update(req:Request, res:Response):void {
         var myId:string = req.body._id;
         var myPage = new Page(req.body);

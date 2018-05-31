@@ -18,7 +18,6 @@ describe("Page API", () => {
     before(done => {
         utils.cleanDb()
         .then(() => utils.createUserAndLogin(utils.USERS[1]))
-        
         .then(myToken => token = myToken)
         .then(() => utils.createBook(token, "myBook"))
         .then(id => bookId = id)
@@ -42,7 +41,7 @@ describe("Page API", () => {
         .then(() => done())
     })
 
-    describe("post /api/pages", () => {
+    describe("POST /api/pages", () => {
         it("should return the created pageId", done => {
             chai.request(utils.getBaseUrl())
             .post("/api/pages")
@@ -65,7 +64,7 @@ describe("Page API", () => {
         xit("should NOT send a broadcast on the addedOrChanged channel of a different book", () => {})
     })
 
-    describe("put /api/pages", () => {
+    describe("PUT /api/pages", () => {
         xit("should return a success", () => {})
         xit("should return a success if user has owner access", () => {})
         xit("should return a success if user has edit access", () => {})
@@ -76,7 +75,7 @@ describe("Page API", () => {
         xit("should NOT send a broadcast to any other book's room", () => {})
     })
 
-    describe("delete /api/pages", () => {
+    describe("DELETE /api/pages", () => {
         xit("should send back a success", () => {})
         xit("should return a failure if user is not logged in", () => {})
         xit("should recieve broadcast on the delete channel if in that book room", () => {})

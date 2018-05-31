@@ -15,6 +15,19 @@ export interface IBook extends IShared {
     name:string;
 }
 
+export interface IFilter {
+    ref:string;
+    range?:[number, number];
+    option?:string[]
+}
+
+export interface IQuery {
+    sourceId:string;
+    measures:[{ref:string}];
+    dimensions:string[];
+    filters:IFilter[];
+}
+
 export interface IPage {
     _id:any;
     bookId:string;

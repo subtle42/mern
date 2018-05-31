@@ -8,5 +8,6 @@ var router = Router();
 router.post("/", isAuthenticated, multer({dest: "./.uploads"}).single("file"), (req, res) => controller.create(req, res));
 router.put("/", isAuthenticated, controller.update);
 router.delete("/:id", isAuthenticated, controller.remove);
+router.post("/query", isAuthenticated, (res, req) => controller.query(res, req))
 
 module.exports = router;
