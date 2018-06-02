@@ -1,7 +1,8 @@
 import {Book} from "./model";
 import {BookSocket} from "./socket";
-import {Request, Response} from "express";
+import {Request, Response, NextFunction} from "express";
 import Util from "../utils";
+import { IBookModel } from "../../dbModels";
 
 export default class BookController {
     /**
@@ -38,12 +39,8 @@ export default class BookController {
         delete req.body._id;
 
         myBook.validate()
-        .then(pass => Book.findById(myId))
+        .then(pass => Book.findById(myId).exec())
         .then(oldBook => {
-            if (oldBook.owner !== req.user._id && oldBook.editors.indexOf(req.user._id) === -1) {
-                return Promise.reject(`User: ${req.user._id} is neither an owner or editor of Book: ${myId}`)
-            }
-
             return Book.findByIdAndUpdate(myId, req.body).exec()
             .then(data => BookSocket.onAddOrChange(myBook, oldBook))
         })
@@ -51,6 +48,34 @@ export default class BookController {
         .catch(Util.handleError(res));
     }
 
+    public static hasOwnerAccess(req:Request, res:Response, next:NextFunction):void {
+        const bookId:string = req.params.id || req.body._id;
+        Book.findById(bookId)
+        .then(book =>  {
+            if (book.owner === req.user._id) return;
+            return Promise.reject(`You are not the owner of book: ${book._id}, you do not have delete rights.`)
+        })
+        .then(() => next())
+        .catch(Util.handleError(res))
+    }
+
+    public static hasEditorAccess(req:Request, res:Response, next:NextFunction):void {
+        const bookId:string = req.params.id || req.body._id;
+        const toUpdate:IBookModel = req.body;
+        Book.findById(bookId)
+        .then(book =>  {
+            if (book.owner !== toUpdate.owner && book.owner !== req.user._id) {
+                return Promise.reject(`Only the owner of the book: ${book._id}, can edit the owner field.`)
+            }
+            
+            if (book.owner === req.user._id) return;
+            if (book.editors.indexOf(req.user._id) !== -1) return;
+            return Promise.reject(`You are not an editor of book: ${book._id}, you do not have edit rights.`)
+        })
+        .then(() => next())
+        .catch(Util.handleError(res))
+    }
+ 
     /**
      * Deletes a book, only the owner can do this action
      * @param req 
@@ -60,14 +85,8 @@ export default class BookController {
         var myId:string = req.params.id;
 
         Book.findById(myId).exec()
-        .then(book => {
-            if (book.owner !== req.user._id) {
-                return Promise.reject(`User ${req.user._id} is not owner and cannot delete book: ${book._id}`)
-            }
-            return book.remove()
-            .then(() => BookSocket.onDelete(book))
-        })
-        .then(() => res.json().status(200))
+        .then(book => BookSocket.onDelete(book))
+        .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));
     }
 

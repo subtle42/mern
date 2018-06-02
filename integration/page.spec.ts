@@ -1,4 +1,3 @@
-import "mocha";
 import {expect} from "chai";
 import * as chai from "chai";
 import "chai-http";
@@ -53,15 +52,15 @@ describe("Page API", () => {
                 name: "afwehjlkw",
                 bookId: bookId
             })
-            .end((err, res) => {
+            .then(res => {
                 expect(res.status).to.equal(200);
                 expect(typeof res.body).to.equal("string")
-                done();
                 // setTimeout(() => {
                 //     expect(pages.filter(p => p._id === myId).length).to.equal(1);
                 //     done();
                 // }, 20)
             })            
+            .then(() => done())
         })
 
         it("should return an error if user is NOT logged in", done => {
@@ -71,10 +70,8 @@ describe("Page API", () => {
                 name: "afwehjlkw",
                 bookId: bookId
             })
-            .end((err, res) => {
-                expect(res.status).to.equal(401);
-                done()
-            })
+            .then(res => expect(res.status).to.equal(401))
+            .then(() => done())
         })
 
         // xit("should send a broadcast on the addedOrChanged channel of the sent book", () => {})

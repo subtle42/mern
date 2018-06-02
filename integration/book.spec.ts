@@ -1,9 +1,9 @@
-import "mocha";
 import {expect} from "chai";
 import * as chai from "chai";
 import "chai-http";
 import { IBook } from "common/models";
 import * as utils from "./utils";
+import { bind } from "bluebird";
 
 describe("Book API", () => {
     let tokens:string[];
@@ -91,7 +91,7 @@ describe("Book API", () => {
             .then(() => done())
         })
 
-        it("should return successfully if user is the owner", done => {
+        it("should return a success if user is the owner", done => {
             expect(books[0]).not.to.be.undefined;
             expect(books[0].owner).to.equal(userIds[0]);
             chai.request(baseUrl)
@@ -102,7 +102,7 @@ describe("Book API", () => {
             .then(() => done())
         })
 
-        it("should return successfully if user is an editor", done => {
+        it("should return a success if user is an editor", done => {
             const newName = "editor update"
             expect(books[0]).not.to.be.undefined;
             let myBook = {...books[0]};
@@ -139,6 +139,35 @@ describe("Book API", () => {
             .send(myBook)
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => done())
+        })
+
+        it("should return an error if a user other than the owner tries to change the owner", done => {
+            expect(books[0]).not.to.be.undefined;
+            let toUpdate:IBook = {...books[0]};
+            expect(toUpdate.owner).to.equal(userIds[0])
+            expect(toUpdate.editors.indexOf(userIds[1])).not.to.equal(-1)
+            toUpdate.owner = userIds[1];
+
+            chai.request(baseUrl)
+            .put("/api/books")
+            .set("authorization", tokens[1])
+            .send(toUpdate)
+            .then(res => expect(res.status).not.to.equal(200))
+            .then(res => done())
+        })
+
+        it("should return a success if the owner changes the owner field", done => {
+            utils.createBook(tokens[0], "changeMe")
+            .then(bookId => books.filter(b => b._id === bookId)[0])
+            .then(toUpdate => {
+                toUpdate.owner = userIds[1];
+                return chai.request(baseUrl)
+                .put("/api/books")
+                .set("authorization", tokens[0])
+                .send(toUpdate)
+            })
+            .then(res => expect(res.status).to.equal(200))
+            .then(res => done())
         })
     })
 

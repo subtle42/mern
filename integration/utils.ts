@@ -4,6 +4,10 @@ import axios from "axios";
 import * as jwt from "jsonwebtoken"
 import * as io from "socket.io-client";
 import { IBook } from "common/models";
+// Need to keep this to inject chai with http requests
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+chai.use(chaiHttp);
 
 interface FakeUser {
     email:string;
