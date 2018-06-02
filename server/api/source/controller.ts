@@ -1,7 +1,7 @@
 import {Source} from "./model";
 import {SourceSocket} from "./socket";
 import {MongoClient, AggregationCursor} from "mongodb";
-import {Request, Response} from "express";
+import {Request, Response, NextFunction} from "express";
 import {createReadStream, unlink} from "fs";
 import {ISourceColumn, ColumnType, IQuery, ISource} from "common/models";
 import {ISourceModel} from "../../dbModels";
@@ -250,6 +250,35 @@ class SourceController {
         })
 
         return output;
+    }
+
+    public hasOwnerAccess(req:Request, res:Response, next:NextFunction):void {
+        const sourceId:string = req.params._id || req.body._id;
+        Source.findById(sourceId).exec()
+        .then(source => {
+            if (source.owner === req.user._id) return;
+            return Promise.reject(`You do not have owner rights to source: ${sourceId}`)
+        })
+        .then(() => next())
+        .catch(Util.handleError(res))
+    }
+
+    public hasEditAccess(req:Request, res:Response, next:NextFunction):void {
+        const sourceId:string = req.params._id || req.body._id;
+        const incomingSource:ISource = req.body;
+
+        Source.findById(sourceId).exec()
+        .then(source => {
+            if (source.owner !== incomingSource.owner && source.owner !== req.user._id) {
+                return Promise.reject(`Only the owner of source: ${sourceId}, can the owner field`);
+            }
+
+            if (source.owner === req.user._id) return;
+            if (source.editors.indexOf(req.user._id) !== -1) return;
+            return Promise.reject(`You do not have owner rights to source: ${sourceId}`)
+        })
+        .then(() => next())
+        .catch(Util.handleError(res))
     }
 
     private runMongoQuery(source:ISource, query:any[]):Promise<any[]> {

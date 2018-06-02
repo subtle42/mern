@@ -4,6 +4,7 @@ import axios from "axios";
 import * as jwt from "jsonwebtoken"
 import * as io from "socket.io-client";
 import { IBook } from "common/models";
+import * as fs from "fs"
 // Need to keep this to inject chai with http requests
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -96,11 +97,30 @@ export const updateBook = (token:string, item:IBook):Promise<void> => {
     .then(res => res.data as undefined);
 }
 
-export const createPage = (token:string, bookId:string, name:string):Promise<String> => {
+/**
+ * Will create a page and return it's id
+ * @param token 
+ * @param bookId 
+ * @param name 
+ */
+export const createPage = (token:string, bookId:string, name:string):Promise<string> => {
     return axios.post(`${getBaseUrl()}/api/pages`, {name, bookId}, {
         headers: {
             Authorization: token
         }
     })
     .then(res => res.data as string)
+}
+
+/**
+ * Will create a source and return it's id
+ * @param token 
+ * @param filePath 
+ */
+export const createSource = (token:string, filePath:string):Promise<string> => {
+    return chai.request(getBaseUrl())
+    .post("/api/sources")
+    .set("Authorization", token)
+    .attach("file", fs.readFileSync(filePath), "myFile.csv")
+    .then(res => res.body as string)
 }
