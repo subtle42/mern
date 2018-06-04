@@ -59,6 +59,7 @@ export const getBaseUrl = ():string => {
 } 
 
 export const websocketConnect = (channel:string, token:string):SocketIOClient.Socket => {
+    console.log(`${channel} socket token`, token)
     return io.connect(`${getBaseUrl()}/${channel}`, {
         query: {token}
     });
@@ -82,7 +83,7 @@ export const decodeToken = (token:string):Promise<any> => {
 export const createBook = (token:string, name:string):Promise<string> => {
     return axios.post(`${getBaseUrl()}/api/books`, {name}, {
         headers: {
-            Authorization: token
+            authorization: token
         }
     })
     .then(res => res.data as string);
@@ -91,7 +92,7 @@ export const createBook = (token:string, name:string):Promise<string> => {
 export const updateBook = (token:string, item:IBook):Promise<void> => {
     return axios.put(`${getBaseUrl()}/api/books`, item, {
         headers: {
-            Authorization: token
+            authorization: token
         }
     })
     .then(res => res.data as undefined);
@@ -106,7 +107,7 @@ export const updateBook = (token:string, item:IBook):Promise<void> => {
 export const createPage = (token:string, bookId:string, name:string):Promise<string> => {
     return axios.post(`${getBaseUrl()}/api/pages`, {name, bookId}, {
         headers: {
-            Authorization: token
+            authorization: token
         }
     })
     .then(res => res.data as string)
@@ -120,7 +121,16 @@ export const createPage = (token:string, bookId:string, name:string):Promise<str
 export const createSource = (token:string, filePath:string):Promise<string> => {
     return chai.request(getBaseUrl())
     .post("/api/sources")
-    .set("Authorization", token)
+    .set("authorization", token)
     .attach("file", fs.readFileSync(filePath), "myFile.csv")
     .then(res => res.body as string)
+}
+
+export const deleteSource = (token:string, sourceId:string):Promise<void> => {
+    return axios.delete(`${getBaseUrl()}/api/sources/${sourceId}`, {
+        headers: {
+            authorization: token
+        }
+    })
+    .then(res => res.data as undefined)
 }

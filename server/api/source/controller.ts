@@ -153,11 +153,14 @@ class SourceController {
     update(req:Request, res:Response):void {
         const id = req.body._id;
         delete req.body._id;
+        let mySource = new Source(req.body)
 
+        // mySource.validate()
+        // .then(() => Source.findById(id).exec())
         Source.findById(id).exec()
         .then(source => {
-            return source.update(req.body).exec()
-            .then(updated => SourceSocket.onAddOrChange(updated))
+            return source.update(mySource).exec()
+            .then(() => SourceSocket.onAddOrChange(mySource))
         })
         .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));
@@ -253,7 +256,7 @@ class SourceController {
     }
 
     public hasOwnerAccess(req:Request, res:Response, next:NextFunction):void {
-        const sourceId:string = req.params._id || req.body._id;
+        const sourceId:string = req.params.id || req.body._id;
         Source.findById(sourceId).exec()
         .then(source => {
             if (source.owner === req.user._id) return;

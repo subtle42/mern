@@ -67,6 +67,12 @@ describe("Base Actions for Redux", () => {
     })
 
     describe("connection function", () => {
+        beforeEach(() => {
+            store.getState = stub().returns({
+                testing: {}
+            })
+        })
+
         it("should connect to its namespace", () => {
             expect(ioConnect.callCount).to.equal(0);
             service.connect("")
@@ -96,6 +102,18 @@ describe("Base Actions for Redux", () => {
                 })).to.equal(true)
                 done()
             })
+        })
+
+        it("should return an error if there is already a socket connection", done => {
+            store.getState = stub().returns({
+                testing: {
+                    socket: {}
+                }
+            })
+
+            service.connect("")
+            .catch(err => expect(err).not.to.be.undefined)
+            .then(() => done())
         })
 
         describe("on removed function", () => {
@@ -215,10 +233,20 @@ describe("Base Actions for Redux", () => {
 
     describe("disconnect function", () => {
         it("should send a disconnect dispatch", done => {
+            let socketSpy = spy();
+            stub(store, "getState").returns({
+                "testing": {
+                    socket: {
+                        disconnect: socketSpy
+                    }
+                }
+            })
+
             expect(dispatchResolve.callCount).to.equal(0)
 
             service.disconnect()
             .then(() => {
+                expect(socketSpy.callCount).to.equal(1)
                 expect(dispatchResolve.calledWith({
                     type: 'disconnect',
                     payload: undefined,
