@@ -45,7 +45,7 @@ describe("Source API", () => {
         })
     })
 
-    describe("POST /api/sources", () => {
+    describe("PUT /api/sources", () => {
         let sources:ISource[] = [],
             sourceId:string,
             socket:SocketIOClient.Socket;

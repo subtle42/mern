@@ -33,13 +33,25 @@ export default class PageController {
      * @param next 
      */
     public static hasEditAccess(req:Request, res:Response, next:NextFunction):void {
-        const pageId = req.params.id || req.body._id;
+        const pageId:string = req.params.id || req.body._id;
         Page.findById(pageId)
         .then(page => Book.findById(page.bookId))
         .then(book => {
             if (book.owner === req.user._id) return;
             if (book.editors.indexOf(req.user._id) !== -1) return;
             return Promise.reject(`User ${req.user._id} does not have edit rights to Book: ${book._id}`);
+        })
+        .then(() => next())
+        .catch(Util.handleError(res))
+    }
+
+    public static hasCreateAccess(req:Request, res:Response, next:NextFunction):void {
+        const bookId:string = req.body.bookId;
+        Book.findById(bookId)
+        .then(book => {
+            if (book.owner === req.user._id) return;
+            if (book.editors.indexOf(req.user._id) !== -1) return;
+            return Promise.reject(`User ${req.user._id} does not have Page create rights to Book: ${book._id}`);
         })
         .then(() => next())
         .catch(Util.handleError(res))
