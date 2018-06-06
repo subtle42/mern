@@ -1,12 +1,13 @@
 import * as React from "react";
-import {Button, Row, Col} from "reactstrap";
+import {Button, Row, Col, ModalHeader, ModalFooter, ModalBody} from "reactstrap";
 import {ChartType, ColumnType} from "common/constants"
 import WidgetActions from "../../../data/widgets/actions"
 import * as FontAwesome from "react-fontawesome";
 
 interface Props {
-    sourceId?:any;
-    setType:(type:ChartType) => void
+    back:() => void;
+    cancel:() => void;
+    done:(chartType:string) => void;
 }
 
 class State {
@@ -44,20 +45,11 @@ const chartConfList:ChartConf[] = [{
 }]
 
 
-export class CreateWidget extends React.Component<Props, State> {
+export class SelectWidget extends React.Component<Props, State> {
     state = new State();
     rowSize = 4;
     
-
-    done() {
-        let config = {
-            sourceId: this.props.sourceId,
-            type: this.state.selected.type
-        }
-    }
-
     selectConfig(item:ChartConf) {
-        this.props.setType(item.type)
         this.setState({
             selected:item
         })
@@ -92,9 +84,36 @@ export class CreateWidget extends React.Component<Props, State> {
         });
     }
 
+    renderFooter():JSX.Element {
+        return <ModalFooter style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div>
+                <Button
+                    color="secondary"
+                    onClick={() => this.props.back()}
+                >Back</Button>
+            </div>
+            <div>
+                <Button color="primary" disabled={!this.state.selected}
+                    style={{marginRight:20}}
+                    onClick={() => this.props.done(this.state.selected.type)}
+                >Create</Button>
+                <Button
+                    color="secondary"
+                    onClick={() => this.props.cancel()}
+                >Cancel</Button>
+            </div>
+        </ModalFooter>
+    }
+
+    renderModal():JSX.Element {
+        return <div>
+            <ModalHeader>Select Chart Type</ModalHeader>
+            <ModalBody>{this.buildRows()}</ModalBody>
+            {this.renderFooter()}
+        </div>
+    }
+
     render() {
-        return (
-            <div>{this.buildRows()}</div>
-        );
+        return this.renderModal()
     }
 }

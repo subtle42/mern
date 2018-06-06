@@ -48,7 +48,6 @@ export class RemoveWidgetButton extends React.Component<Props, State> {
     render() {
         return <Button onClick={this.open} className="pull-right" color="secondary" outline size="small">
             <FontAwesome name="times" />
-
             {this.getModal()}
         </Button>
     }

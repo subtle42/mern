@@ -25,7 +25,6 @@ var myIO = io(server, {});
 global.myIO = myIO;
 
 myIO.on("connection", socket => {
-    console.log(`Client connected to Socket.IO: ${socket.client.id}`);
     socket.emit("message", "connected");
 });
 socketAuth(myIO);

@@ -15,6 +15,7 @@ export class AclSocket {
         protected model:Model<ISharedModel>
     ) {
         this.namespace = myIO.of(this.name);
+        console.log(`Create namespace: ${this.name}`)
         this.setupSockEvents();
     }
 

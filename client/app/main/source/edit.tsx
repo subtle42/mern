@@ -1,14 +1,17 @@
 import * as React from "react";
-import {Row, Col, ListGroup, ListGroupItem, Dropdown, DropdownToggle, DropdownMenu, DropdownItem} from "reactstrap";
+import {Button, Modal, Input, Label, Row, Col, ListGroup, ListGroupItem, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Form, FormGroup, ModalHeader, ModalBody, ModalFooter} from "reactstrap";
 import store from "../../../data/store";
 import {ISource, ISourceColumn, ColumnType} from "common/models";
+import * as FontAwesome from "react-fontawesome";
+import sourceActions from "data/sources/actions"
 
 class State {
-    toEdit:ISource;
+    toEdit:ISource
 }
 
 interface Props {
     _id:any;
+    done:() => void;
 }
 
 interface dropOption {
@@ -64,7 +67,7 @@ class ColumnTypeDropdown extends React.Component<DropProps, {}> {
     }
 }
 
-export class EditSource extends React.Component<Props, State> {
+export class EditSourceContent extends React.Component<Props, State> {
     state = new State();
 
     componentDidMount() {
@@ -105,19 +108,85 @@ export class EditSource extends React.Component<Props, State> {
         return "";
     }
 
-    render() {
-        if (!this.state.toEdit) return <div></div>;
+    handleChange = (event:any):void => {
+        const target:any = event.target
+        this.state.toEdit[target.name] = target.value;
+        this.setState({
+            toEdit: this.state.toEdit
+        });
+    }
+
+    handleCheckbox = (event:any):void => {
+        const target:any = event.target
+        this.state.toEdit[target.name] = parseInt(target.value) ? false : true;
+        this.setState({
+            toEdit: this.state.toEdit
+        });
+    }
+
+    getHeader():JSX.Element {
+        return <ModalHeader>Edit Source</ModalHeader>
+    }
+
+    getBody():JSX.Element {
+        return <ModalBody>
+            <Form>
+                <FormGroup row>
+                    <Label xs={2}>Title:</Label>
+                    <Col xs={10}>
+                        <Input name="title"
+                        onChange={this.handleChange}
+                        value={this.state.toEdit.title} />
+                    </Col>
+                </FormGroup>
+                <FormGroup row>
+                    <Label for="isPublicInput" xs={2}>
+                        Is Public:
+                    </Label>
+                    <Col xs={10}>
+                        <Input type="checkbox"
+                        onChange={this.handleCheckbox}
+                        style={{marginLeft:0}}
+                        id="isPublicInput"
+                        name="isPublic"
+                        value={this.state.toEdit.isPublic ? 1 : 0} />
+                    </Col>
+                </FormGroup>
+                <Row>
+                    <Col xs={12}>
+                        {this.renderColumns(this.state.toEdit.columns)}
+                    </Col>
+                </Row>
+            </Form>
+        </ModalBody>
+    }
+
+    getFooter():JSX.Element {
+        return <ModalFooter>
+            <Button color="primary" onClick={this.save}>Save</Button>
+            <Button color="secondary" onClick={this.cancel}>Cancel</Button>
+        </ModalFooter>
+    }
+
+    getModal = ():JSX.Element => {
+        if (!this.state.toEdit) return <div/>
         return <div>
-            <Row>
-                <Col xs={12}>
-                    {this.state.toEdit.title}
-                </Col>
-            </Row>
-            <Row>
-                <Col xs={12}>
-                    {this.renderColumns(this.state.toEdit.columns)}
-                </Col>
-            </Row>
+            {this.getHeader()}
+            {this.getBody()}
+            {this.getFooter()}
         </div>
+    }
+
+    save = (event):void => {
+        sourceActions.update(this.state.toEdit)
+        .then(() => this.props.done())
+    }
+
+    cancel = ():void => {
+        this.props.done()
+    }
+
+    render() {
+        return this.getModal()
     }
 }

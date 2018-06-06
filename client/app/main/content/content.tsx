@@ -6,7 +6,7 @@ import {connect} from "react-redux"
 import pageActions from "data/pages/actions";
 import {IPage} from "common/models";
 import {PageConfigButton} from "../page/config";
-import {SourceCreateButton} from "../source/create";
+import {SourceCreateButton} from "../source/modal";
 import {Widget} from "../widget/widget";
 import {PageContent} from "../page/content"
 
