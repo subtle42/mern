@@ -1,4 +1,4 @@
-import {Request, Response} from "express";
+import {Request, Response, NextFunction} from "express";
 import Page from "./model";
 import {Book} from "../book/model"
 import Util from "../utils";
@@ -27,6 +27,25 @@ export default class PageController {
     }
 
     /**
+     * Does current user have edit access to the book the page is in
+     * @param req 
+     * @param res 
+     * @param next 
+     */
+    public static hasEditAccess(req:Request, res:Response, next:NextFunction):void {
+        const pageId = req.params.id || req.body._id;
+        Page.findById(pageId)
+        .then(page => Book.findById(page.bookId))
+        .then(book => {
+            if (book.owner === req.user._id) return;
+            if (book.editors.indexOf(req.user._id) !== -1) return;
+            return Promise.reject(`User ${req.user._id} does not have edit rights to Book: ${book._id}`);
+        })
+        .then(() => next())
+        .catch(Util.handleError(res))
+    }
+
+    /**
      * Updates a page, only the owner or editors of the assocated book can make updates
      * @param req 
      * @param res 
@@ -36,18 +55,8 @@ export default class PageController {
         var myPage = new Page(req.body);
         delete req.body._id;
 
-
         myPage.validate()
-        .then(() => Page.findById(myId))
-        .then(page => {
-            return Book.findById(page.bookId)
-            .then(book => {
-                if (book.owner !== req.user._id && book.editors.indexOf(req.user._id) === -1) {
-                    return Promise.reject(`User ${req.user._id} does not have edit rights to Book: ${book._id}`);
-                }
-                return page.update(page)
-            })
-        })
+        .then(() => Page.findByIdAndUpdate(myId, myPage))
         .then(() => pageSocket.onAddOrChange(myPage))
         .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));

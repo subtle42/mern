@@ -95,7 +95,9 @@ export class SelectSourceContent extends React.Component<Props, State> {
     }
 
     renderBody(): JSX.Element {
-        if (this.state.isLoading) return this.getLoadingBar()
+        if (this.state.isLoading) {
+            return <ModalBody>{this.getLoadingBar()}</ModalBody>
+        }
 
         return <ModalBody><Row>
             <Col xs={6}> <ListGroup>

@@ -15,7 +15,6 @@ export default abstract class BaseSocket {
 
     setupSocket(name:string) {
         this.namespace.on("connection", socket => {
-            console.log(`Joined Namespace: ${name}`);
             this.onJoin(socket);
         });
 

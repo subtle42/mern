@@ -152,15 +152,15 @@ class SourceController {
 
     update(req:Request, res:Response):void {
         const id = req.body._id;
-        delete req.body._id;
         let mySource = new Source(req.body)
+        delete req.body._id;
 
-        // mySource.validate()
+        mySource.validate()
         // .then(() => Source.findById(id).exec())
-        Source.findById(id).exec()
+        .then(() => Source.findById(id).exec())
         .then(source => {
-            return source.update(mySource).exec()
-            .then(() => SourceSocket.onAddOrChange(mySource))
+            return Source.findByIdAndUpdate(id, req.body).exec()
+            .then(() => SourceSocket.onAddOrChange(mySource, source))
         })
         .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));

@@ -36,6 +36,17 @@ interface DropProps extends ISourceColumn {
     selectType:(ref:string, type:ColumnType) => void;
 }
 
+class ColumnName extends React.Component<{col:ISourceColumn}, {}> {
+    componentDidMount() {}
+    
+    render() {
+        return <div>
+            {this.props.col.name}
+            <FontAwesome name="edit" onClick={() => alert("hi")} />
+        </div>
+    }
+}
+
 class ColumnTypeDropdown extends React.Component<DropProps, {}> {
     state = {
         dropdownOpen: false
@@ -118,7 +129,7 @@ export class EditSourceContent extends React.Component<Props, State> {
 
     handleCheckbox = (event:any):void => {
         const target:any = event.target
-        this.state.toEdit[target.name] = parseInt(target.value) ? false : true;
+        this.state.toEdit[target.name] = target.value === "true" ? false : true;
         this.setState({
             toEdit: this.state.toEdit
         });
@@ -149,7 +160,8 @@ export class EditSourceContent extends React.Component<Props, State> {
                         style={{marginLeft:0}}
                         id="isPublicInput"
                         name="isPublic"
-                        value={this.state.toEdit.isPublic ? 1 : 0} />
+                        value={this.state.toEdit.isPublic.toString()}
+                        checked={this.state.toEdit.isPublic} />
                     </Col>
                 </FormGroup>
                 <Row>
