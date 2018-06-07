@@ -1,18 +1,10 @@
 import * as React from "react";
-import {Button, Modal, Input, Label, Row, Col, ListGroup, ListGroupItem, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Form, FormGroup, ModalHeader, ModalBody, ModalFooter} from "reactstrap";
+import {InputGroup, Button, Modal, Input, Label, Row, Col, ListGroup, ListGroupItem, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Form, FormGroup, ModalHeader, ModalBody, ModalFooter, InputGroupAddon} from "reactstrap";
 import store from "../../../data/store";
 import {ISource, ISourceColumn, ColumnType} from "common/models";
 import * as FontAwesome from "react-fontawesome";
 import sourceActions from "data/sources/actions"
 
-class State {
-    toEdit:ISource
-}
-
-interface Props {
-    _id:any;
-    done:() => void;
-}
 
 interface dropOption {
     label:string;
@@ -34,17 +26,6 @@ interface DropProps extends ISourceColumn {
     color:string;
     colRef:string;
     selectType:(ref:string, type:ColumnType) => void;
-}
-
-class ColumnName extends React.Component<{col:ISourceColumn}, {}> {
-    componentDidMount() {}
-    
-    render() {
-        return <div>
-            {this.props.col.name}
-            <FontAwesome name="edit" onClick={() => alert("hi")} />
-        </div>
-    }
 }
 
 class ColumnTypeDropdown extends React.Component<DropProps, {}> {
@@ -78,6 +59,65 @@ class ColumnTypeDropdown extends React.Component<DropProps, {}> {
     }
 }
 
+
+interface ColumnNameFieldProps extends ISourceColumn {
+    update:(name:string) => void
+}
+
+class ColumnNameState {
+    isEditing:boolean = false;
+    changedName:string = "";
+}
+
+class ColumnNameField extends React.Component<ColumnNameFieldProps, ColumnNameState> {
+    state = new ColumnNameState()
+
+    setEditMode = ():void => {
+        this.setState({
+            changedName: this.props.name,
+            isEditing: true
+        })
+    }
+
+    done = ():void => {
+        this.props.update(this.state.changedName)
+        this.setState(new ColumnNameState())
+    }
+
+    handleChange = (event:React.FormEvent<any>) => {
+        const target:any = event.target
+        this.setState({
+            changedName: target.value
+        });
+    }
+
+    render() {
+        return <div>
+            <span hidden={this.state.isEditing}>
+                {this.props.name}
+                <FontAwesome name="edit"
+                    style={{paddingLeft:10, cursor:"pointer"}}
+                    onClick={() => this.setEditMode()} />
+            </span>
+            <InputGroup hidden={!this.state.isEditing}>
+                <InputGroupAddon addonType="prepend">
+                    <Button color="primary" onClick={() => this.done()}>Done</Button>
+                </InputGroupAddon>
+                <Input onChange={this.handleChange} value={this.state.changedName} />
+            </InputGroup>
+        </div>
+    }
+}
+
+class State {
+    toEdit:ISource
+}
+
+interface Props extends ISourceColumn {
+    _id:any;
+    done:() => void;
+}
+
 export class EditSourceContent extends React.Component<Props, State> {
     state = new State();
 
@@ -96,14 +136,32 @@ export class EditSourceContent extends React.Component<Props, State> {
         });
     }
 
+    setColumnName(ref:string, newName:string) {
+        let toEditCol = this.state.toEdit.columns.filter(col => col.ref === ref)[0];
+        toEditCol.name = newName;
+        this.setState({
+            toEdit: this.state.toEdit
+        })        
+    }
+
     renderColumns(columns:ISourceColumn[]):JSX.Element {
         return <ListGroup style={{height:300, overflowY:"auto"}}>
             {this.state.toEdit.columns.map(sourceCol => {
                 return <ListGroupItem
                     color={this.getColumnColor(sourceCol)}
                     key={sourceCol.ref}>
-                    {sourceCol.name}
-                    <ColumnTypeDropdown selectType={(ref, type) => this.setColumnType(ref, type)} colRef={sourceCol.ref} {...sourceCol} color={this.getColumnColor(sourceCol)} />
+                    <Row>
+                        <Col xs={10}>
+                            <ColumnNameField {...sourceCol}
+                            update={(newName) => this.setColumnName(sourceCol.ref, newName)} />
+                        </Col>
+                        <Col xs={2}>
+                            <ColumnTypeDropdown
+                            selectType={(ref, type) => this.setColumnType(ref, type)}
+                            colRef={sourceCol.ref} {...sourceCol}
+                            color={this.getColumnColor(sourceCol)} />
+                        </Col>
+                    </Row>
                 </ListGroupItem>
             })}
         </ListGroup>
