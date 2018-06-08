@@ -3,7 +3,7 @@ import config from "../server/config/environment";
 import axios from "axios";
 import * as jwt from "jsonwebtoken"
 import * as io from "socket.io-client";
-import { IBook } from "common/models";
+import { IBook, ISource } from "common/models";
 import * as fs from "fs"
 // Need to keep this to inject chai with http requests
 const chai = require('chai');
@@ -59,7 +59,6 @@ export const getBaseUrl = ():string => {
 } 
 
 export const websocketConnect = (channel:string, token:string):SocketIOClient.Socket => {
-    console.log(`${channel} socket token`, token)
     return io.connect(`${getBaseUrl()}/${channel}`, {
         query: {token}
     });
@@ -133,4 +132,15 @@ export const deleteSource = (token:string, sourceId:string):Promise<void> => {
         }
     })
     .then(res => res.data as undefined)
+}
+
+export const getSources = (token:string, id?:string):Promise<ISource | ISource[]> => {
+    let url = `${getBaseUrl()}/api/sources`;
+    if (id) url += `/${id}`
+    return axios.get(url, {
+        headers: {
+            authorization: token
+        }
+    })
+    .then(res => res.data as ISource[])
 }

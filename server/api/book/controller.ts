@@ -90,15 +90,48 @@ export default class BookController {
         .catch(Util.handleError(res));
     }
 
-    public static index(req:Request, res:Response):void {
-        let userId:string = "dan";//req.user._id;
+    /**
+     * Returns all the books the user can access
+     * @param req 
+     * @param res 
+     */
+    public static getMyBooks(req:Request, res:Response):void {
+        let userId:string = req.user._id;
         Book.find({
             $or: [{
                 owner: userId
             }, {
-                editors: {$elemMatch: { $eq: userId }}
+                editors: userId
             }, {
-                viewers: {$elemMatch: { $eq: userId }}
+                viewers: userId
+            }, {
+                isPublic: true
+            }]
+        }).exec()
+        .then(Util.handleResponse(res))
+        .catch(Util.handleError(res));
+    }
+
+    /**
+     * Get book if user has at least read access
+     * @param req 
+     * @param res 
+     */
+    public static getBook(req:Request, res:Response):void {
+        let userId:string = req.user._id;
+        Book.findOne({
+            $and: [{
+                _id: req.params.id
+            }, {
+                $or: [{
+                    owner: userId
+                }, {
+                    editors: userId
+                }, {
+                    viewers: userId
+                }, {
+                    isPublic: true
+                }]
             }]
         }).exec()
         .then(Util.handleResponse(res))

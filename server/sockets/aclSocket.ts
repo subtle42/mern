@@ -47,11 +47,11 @@ export class AclSocket {
             $or: [{
                 owner: userId
             }, {
-                editors: {$elemMatch: { $eq: userId }}
+                editors: userId
             }, {
-                viewers: {$elemMatch: { $eq: userId }}
+                viewers: userId
             }, {
-                isPublic: {$eq: true}
+                isPublic: true
             }]
         }).exec();
     }

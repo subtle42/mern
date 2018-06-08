@@ -301,6 +301,44 @@ class SourceController {
             .catch(err => reject(err))
         })
     }
+
+    public getMySources(req:Request, res:Response):void {
+        const userId = req.user._id;
+        Source.find({
+            $or: [{
+                owner: userId
+            }, {
+                editors: userId
+            }, {
+                viewers: userId
+            }, {
+                isPublic: true
+            }]
+        })
+        .then(Util.handleResponse(res))
+        .catch(Util.handleError(res))
+    }
+
+    public getSource(req:Request, res:Response):void {
+        const userId = req.user._id;
+        Source.findOne({
+            $and: [{
+                _id: req.params.id
+            }, {
+                $or: [{
+                    owner: userId
+                }, {
+                    editors: userId
+                }, {
+                    viewers: userId
+                }, {
+                    isPublic: true
+                }]
+            }]
+        })
+        .then(Util.handleResponse(res))
+        .catch(Util.handleError(res))
+    }
 }
 
 export const controller = new SourceController();

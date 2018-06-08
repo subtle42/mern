@@ -4,7 +4,8 @@ import * as auth from "../../auth/auth.service";
 
 var router = Router();
 
-router.get("/", auth.isAuthenticated, controller.index);
+router.get("/:id", auth.isAuthenticated, controller.getBook);
+router.get("/", auth.isAuthenticated, controller.getMyBooks);
 router.post("/", auth.isAuthenticated, controller.create);
 router.delete("/:id", auth.isAuthenticated, controller.hasOwnerAccess, controller.remove);
 router.put("/", auth.isAuthenticated, controller.hasEditorAccess, controller.update);

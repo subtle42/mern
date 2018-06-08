@@ -5,6 +5,8 @@ import {isAuthenticated} from "../../auth/auth.service";
 
 var router = Router();
 
+router.get("/:id", isAuthenticated, controller.getSource)
+router.get("/", isAuthenticated, controller.getMySources)
 router.post("/", isAuthenticated, multer({dest: "./.uploads"}).single("file"), (req, res) => controller.create(req, res));
 router.put("/", isAuthenticated, controller.hasEditAccess, controller.update);
 router.delete("/:id", isAuthenticated, controller.hasOwnerAccess, controller.remove);

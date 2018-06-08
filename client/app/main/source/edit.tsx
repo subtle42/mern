@@ -113,7 +113,7 @@ class State {
     toEdit:ISource
 }
 
-interface Props extends ISourceColumn {
+interface Props {
     _id:any;
     done:() => void;
 }

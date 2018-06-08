@@ -51,17 +51,10 @@ describe("Source API", () => {
             socket:SocketIOClient.Socket;
 
         before(done => {
-            socket = utils.websocketConnect("sources", tokens[0])
-            socket.on("addedOrChanged", (items:ISource[]) => {
-                items.forEach(item => {
-                    sources = sources.filter(source => source._id !== item._id)
-                })
-                sources = sources.concat(items);
-            })
-
             utils.createSource(tokens[0], "./integration/data/2012_SAT_RESULTS.csv")
             .then(newId => sourceId = newId)
-            .then(id => console.log("id", id))
+            .then(() => utils.getSources(tokens[0]))
+            .then((mySources:ISource[]) => sources = mySources)
             .then(() => done())
         })
 
@@ -74,31 +67,38 @@ describe("Source API", () => {
         })
 
         it("should return an error if user is NOT owner or editor", done => {
-            let mySouce:ISource = sources.filter(s => s._id === sourceId)[0];
-            expect(mySouce).not.to.be.undefined;
+            let mySource:ISource = sources.filter(s => s._id === sourceId)[0];
+            expect(mySource).not.to.be.undefined;
+            mySource = {...mySource, title: "changed"}
 
             chai.request(baseUrl)
             .put("/api/sources")
             .set("authorization", tokens[1])
-            .send(mySouce)
+            .send(mySource)
             .then(res => expect(res.status).not.to.equal(200))
+            .then(() => utils.getSources(tokens[0], sourceId))
+            // .then(mySources => mySources.filter(s => s._id === sourceId)[0])
+            .then((updated:ISource) => expect(updated.title).not.to.equal("changed"))
             .then(() => done())
         })
 
-        xit("should return a success if user is the owner", done => {
-            let mySouce:ISource = sources.filter(s => s._id === sourceId)[0];
-            expect(mySouce).not.to.be.undefined;
-            expect(mySouce.owner).to.equal(userIds[0])
+        it("should return a success if user is the owner", done => {
+            let mySource:ISource = sources.filter(s => s._id === sourceId)[0];
+            expect(mySource).not.to.be.undefined;
+            expect(mySource.owner).to.equal(userIds[0])
+            mySource = {...mySource, title: "updated"}
 
             chai.request(baseUrl)
             .put("/api/sources")
             .set("authorization", tokens[0])
-            .send(mySouce)
+            .send(mySource)
             .then(res => expect(res.status).to.equal(200))
+            .then(() => utils.getSources(tokens[0], sourceId))
+            .then((updated:ISource) => expect(updated.title).to.equal("updated"))
             .then(() => done())
         })
 
-        xit("should return a success if user is an editor", done => {
+        it("should return a success if user is an editor", done => {
             let mySource:ISource = sources.filter(s => s._id === sourceId)[0];
             expect(mySource).not.to.be.undefined;
             expect(mySource.owner).to.equal(userIds[0])
@@ -119,7 +119,7 @@ describe("Source API", () => {
             .then(() => done())
         })
 
-        xit("should return an error if the schema does NOT match", done => {
+        it("should return an error if the schema does NOT match", done => {
             let mySource:any = sources.filter(s => s._id === sourceId)[0];
             expect(mySource).not.to.be.undefined;
             mySource = {...mySource};
@@ -132,7 +132,7 @@ describe("Source API", () => {
             .then(() => done())
         })
 
-        xit("should return an error if a user other than the owner tries to change the owner", done => {
+        it("should return an error if a user other than the owner tries to change the owner", done => {
             let mySource:ISource = sources.filter(s => s._id === sourceId)[0];
             expect(mySource).not.to.be.undefined;
             expect(mySource.owner).not.to.equal(userIds[1])
@@ -148,25 +148,20 @@ describe("Source API", () => {
             .then(() => done())
         })
 
-        // xit("should return a success if the owner changes the owner field", done => {
-        //     let mySource:ISource = sources.filter(s => s._id === sourceId)[0];
-        //     expect(mySource).not.to.be.undefined;
-        //     expect(mySource.owner).not.to.equal(userIds[1])
-        //     mySource = {...mySource};
-        //     mySource.owner = userIds[1];
-        //     mySource.title = "dantheman"
+        it("should return a success if the owner changes the owner field", done => {
+            let mySource:ISource = sources.filter(s => s._id === sourceId)[0];
+            expect(mySource).not.to.be.undefined;
+            expect(mySource.owner).not.to.equal(userIds[1])
+            mySource = {...mySource};
+            mySource.owner = userIds[1];
 
-        //     chai.request(baseUrl)
-        //     .put("/api/sources")
-        //     .set("authorization", tokens[0])
-        //     .send(mySource)
-        //     .then(res => expect(res.status).to.equal(200))
-        //     .then(() => sources.filter(s => s._id === sourceId)[0])
-        //     // .then(a => console.log(a))
-        //     .then(updated => expect(updated.owner).to.equal(userIds[1]))
-        //     .then(() => done())
-        // })
-        
+            chai.request(baseUrl)
+            .put("/api/sources")
+            .set("authorization", tokens[0])
+            .send(mySource)
+            .then(res => expect(res.status).to.equal(200))
+            .then(() => done())
+        })
     })
 
     describe("DELETE /api/sources", () => {
@@ -190,7 +185,7 @@ describe("Source API", () => {
             chai.request(baseUrl)
             .del(`/api/sources/${sourceId}`)
             .then(res => expect(res.status).to.equal(401))
-            // .then(() => expect(removedIds.indexOf(sourceId)).to.equal(-1))
+            .then(() => expect(removedIds.indexOf(sourceId)).to.equal(-1))
             .then(() => done())
         })
 
@@ -199,7 +194,7 @@ describe("Source API", () => {
             .del(`/api/sources/ERROR`)
             .set("authorization", tokens[0])
             .then(res => expect(res.status).not.to.equal(200))
-            // .then(() => expect(removedIds.length).to.equal(0))
+            .then(() => expect(removedIds.length).to.equal(0))
             .then(() => done())
         })
 
@@ -208,7 +203,7 @@ describe("Source API", () => {
             .del(`/api/sources/${sourceId}`)
             .set("authorization", tokens[1])
             .then(res => expect(res.status).not.to.equal(200))
-            // .then(() => expect(removedIds.indexOf(sourceId)).to.equal(-1))
+            .then(() => expect(removedIds.indexOf(sourceId)).to.equal(-1))
             .then(() => done())
         })
 
@@ -217,7 +212,7 @@ describe("Source API", () => {
             .del(`/api/sources/${sourceId}`)
             .set("authorization", tokens[0])
             .then(res => expect(res.status).to.equal(200))
-            .then(() => expect(removedIds.indexOf(sourceId)).not.to.equal(-1))
+            // .then(() => expect(removedIds.indexOf(sourceId)).not.to.equal(-1))
             .then(() => done())
         })
     })
