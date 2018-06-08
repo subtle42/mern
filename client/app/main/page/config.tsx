@@ -1,6 +1,6 @@
 import * as React from "react";
 import axios from "axios"
-import {FormText, Label, ModalBody, ModalFooter, ModalHeader, Row, Col, Input, Modal, Button, FormGroup, NavItem} from "reactstrap";
+import {FormText, Label, ModalBody, ModalFooter, ModalHeader, Row, Col, Input, Modal, Button, FormGroup, NavItem, Tooltip} from "reactstrap";
 import PageActions from "data/pages/actions";
 import store from "data/store";
 import {IPage} from "common/models";
@@ -12,6 +12,11 @@ class State {
     page?:IPage;
     showModal:boolean = false;
     validationState?: myStyle = undefined;
+    tips:{
+        draggable?:boolean,
+        resizable?:boolean,
+        rearrangeable?:boolean
+    } = {}
 }
 
 interface Props {
@@ -107,6 +112,14 @@ export class PageConfigButton extends React.Component<Props, State> {
         });
     }
 
+    toggleTooltip = (loc:string):void => {
+        let tmp = this.state.tips;
+        tmp[loc] = !tmp[loc];
+        this.setState({
+            tips: tmp
+        })
+    }
+
     getModal():JSX.Element {
         if (!this.state.page) return;
         return (<Modal size="lg" isOpen={this.state.showModal} onClosed={this.cancel}>
@@ -114,7 +127,6 @@ export class PageConfigButton extends React.Component<Props, State> {
             <ModalBody>
                 <Row>
                     <Col xs={6}>
-                        <FormGroup>
                         <Label>Name:</Label>
                         <Input 
                             type="text"
@@ -124,17 +136,16 @@ export class PageConfigButton extends React.Component<Props, State> {
                             onChange={this.handleChange}
                         />
                         {!this.state.validationState || <FormText>Name must be at least 3 characters.</FormText>}
-                        </FormGroup>
                     </Col>
                     <Col xs={6}>
                         <Label>Column Count</Label>
                         <Input
-                                type="number"
-                                min={1}
-                                max={20}
-                                value={this.state.page.cols}
-                                onChange={this.handleChange}
-                                name="cols"
+                            type="number"
+                            min={1}
+                            max={20}
+                            value={this.state.page.cols}
+                            onChange={this.handleChange}
+                            name="cols"
                         />
                     </Col>
                 </Row>
@@ -187,7 +198,13 @@ export class PageConfigButton extends React.Component<Props, State> {
                 <Row style={{paddingTop:20}}>
                     <Col xs={6}>
                         <FormGroup row>
-                            <Label xs={6}>Is Draggable</Label>
+                            <Label xs={6}>
+                                <span style={{paddingRight:10}}>Is Draggable</span>
+                                <FontAwesome name="question-circle" id="draggable-tip"/>
+                                <Tooltip isOpen={this.state.tips.draggable} toggle={() => this.toggleTooltip("draggable")} target="draggable-tip">
+                                    If turned off it will disable dragging on all widgets.
+                                </Tooltip>
+                            </Label>
                             <Col xs={6}>
                                 <Button color={this.state.page.isDraggable ? "success" : "danger"}
                                     onClick={(event) => this.toggleCheckBox("isDraggable", event)}
@@ -199,7 +216,13 @@ export class PageConfigButton extends React.Component<Props, State> {
                     </Col>
                     <Col xs={6}>
                         <FormGroup row>
-                            <Label xs={6}>Is Resizable</Label>
+                            <Label xs={6}>
+                                <span style={{paddingRight:10}}>Is Resizable</span>
+                                <FontAwesome name="question-circle" id="resizable-tip"/>
+                                <Tooltip isOpen={this.state.tips.resizable} toggle={() => this.toggleTooltip("resizable")} target="resizable-tip">
+                                    If turned off it will resizing dragging on all widgets.
+                                </Tooltip>
+                            </Label>
                             <Col xs={6}>
                                 <Button color={this.state.page.isResizable ? "success" : "danger"}
                                     onClick={(event) => this.toggleCheckBox("isResizable", event)}
@@ -213,7 +236,13 @@ export class PageConfigButton extends React.Component<Props, State> {
                 <Row style={{paddingTop:20}}>
                     <Col xs={6}>
                         <FormGroup row>
-                            <Label xs={6}>Is Rearrangeable</Label>
+                            <Label xs={6}>
+                                <span style={{paddingRight:10}}>Is Rearrangeable</span>
+                                <FontAwesome name="question-circle" id="rearrangeable-tip"/>
+                                <Tooltip isOpen={this.state.tips.rearrangeable} toggle={() => this.toggleTooltip("rearrangeable")} target="rearrangeable-tip">
+                                    Enable or disable grid rearrangement when dragging/resizing a widget.
+                                </Tooltip>
+                            </Label>
                             <Col xs={6}>
                                 <Button color={this.state.page.isRearrangeable ? "success" : "danger"}
                                     onClick={(event) => this.toggleCheckBox("isRearrangeable", event)}

@@ -108,7 +108,7 @@ export class SelectSourceContent extends React.Component<Props, State> {
                     onClick={() => this.setSource(source)}> {source.title}
                     <FontAwesome onClick={event => this.props.editSource(source)}
                         name="edit"
-                        style={{float:"right"}}
+                        style={{float:"right", cursor:"pointer"}}
                     />
                 </ListGroupItem>)}
             </ListGroup></Col>

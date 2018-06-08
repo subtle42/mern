@@ -70,7 +70,6 @@ export interface IShared {
     editors: string[];
     viewers: string[];
     isPublic: boolean;
-    isAss?: boolean;
 }
 
 
