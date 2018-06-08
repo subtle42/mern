@@ -46,7 +46,7 @@ export default class BookController {
         .then(oldBook => {
             return auth.hasEditAccess(req.user._id, oldBook)
             .then(() => {
-                if (oldBook.owner !== myBook.owner && myBook.owner !== req.user._id) {
+                if (oldBook.owner !== myBook.owner && oldBook.owner !== req.user._id) {
                     return Promise.reject(`Only the owner of the book: ${oldBook._id}, can edit the owner field.`)
                 }
             })
@@ -107,7 +107,6 @@ export default class BookController {
      */
     public static getBook(req:Request, res:Response):void {
         const bookId:string = req.params.id;
-
         Book.findById(bookId).exec()
         .then(book => {
             return auth.hasViewerAccess(req.user._id, book)

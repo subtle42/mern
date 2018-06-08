@@ -298,7 +298,7 @@ class SourceController {
     }
 
     getSource(req:Request, res:Response):void {
-        Source.findById(req.params._id).exec()
+        Source.findById(req.params.id).exec()
         .then(source => {
             return auth.hasViewerAccess(req.user._id, source)
             .then(() => source);

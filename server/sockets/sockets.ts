@@ -48,7 +48,6 @@ export default abstract class BaseSocket {
     }
 
     protected _onDelete(room:string, ids:string[]):void {
-        console.log(`room: ${room} - ${ids}`)
         this.namespace.in(room).emit("removed", ids);
     }
 

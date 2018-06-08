@@ -59,41 +59,57 @@ describe("Book API", () => {
             .send({name: testName})
             .then(res => {
                 expect(res.status).to.equal(200);
-                const bookId = res.body;
-                setTimeout(() => {
-                    let foundBook:IBook = books.filter(b => b._id === bookId)[0];
-                    expect(foundBook.name).to.equal(testName);
-                    expect(foundBook.owner).to.equal(userIds[0]);
-                    done();
-                }, 20)
+                return utils.getBook(tokens[0], res.body)
+            })
+            .then(book => {
+                expect(book.name).to.equal(testName);
+                expect(book.owner).to.equal(userIds[0]);
+                done();
             })
         });
     })
 
     describe("PUT /api/books", () => {
+        let bookId:string,
+            myBook:IBook;
+
+        before(done => {
+            utils.createBook(tokens[0], "update book test")
+            .then(id => bookId = id)
+            .then(() => done())
+        })
+
+        beforeEach(done => {
+            utils.getBook(tokens[0], bookId)
+            .then(book => myBook = book)
+            .then(() => done())
+        })
+
         it("should return an error if user is NOT logged in", done => {
-            expect(books[0]).not.to.be.undefined;
             chai.request(baseUrl)
             .put("/api/books")
-            .send(books[0])
+            .send(myBook)
             .then(res => expect(res.status).to.equal(401))
             .then(() => done())
         })
 
         it("should return an error if user is NOT owner or editor", done => {
-            expect(books[0]).not.to.be.undefined;
-            expect(books[0].owner).not.to.equal(userIds[1]);
+            expect(myBook.owner).not.to.equal(userIds[1]);
+            const newName = "fawliejfwalef";
+            myBook.name = newName;
+
             chai.request(baseUrl)
             .put("/api/books")
             .set("authorization", tokens[1])
-            .send(books[0])
+            .send(myBook)
             .then(res => expect(res.status).not.to.equal(200))
+            .then(() => utils.getBook(tokens[0], myBook._id))
+            .then(book => expect(book.name).not.to.equal(newName))
             .then(() => done())
         })
 
         it("should return a success if user is the owner", done => {
-            expect(books[0]).not.to.be.undefined;
-            expect(books[0].owner).to.equal(userIds[0]);
+            expect(myBook.owner).to.equal(userIds[0]);
             chai.request(baseUrl)
             .put("/api/books")
             .set("authorization", tokens[0])
@@ -104,11 +120,7 @@ describe("Book API", () => {
 
         it("should return a success if user is an editor", done => {
             const newName = "editor update"
-            expect(books[0]).not.to.be.undefined;
-            let myBook = {...books[0]};
-            myBook.editors = [];
             myBook.editors.push(userIds[1])
-            expect(books[0].editors.indexOf(userIds[1])).to.equal(-1)
 
             chai.request(baseUrl)
             .put("/api/books")
@@ -120,63 +132,63 @@ describe("Book API", () => {
                 return chai.request(baseUrl)
                 .put("/api/books")
                 .set("authorization", tokens[1])
-                .send(myBook);
+                .send(myBook)
             })
-            .then(res => {
-                expect(res.status).to.equal(200)
-                expect(books[0].name).to.equal(newName)
-            })
+            .then(res => expect(res.status).to.equal(200))
+            .then(() => utils.getBook(tokens[1], myBook._id))
+            .then(book => expect(book.name).to.equal(newName))
             .then(() => done())
         })
 
         it("should return an error if schema does NOT match", done => {
-            expect(books.length).to.be.greaterThan(0);
-            let myBook:any = {...books[0]};
-            myBook.name = {bad: "data"};
+            let tmp:any = myBook;
+            tmp.name = {bad: "data"};
             chai.request(`${baseUrl}`)
             .put("/api/books")
             .set("Authorization", tokens[0])
-            .send(myBook)
+            .send(tmp)
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => done())
         })
 
         it("should return an error if a user other than the owner tries to change the owner", done => {
-            expect(books[0]).not.to.be.undefined;
-            let toUpdate:IBook = {...books[0]};
-            expect(toUpdate.owner).to.equal(userIds[0])
-            expect(toUpdate.editors.indexOf(userIds[1])).not.to.equal(-1)
-            toUpdate.owner = userIds[1];
+            expect(myBook.owner).to.equal(userIds[0])
+            expect(myBook.editors.indexOf(userIds[1])).not.to.equal(-1)
+            myBook.owner = userIds[1];
 
             chai.request(baseUrl)
             .put("/api/books")
             .set("authorization", tokens[1])
-            .send(toUpdate)
+            .send(myBook)
             .then(res => expect(res.status).not.to.equal(200))
+            .then(() => utils.getBook(tokens[0], myBook._id))
+            .then(book => expect(book.owner).to.equal(userIds[0]))
             .then(res => done())
         })
 
         it("should return a success if the owner changes the owner field", done => {
-            utils.createBook(tokens[0], "changeMe")
-            .then(bookId => books.filter(b => b._id === bookId)[0])
-            .then(toUpdate => {
-                toUpdate.owner = userIds[1];
-                return chai.request(baseUrl)
-                .put("/api/books")
-                .set("authorization", tokens[0])
-                .send(toUpdate)
-            })
+            expect(myBook.owner).to.equal(userIds[0])
+            myBook.owner = userIds[1];
+            chai.request(baseUrl)
+            .put("/api/books")
+            .set("authorization", tokens[0])
+            .send(myBook)
             .then(res => expect(res.status).to.equal(200))
             .then(res => done())
         })
     })
 
     describe("DELETE /api/books", () => {
-        let removed:string[] = [];
-        before(() => {
+        let removed:string[] = [],
+            myBook:IBook;
+        before(done => {
             nsp.on("removed", (ids:string[]) => {
                 removed = removed.concat(ids);
             })
+            utils.createBook(tokens[0], "to delete")
+            .then(id => utils.getBook(tokens[0], id))
+            .then(book => myBook = book)
+            .then(() => done())
         })
 
         after(() => nsp.removeListener("removed"))
@@ -187,7 +199,25 @@ describe("Book API", () => {
             .then(res => expect(res.status).to.equal(401))
             .then(() => done())
         })
+
+        it("should return and error if book does NOT exist", done => {
+            chai.request(baseUrl)
+            .del(`/api/books/myBookID`)
+            .set("Authorization", tokens[0])
+            .then(res => expect(res.status).not.to.equal(200))
+            .then(() => done())
+        })
         
+        it("should stop a delete if user is NOT the owner", done => {
+            chai.request(`${baseUrl}`)
+            .del(`/api/books/${myBook._id}`)
+            .set("Authorization", tokens[1])
+            .then(res => expect(res.status).not.to.equal(200))
+            .then(() => utils.getBook(tokens[0], myBook._id))
+            .then(book => expect(book).not.to.be.undefined)
+            .then(() => done())
+        })
+
         it("should broadcast the id of the deleted item", done => {
             expect(books.length).to.be.greaterThan(0);
             let myBookID = books[0]._id;
@@ -202,17 +232,6 @@ describe("Book API", () => {
                 expect(res.status).to.equal(200);
                 expect(removed.indexOf(myBookID)).not.to.equal(-1);
             })
-            .then(() => done())
-        })
-
-        it("should stop a delete if user is NOT the owner", done => {
-            utils.createBook(tokens[0], "cannot remove")
-            .then(bookId => {
-                return chai.request(`${baseUrl}`)
-                .del(`/api/books/${bookId}`)
-                .set("Authorization", tokens[1])
-            })
-            .then(res => expect(res.status).not.to.equal(200))
             .then(() => done())
         })
     })

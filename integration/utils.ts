@@ -3,7 +3,7 @@ import config from "../server/config/environment";
 import axios from "axios";
 import * as jwt from "jsonwebtoken"
 import * as io from "socket.io-client";
-import { IBook, ISource } from "common/models";
+import { IBook, ISource, IPage } from "common/models";
 import * as fs from "fs"
 // Need to keep this to inject chai with http requests
 const chai = require('chai');
@@ -54,6 +54,14 @@ const removeDbRecords = (collectionName:string):Promise<void> => {
     }); 
 }
 
+const setHeader = (token:string) => {
+    return {
+        headers: {
+            authorization: token
+        }
+    }
+}
+
 export const getBaseUrl = ():string => {
     return `${config.server.protocol}://${config.server.location}:${config.server.port}`;
 } 
@@ -80,20 +88,12 @@ export const decodeToken = (token:string):Promise<any> => {
 }
 
 export const createBook = (token:string, name:string):Promise<string> => {
-    return axios.post(`${getBaseUrl()}/api/books`, {name}, {
-        headers: {
-            authorization: token
-        }
-    })
+    return axios.post(`${getBaseUrl()}/api/books`, {name}, setHeader(token))
     .then(res => res.data as string);
 }
 
 export const updateBook = (token:string, item:IBook):Promise<void> => {
-    return axios.put(`${getBaseUrl()}/api/books`, item, {
-        headers: {
-            authorization: token
-        }
-    })
+    return axios.put(`${getBaseUrl()}/api/books`, item, setHeader(token))
     .then(res => res.data as undefined);
 }
 
@@ -104,19 +104,10 @@ export const updateBook = (token:string, item:IBook):Promise<void> => {
  * @param name 
  */
 export const createPage = (token:string, bookId:string, name:string):Promise<string> => {
-    return axios.post(`${getBaseUrl()}/api/pages`, {name, bookId}, {
-        headers: {
-            authorization: token
-        }
-    })
+    return axios.post(`${getBaseUrl()}/api/pages`, {name, bookId}, setHeader(token))
     .then(res => res.data as string)
 }
 
-/**
- * Will create a source and return it's id
- * @param token 
- * @param filePath 
- */
 export const createSource = (token:string, filePath:string):Promise<string> => {
     return chai.request(getBaseUrl())
     .post("/api/sources")
@@ -126,21 +117,21 @@ export const createSource = (token:string, filePath:string):Promise<string> => {
 }
 
 export const deleteSource = (token:string, sourceId:string):Promise<void> => {
-    return axios.delete(`${getBaseUrl()}/api/sources/${sourceId}`, {
-        headers: {
-            authorization: token
-        }
-    })
+    return axios.delete(`${getBaseUrl()}/api/sources/${sourceId}`, setHeader(token))
     .then(res => res.data as undefined)
 }
 
-export const getSources = (token:string, id?:string):Promise<ISource | ISource[]> => {
-    let url = `${getBaseUrl()}/api/sources`;
-    if (id) url += `/${id}`
-    return axios.get(url, {
-        headers: {
-            authorization: token
-        }
-    })
-    .then(res => res.data as ISource[])
+export const getSource = (token:string, id:string):Promise<ISource> => {
+    return axios.get(`${getBaseUrl()}/api/sources/${id}`, setHeader(token))
+    .then(res => res.data as ISource)
+}
+
+export const getBook = (token:string, id:string):Promise<IBook> => {
+    return axios.get(`${getBaseUrl()}/api/books/${id}`, setHeader(token))
+    .then(res => res.data as IBook)
+}
+
+export const getPages = (token:string, bookId:string):Promise<IPage[]> => {
+    return axios.get(`${getBaseUrl()}/api/pages/${bookId}`, setHeader(token))
+    .then(res => res.data as IPage[])
 }

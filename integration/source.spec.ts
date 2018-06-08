@@ -46,16 +46,20 @@ describe("Source API", () => {
     })
 
     describe("PUT /api/sources", () => {
-        let sources:ISource[] = [],
-            sourceId:string,
-            socket:SocketIOClient.Socket;
+        let sourceId:string,
+            mySource:ISource;
 
         before(done => {
             utils.createSource(tokens[0], "./integration/data/2012_SAT_RESULTS.csv")
             .then(newId => sourceId = newId)
-            .then(() => utils.getSources(tokens[0]))
-            .then((mySources:ISource[]) => sources = mySources)
             .then(() => done())
+        })
+
+        beforeEach(done => {
+            utils.getSource(tokens[0], sourceId)
+            .then(source => mySource = source)
+            .then(() => done())
+            .catch(err => console.error(err.message))
         })
 
         it("should return an error if user is NOT logged in", done => {
@@ -67,7 +71,6 @@ describe("Source API", () => {
         })
 
         it("should return an error if user is NOT owner or editor", done => {
-            let mySource:ISource = sources.filter(s => s._id === sourceId)[0];
             expect(mySource).not.to.be.undefined;
             mySource = {...mySource, title: "changed"}
 
@@ -76,14 +79,12 @@ describe("Source API", () => {
             .set("authorization", tokens[1])
             .send(mySource)
             .then(res => expect(res.status).not.to.equal(200))
-            .then(() => utils.getSources(tokens[0], sourceId))
-            // .then(mySources => mySources.filter(s => s._id === sourceId)[0])
-            .then((updated:ISource) => expect(updated.title).not.to.equal("changed"))
+            .then(() => utils.getSource(tokens[0], sourceId))
+            .then(updated => expect(updated.title).not.to.equal("changed"))
             .then(() => done())
         })
 
         it("should return a success if user is the owner", done => {
-            let mySource:ISource = sources.filter(s => s._id === sourceId)[0];
             expect(mySource).not.to.be.undefined;
             expect(mySource.owner).to.equal(userIds[0])
             mySource = {...mySource, title: "updated"}
@@ -93,13 +94,12 @@ describe("Source API", () => {
             .set("authorization", tokens[0])
             .send(mySource)
             .then(res => expect(res.status).to.equal(200))
-            .then(() => utils.getSources(tokens[0], sourceId))
-            .then((updated:ISource) => expect(updated.title).to.equal("updated"))
+            .then(() => utils.getSource(tokens[0], sourceId))
+            .then(updated => expect(updated.title).to.equal("updated"))
             .then(() => done())
         })
 
         it("should return a success if user is an editor", done => {
-            let mySource:ISource = sources.filter(s => s._id === sourceId)[0];
             expect(mySource).not.to.be.undefined;
             expect(mySource.owner).to.equal(userIds[0])
             mySource = {...mySource};
@@ -120,20 +120,18 @@ describe("Source API", () => {
         })
 
         it("should return an error if the schema does NOT match", done => {
-            let mySource:any = sources.filter(s => s._id === sourceId)[0];
             expect(mySource).not.to.be.undefined;
-            mySource = {...mySource};
-            mySource.size = [];
+            let tmp:any = mySource;
+            tmp.size = [];
             chai.request(baseUrl)
             .put("/api/sources")
             .set("authorization", tokens[0])
-            .send(mySource)
+            .send(tmp)
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => done())
         })
 
         it("should return an error if a user other than the owner tries to change the owner", done => {
-            let mySource:ISource = sources.filter(s => s._id === sourceId)[0];
             expect(mySource).not.to.be.undefined;
             expect(mySource.owner).not.to.equal(userIds[1])
             expect(mySource.editors.indexOf(userIds[1])).not.to.equal(-1)
@@ -149,8 +147,6 @@ describe("Source API", () => {
         })
 
         it("should return a success if the owner changes the owner field", done => {
-            let mySource:ISource = sources.filter(s => s._id === sourceId)[0];
-            expect(mySource).not.to.be.undefined;
             expect(mySource.owner).not.to.equal(userIds[1])
             mySource = {...mySource};
             mySource.owner = userIds[1];
