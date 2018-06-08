@@ -1,6 +1,7 @@
 import config from "../config/environment";
 import {Request, Response, NextFunction} from "express";
 import * as jwt from "jsonwebtoken";
+import { IBookModel, ISharedModel } from "../dbModels";
 
 
 interface myRequest extends Request {
@@ -31,30 +32,44 @@ export function isAuthenticated(req:myRequest, res:Response, next:NextFunction):
 }
 
 /**
- * Checks if user has access to specific resource before CRUD operation. Must be authenticated.
- * @param model 
- * @param level 
+ * Checks if user has owner access to specific resource before CRUD operation.
+ * @param userId 
+ * @param book 
  */
-// export function hasAccess(model:mongoose.Model<IMongooseModels.IShareModel>, level:IModels.accessLevel) {
-//     return (req:Request, res:Response, next:NextFunction) => {
-//         let user = req.user;
-//         let id = req.params.id || req.body._id;
+export const hasOwnerAccess = (userId:string, myModel:ISharedModel):Promise<void> => {
+    return new Promise((resolve, reject) => {
+        if (myModel.owner === userId) return resolve();
+        return reject(`User does not have owner access to shareModel: ${myModel._id}`)
+    });
+}
 
-//         if (!user) res.status(403).send("Your JWT has not been checked").end();
+/**
+ * Checks if user has owner access to specific resource before CRUD operation.
+ * @param userId 
+ * @param book 
+ */
+export const hasEditAccess = (userId:string, myModel:ISharedModel):Promise<void> => {
+    return new Promise((resolve, reject) => {
+        if (myModel.owner === userId) return resolve();
+        if (myModel.editors.indexOf(userId) !== -1) return resolve();
+        return reject(`User does not have owner access to book: ${myModel._id}`)
+    });
+}
 
-//         model.findById(id)
-//         .then(doc => {
-//             if (!doc) throw `The resource ${model.collection.name.toLocaleUpperCase()}: ${id} does not exist.`;
-//             else if (user.role === "admin") next();
-//             else if (doc.owner === user._id) next();
-//             else if (doc.editors.indexOf(user._id) !== -1 && (level === "view" || level === "edit")) next();
-//             else if (doc.viewers.indexOf(user._id) !== -1 && level === "view") next();
-//             else if (doc.isPublic === true && level === "view") next();
-//             res.status(403).send(`This operation requires ${level.toLocaleUpperCase()} access. You do not have permission.`).end();
-//         })
-//         .catch(err => res.status(403).json(err).end())
-//     };
-// }
+/**
+ * Checks if user has owner access to specific resource before CRUD operation.
+ * @param userId 
+ * @param book 
+ */
+export const hasViewerAccess = (userId:string, myModel:ISharedModel):Promise<void> => {
+    return new Promise((resolve, reject) => {
+        if (myModel.isPublic) return resolve();
+        if (myModel.owner === userId) return resolve();
+        if (myModel.editors.indexOf(userId) !== -1) return resolve();
+        if (myModel.viewers.indexOf(userId) !== -1) return resolve();
+        return reject(`User does not have owner access to book: ${myModel._id}`)
+    });
+}
 
 
 /**

@@ -5,6 +5,7 @@ import {Request, Response, NextFunction} from "express";
 import {createReadStream, unlink} from "fs";
 import {ISourceColumn, ColumnType, IQuery, ISource} from "common/models";
 import {ISourceModel} from "../../dbModels";
+import * as auth from "../../auth/auth.service"
 import config from "../../config/environment"
 import * as myProm from "bluebird";
 import Util from "../utils";
@@ -156,10 +157,15 @@ class SourceController {
         delete req.body._id;
 
         mySource.validate()
-        // .then(() => Source.findById(id).exec())
         .then(() => Source.findById(id).exec())
         .then(source => {
-            return Source.findByIdAndUpdate(id, req.body).exec()
+            return auth.hasEditAccess(req.user._id, source)
+            .then(() => {
+                if (source.owner !== mySource.owner && source.owner !== req.user._id) {
+                    return Promise.reject(`Only the owner of source: ${source._id}, can the owner field`);
+                }
+            })
+            .then(() => Source.findByIdAndUpdate(id, req.body).exec())
             .then(() => SourceSocket.onAddOrChange(mySource, source))
         })
         .then(Util.handleResponseNoData(res))
@@ -169,7 +175,8 @@ class SourceController {
     remove(req:Request, res:Response):void {
         Source.findById(req.params.id).exec()
         .then(source => {
-            return source.remove()
+            return auth.hasOwnerAccess(req.user._id, source)
+            .then(() => source.remove())
             .then(() => SourceSocket.onDelete(source))
         })
         .then(Util.handleResponseNoData(res))
@@ -255,35 +262,6 @@ class SourceController {
         return output;
     }
 
-    public hasOwnerAccess(req:Request, res:Response, next:NextFunction):void {
-        const sourceId:string = req.params.id || req.body._id;
-        Source.findById(sourceId).exec()
-        .then(source => {
-            if (source.owner === req.user._id) return;
-            return Promise.reject(`You do not have owner rights to source: ${sourceId}`)
-        })
-        .then(() => next())
-        .catch(Util.handleError(res))
-    }
-
-    public hasEditAccess(req:Request, res:Response, next:NextFunction):void {
-        const sourceId:string = req.params._id || req.body._id;
-        const incomingSource:ISource = req.body;
-
-        Source.findById(sourceId).exec()
-        .then(source => {
-            if (source.owner !== incomingSource.owner && source.owner !== req.user._id) {
-                return Promise.reject(`Only the owner of source: ${sourceId}, can the owner field`);
-            }
-
-            if (source.owner === req.user._id) return;
-            if (source.editors.indexOf(req.user._id) !== -1) return;
-            return Promise.reject(`You do not have owner rights to source: ${sourceId}`)
-        })
-        .then(() => next())
-        .catch(Util.handleError(res))
-    }
-
     private runMongoQuery(source:ISource, query:any[]):Promise<any[]> {
         return new Promise((resolve, reject) => {
             MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
@@ -302,7 +280,7 @@ class SourceController {
         })
     }
 
-    public getMySources(req:Request, res:Response):void {
+    getMySources(req:Request, res:Response):void {
         const userId = req.user._id;
         Source.find({
             $or: [{
@@ -319,22 +297,11 @@ class SourceController {
         .catch(Util.handleError(res))
     }
 
-    public getSource(req:Request, res:Response):void {
-        const userId = req.user._id;
-        Source.findOne({
-            $and: [{
-                _id: req.params.id
-            }, {
-                $or: [{
-                    owner: userId
-                }, {
-                    editors: userId
-                }, {
-                    viewers: userId
-                }, {
-                    isPublic: true
-                }]
-            }]
+    getSource(req:Request, res:Response):void {
+        Source.findById(req.params._id).exec()
+        .then(source => {
+            return auth.hasViewerAccess(req.user._id, source)
+            .then(() => source);
         })
         .then(Util.handleResponse(res))
         .catch(Util.handleError(res))

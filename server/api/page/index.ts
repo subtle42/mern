@@ -4,9 +4,9 @@ import * as auth from "../../auth/auth.service";
 
 var router = Router();
 
-router.get("/", auth.isAuthenticated, controller.index);
-router.post("/", auth.isAuthenticated, controller.hasCreateAccess, controller.create);
-router.delete("/:id", auth.isAuthenticated, controller.hasEditAccess, controller.remove);
-router.put("/", auth.isAuthenticated, controller.hasEditAccess, controller.update);
+router.get("/:id", auth.isAuthenticated, controller.getPages);
+router.post("/", auth.isAuthenticated, controller.create);
+router.delete("/:id", auth.isAuthenticated, controller.remove);
+router.put("/", auth.isAuthenticated, controller.update);
 
 module.exports = router;

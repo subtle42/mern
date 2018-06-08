@@ -1,12 +1,15 @@
-import {Request, Response} from "express";
+import {Request, Response, NextFunction} from "express";
 import {Widget} from "./model";
 import Utils from "../utils";
 import Page from "../page/model";
+import {Book} from "../book/model"
 import {Source} from "../source/model"
 import {pageSocket} from "../page/socket"
 import {widgetSocket} from "./socket"
 import {Layout} from "react-grid-layout"
 import { IWidget, ISource } from "common/models";
+import Util from "../utils";
+import * as auth from "../../auth/auth.service"
 
 const widgetLayout:Layout = {
     x: 1, y: 1, w: 1, h: 1
@@ -22,7 +25,10 @@ class WidgetController {
             type: type
         });
 
-        Source.findById(sourceId)
+        Page.findById(pageId).exec()
+        .then(page => Book.findById(page.bookId).exec())
+        .then(book => auth.hasEditAccess(req.user._id, book))
+        .then(() => Source.findById(sourceId))
         .then(mySource => this.addDefaultsToWidget(myWidget, mySource))
         .then(() => myWidget.validate())
         .then(() => Widget.create(myWidget))
@@ -64,19 +70,19 @@ class WidgetController {
         .then(widget => {
             return Page.findById(widget.pageId)
             .then(page => {
-                page.layout = page.layout.filter(item => item.i !== id);
-                return page.update(page).exec()
-                .then(() => pageSocket.onAddOrChange(page))
+                return Book.findById(page.bookId).exec()
+                .then(book => auth.hasEditAccess(req.user._id, book))
+                .then(() => {
+                    page.layout = page.layout.filter(item => item.i !== id);
+                    return page.update(page).exec()
+                    .then(() => pageSocket.onAddOrChange(page))
+                })
             })
             .then(() => Widget.findByIdAndRemove(id))
             .then(() => widgetSocket.onDelete(widget))
         })
         .then(Utils.handleResponseNoData(res))
         .catch(Utils.handleError(res))
-
-        // Widget.findByIdAndRemove(id).exec()
-        // .then(Utils.handleResponseNoData(res))
-        // .catch(Utils.handleError(res))
     }
 
     update(req:Request, res:Response) {
@@ -85,6 +91,9 @@ class WidgetController {
         delete req.body._id;
 
         myWidget.validate()
+        .then(() => Page.findById(myWidget.pageId).exec())
+        .then(page => Book.findById(page.bookId).exec())
+        .then(book => auth.hasEditAccess(req.user._id, book))
         .then(() => Widget.findByIdAndUpdate(myId, req.body))
         .then(() => widgetSocket.onAddOrChange(myWidget))
         .then(Utils.handleResponseNoData(res))

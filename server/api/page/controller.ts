@@ -3,6 +3,8 @@ import Page from "./model";
 import {Book} from "../book/model"
 import Util from "../utils";
 import {pageSocket} from "./socket";
+import * as auth from "../../auth/auth.service"
+import { Widget } from "../widget/model";
 
 export default class PageController {
     /**
@@ -17,48 +19,19 @@ export default class PageController {
         });
 
         myPage.validate()
+        .then(() => Book.findById(myPage.bookId))
+        .then(book => auth.hasEditAccess(req.user._id, book))
         .then(() => Page.create(myPage))
-        .then(Util.handleNoResult(res))
         .then(page => {
             pageSocket.onAddOrChange(page);
-            return res.json(page._id);
+            return page._id;
         })
+        .then(Util.handleResponse(res))
         .catch(Util.handleError(res));
     }
 
     /**
-     * Does current user have edit access to the book the page is in
-     * @param req 
-     * @param res 
-     * @param next 
-     */
-    public static hasEditAccess(req:Request, res:Response, next:NextFunction):void {
-        const pageId:string = req.params.id || req.body._id;
-        Page.findById(pageId)
-        .then(page => Book.findById(page.bookId))
-        .then(book => {
-            if (book.owner === req.user._id) return;
-            if (book.editors.indexOf(req.user._id) !== -1) return;
-            return Promise.reject(`User ${req.user._id} does not have edit rights to Book: ${book._id}`);
-        })
-        .then(() => next())
-        .catch(Util.handleError(res))
-    }
-
-    public static hasCreateAccess(req:Request, res:Response, next:NextFunction):void {
-        const bookId:string = req.body.bookId;
-        Book.findById(bookId)
-        .then(book => {
-            if (book.owner === req.user._id) return;
-            if (book.editors.indexOf(req.user._id) !== -1) return;
-            return Promise.reject(`User ${req.user._id} does not have Page create rights to Book: ${book._id}`);
-        })
-        .then(() => next())
-        .catch(Util.handleError(res))
-    }
-
-    /**
-     * Updates a page, only the owner or editors of the assocated book can make updates
+     * Updates a page if user has edit access
      * @param req 
      * @param res 
      */
@@ -68,32 +41,44 @@ export default class PageController {
         delete req.body._id;
 
         myPage.validate()
-        .then(() => Page.findByIdAndUpdate(myId, myPage))
+        .then(() => Page.findById(myId))
+        .then(page => {
+            return Book.findById(page.bookId)
+            .then(book => auth.hasEditAccess(req.user._id, book))
+            .then(() => Page.findByIdAndUpdate(myId, myPage))
+        })
         .then(() => pageSocket.onAddOrChange(myPage))
         .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));
     }
 
+    /**
+     * Removes a page if user has book edit access
+     * @param req
+     * @param res 
+     */
     public static remove(req:Request, res:Response):void {
         var myId:string = req.params.id;
-        //TODO: look through pages and widgets and remove first
-        var myPage;
+
         Page.findById(myId)
         .then(page => {
-            myPage = page;
-            return page
+            return Book.findById(page.bookId)
+            .then(book => auth.hasEditAccess(req.user._id, book))
+            .then(() => Widget.remove({
+                pageId:myId
+            }))
+            .then(() => page.remove())
+            .then(() => pageSocket.onDelete(page))
         })
-        .then(page => page.remove())
-        // Page.findByIdAndRemove(myId)
-        .then(() => {
-            pageSocket.onDelete(myPage);
-            return res.json();
-        })
+        .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));
     }
 
-    public static index(req:Request, res:Response):void {
-        Page.find({})
+    public static getPages(req:Request, res:Response):void {
+        const bookId:string = req.params.id;
+        Book.findById(bookId)
+        .then(book => auth.hasViewerAccess(req.user._id, book))
+        .then(() => Page.find({bookId}))
         .then(Util.handleResponse(res))
         .catch(Util.handleError(res));
     }

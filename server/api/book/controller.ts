@@ -1,8 +1,11 @@
 import {Book} from "./model";
+import Page from "../page/model"
+import {Widget} from "../widget/model"
 import {BookSocket} from "./socket";
 import {Request, Response, NextFunction} from "express";
 import Util from "../utils";
 import { IBookModel } from "../../dbModels";
+import * as auth from "../../auth/auth.service"
 
 export default class BookController {
     /**
@@ -41,41 +44,19 @@ export default class BookController {
         myBook.validate()
         .then(pass => Book.findById(myId).exec())
         .then(oldBook => {
-            return Book.findByIdAndUpdate(myId, req.body).exec()
+            return auth.hasEditAccess(req.user._id, oldBook)
+            .then(() => {
+                if (oldBook.owner !== myBook.owner && myBook.owner !== req.user._id) {
+                    return Promise.reject(`Only the owner of the book: ${oldBook._id}, can edit the owner field.`)
+                }
+            })
+            .then(() => Book.findByIdAndUpdate(myId, req.body).exec())
             .then(data => BookSocket.onAddOrChange(myBook, oldBook))
         })
         .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));
     }
 
-    public static hasOwnerAccess(req:Request, res:Response, next:NextFunction):void {
-        const bookId:string = req.params.id || req.body._id;
-        Book.findById(bookId)
-        .then(book =>  {
-            if (book.owner === req.user._id) return;
-            return Promise.reject(`You are not the owner of book: ${book._id}, you do not have delete rights.`)
-        })
-        .then(() => next())
-        .catch(Util.handleError(res))
-    }
-
-    public static hasEditorAccess(req:Request, res:Response, next:NextFunction):void {
-        const bookId:string = req.params.id || req.body._id;
-        const toUpdate:IBookModel = req.body;
-        Book.findById(bookId)
-        .then(book =>  {
-            if (book.owner !== toUpdate.owner && book.owner !== req.user._id) {
-                return Promise.reject(`Only the owner of the book: ${book._id}, can edit the owner field.`)
-            }
-            
-            if (book.owner === req.user._id) return;
-            if (book.editors.indexOf(req.user._id) !== -1) return;
-            return Promise.reject(`You are not an editor of book: ${book._id}, you do not have edit rights.`)
-        })
-        .then(() => next())
-        .catch(Util.handleError(res))
-    }
- 
     /**
      * Deletes a book, only the owner can do this action
      * @param req 
@@ -85,7 +66,14 @@ export default class BookController {
         var myId:string = req.params.id;
 
         Book.findById(myId).exec()
-        .then(book => BookSocket.onDelete(book))
+        .then(book => {
+            return auth.hasOwnerAccess(req.user._id, book)
+            .then(() => Page.find({bookId:myId}))
+            .then(pages => Promise.all(pages.map(p => Widget.remove({pageId:p._id}).exec())))
+            .then(() => Page.remove({bookId:myId}))
+            .then(() => book.remove())
+            .then(() => BookSocket.onDelete(book))
+        })
         .then(Util.handleResponseNoData(res))
         .catch(Util.handleError(res));
     }
@@ -118,22 +106,13 @@ export default class BookController {
      * @param res 
      */
     public static getBook(req:Request, res:Response):void {
-        let userId:string = req.user._id;
-        Book.findOne({
-            $and: [{
-                _id: req.params.id
-            }, {
-                $or: [{
-                    owner: userId
-                }, {
-                    editors: userId
-                }, {
-                    viewers: userId
-                }, {
-                    isPublic: true
-                }]
-            }]
-        }).exec()
+        const bookId:string = req.params.id;
+
+        Book.findById(bookId).exec()
+        .then(book => {
+            return auth.hasViewerAccess(req.user._id, book)
+            .then(() => book)
+        })
         .then(Util.handleResponse(res))
         .catch(Util.handleError(res));
     }

@@ -7,7 +7,7 @@ var router = Router();
 router.get("/:id", auth.isAuthenticated, controller.getBook);
 router.get("/", auth.isAuthenticated, controller.getMyBooks);
 router.post("/", auth.isAuthenticated, controller.create);
-router.delete("/:id", auth.isAuthenticated, controller.hasOwnerAccess, controller.remove);
-router.put("/", auth.isAuthenticated, controller.hasEditorAccess, controller.update);
+router.delete("/:id", auth.isAuthenticated, controller.remove);
+router.put("/", auth.isAuthenticated, controller.update);
 
 module.exports = router;
