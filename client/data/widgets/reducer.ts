@@ -1,15 +1,18 @@
 import {AnyAction} from "redux";
+import WidgetStore from "./model"
 import {factory, GenericStore} from "../baseReducer";
 
-class WidgetStore implements GenericStore {
-    list:string[] = []
-}
+let myFactory = Object.assign({}, factory, {
+    setSize: (store:WidgetStore, payload:any):WidgetStore => {
+        store.sizes[payload.id] = payload.size;
+        return store;
+    }
+});
 
-const possibleActions:string[] = Object.keys(factory);
-
+const possibleActions:string[] = Object.keys(myFactory);
 
 export default (state:WidgetStore=new WidgetStore(), action:AnyAction):WidgetStore => {
     if (action.namespace !== "widgets") return state;
     if (possibleActions.indexOf(action.type) === -1) return state;
-    return factory[action.type](state, action.payload);
+    return myFactory[action.type](state, action.payload);
 }

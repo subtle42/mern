@@ -5,6 +5,7 @@ import {connect} from "react-redux";
 import {IPage, IWidget} from "common/models";
 import {Widget} from "../widget/widget";
 import PageActions from "data/pages/actions";
+import widgetActions from "data/widgets/actions";
 
 interface Props {
     page:IPage;
@@ -19,6 +20,13 @@ const ContentComponent:React.StatelessComponent<Props> = (props:Props) => {
         },
         onResizeStop: (layout:ReactGridLayout.Layout[]) => {
             PageActions.update(Object.assign({}, props.page, {layout}));
+        },
+        onResize: (layout:ReactGridLayout.Layout[],
+            oldItem:ReactGridLayout.Layout,
+            newItem:ReactGridLayout.Layout,
+            placeholder:ReactGridLayout.Layout,
+            event, element) => {
+            widgetActions.setSize(oldItem.i, event.path[1].offsetHeight - 100, event.path[1].offsetWidth)
         }
     };
     const asdf = Object.assign({}, defaultLayoutConfig, props.page)

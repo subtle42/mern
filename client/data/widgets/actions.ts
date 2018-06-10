@@ -43,6 +43,9 @@ class WidgetActions extends BaseActions{
         return axios.put(`/api/widgets`, widget)
         .then(res => res.data as undefined);
     }
+    setSize(id:string, width:number, height:number):void {
+        this.sendDispatch("setSize", {id:id, size: {width, height}})
+    }
 }
 
 const widgetActions = new WidgetActions(store);

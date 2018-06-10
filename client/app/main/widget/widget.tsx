@@ -90,8 +90,8 @@ export class Widget extends React.Component<Props, State> {
             </CardHeader>
             <CardBody style={{height:"100%"}}>
                 {this.getDropdown()}
-                <Chart {...this.state.widgetConfig} />
-                {/* <Histogram /> */}
+                {/* <Chart {...this.state.widgetConfig} /> */}
+                <Histogram />
             </CardBody>
         </Card>);
     }
