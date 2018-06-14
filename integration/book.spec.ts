@@ -236,3 +236,76 @@ describe("Book API", () => {
         })
     })
 })
+
+describe("Book Socket", () => {
+    let tokens:string[] = [],
+        userIds:string[] = []
+    
+    before(done => {
+        utils.cleanDb()
+        .then(() => Promise.all(utils.USERS.map(user => utils.createUserAndLogin(user))))
+        .then(users => tokens = users)
+        .then(() => Promise.all(tokens.map(token => utils.decodeToken(token))))
+        .then(decoded => userIds = decoded.map(item => item._id))
+        .then(() => done())
+    })
+
+    after(done => {
+        utils.cleanDb()
+        .then(() => done())
+    })
+
+    describe("onAddedOrChanged channel", () => {
+        xit("should return an error if no token is provided", done => {
+            let socket = utils.websocketConnect("books", "aaa");
+            socket.on("error", err => {
+                console.log(err)
+                socket.disconnect()
+                done()
+            });
+        })
+
+        it("should send a list of all books that user owns", done => {
+            Promise.all([
+                utils.createBook(tokens[0], "user1"),
+                utils.createBook(tokens[1], "user2")
+            ])
+            .then(books => {
+                let socket = utils.websocketConnect("books", tokens[0]);
+                socket.on("addedOrChanged", (data:IBook[]) => {
+                    expect(data[0]._id).to.equal(books[0])
+                    expect(data.length).to.equal(1)
+                    socket.disconnect()
+                    done()
+                })
+            })
+        })
+
+        it("should send books that a user can edit", done => {
+            Promise.all([
+                utils.createBook(tokens[1], "book1"),
+                utils.createBook(tokens[1], "book1")
+            ])
+            .then(bookIds => {
+                return utils.getBook(tokens[1], bookIds[0])
+                .then(book => {
+                    book.editors.push(userIds[0])
+                    return utils.updateBook(tokens[1], book)
+                })
+                .then(() => bookIds[0])
+            })
+            .then(canEditId => {
+                let socket = utils.websocketConnect("books", tokens[0]);
+                socket.on("addedOrChanged", (data:IBook[]) => {
+                    expect(data.filter(d => d._id === canEditId).length).to.equal(1)
+                    socket.disconnect()
+                    done()
+                })
+            })
+        })
+
+        it("should send books that a user can view", done => {
+            done()
+        })
+    })
+})
