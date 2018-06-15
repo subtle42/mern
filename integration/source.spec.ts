@@ -11,10 +11,11 @@ describe("Source API", () => {
     const baseUrl = utils.getBaseUrl();
 
     before(done => {
-        Promise.all([
+        utils.cleanDb()
+        .then(() => Promise.all([
             utils.createUserAndLogin(utils.USERS[0]),
             utils.createUserAndLogin(utils.USERS[1])
-        ])
+        ]))
         .then(users => tokens = users)
         .then(() => Promise.all(tokens.map(token => utils.decodeToken(token))))
         .then(decodedTokens => userIds = decodedTokens.map(decoded => decoded._id))

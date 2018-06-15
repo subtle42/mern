@@ -18,7 +18,7 @@ export class AclSocket {
     }
 
     private setupSockEvents() {
-        this.namespace.on("connection", (socket:any) => {
+        this.namespace.on("connection", (socket:SocketIO.Socket) => {
             this.veryifyToken(socket.handshake.query.token)
             .then(decoded => {
                 socket.join(decoded._id);
@@ -26,7 +26,7 @@ export class AclSocket {
                 .then(data => this.namespace.in(decoded._id).emit("addedOrChanged", data))
             })
             .catch(err => {
-                socket.emit("error", err)
+                socket.emit("message", err)
             });
         });
     }

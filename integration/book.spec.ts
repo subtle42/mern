@@ -3,7 +3,6 @@ import * as chai from "chai";
 import "chai-http";
 import { IBook } from "common/models";
 import * as utils from "./utils";
-import { bind } from "bluebird";
 
 describe("Book API", () => {
     let tokens:string[];
@@ -256,10 +255,10 @@ describe("Book Socket", () => {
     })
 
     describe("authentication", () => {
-        xit("should return an error if no token is provided", done => {
+        it("should return an error if no token is provided", done => {
             let socket = utils.websocketConnect("books", "aaa");
-            socket.on("error", err => {
-                console.log(err)
+            socket.on("message", err => {
+                expect(err.message).to.equal("jwt malformed")
                 socket.disconnect()
                 done()
             });
@@ -267,7 +266,6 @@ describe("Book Socket", () => {
     })
 
     describe("onAddedOrChanged channel", () => {
-
         describe("initial response", () => {
             it("should send a list of all books that user owns", done => {
                 Promise.all([
@@ -482,10 +480,67 @@ describe("Book Socket", () => {
             })
         })
         
-        xit("should send an id to a user if they are no longer an editor", () => {})
+        it("should send an id to a user if they are no longer an editor", done => {
+            let socket = utils.websocketConnect("books", tokens[1])
+            let removedId:string;
+
+            socket.on("removed", (data) => {
+                expect(data[0]).to.equal(removedId)
+                socket.disconnect();
+                done();
+            })
+
+            utils.createBook(tokens[0], "toBeRemoved")
+            .then(bookId => utils.getBook(tokens[0], bookId))
+            .then(book => {
+                removedId = book._id;
+                book.editors.push(userIds[1])
+                return utils.updateBook(tokens[0], book)
+                .then(() => utils.deleteBook(tokens[0], book._id))
+            })
+        })
         
-        xit("should send an id to a user if they are no longer a viewer", () => {})
+        it("should send an id to a user if they are no longer a viewer", done => {
+            let socket = utils.websocketConnect("books", tokens[1])
+            let removedId:string;
+
+            socket.on("removed", (data) => {
+                expect(data[0]).to.equal(removedId)
+                socket.disconnect();
+                done();
+            })
+
+            utils.createBook(tokens[0], "toBeRemoved")
+            .then(bookId => utils.getBook(tokens[0], bookId))
+            .then(book => {
+                removedId = book._id;
+                book.viewers.push(userIds[1])
+                return utils.updateBook(tokens[0], book)
+                .then(() => utils.deleteBook(tokens[0], book._id))
+            })
+        })
         
-        xit("should send an id if item is no longer public", () => {})
+        it("should send an id if item is no longer public", done => {
+            let socket = utils.websocketConnect("books", tokens[1])
+            let publicId:string;
+
+            socket.on("removed", (data) => {
+                expect(data[0]).to.equal(publicId)
+                socket.disconnect();
+                done();
+            })
+
+            utils.createBook(tokens[0], "toBeRemoved")
+            .then(bookId => utils.getBook(tokens[0], bookId))
+            .then(book => {
+                publicId = book._id
+                book.isPublic = true;
+                return book;
+            })
+            .then(book => {
+                return utils.updateBook(tokens[0], book)
+                .then(() => utils.deleteBook(tokens[0], book._id))
+            })
+        })
     })
 })
