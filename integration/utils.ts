@@ -135,3 +135,8 @@ export const getPages = (token:string, bookId:string):Promise<IPage[]> => {
     return axios.get(`${getBaseUrl()}/api/pages/${bookId}`, setHeader(token))
     .then(res => res.data as IPage[])
 }
+
+export const deleteBook = (token:string, bookId:string):Promise<void> => {
+    return axios.delete(`${getBaseUrl()}/api/books/${bookId}`, setHeader(token))
+    .then(res => res.data as undefined)
+}

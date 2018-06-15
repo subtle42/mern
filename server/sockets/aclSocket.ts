@@ -1,9 +1,7 @@
-import {IBook} from "common/models";
-import { Document, Model} from "mongoose";
+import { Model} from "mongoose";
 import { ISharedModel } from "../dbModels";
 import * as jwt from "jsonwebtoken";
 import config from "../config/environment";
-import { reject } from "bluebird";
 declare var global:any;
 let myIO:SocketIO.Server = global.myIO;
 
