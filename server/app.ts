@@ -27,7 +27,7 @@ global.myIO = myIO;
 myIO.on("connection", socket => {
     socket.emit("message", "connected");
 });
-socketAuth(myIO);
+// socketAuth(myIO);
 
 app.use(body.json());
 app.use(passport.initialize());

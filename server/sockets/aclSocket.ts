@@ -1,9 +1,7 @@
-import {IBook} from "common/models";
-import { Document, Model} from "mongoose";
+import { Model} from "mongoose";
 import { ISharedModel } from "../dbModels";
 import * as jwt from "jsonwebtoken";
 import config from "../config/environment";
-import { reject } from "bluebird";
 declare var global:any;
 let myIO:SocketIO.Server = global.myIO;
 
@@ -20,7 +18,7 @@ export class AclSocket {
     }
 
     private setupSockEvents() {
-        this.namespace.on("connection", (socket:any) => {
+        this.namespace.on("connection", (socket:SocketIO.Socket) => {
             this.veryifyToken(socket.handshake.query.token)
             .then(decoded => {
                 socket.join(decoded._id);
@@ -28,7 +26,7 @@ export class AclSocket {
                 .then(data => this.namespace.in(decoded._id).emit("addedOrChanged", data))
             })
             .catch(err => {
-                socket.emit("error", err)
+                socket.emit("message", err)
             });
         });
     }

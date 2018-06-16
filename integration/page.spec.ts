@@ -28,7 +28,6 @@ describe("Page API", () => {
     })
 
     after(done => {
-        // nsp.disconnect();
         utils.cleanDb()
         .then(() => done())
     })
