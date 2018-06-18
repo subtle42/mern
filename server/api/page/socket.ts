@@ -1,5 +1,6 @@
 import {IPageModel} from "../../dbModels";
 import Page from "./model";
+import {Book} from "../book/model"
 import {Schema, Document} from "mongoose";
 import BaseSocket from "../../sockets/sockets";
 
@@ -16,6 +17,10 @@ class PageSocket extends BaseSocket {
         return Page.find({
             bookId
         }).exec();
+    }
+
+    getSharedModel(bookId:string) {
+        return Book.findById(bookId).exec()
     }
 
     onAddOrChange(model:IPageModel) {

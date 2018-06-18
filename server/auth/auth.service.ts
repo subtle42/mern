@@ -67,7 +67,7 @@ export const hasViewerAccess = (userId:string, myModel:ISharedModel):Promise<voi
         if (myModel.owner === userId) return resolve();
         if (myModel.editors.indexOf(userId) !== -1) return resolve();
         if (myModel.viewers.indexOf(userId) !== -1) return resolve();
-        return reject(`User does not have owner access to book: ${myModel._id}`)
+        return reject(`User does NOT have owner access to item: ${myModel._id}`)
     });
 }
 

@@ -167,9 +167,6 @@ describe("Page API", () => {
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => done())
         })
-
-        xit("should send a broadcast in the book's room", () => {})
-        xit("should NOT send a broadcast to any other book's room", () => {})
     })
 
     describe("DELETE /api/pages", () => {
@@ -228,7 +225,139 @@ describe("Page API", () => {
             })
             .then(() => done())
         })
-        xit("should recieve broadcast on the delete channel if in that book room", () => {})
-        xit("should NOT broadcast on the removed channel if NOT in the same book room", () => {})
+    })
+})
+
+describe("Page Socket", () => {
+    let bookId:string,
+        tokens:string[],
+        userIds:string[];
+
+    before(done => {
+        utils.cleanDb()
+        .then(() => Promise.all(utils.USERS.map(user => utils.createUserAndLogin(user))))
+        .then(createdUsers => tokens = createdUsers)
+        .then(() => Promise.all(tokens.map(token => utils.decodeToken(token))))
+        .then(decoded => userIds = decoded.map(item => item._id))
+        .then(() => done())
+    })
+
+    after(done => {
+        utils.cleanDb()
+        .then(() => done())
+    })
+
+    describe("athorization", () => {
+        let bookId:string,
+            book:IBook;
+        before(done => {
+            utils.createBook(tokens[0], "authbook")
+            .then(id => bookId = id)
+            .then(() => done())
+        })
+
+        beforeEach(done => {
+            utils.getBook(tokens[0], bookId)
+            .then(res => book = res)
+            .then(() => done())
+        })
+
+        // it("should NOT let you join the namespace if a token is NOT supplied", done => {
+        //     const socket = utils.websocketConnect("pages", undefined);
+        //     socket.emit("join", bookId)
+        //     socket.on("message", data => {
+        //         socket.disconnect()
+        //         expect(data.message).to.equal("jwt malformed");
+        //         done();
+        //     })
+        // })
+
+        it("should NOT let you join a room if you do NOT have access to the parent book", done => {
+            const socket = utils.websocketConnect("pages", tokens[1]);
+            socket.emit("join", bookId)
+            socket.on("message", data => {
+                socket.disconnect()
+                expect(data).to.contain(bookId);
+                done();
+            })
+        })
+
+        it("should return records if user is the owner of the book", done => {
+            expect(userIds[0]).to.equal(book.owner)
+
+            const socket = utils.websocketConnect("pages", tokens[0]);
+            socket.emit("join", bookId)
+            socket.on("addedOrChanged", data => {
+                socket.disconnect()
+                done();
+            })
+        })
+
+        it("should return records if user has edit access to the book", done => {
+            book.editors.push(userIds[1])
+
+            utils.updateBook(tokens[0], book)
+            .then(() => {
+                const socket = utils.websocketConnect("pages", tokens[1]);
+                socket.emit("join", bookId)
+                socket.on("addedOrChanged", data => {
+                    socket.disconnect()
+                    done();
+                })
+            })
+        })
+
+        it("should return records if user has viewer access to the book", done => {
+            book.editors = [];
+            book.viewers.push(userIds[1])
+            
+            utils.updateBook(tokens[0], book)
+            .then(() => {
+                const socket = utils.websocketConnect("pages", tokens[1]);
+                socket.emit("join", bookId)
+                socket.on("addedOrChanged", data => {
+                    socket.disconnect()
+                    done();
+                })
+            })
+        })
+
+        it("should return records if book is public", done => {
+            expect(book.owner).not.to.equal(userIds[2])
+            expect(book.editors.indexOf(userIds[2])).to.equal(-1)
+            expect(book.viewers.indexOf(userIds[2])).to.equal(-1)
+            book.isPublic = true;
+
+            utils.updateBook(tokens[0], book)
+            .then(() => {
+                const socket = utils.websocketConnect("pages", tokens[2]);
+                socket.emit("join", bookId)
+                socket.on("addedOrChanged", data => {
+                    socket.disconnect()
+                    done();
+                })
+            })
+        })
+
+        it("should return an error if user tried to join a room that does not exist", done => {
+            const socket = utils.websocketConnect("pages", tokens[2]);
+            socket.emit("join", "badid")
+            socket.on("message", data => {
+                socket.disconnect()
+                done();
+            })
+        })
+    })
+
+    describe("addedOrChanged channel", () => {
+        xit("should return all pages in a book when joining a book's room", done => {})
+
+        xit("should return a record when a page is added", done => {})
+
+        xit("should return a record when a page is updated", done => {})
+    })
+
+    describe("removed channel", () => {
+        xit("should return the id of a deleted page", done => {})
     })
 })

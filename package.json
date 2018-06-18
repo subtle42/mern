@@ -55,7 +55,7 @@
     "style-loader": "^0.19.1",
     "ts-loader": "^4.1.0",
     "ts-node": "^3.3.0",
-    "typescript": "^2.6.2",
+    "typescript": "^2.8.3",
     "url-loader": "^0.6.2",
     "webpack": "^4.4.1",
     "webpack-bundle-analyzer": "^2.11.0",

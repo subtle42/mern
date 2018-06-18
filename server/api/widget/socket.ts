@@ -2,6 +2,8 @@ import {IWidgetModel} from "../../dbModels";
 import {Widget} from "./model";
 import {Schema, Document} from "mongoose";
 import BaseSocket from "../../sockets/sockets";
+import {Book} from "../book/model"
+import Page from "../page/model"
 
 class WidgetSocket extends BaseSocket {
     constructor() {
@@ -16,6 +18,11 @@ class WidgetSocket extends BaseSocket {
         return Widget.find({
             pageId
         }).exec();
+    }
+
+    getSharedModel(pageId:string) {
+        return Page.findById(pageId).exec()
+        .then(page => Book.findById(page.bookId).exec())
     }
 
     onAddOrChange(model:IWidgetModel) {

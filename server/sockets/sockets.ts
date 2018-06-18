@@ -1,4 +1,8 @@
 import {Document} from "mongoose";
+import { ISharedModel } from "../dbModels";
+import * as jwt from "jsonwebtoken"
+import config from "../config/environment"
+import * as auth from "../auth/auth.service"
 
 declare var global:any;
 let myIO:SocketIO.Server = global.myIO;
@@ -15,16 +19,14 @@ export default abstract class BaseSocket {
 
     setupSocket(name:string) {
         this.namespace.on("connection", socket => {
-            this.onJoin(socket);
+            this.onJoin(socket)
+            // this.veryifyToken(socket.handshake.query.token)
+            // .then(decoded => )
+            // .catch(err => {
+            //     console.error(err)
+            //     socket.emit("message", err)
+            // })
         });
-
-        // this.schema.post("save", (doc:Document) => {
-        //     this.onAddOrChange(this.getParentId(doc), [doc]);
-        // });
-
-        // this.schema.post("remove", (doc:Document) => {
-        //     this.onDelete(this.getParentId(doc), [doc._id]);
-        // });
 
         console.log(`Created Namespace: ${name}`);
     }
@@ -37,14 +39,44 @@ export default abstract class BaseSocket {
 
     abstract onDelete(removed:Document|Document[]):void;
 
+    /**
+     * Get the top level shared item for socket permissions
+     * @param id 
+     */
+    abstract getSharedModel(id:string):Promise<ISharedModel>
+
     private onJoin(socket:SocketIO.Socket) {
         socket.on("join", (room:string) => {
-            socket.leaveAll();
-            socket.join(room);
-            socket.emit("message", `${this.name.toUpperCase()}, joined room: ${room}`);
-            this.getInitialState(room)
-            .then(data => this._onAddOrChange(room, data))
+            this.veryifyToken(socket.handshake.query.token)
+            .then(decoded => this.hasViewAccess(decoded, room))
+            .then(() => {
+                console.log(`getting room ${room}`)
+                socket.leaveAll();
+                socket.join(room);
+                socket.emit("message", `${this.name.toUpperCase()}, joined room: ${room}`);
+                return this.getInitialState(room)
+            })
+            .then(data => {
+                console.log(data)
+                this._onAddOrChange(room, data)
+            })
+            .catch(err => socket.emit("message", err))
         });
+    }
+
+    private veryifyToken(token:string):Promise<any> {
+        return new Promise((resolve, reject) => {
+            jwt.verify(token, config.shared.secret, (err, decoded) => {
+                if (err) return reject(err);
+                resolve(decoded);
+            });
+        })
+    }
+
+    private hasViewAccess(decodedToken, room:string):Promise<void> {
+        const userId:string = decodedToken._id;
+        return this.getSharedModel(room)
+        .then(shared => auth.hasViewerAccess(userId, shared))
     }
 
     protected _onDelete(room:string, ids:string[]):void {
