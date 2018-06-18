@@ -140,3 +140,13 @@ export const deleteBook = (token:string, bookId:string):Promise<void> => {
     return axios.delete(`${getBaseUrl()}/api/books/${bookId}`, setHeader(token))
     .then(res => res.data as undefined)
 }
+
+export const updatePage = (token:string, page:IPage):Promise<void> => {
+    return axios.put(`${getBaseUrl()}/api/pages`, page, setHeader(token))
+    .then(res => res.data as undefined)
+}
+
+export const deletePage = (token:string, pageId:string):Promise<void> => {
+    return axios.delete(`${getBaseUrl()}/api/pages/${pageId}`, setHeader(token))
+    .then(res => res.data as undefined)
+}

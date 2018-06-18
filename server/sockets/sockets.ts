@@ -57,7 +57,6 @@ export default abstract class BaseSocket {
                 return this.getInitialState(room)
             })
             .then(data => {
-                console.log(data)
                 this._onAddOrChange(room, data)
             })
             .catch(err => socket.emit("message", err))

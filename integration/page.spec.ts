@@ -262,15 +262,15 @@ describe("Page Socket", () => {
             .then(() => done())
         })
 
-        // it("should NOT let you join the namespace if a token is NOT supplied", done => {
-        //     const socket = utils.websocketConnect("pages", undefined);
-        //     socket.emit("join", bookId)
-        //     socket.on("message", data => {
-        //         socket.disconnect()
-        //         expect(data.message).to.equal("jwt malformed");
-        //         done();
-        //     })
-        // })
+        xit("should NOT let you join the namespace if a token is NOT supplied", done => {
+            const socket = utils.websocketConnect("pages", undefined);
+            socket.emit("join", bookId)
+            socket.on("message", data => {
+                socket.disconnect()
+                expect(data.message).to.equal("jwt malformed");
+                done();
+            })
+        })
 
         it("should NOT let you join a room if you do NOT have access to the parent book", done => {
             const socket = utils.websocketConnect("pages", tokens[1]);
@@ -350,14 +350,95 @@ describe("Page Socket", () => {
     })
 
     describe("addedOrChanged channel", () => {
-        xit("should return all pages in a book when joining a book's room", done => {})
+        let bookId:string;
 
-        xit("should return a record when a page is added", done => {})
+        before(done => {
+            utils.createBook(tokens[0], "kwuheiwnecuiawe")
+            .then(id => bookId = id)
+            .then(() => done())
+        })
+        
+        it("should return all pages in a book when joining a book's room", done => {
+            utils.createPage(tokens[0], bookId, "jvoairjr")
+            .then(pageId => {
+                const socket = utils.websocketConnect("pages", tokens[0])
+                socket.emit("join", bookId)
+                socket.on("addedOrChanged", (data:IPage[]) => {
+                    socket.disconnect();
+                    expect(data.filter(x => x._id === pageId).length).to.be.greaterThan(0)
+                    done();
+                })
+            })
+        })
 
-        xit("should return a record when a page is updated", done => {})
+        it("should return a record when a page is added", done => {
+            const pageName:string = "awleoivjwerwerv";
+            let isFirst:boolean = true;
+            const socket = utils.websocketConnect("pages", tokens[0])
+            socket.emit("join", bookId)
+            socket.on("addedOrChanged", (data:IPage[]) => {
+                if (isFirst) {
+                    isFirst = false;
+                    utils.createPage(tokens[0], bookId, pageName)
+                }
+                else {
+                    socket.disconnect()
+                    expect(data[0].name).to.equal(pageName)
+                    done();
+                }
+            })
+        })
+
+        it("should return a record when a page is updated", done => {
+            const updateName:string = "im different";
+            let isFirst:boolean = true;
+
+            utils.getPages(tokens[0], bookId)
+            .then(pages => pages[0])
+            .then(page => {
+                expect(page.name).not.to.equal(updateName);
+                page.name = updateName;
+
+                const socket = utils.websocketConnect("pages", tokens[0])
+                socket.emit("join", bookId)
+                socket.on("addedOrChanged", (data:IPage[]) => {
+                    if (isFirst) {
+                        isFirst = false;
+                        utils.updatePage(tokens[0], page)
+                    }
+                    else {
+                        socket.disconnect()
+                        expect(data[0].name).to.equal(updateName)
+                        done();
+                    }
+                })
+            })
+        })
     })
 
     describe("removed channel", () => {
-        xit("should return the id of a deleted page", done => {})
+        let bookId:string;
+        
+        before(done => {
+            utils.createBook(tokens[0], "aweaowijecaec")
+            .then(id => bookId = id)
+            .then(() => done())
+        })
+
+        it("should return the id of a deleted page", done => {
+            let pageId:string;
+
+            const socket = utils.websocketConnect("pages", tokens[0])
+            socket.emit("join", bookId)
+            socket.on("removed", (data:string) => {
+                socket.disconnect();
+                expect(data[0]).to.equal(pageId)
+                done();
+            })
+            
+            utils.createPage(tokens[0], bookId, "myPage")
+            .then(id => pageId = id)
+            .then(() => utils.deletePage(tokens[0], pageId))
+        })
     })
 })
