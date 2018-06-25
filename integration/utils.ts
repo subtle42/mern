@@ -3,7 +3,7 @@ import config from "../server/config/environment";
 import axios from "axios";
 import * as jwt from "jsonwebtoken"
 import * as io from "socket.io-client";
-import { IBook, ISource, IPage } from "common/models";
+import { IBook, ISource, IPage, IWidget } from "common/models";
 import * as fs from "fs"
 // Need to keep this to inject chai with http requests
 const chai = require('chai');
@@ -148,5 +148,29 @@ export const updatePage = (token:string, page:IPage):Promise<void> => {
 
 export const deletePage = (token:string, pageId:string):Promise<void> => {
     return axios.delete(`${getBaseUrl()}/api/pages/${pageId}`, setHeader(token))
+    .then(res => res.data as undefined)
+}
+
+export const getWidget = (token:string, widgetId:string):Promise<IWidget> => {
+    return axios.get(`${getBaseUrl()}/api/widgets/${widgetId}`, setHeader(token))
+    .then(res => res.data as IWidget)
+}
+
+export const createWidget = (token:string, pageId:string, sourceId:string, type:string):Promise<string> => {
+    return axios.post(`${getBaseUrl()}/api/widgets`, {
+        pageId,
+        sourceId,
+        type
+    }, setHeader(token))
+    .then(res => res.data as string)
+}
+
+export const updateWidget = (token:string, widget:IWidget):Promise<void> => {
+    return axios.put(`${getBaseUrl()}/api/widgets`, widget, setHeader(token))
+    .then(res => res.data as undefined)
+}
+
+export const deleteWidget = (token:string, widgetId:string):Promise<void> => {
+    return axios.delete(`${getBaseUrl()}/api/widgets/${widgetId}`, setHeader(token))
     .then(res => res.data as undefined)
 }

@@ -99,6 +99,22 @@ class WidgetController {
         .then(Utils.handleResponseNoData(res))
         .catch(Utils.handleError(res));
     }
+
+    get(req:Request, res:Response) {
+        const myId:string = req.params.id;
+
+        Widget.findById(myId)
+        .then(widget => {
+            return Page.findById(widget.pageId)
+            .then(page => {
+                return Book.findById(page.bookId)
+                .then(book => auth.hasViewerAccess(req.user._id, book))
+                .then(() => widget)
+            })
+        })
+        .then(Utils.handleResponse(res))
+        .catch(Utils.handleError(res))
+    }
 }
 
 export const controller = new WidgetController();
