@@ -262,16 +262,6 @@ describe("Page Socket", () => {
             .then(() => done())
         })
 
-        xit("should NOT let you join the namespace if a token is NOT supplied", done => {
-            const socket = utils.websocketConnect("pages", undefined);
-            socket.emit("join", bookId)
-            socket.on("message", data => {
-                socket.disconnect()
-                expect(data.message).to.equal("jwt malformed");
-                done();
-            })
-        })
-
         it("should NOT let you join a room if you do NOT have access to the parent book", done => {
             const socket = utils.websocketConnect("pages", tokens[1]);
             socket.emit("join", bookId)

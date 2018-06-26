@@ -52,6 +52,7 @@ export interface IWidget {
         left:number,
         right:number
     },
+    type:string;
     measures:[{ref:string}];
     dimensions:string[];
 }

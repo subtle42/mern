@@ -50,7 +50,6 @@ export default abstract class BaseSocket {
             this.veryifyToken(socket.handshake.query.token)
             .then(decoded => this.hasViewAccess(decoded, room))
             .then(() => {
-                console.log(`getting room ${room}`)
                 socket.leaveAll();
                 socket.join(room);
                 socket.emit("message", `${this.name.toUpperCase()}, joined room: ${room}`);
