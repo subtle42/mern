@@ -1,7 +1,7 @@
 import {expect} from "chai";
 import * as chai from "chai";
 import "chai-http";
-import { IWidget } from "common/models";
+import { IWidget, IBook } from "common/models";
 import * as utils from "./utils";
 
 
@@ -157,6 +157,13 @@ describe("Widget API", () => {
     })
 
     describe("DELETE /api/widgets", () => {
+        let book:IBook;
+        before(done => {
+            utils.getBook(tokens[0], bookId)
+            .then(data => book = data)
+            .then(() => done())
+        })
+
         it("should return an error if user is NOT logged in", done => {
             chai.request(utils.getBaseUrl())
             .del(`/api/widgets/asdf`)
@@ -174,18 +181,61 @@ describe("Widget API", () => {
         
         it("should return an error if user does NOT have edit access", done => {
             let widgetId:string;
+            expect(book.owner).not.to.equal(userIds[2])
+            expect(book.editors.indexOf(userIds[2])).to.equal(-1)
             
+            utils.createWidget(tokens[0], pageId, sourceId, "chart")
+            .then(id => widgetId = id)
+            .then(() => chai.request(utils.getBaseUrl())
+            .del(`/api/widgets/${widgetId}`)
+            .set("authorization", tokens[2]))
+            .then(res => expect(res.status).not.to.equal(200))
+            .then(() => utils.getWidget(tokens[0], widgetId))
+            .then(data => expect(data._id).to.equal(widgetId))
+            .then(() => done())
+        })
+
+        it("should return a success if the user has owner access", done => {
+            let widgetId:string;
+            expect(book.owner).to.equal(userIds[0])
+
+            utils.createWidget(tokens[0], pageId, sourceId, "chart")
+            .then(id => widgetId = id)
+            .then(() => chai.request(utils.getBaseUrl())
+            .del(`/api/widgets/${widgetId}`)
+            .set("authorization", tokens[0]))
+            .then(res => expect(res.status).to.equal(200))
+            .then(() => utils.getWidget(tokens[0], widgetId))
+            .catch(res => expect(res.status).not.to.equal(200))
+            .then(() => done())
+        })
+
+        it("should return a success if the user has edit access", done => {
+            let widgetId:string;
+            expect(book.editors.indexOf(userIds[1])).not.to.equal(-1)
+
             utils.createWidget(tokens[0], pageId, sourceId, "chart")
             .then(id => widgetId = id)
             .then(() => chai.request(utils.getBaseUrl())
             .del(`/api/widgets/${widgetId}`)
             .set("authorization", tokens[1]))
             .then(res => expect(res.status).to.equal(200))
-            // .then(() => utils.getWidget(tokens[0], widgetId))
-            // .then(res => expect(res.status))
+            .then(() => utils.getWidget(tokens[0], widgetId))
+            .catch(res => expect(res.status).not.to.equal(200))
             .then(() => done())
         })
+    })
+})
 
-        xit("should broadcast on the removed channel", () => {})
+describe("Widget Channel", () => {
+
+    before(done => {
+        utils.cleanDb()
+        .then(() => done())
+    })
+
+    after(done => {
+        utils.cleanDb()
+        .then(() => done())
     })
 })
