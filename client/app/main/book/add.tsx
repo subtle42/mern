@@ -1,6 +1,5 @@
 import * as React from "react";
-import axios from "axios"
-import {FormText, Input, Label, ModalHeader, ModalBody, ModalFooter, Modal, FormGroup, DropdownItem, Button } from "reactstrap";
+import {Input, Label, ModalHeader, ModalBody, ModalFooter, Modal, FormGroup, DropdownItem, Button } from "reactstrap";
 import BookActions from "data/books/actions";
 import store from "data/store"
 
@@ -31,18 +30,17 @@ export default class CreateBookButton extends React.Component<{}, State> {
 
     save = (event:React.FormEvent<any>) => {
         event.stopPropagation();
-        BookActions.create(this.state.bookName)
+        BookActions.create(this.state.bookName.trim())
         .then(bookId => store.getState().books.list.filter(book => book._id === bookId)[0])
         .then(newBook => BookActions.select(newBook))
         .then(() => this.toggle())
     }
 
     handleChange = (event:React.FormEvent<any>) => {
-        const target:any = event.target
-        const value:string = target.value.trim();
+        const target:any = event.target;
         this.setState({
-            [target.name]: target.value,
-            validationState: this.getValidationState(value)
+            bookName: target.value,
+            validationState: this.getValidationState(target.value)
         });
     }
 

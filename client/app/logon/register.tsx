@@ -7,9 +7,9 @@ var store:any;
 var actions:any;
 
 class State {
-    email:string = "";
-    password:string = "";
-    userName:string = "";
+    email?:string = "";
+    password?:string = "";
+    userName?:string = "";
     emailErr?:myStyle
     passwordErr?:myStyle
     userNameErr?:myStyle
@@ -23,20 +23,18 @@ export default class LoginPage extends React.Component<{}, State> {
 
     createUser = () => {
         AuthActions.create({
-            email: this.state.email,
+            email: this.state.email.trim(),
             password: this.state.password,
-            name: this.state.userName
+            name: this.state.userName.trim()
         })
         .then(() => this.setState(new State()));
     }
 
     handleChange = (event:React.FormEvent<any>) => {
         const target:any = event.target
-        const value:string = target.value.trim();
         this.setState({
             [target.name]: target.value
         });
-        this.getValidationState();
     }
 
     getValidationState = ():void => {

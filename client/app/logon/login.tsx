@@ -6,11 +6,11 @@ import AuthActions from "data/auth/actions";
 
 
 class State {
-    email:string = "";
-    password:string = "";
+    email?:string = "";
+    password?:string = "";
     validationState?: myStyle;
-    err:string;
-    loginSuccess:boolean = false;
+    err?:string;
+    loginSuccess?:boolean = false;
 }
 
 
@@ -21,8 +21,7 @@ export default class LoginPage extends React.Component<{}, State> {
 
 
     handleChange = (event:React.FormEvent<any>) => {
-        const target:any = event.target
-        const value:string = target.value.trim();
+        const target:any = event.target;
         this.setState({
             [target.name]: target.value
         });

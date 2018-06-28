@@ -31,7 +31,7 @@ export const USERS:FakeUser[] = [{
 }]
 
 export const cleanDb = ():Promise<void> => {
-    const collections = ["User", "Book", "Page", "Widget", "Source"];
+    const collections = ["users", "books", "pages", "widgets", "sources"];
     return Promise.all(collections.map(name => removeDbRecords(name)))
     .then(() => removeDataDb())
 }

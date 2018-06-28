@@ -7,8 +7,8 @@ import * as FontAwesome from "react-fontawesome";
 var actions:any;
 
 class State {
-    pageName:string = "";
-    showModal:boolean = false;
+    pageName?:string = "";
+    showModal?:boolean = false;
     validationState?: myStyle = undefined;
 }
 
@@ -24,7 +24,7 @@ export class CreatePageButton extends React.Component<Props, State> {
 
     close = (event) => {
         event.stopPropagation();
-        pageActions.create(this.state.pageName)
+        pageActions.create(this.state.pageName.trim())
         .then(pageId => {
             this.setState(new State())
             return pageActions.mySelect(pageId)
@@ -41,11 +41,10 @@ export class CreatePageButton extends React.Component<Props, State> {
     }
 
     handleChange = (event:React.FormEvent<any>) => {
-        const target:any = event.target
-        const value:string = target.value.trim();
+        const target:any = event.target;
         this.setState({
             [target.name]: target.value,
-            validationState: this.getValidationState(value)
+            validationState: this.getValidationState(target.value)
         });
     }
 
