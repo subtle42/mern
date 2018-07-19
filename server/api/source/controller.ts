@@ -1,13 +1,12 @@
 import {Source} from "./model";
 import {SourceSocket} from "./socket";
 import {MongoClient, AggregationCursor} from "mongodb";
-import {Request, Response, NextFunction} from "express";
+import {Request, Response} from "express";
 import {createReadStream, unlink} from "fs";
 import {ISourceColumn, ColumnType, IQuery, ISource} from "common/models";
 import {ISourceModel} from "../../dbModels";
 import * as auth from "../../auth/auth.service"
 import config from "../../config/environment"
-import * as myProm from "bluebird";
 import Util from "../utils";
 const csv = require("fast-csv");
 
@@ -125,7 +124,7 @@ class SourceController {
     }
 
     private buildSourceObject(req:Request, headers:string[], columnTypes:ColumnType[], location:string, rowCount:number):Promise<ISourceModel> {
-        return new Promise((resolve, reject) => {
+        // return new Promise((resolve, reject) => {
             var myColumns:ISourceColumn[] = [];
 
             columnTypes.forEach((type, index) => {
@@ -145,10 +144,11 @@ class SourceController {
                 owner: req.user._id
             });
 
-            mySource.validate()
-            .then(pass => resolve(mySource))
-            .catch(err => reject(err));
-        });
+            return mySource.validate()
+            .then(() => mySource)
+            // .then(pass => resolve(mySource))
+            // .catch(err => reject(err));
+        // });
     }
 
     update(req:Request, res:Response):void {

@@ -2,9 +2,8 @@ import {Book} from "./model";
 import Page from "../page/model"
 import {Widget} from "../widget/model"
 import {BookSocket} from "./socket";
-import {Request, Response, NextFunction} from "express";
+import {Request, Response} from "express";
 import Util from "../utils";
-import { IBookModel } from "../../dbModels";
 import * as auth from "../../auth/auth.service"
 
 export default class BookController {
@@ -70,7 +69,7 @@ export default class BookController {
             return auth.hasOwnerAccess(req.user._id, book)
             .then(() => Page.find({bookId:myId}))
             .then(pages => Promise.all(pages.map(p => Widget.remove({pageId:p._id}).exec())))
-            .then(() => Page.remove({bookId:myId}))
+            .then(() => Page.remove({bookId:myId}).exec())
             .then(() => book.remove())
             .then(() => BookSocket.onDelete(book))
         })

@@ -16,7 +16,7 @@ class State {
 
 type myStyle = "success" | "warning" | "error";
 
-export default class LoginPage extends React.Component<{}, State> {
+export default class LoginPage extends React.Component<any, State> {
     state:State = new State();
 
 

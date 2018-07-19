@@ -1,4 +1,4 @@
-import {Request, Response, NextFunction} from "express";
+import {Request, Response} from "express";
 import Page from "./model";
 import {Book} from "../book/model"
 import Util from "../utils";
@@ -19,7 +19,7 @@ export default class PageController {
         });
 
         myPage.validate()
-        .then(() => Book.findById(myPage.bookId))
+        .then(() => Book.findById(myPage.bookId).exec())
         .then(book => auth.hasEditAccess(req.user._id, book))
         .then(() => Page.create(myPage))
         .then(page => {
@@ -41,11 +41,11 @@ export default class PageController {
         delete req.body._id;
 
         myPage.validate()
-        .then(() => Page.findById(myId))
+        .then(() => Page.findById(myId).exec())
         .then(page => {
-            return Book.findById(page.bookId)
+            return Book.findById(page.bookId).exec()
             .then(book => auth.hasEditAccess(req.user._id, book))
-            .then(() => Page.findByIdAndUpdate(myId, myPage))
+            .then(() => Page.findByIdAndUpdate(myId, myPage).exec())
         })
         .then(() => pageSocket.onAddOrChange(myPage))
         .then(Util.handleResponseNoData(res))
@@ -62,11 +62,11 @@ export default class PageController {
 
         Page.findById(myId)
         .then(page => {
-            return Book.findById(page.bookId)
+            return Book.findById(page.bookId).exec()
             .then(book => auth.hasEditAccess(req.user._id, book))
             .then(() => Widget.remove({
                 pageId:myId
-            }))
+            }).exec())
             .then(() => page.remove())
             .then(() => pageSocket.onDelete(page))
         })
@@ -76,9 +76,9 @@ export default class PageController {
 
     public static getPages(req:Request, res:Response):void {
         const bookId:string = req.params.id;
-        Book.findById(bookId)
+        Book.findById(bookId).exec()
         .then(book => auth.hasViewerAccess(req.user._id, book))
-        .then(() => Page.find({bookId}))
+        .then(() => Page.find({bookId}).exec())
         .then(Util.handleResponse(res))
         .catch(Util.handleError(res));
     }

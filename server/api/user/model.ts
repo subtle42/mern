@@ -110,37 +110,28 @@ UserSchema.methods = {
     },
     makeSalt(byteSize?:number):Promise<string> {
         return new Promise((resolve, reject) => {
-            var defaultByteSize = 16;
-            if (!byteSize) {
-                byteSize = defaultByteSize;
-            }
+            byteSize = byteSize || 16;
 
             crypto.randomBytes(byteSize,  (err, salt) => {
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(salt.toString('base64'));
-                }
+                if(err) return reject(err);
+                resolve(salt.toString('base64'));
             });
         })
     },
     encryptPassword(password:string):Promise<string> {
         return new Promise((resolve, reject) => {
             if(!password || !this.salt) {
-                reject("Missing password or salt");
+                return reject("Missing password or salt");
             }
             
-            var defaultIterations = 10000;
-            var defaultKeyLength = 64;
-            var salt = new Buffer(this.salt, 'base64');
-            var digest = "sha512"
+            const defaultIterations = 10000;
+            const defaultKeyLength = 64;
+            const salt = new Buffer(this.salt, 'base64');
+            const digest = "sha512"
 
             crypto.pbkdf2(password, salt, defaultIterations, defaultKeyLength, digest, (err, key) => {
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(key.toString('base64'));
-                }
+                if(err) return reject(err);
+                resolve(key.toString('base64'));
             });
         });
     }

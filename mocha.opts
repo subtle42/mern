@@ -1,4 +1,4 @@
---require ts-node/register
+--require ts-node/register -r tsconfig-paths/register
 --recursive
---watch-extensions ts
+--watch-extensions ts|tsx
 --timeout 2000
