@@ -14,7 +14,10 @@
     "coverage": "nyc --all run-s coverage:*",
     "coverage:client": "mocha --opts ./mocha.opts 'client/**/*.spec.*'",
     "coverage:server": "mocha --opts ./mocha.opts 'server/**/*.spec.*'",
-    "docs": "typedoc --exclude '**/*.spec.*' --out ./docs ./client/data ./server ./common"
+    "docs": "typedoc --exclude '**/*.spec.*' --out ./docs ./client/data ./server ./common",
+    "build": "run-p build:*",
+    "build:client": "webpack --mode=production",
+    "!build:server": "tsc ./server/app.ts"
   },
   "author": "",
   "license": "ISC",

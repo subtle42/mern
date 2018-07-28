@@ -1,0 +1,8 @@
+language: typescript
+
+typescript: 2.9.2
+
+install: make
+
+script:
+  - make test
