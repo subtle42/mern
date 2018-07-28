@@ -2,7 +2,7 @@ import "mocha";
 import {expect} from "chai";
 import {spy, SinonSpy, stub, SinonStub} from "sinon";
 import * as jwt from "jsonwebtoken";
-import auth from "./auth";
+import {socketAuth as auth} from "./auth";
 import config from "../../config/environment";
 
 

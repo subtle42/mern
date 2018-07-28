@@ -4,7 +4,7 @@ import * as http from "http";
 import * as io from "socket.io";
 import * as mongoose from "mongoose";
 import * as passport from "passport";
-import socketAuth from "./auth/socket/auth";
+import {socketAuth} from "./auth/socket/auth";
 
 var MONGO_URI = "mongodb://localhost/merntest";
 

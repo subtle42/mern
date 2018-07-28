@@ -1,6 +1,7 @@
 import * as React from "react";
 import axios from "axios"
 import {Form, Col, Label, Input, Button, FormGroup, NavItem} from "reactstrap";
+import {Redirect} from "react-router-dom";
 import AuthActions from "data/auth/actions";
 
 var store:any;
@@ -10,9 +11,10 @@ class State {
     email?:string = "";
     password?:string = "";
     userName?:string = "";
-    emailErr?:myStyle
-    passwordErr?:myStyle
-    userNameErr?:myStyle
+    emailErr?:myStyle;
+    passwordErr?:myStyle;
+    userNameErr?:myStyle;
+    registerSuccess?:boolean;
 }
 
 
@@ -27,7 +29,7 @@ export default class LoginPage extends React.Component<{}, State> {
             password: this.state.password,
             name: this.state.userName.trim()
         })
-        .then(() => this.setState(new State()));
+        .then(() => this.setState({registerSuccess: true}));
     }
 
     handleChange = (event:React.FormEvent<any>) => {
@@ -59,6 +61,9 @@ export default class LoginPage extends React.Component<{}, State> {
     }
 
     render() {
+        if (this.state.registerSuccess) {
+            return <Redirect to="/login" />;
+        }
         return (
             <Form>
                 <FormGroup><Col xs={{size:6, offset:3}}>
