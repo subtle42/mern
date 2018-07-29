@@ -12,7 +12,7 @@ var MONGO_URI = "mongodb://localhost/merntest";
     // useMongoClient: true
 });
 (<any>mongoose).Promise = global.Promise;
-let mongooseConnection = mongoose.connection.on("error", () => {
+mongoose.connection.on("error", () => {
     console.error("MongoDB connection error!");
     process.exit(-1);
 });
@@ -31,14 +31,18 @@ myIO.on("connection", socket => {
 
 app.use(body.json());
 app.use(passport.initialize());
-
 require("./routes").default(app);
 
-server.listen(3333);
+// Used for integration testing, to not start server multiple times
+if (global.isFirst === undefined) {
+    global.isFirst = true;
+}
+if (global.isFirst === true) {
+    server.listen(3333);
+    global.isFirst = false;
+}
 
 export let App = {
-    mongoose,
-    mongooseConnection,
     express: app,
     http: server
 };

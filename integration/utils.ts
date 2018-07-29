@@ -45,8 +45,6 @@ interface mySetup {
 }
 
 export const testSetup = ():Promise<mySetup> => {
-    // App.http.close();
-    // App.http.listen(3333);
     let setup: mySetup = {
         tokens: [],
         userIds: [],

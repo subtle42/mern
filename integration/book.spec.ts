@@ -209,24 +209,6 @@ describe("Book API", () => {
             .then(book => expect(book).not.to.be.undefined)
             .then(() => done())
         })
-
-        it("should broadcast the id of the deleted item", done => {
-            expect(books.length).to.be.greaterThan(0);
-            let myBookID = books[0]._id;
-            expect(removed.indexOf(myBookID)).to.equal(-1);
-
-            utils.createBook(tokens[0], "testinglkwe")
-            .then(secondBookId => {
-                return chai.request(server)
-                .del(`/api/books/${myBookID}`)
-                .set("Authorization", tokens[0])
-            })
-            .then(res => {
-                expect(res.status).to.equal(200);
-                expect(removed.indexOf(myBookID)).not.to.equal(-1);
-            })
-            .then(() => done())
-        })
     })
 })
 

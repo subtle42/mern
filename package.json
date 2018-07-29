@@ -9,7 +9,7 @@
     "test": "run-p 'test:* -- --watch'",
     "test:client": "mocha --opts ./mocha.opts 'client/**/*.spec.*'",
     "test:server": "mocha --opts ./mocha.opts 'server/**/*.spec.*'",
-    "integration": "mocha --opts ./mocha.opts 'integration/**/*.spec.*' --exit",
+    "integration": "mocha --opts ./mocha.opts 'integration/**/*.spec.*' --watch",
     "e2e": "wdio",
     "coverage": "nyc --all run-s 'build:test:*'",
     "docs": "typedoc --exclude '**/*.spec.*' --out ./docs ./client/data ./server ./common",
