@@ -3,27 +3,17 @@ import * as chai from "chai";
 import "chai-http";
 import * as utils from "./utils"
 import { IPage, IBook } from "common/models";
-import { App } from "../server/app"
 
-xdescribe("Page API", () => {
-    const userName = "test",
-        email = "test@test.com",
-        password = "asdf";
+describe("Page API", () => {
     let bookId:string,
         tokens:string[],
-        userIds:string[];
+        userIds:string[],
+        server:Express.Application;
 
     before(done => {
-        utils.cleanDb()
-        .then(() => Promise.all([
-            utils.createUserAndLogin(utils.USERS[0]),
-            utils.createUserAndLogin(utils.USERS[1]),
-            utils.createUserAndLogin(utils.USERS[2])
-        ]))
-        .then(myTokens => tokens = myTokens)
-        .then(tokens => Promise.all(tokens.map(t => utils.decodeToken(t))))
-        .then(decoded => userIds = decoded.map(x => x._id))
-        .then(() => utils.createBook(App.express, tokens[0], "myBook"))
+        utils.testSetup()
+        .then(setup =>({userIds, tokens, server} = setup))
+        .then(() => utils.createBook(tokens[0], "myBook"))
         .then(id => bookId = id)
         .then(() => done())
     })
@@ -44,7 +34,7 @@ xdescribe("Page API", () => {
         it("should return an error if the user does not have edit access", done => {
             expect(myBook.editors.indexOf(userIds[1])).to.equal(-1)
 
-            chai.request(utils.getBaseUrl())
+            chai.request(server)
             .post("/api/pages")
             .set("authorization", tokens[1])
             .send({
@@ -56,7 +46,7 @@ xdescribe("Page API", () => {
         })
 
         it("should return a success if user has owner access to the book", done => {
-            chai.request(utils.getBaseUrl())
+            chai.request(server)
             .post("/api/pages")
             .set("authorization", tokens[0])
             .send({
@@ -70,7 +60,7 @@ xdescribe("Page API", () => {
         it("should return a success if user has edit access", done => {
             myBook.editors.push(userIds[1])
             utils.updateBook(tokens[0], myBook)
-            .then(() => chai.request(utils.getBaseUrl())
+            .then(() => chai.request(server)
             .post("/api/pages")
             .set("authorization", tokens[0])
             .send({
@@ -82,7 +72,7 @@ xdescribe("Page API", () => {
         })
 
         it("should return an error if user is NOT logged in", done => {
-            chai.request(utils.getBaseUrl())
+            chai.request(server)
             .post("/api/pages")
             .send({
                 name: "afwehjlkw",
@@ -106,7 +96,7 @@ xdescribe("Page API", () => {
         })
 
         it("should return an error if user is NOT logged in", done => {
-            chai.request(utils.getBaseUrl())
+            chai.request(server)
             .put("/api/pages")
             .send({})
             .then(res => expect(res.status).to.equal(401))
@@ -118,7 +108,7 @@ xdescribe("Page API", () => {
             expect(myBook._id).to.equal(myPage.bookId)
             expect(myBook.owner).to.equal(userIds[0])
 
-            chai.request(utils.getBaseUrl())
+            chai.request(server)
             .put("/api/pages")
             .set("authorization", tokens[0])
             .send(myPage)
@@ -134,7 +124,7 @@ xdescribe("Page API", () => {
             .then(decoded => myBook.editors.push(decoded._id))
             .then(() => utils.updateBook(tokens[0], myBook))
             .then(() => {
-                return chai.request(utils.getBaseUrl())
+                return chai.request(server)
                 .put("/api/pages")
                 .set("authorization", tokens[1])
                 .send(myPage)
@@ -147,7 +137,7 @@ xdescribe("Page API", () => {
             let myPage:IPage = myPages[0];
             expect(myPage).not.to.be.undefined;
 
-            chai.request(utils.getBaseUrl())
+            chai.request(server)
             .put("/api/pages")
             .set("authorization", tokens[2])
             .send(myPage)
@@ -161,7 +151,7 @@ xdescribe("Page API", () => {
             expect(myPage).not.to.be.undefined;
             myPage.name = {badData: "awekfjwef"};
 
-            chai.request(utils.getBaseUrl())
+            chai.request(server)
             .put("/api/pages")
             .set("authorization", tokens[0])
             .send(myPage)
@@ -183,7 +173,7 @@ xdescribe("Page API", () => {
         })
 
         it("should return a failure if user is not logged in", done => {
-            chai.request(utils.getBaseUrl())
+            chai.request(server)
             .del("/api/pages/myID")
             .then(res => expect(res.status).to.equal(401))
             .then(() => done())
@@ -192,7 +182,7 @@ xdescribe("Page API", () => {
         it("should return an error if page does NOT exist", done => {
             expect(myBook.owner).to.equal(userIds[0])
 
-            chai.request(utils.getBaseUrl())
+            chai.request(server)
             .del("/api/pages/badId")
             .set("authorization", tokens[0])
             .then(res => expect(res.status).not.to.equal(200))
@@ -202,7 +192,7 @@ xdescribe("Page API", () => {
         it("should return a success if the user is the owner of the parent book", done => {
             utils.createPage(tokens[0], bookId, "to remove")
             .then(pageId => {
-                return chai.request(utils.getBaseUrl())
+                return chai.request(server)
                 .del(`/api/pages/${pageId}`)
                 .set("authorization", tokens[0])
                 .then(res => expect(res.status).to.equal(200))
@@ -217,7 +207,7 @@ xdescribe("Page API", () => {
             
             utils.createPage(tokens[0], bookId, "editor remove")
             .then(pageId => {
-                return chai.request(utils.getBaseUrl())
+                return chai.request(server)
                 .del(`/api/pages/${pageId}`)
                 .set("authorization", tokens[1])
                 .then(res => expect(res.status).to.equal(200))
@@ -229,17 +219,14 @@ xdescribe("Page API", () => {
     })
 })
 
-xdescribe("Page Socket", () => {
+describe("Page Socket", () => {
     let bookId:string,
         tokens:string[],
         userIds:string[];
 
     before(done => {
-        utils.cleanDb()
-        .then(() => Promise.all(utils.USERS.map(user => utils.createUserAndLogin(user))))
-        .then(createdUsers => tokens = createdUsers)
-        .then(() => Promise.all(tokens.map(token => utils.decodeToken(token))))
-        .then(decoded => userIds = decoded.map(item => item._id))
+        utils.testSetup()
+        .then(setup =>({userIds, tokens} = setup))
         .then(() => done())
     })
 
@@ -252,7 +239,7 @@ xdescribe("Page Socket", () => {
         let bookId:string,
             book:IBook;
         before(done => {
-            utils.createBook(App.express, tokens[0], "authbook")
+            utils.createBook(tokens[0], "authbook")
             .then(id => bookId = id)
             .then(() => done())
         })
@@ -344,7 +331,7 @@ xdescribe("Page Socket", () => {
         let bookId:string;
 
         before(done => {
-            utils.createBook(App.express, tokens[0], "kwuheiwnecuiawe")
+            utils.createBook(tokens[0], "kwuheiwnecuiawe")
             .then(id => bookId = id)
             .then(() => done())
         })
@@ -411,7 +398,7 @@ xdescribe("Page Socket", () => {
         let bookId:string;
         
         before(done => {
-            utils.createBook(App.express, tokens[0], "aweaowijecaec")
+            utils.createBook(tokens[0], "aweaowijecaec")
             .then(id => bookId = id)
             .then(() => done())
         })

@@ -5,12 +5,12 @@ import * as jwt from "jsonwebtoken"
 import * as io from "socket.io-client";
 import { IBook, ISource, IPage, IWidget } from "common/models";
 import * as fs from "fs"
+import {App} from "../server/app"
+
 // Need to keep this to inject chai with http requests
-import * as chai from "chai";
-import "chai-http";
-const chaiImport = require('chai');
+const chai = require('chai');
 const chaiHttp = require('chai-http');
-chaiImport.use(chaiHttp);
+chai.use(chaiHttp);
 
 interface FakeUser {
     email:string;
@@ -36,6 +36,28 @@ export const cleanDb = ():Promise<void> => {
     const collections = ["users", "books", "pages", "widgets", "sources"];
     return Promise.all(collections.map(name => removeDbRecords(name)))
     .then(() => removeDataDb())
+}
+
+interface mySetup {
+    tokens: string[];
+    userIds: string[];
+    server: Express.Application
+}
+
+export const testSetup = ():Promise<mySetup> => {
+    // App.http.close();
+    // App.http.listen(3333);
+    let setup: mySetup = {
+        tokens: [],
+        userIds: [],
+        server: App.express
+    };
+    return cleanDb()
+    .then(() => createAllUsers())
+    .then(tokens => setup.tokens = tokens)
+    .then(tokens => getUserIdFromToken(tokens))
+    .then(ids => setup.userIds = ids)
+    .then(() => setup);
 }
 
 const removeDataDb = ():Promise<void> => {
@@ -80,6 +102,15 @@ export const createUserAndLogin = (user:FakeUser):Promise<string> => {
     .then(res => res.data.token as string)
 }
 
+export const createAllUsers = () => {
+    return Promise.all(USERS.map(user => createUserAndLogin(user)))
+}
+
+export const getUserIdFromToken = (tokens:string[]) => {
+    return Promise.all(tokens.map(token => decodeToken(token)))
+    .then(decoded => decoded.map(item => item._id));
+}
+
 export const decodeToken = (token:string):Promise<any> => {
     return new Promise ((resolve, reject) => {
         jwt.verify(token, config.shared.secret, (err, decoded:any) => {
@@ -89,12 +120,9 @@ export const decodeToken = (token:string):Promise<any> => {
     })
 }
 
-export const createBook = (app:Express.Application, token:string, name:string):Promise<string> => {
-    return chai.request(app)
-    .post("/api/books")
-    .set("Authorization", token)
-    .send({name})
-    .then(res => res.body as string);
+export const createBook = (token:string, name:string):Promise<string> => {
+    return axios.post(`${getBaseUrl()}/api/books`, {name}, setHeader(token))
+    .then(res => res.data as string);
 }
 
 export const updateBook = (token:string, item:IBook):Promise<void> => {

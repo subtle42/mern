@@ -5,20 +5,14 @@ import { ISource } from "common/models";
 import * as utils from "./utils";
 import * as fs from "fs"
 
-xdescribe("Source API", () => {
+describe("Source API", () => {
     let tokens:string[] =[],
-        userIds:string[] = [];
-    const baseUrl = utils.getBaseUrl();
+        userIds:string[] = [],
+        server:Express.Application;
 
     before(done => {
-        utils.cleanDb()
-        .then(() => Promise.all([
-            utils.createUserAndLogin(utils.USERS[0]),
-            utils.createUserAndLogin(utils.USERS[1])
-        ]))
-        .then(users => tokens = users)
-        .then(() => Promise.all(tokens.map(token => utils.decodeToken(token))))
-        .then(decodedTokens => userIds = decodedTokens.map(decoded => decoded._id))
+        utils.testSetup()
+        .then(setup => ({userIds, tokens, server} = setup))
         .then(() => done())
     })
 
@@ -29,7 +23,7 @@ xdescribe("Source API", () => {
 
     describe("POST /api/sources", () => {
         it("should return an error if user is NOT logged in", done => {
-            chai.request(`${baseUrl}`)
+            chai.request(server)
             .post("/api/sources")
             .send({})
             .then(res => expect(res.status).not.to.equal(200))
@@ -37,7 +31,7 @@ xdescribe("Source API", () => {
         })
 
         it("should return a string", done => {
-            chai.request(`${baseUrl}`)
+            chai.request(server)
             .post("/api/sources")
             .set("Authorization", tokens[0])
             .attach("file", fs.readFileSync("./integration/data/2012_SAT_RESULTS.csv"), "2012_SAT_RESULTS.csv")
@@ -64,7 +58,7 @@ xdescribe("Source API", () => {
         })
 
         it("should return an error if user is NOT logged in", done => {
-            chai.request(baseUrl)
+            chai.request(server)
             .put("/api/sources")
             .send({})
             .then(res => expect(res.status).to.equal(401))
@@ -75,7 +69,7 @@ xdescribe("Source API", () => {
             expect(mySource).not.to.be.undefined;
             mySource = {...mySource, title: "changed"}
 
-            chai.request(baseUrl)
+            chai.request(server)
             .put("/api/sources")
             .set("authorization", tokens[1])
             .send(mySource)
@@ -90,7 +84,7 @@ xdescribe("Source API", () => {
             expect(mySource.owner).to.equal(userIds[0])
             mySource = {...mySource, title: "updated"}
 
-            chai.request(baseUrl)
+            chai.request(server)
             .put("/api/sources")
             .set("authorization", tokens[0])
             .send(mySource)
@@ -106,13 +100,13 @@ xdescribe("Source API", () => {
             mySource = {...mySource};
             mySource.editors.push(userIds[1])
 
-            chai.request(baseUrl)
+            chai.request(server)
             .put("/api/sources")
             .set("authorization", tokens[0])
             .send(mySource)
             .then(res => expect(res.status).to.equal(200))
             .then(() => mySource.title = "new Updated")
-            .then(() => chai.request(baseUrl)
+            .then(() => chai.request(server)
             .put("/api/sources")
             .set("authorization", tokens[1])
             .send(mySource)
@@ -124,7 +118,7 @@ xdescribe("Source API", () => {
             expect(mySource).not.to.be.undefined;
             let tmp:any = mySource;
             tmp.size = [];
-            chai.request(baseUrl)
+            chai.request(server)
             .put("/api/sources")
             .set("authorization", tokens[0])
             .send(tmp)
@@ -139,7 +133,7 @@ xdescribe("Source API", () => {
             mySource = {...mySource};
             mySource.owner = userIds[1];
 
-            chai.request(baseUrl)
+            chai.request(server)
             .put("/api/sources")
             .set("authorization", tokens[1])
             .send(mySource)
@@ -152,7 +146,7 @@ xdescribe("Source API", () => {
             mySource = {...mySource};
             mySource.owner = userIds[1];
 
-            chai.request(baseUrl)
+            chai.request(server)
             .put("/api/sources")
             .set("authorization", tokens[0])
             .send(mySource)
@@ -179,7 +173,7 @@ xdescribe("Source API", () => {
         })
 
         it("should return an error if user is NOT logged in", done => {
-            chai.request(baseUrl)
+            chai.request(server)
             .del(`/api/sources/${sourceId}`)
             .then(res => expect(res.status).to.equal(401))
             .then(() => expect(removedIds.indexOf(sourceId)).to.equal(-1))
@@ -187,7 +181,7 @@ xdescribe("Source API", () => {
         })
 
         it("should return an error if record does NOT exist", done => {
-            chai.request(baseUrl)
+            chai.request(server)
             .del(`/api/sources/ERROR`)
             .set("authorization", tokens[0])
             .then(res => expect(res.status).not.to.equal(200))
@@ -196,7 +190,7 @@ xdescribe("Source API", () => {
         })
 
         it("should return an error if a user other than owner tries to delete", done => {
-            chai.request(baseUrl)
+            chai.request(server)
             .del(`/api/sources/${sourceId}`)
             .set("authorization", tokens[1])
             .then(res => expect(res.status).not.to.equal(200))
@@ -205,7 +199,7 @@ xdescribe("Source API", () => {
         })
 
         it("should return a success if source exists and user is owner", done => {
-            chai.request(baseUrl)
+            chai.request(server)
             .del(`/api/sources/${sourceId}`)
             .set("authorization", tokens[0])
             .then(res => expect(res.status).to.equal(200))
@@ -216,20 +210,20 @@ xdescribe("Source API", () => {
 
     describe("POST /api/sources/query", () => {
         it("should return an error if user is NOT logged in", done => {
-            chai.request(`${baseUrl}`)
+            chai.request(server)
             .post("/api/sources/query")
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => done())
         })
 
         it("should return records", done => {
-            chai.request(baseUrl)
+            chai.request(server)
             .post("/api/sources")
             .set("Authorization", tokens[0])
             .attach("file", fs.readFileSync("./integration/data/2012_SAT_RESULTS.csv"), "2012_SAT_RESULTS.csv")
             .then(res => {
                 expect(res.status).to.equal(200);
-                return chai.request(`${baseUrl}`)
+                return chai.request(server)
                 .post("/api/sources/query")
                 .set("Authorization", tokens[0])
                 .send({
