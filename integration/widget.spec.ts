@@ -3,6 +3,7 @@ import * as chai from "chai";
 import "chai-http";
 import { IWidget, IBook } from "common/models";
 import * as utils from "./utils";
+import {App} from "../server/app";
 
 
 xdescribe("Widget API", () => {
@@ -17,7 +18,7 @@ xdescribe("Widget API", () => {
         .then(newTokens => tokens = newTokens)
         .then(tokens => Promise.all(tokens.map(token => utils.decodeToken(token))))
         .then(decoded => userIds = decoded.map(x => x._id))
-        .then(() => utils.createBook(tokens[0], "top book"))
+        .then(() => utils.createBook(App.express, tokens[0], "top book"))
         .then(id => bookId = id)
         .then(() => utils.createPage(tokens[0], bookId, "top page"))
         .then(id => pageId = id)
@@ -240,7 +241,7 @@ xdescribe("Widget Channel", () => {
         .then(newTokens => tokens = newTokens)
         .then(tokens => Promise.all(tokens.map(token => utils.decodeToken(token))))
         .then(decoded => userIds = decoded.map(x => x._id))
-        .then(() => utils.createBook(tokens[0], "top book"))
+        .then(() => utils.createBook(App.express, tokens[0], "top book"))
         .then(id => bookId = id)
         .then(() => utils.createPage(tokens[0], bookId, "top page"))
         .then(id => pageId = id)

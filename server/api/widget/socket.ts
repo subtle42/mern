@@ -3,7 +3,7 @@ import {Widget} from "./model";
 import {Schema, Document} from "mongoose";
 import BaseSocket from "../../sockets/sockets";
 import {Book} from "../book/model"
-import Page from "../page/model"
+import {Page} from "../page/model"
 
 class WidgetSocket extends BaseSocket {
     constructor() {

@@ -1,5 +1,5 @@
 import {IPageModel} from "../../dbModels";
-import Page from "./model";
+import {Page} from "./model";
 import {Book} from "../book/model"
 import {Schema, Document} from "mongoose";
 import BaseSocket from "../../sockets/sockets";

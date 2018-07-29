@@ -3,6 +3,7 @@ import * as chai from "chai";
 import "chai-http";
 import * as utils from "./utils"
 import { IPage, IBook } from "common/models";
+import { App } from "../server/app"
 
 xdescribe("Page API", () => {
     const userName = "test",
@@ -22,7 +23,7 @@ xdescribe("Page API", () => {
         .then(myTokens => tokens = myTokens)
         .then(tokens => Promise.all(tokens.map(t => utils.decodeToken(t))))
         .then(decoded => userIds = decoded.map(x => x._id))
-        .then(() => utils.createBook(tokens[0], "myBook"))
+        .then(() => utils.createBook(App.express, tokens[0], "myBook"))
         .then(id => bookId = id)
         .then(() => done())
     })
@@ -251,7 +252,7 @@ xdescribe("Page Socket", () => {
         let bookId:string,
             book:IBook;
         before(done => {
-            utils.createBook(tokens[0], "authbook")
+            utils.createBook(App.express, tokens[0], "authbook")
             .then(id => bookId = id)
             .then(() => done())
         })
@@ -343,7 +344,7 @@ xdescribe("Page Socket", () => {
         let bookId:string;
 
         before(done => {
-            utils.createBook(tokens[0], "kwuheiwnecuiawe")
+            utils.createBook(App.express, tokens[0], "kwuheiwnecuiawe")
             .then(id => bookId = id)
             .then(() => done())
         })
@@ -410,7 +411,7 @@ xdescribe("Page Socket", () => {
         let bookId:string;
         
         before(done => {
-            utils.createBook(tokens[0], "aweaowijecaec")
+            utils.createBook(App.express, tokens[0], "aweaowijecaec")
             .then(id => bookId = id)
             .then(() => done())
         })

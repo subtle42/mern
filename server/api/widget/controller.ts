@@ -1,7 +1,7 @@
 import {Request, Response, NextFunction} from "express";
 import {Widget} from "./model";
 import Utils from "../utils";
-import Page from "../page/model";
+import {Page} from "../page/model";
 import {Book} from "../book/model"
 import {Source} from "../source/model"
 import {pageSocket} from "../page/socket"

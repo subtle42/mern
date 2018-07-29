@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import Page from "./model";
+import {Page} from "./model";
 import {Book} from "../book/model"
 import Util from "../utils";
 import {pageSocket} from "./socket";
