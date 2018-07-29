@@ -21,5 +21,7 @@ jobs:
   include:
     - stage Build
     - script: npm run build:code
-    - stage Tests
-    - script: npm run coverage
+    - stage Unit Tests
+    - script: npm run build:test:unit
+    - stage Integration Tests
+    - script: npm run build:test:integration
