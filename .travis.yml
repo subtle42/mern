@@ -1,8 +1,13 @@
-language: typescript
+language: node_js
 
-typescript: 2.9.2
+node_js: "node"
 
-install: make
+before_install:
+  - npm i -g npm
+
+install:
+  - npm install
 
 script:
-  - make test
+  - npm run build
+  - npm run testbuild

@@ -1,0 +1,14 @@
+{
+    "extends": "../tsconfig",
+    "compilerOptions": {
+        "target": "es6",
+        "outDir": ".dist",
+        "sourceMap": false
+    },
+    "exclude": [
+        "node_modules"
+    ],
+    "include": [
+        "./**/*"
+    ]
+}

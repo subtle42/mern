@@ -14,7 +14,8 @@
         "paths":{
             "data/*": ["./client/data/*"],
             "common/*": ["./common/*"]
-        }
+        },
+        "outDir": "./.out"
     },
     "include": [
         "./server/**/*.ts",

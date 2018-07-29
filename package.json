@@ -6,9 +6,10 @@
     "start": "run-p dev:*",
     "dev:client": "webpack --watch --mode=development",
     "dev:server": "nodemon --inspect=5858 ./server/app.ts",
-    "test": "run-p test:*",
-    "test:client": "mocha --opts ./mocha.opts 'client/**/*.spec.*' --watch",
-    "test:server": "mocha --opts ./mocha.opts 'server/**/*.spec.*' --watch",
+    "test": "run-p 'test:* -- --watch'",
+    "testbuild": "run-s 'test:*'",
+    "test:client": "mocha --opts ./mocha.opts 'client/**/*.spec.*'",
+    "test:server": "mocha --opts ./mocha.opts 'server/**/*.spec.*'",
     "integration": "mocha --opts ./mocha.opts 'integration/**/*.spec.*' --watch",
     "e2e": "wdio",
     "coverage": "nyc --all run-s coverage:*",
@@ -17,7 +18,7 @@
     "docs": "typedoc --exclude '**/*.spec.*' --out ./docs ./client/data ./server ./common",
     "build": "run-p build:*",
     "build:client": "webpack --mode=production",
-    "!build:server": "tsc ./server/app.ts"
+    "build:server": "tsc -p server"
   },
   "author": "",
   "license": "ISC",

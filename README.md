@@ -1,3 +1,5 @@
+![Build Status](https://travis-ci.com/subtle42/mern.svg?branch=master)
+
 # MERN (Mongo Express React Nodejs)
 This is a personal project to try and create a fullstack appliation using only Typescript. Its main purpose is to investigate and create best practices around scalable code. I am doing this because when a code base reaches a certain size there is complexity explosion. My hope is to create a component pattern that is easily repeatable and leaves enough flexibility to handle most cases.
 
