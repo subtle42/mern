@@ -2,12 +2,19 @@ language: node_js
 
 node_js: "node"
 
+services:
+  - mongodb
+
 before_install:
   - npm i -g npm
 
 install:
   - npm install
 
+before_script:
+  - sleep 15
+
 script:
   - npm run build
   - npm run testbuild
+  - run run test:integration
