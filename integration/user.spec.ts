@@ -8,7 +8,7 @@ import { IUser } from "common/models";
 
 
 
-describe("User API", () => {
+xdescribe("User API", () => {
     const userName = "test";
     const email = "test@test.com";
     const password = "testPass";

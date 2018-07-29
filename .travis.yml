@@ -2,6 +2,10 @@ language: node_js
 
 node_js: "node"
 
+cache:
+  directories:
+    - "node_modules"
+
 services:
   - mongodb
 
@@ -11,7 +15,11 @@ before_install:
 install:
   - npm install
 
-script:
-  - npm run build
-  - npm run testbuild
-  - npm run test:integration
+jobs:
+  include:
+    - stage Build
+    script: npm run build:code
+    - stage Unit Tests
+    script: npm run build:test:unit
+    - stage Integration Tests
+    script: npm run build:test:integration

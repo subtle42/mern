@@ -1,4 +1,4 @@
-import User from "./model";
+import {User} from "./model";
 import {Response, NextFunction} from "express";
 import * as jwt from "jsonwebtoken";
 import config from "../../config/environment";

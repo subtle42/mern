@@ -12,12 +12,12 @@ var MONGO_URI = "mongodb://localhost/merntest";
     // useMongoClient: true
 });
 (<any>mongoose).Promise = global.Promise;
-mongoose.connection.on("error", () => {
+let mongooseConnection = mongoose.connection.on("error", () => {
     console.error("MongoDB connection error!");
     process.exit(-1);
 });
 
-var app = express();
+const app = express();
 var server = http.createServer(app);
 
 declare var global:any;
@@ -36,4 +36,9 @@ require("./routes").default(app);
 
 server.listen(3333);
 
-module.exports = app
+export let App = {
+    mongoose,
+    mongooseConnection,
+    express: app,
+    http: server
+};

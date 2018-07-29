@@ -1,5 +1,5 @@
 import * as express from "express";
-import User from "../api/user/model";
+import {User} from "../api/user/model";
 import local from "./local/passport";
 
 local.setup(User);

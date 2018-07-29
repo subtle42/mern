@@ -4,7 +4,7 @@ import "chai-http";
 import * as utils from "./utils"
 import { IPage, IBook } from "common/models";
 
-describe("Page API", () => {
+xdescribe("Page API", () => {
     const userName = "test",
         email = "test@test.com",
         password = "asdf";
@@ -228,7 +228,7 @@ describe("Page API", () => {
     })
 })
 
-describe("Page Socket", () => {
+xdescribe("Page Socket", () => {
     let bookId:string,
         tokens:string[],
         userIds:string[];

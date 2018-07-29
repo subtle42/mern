@@ -1,5 +1,6 @@
-import {Schema, model} from "mongoose";
+import {Schema, Model} from "mongoose";
 import {IWidgetModel} from "../../dbModels";
+import Utils from "../utils";
 
 var WidgetSchema = new Schema({
     pageId: {type: String, required:true},
@@ -15,4 +16,4 @@ var WidgetSchema = new Schema({
     type: {type:String, required:true}
 });
 
-export const Widget =  model<IWidgetModel>("Widget", WidgetSchema);
+export const Widget:Model<IWidgetModel> = Utils.createSchema("Widget", WidgetSchema);

@@ -6,9 +6,11 @@ import * as io from "socket.io-client";
 import { IBook, ISource, IPage, IWidget } from "common/models";
 import * as fs from "fs"
 // Need to keep this to inject chai with http requests
-const chai = require('chai');
+import * as chai from "chai";
+import "chai-http";
+const chaiImport = require('chai');
 const chaiHttp = require('chai-http');
-chai.use(chaiHttp);
+chaiImport.use(chaiHttp);
 
 interface FakeUser {
     email:string;
@@ -87,9 +89,12 @@ export const decodeToken = (token:string):Promise<any> => {
     })
 }
 
-export const createBook = (token:string, name:string):Promise<string> => {
-    return axios.post(`${getBaseUrl()}/api/books`, {name}, setHeader(token))
-    .then(res => res.data as string);
+export const createBook = (app:Express.Application, token:string, name:string):Promise<string> => {
+    return chai.request(app)
+    .post("/api/books")
+    .set("Authorization", token)
+    .send({name})
+    .then(res => res.body as string);
 }
 
 export const updateBook = (token:string, item:IBook):Promise<void> => {

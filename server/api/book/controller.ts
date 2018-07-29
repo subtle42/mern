@@ -1,5 +1,5 @@
 import {Book} from "./model";
-import Page from "../page/model"
+import {Page} from "../page/model"
 import {Widget} from "../widget/model"
 import {BookSocket} from "./socket";
 import {Request, Response} from "express";
@@ -63,6 +63,7 @@ export default class BookController {
      */
     public static remove(req:Request, res:Response):void {
         var myId:string = req.params.id;
+        console.log("myid", myId)
 
         Book.findById(myId).exec()
         .then(book => {

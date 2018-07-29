@@ -5,7 +5,7 @@ import { ISource } from "common/models";
 import * as utils from "./utils";
 import * as fs from "fs"
 
-describe("Source API", () => {
+xdescribe("Source API", () => {
     let tokens:string[] =[],
         userIds:string[] = [];
     const baseUrl = utils.getBaseUrl();

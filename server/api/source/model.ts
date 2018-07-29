@@ -1,5 +1,6 @@
-import {Schema, model} from "mongoose";
+import {Schema, Model} from "mongoose";
 import {ISourceModel} from "../../dbModels";
+import Utils from "../utils";
 
 var SourceSchema = new Schema({
     title: {type:String, required:true},
@@ -13,4 +14,4 @@ var SourceSchema = new Schema({
     isPublic: {type:Boolean, default: false}
 });
 
-export const Source = model<ISourceModel>('Source', SourceSchema);
+export const Source:Model<ISourceModel> = Utils.createSchema('Source', SourceSchema);

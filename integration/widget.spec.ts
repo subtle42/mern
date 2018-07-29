@@ -5,7 +5,7 @@ import { IWidget, IBook } from "common/models";
 import * as utils from "./utils";
 
 
-describe("Widget API", () => {
+xdescribe("Widget API", () => {
     let tokens:string[],
         userIds:string[],
         bookId:string,
@@ -227,7 +227,7 @@ describe("Widget API", () => {
     })
 })
 
-describe("Widget Channel", () => {
+xdescribe("Widget Channel", () => {
     let bookId:string,
         tokens:string[],
         userIds:string[],

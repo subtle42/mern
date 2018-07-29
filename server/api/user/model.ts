@@ -2,6 +2,7 @@ import * as crypto from "crypto";
 import * as mongoose from 'mongoose';
 import {IUserModel} from "../../dbModels";
 import * as Promise from "bluebird";
+import Utils from "../utils";
 
 
 const authTypes = ['github', 'twitter', 'facebook', 'google'];
@@ -137,5 +138,5 @@ UserSchema.methods = {
     }
 };
 
-
-export default mongoose.model<IUserModel>('User', UserSchema);
+// Helps with integration testing
+export const User:mongoose.Model<IUserModel> = Utils.createSchema('User', UserSchema);
