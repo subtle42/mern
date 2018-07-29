@@ -20,8 +20,8 @@ script: echo "Running tests against $(node -v) ..."
 jobs:
   include:
     - stage Build
-    script: npm run build:code
+      script: npm run build:code
     - stage Unit Tests
-    script: npm run build:test:unit
+      script: npm run build:test:unit
     - stage Integration Tests
-    script: npm run build:test:integration
+      script: npm run build:test:integration
