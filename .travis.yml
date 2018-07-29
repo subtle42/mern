@@ -11,10 +11,7 @@ before_install:
 install:
   - npm install
 
-before_script:
-  - sleep 15
-
 script:
   - npm run build
   - npm run testbuild
-  - run run test:integration
+  - npm run test:integration
