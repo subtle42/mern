@@ -6,6 +6,7 @@ import * as io from "socket.io-client";
 import { IBook, ISource, IPage, IWidget } from "common/models";
 import * as fs from "fs"
 import {App} from "../server/app"
+import * as path from "path";
 
 // Need to keep this to inject chai with http requests
 const chai = require('chai');
@@ -139,11 +140,20 @@ export const createPage = (token:string, bookId:string, name:string):Promise<str
     .then(res => res.data as string)
 }
 
+const readFile = (path:string):Promise<Buffer> => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(path, (err, data) => {
+            if (err) return reject(err);
+            resolve(data);
+        });
+    })
+}
+
 export const createSource = (token:string, filePath:string):Promise<string> => {
     return chai.request(getBaseUrl())
     .post("/api/sources")
     .set("authorization", token)
-    .attach("file", fs.readFileSync(filePath), "myFile.csv")
+    .attach("file", path.resolve(__dirname, filePath), "myFile.csv")
     .then(res => res.body as string)
 }
 
