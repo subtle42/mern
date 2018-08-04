@@ -1,83 +1,82 @@
-import * as React from "react";
-import {Input, Label, ModalHeader, ModalBody, ModalFooter, Modal, FormGroup, DropdownItem, Button } from "reactstrap";
-import BookActions from "data/books/actions";
-import store from "data/store"
+import * as React from 'react'
+import { Input, Label, ModalHeader, ModalBody, ModalFooter, Modal, FormGroup, DropdownItem, Button } from 'reactstrap'
+import BookActions from 'data/books/actions'
+import store from 'data/store'
 
 class State {
-    showModal:boolean = false;
-    bookName:string = "";
-    validationState?: myStyle = undefined;
+    showModal: boolean = false
+    bookName: string = ''
+    validationState?: myStyle = undefined
 }
 
-type myStyle = "success" | "warning" | "error";
+type myStyle = 'success' | 'warning' | 'error'
 
 export default class CreateBookButton extends React.Component<{}, State> {
-    state:State = new State();
+    state: State = new State()
 
     close = () => {
         BookActions.create(this.state.bookName)
-        .then(book => this.setState(new State()));
+        .then(book => this.setState(new State()))
     }
 
     toggle = () => {
-        this.setState({showModal:!this.state.showModal});
-    }
-    
-    cancel = (event:React.FormEvent<any>) => {
-        event.stopPropagation();
-        this.setState(new State());
+        this.setState({ showModal: !this.state.showModal })
     }
 
-    save = (event:React.FormEvent<any>) => {
-        event.stopPropagation();
+    cancel = (event: React.FormEvent<any>) => {
+        event.stopPropagation()
+        this.setState(new State())
+    }
+
+    save = (event: React.FormEvent<any>) => {
+        event.stopPropagation()
         BookActions.create(this.state.bookName.trim())
         .then(bookId => store.getState().books.list.filter(book => book._id === bookId)[0])
         .then(newBook => BookActions.select(newBook))
         .then(() => this.toggle())
     }
 
-    handleChange = (event:React.FormEvent<any>) => {
-        const target:any = event.target;
+    handleChange = (event: React.FormEvent<any>) => {
+        const target: any = event.target
         this.setState({
             bookName: target.value,
             validationState: this.getValidationState(target.value)
-        });
+        })
     }
 
-    getValidationState = (input:string):myStyle => {
-        if (input.length < 3) return "error";
+    getValidationState = (input: string): myStyle => {
+        if (input.length < 3) return 'error'
     }
 
-    render() {
+    render () {
         return (
             <DropdownItem onClick={this.toggle}>
                 Add Book
-                <Modal size="sm" isOpen={this.state.showModal}>
+                <Modal size='sm' isOpen={this.state.showModal}>
                     <ModalHeader>Create Book</ModalHeader>
                     <ModalBody>
                         <FormGroup>
                             <Label>Name:</Label>
-                            <Input 
-                                type="text"
+                            <Input
+                                type='text'
                                 value={this.state.bookName}
-                                name="bookName"
-                                placeholder="Enter Name"
+                                name='bookName'
+                                placeholder='Enter Name'
                                 onChange={this.handleChange}
                             />
                             {/* {!this.state.validationState || <FormText>Name must be at least 3 characters.</FormText>} */}
-                            
+
                         </FormGroup>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="primary"
-                            disabled={!!this.state.validationState || this.state.bookName.length === 0} 
+                        <Button color='primary'
+                            disabled={!!this.state.validationState || this.state.bookName.length === 0}
                             onClick={this.save}
                         >Create</Button>
-                        <Button color="secondary" onClick={this.cancel}>Cancel</Button>
+                        <Button color='secondary' onClick={this.cancel}>Cancel</Button>
                     </ModalFooter>
                 </Modal>
             </DropdownItem>
-        );
+        )
     }
 }
-

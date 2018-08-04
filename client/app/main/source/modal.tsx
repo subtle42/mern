@@ -1,74 +1,72 @@
-import * as React from "react";
-import { Modal } from "reactstrap";
-import widgetActions from "data/widgets/actions";
-import { ISource } from 'common/models';
-import {ChartType} from "common/constants";
-import {EditSourceContent} from "./edit";
-import {SelectSourceContent} from "./select"
-import {SelectWidget} from '../widget/select';
-import * as FontAwesome from "react-fontawesome";
-import "./style.css";
-
+import * as React from 'react'
+import { Modal } from 'reactstrap'
+import widgetActions from 'data/widgets/actions'
+import { ISource } from 'common/models'
+import { ChartType } from 'common/constants'
+import { EditSourceContent } from './edit'
+import { SelectSourceContent } from './select'
+import { SelectWidget } from '../widget/select'
+import * as FontAwesome from 'react-fontawesome'
+import './style.css'
 
 class State {
-    showModal: boolean = false;
-    confirmedSource: ISource = undefined;
-    showSourceSelect: boolean = true;
-    editSource: ISource = undefined;
+    showModal: boolean = false
+    confirmedSource: ISource = undefined
+    showSourceSelect: boolean = true
+    editSource: ISource = undefined
 }
 
 interface Props { }
 
 export class SourceCreateButton extends React.Component<Props, State> {
-    state: State = new State();
+    state: State = new State()
 
-    close = (chartType:string) => {
+    close = (chartType: string) => {
         widgetActions.create({
             source: this.state.confirmedSource,
             type: chartType
         })
         .then(widgetId => {
-            let resetState = new State();
-            this.setState(resetState);
-        });
+            let resetState = new State()
+            this.setState(resetState)
+        })
     }
 
     open = () => {
         this.setState({
             showModal: true
-        });
+        })
     }
 
     cancel = (event?) => {
-        if (event) event.stopPropagation();
-        let resetState = new State();
-        this.setState(resetState);
+        if (event) event.stopPropagation()
+        let resetState = new State()
+        this.setState(resetState)
     }
 
-
-    editSource = (source:ISource):void => {
+    editSource = (source: ISource): void => {
         this.setState({
-            editSource:source
+            editSource: source
         })
     }
 
-    setSource = (source:ISource) => {
+    setSource = (source: ISource) => {
         this.setState({
-            confirmedSource:source
+            confirmedSource: source
         })
     }
 
-    getModalContents():JSX.Element {
+    getModalContents (): JSX.Element {
         if (this.state.editSource) {
             return <EditSourceContent
             _id={this.state.editSource._id}
             done={() => this.editSource(undefined)} />
         }
-        
+
         if (this.state.confirmedSource) {
             return <SelectWidget back={() => this.setSource(undefined)}
             cancel={() => this.cancel()}
-            done={(chartType:string) => this.close(chartType)} />
+            done={(chartType: string) => this.close(chartType)} />
         }
 
         if (!this.state.confirmedSource) {
@@ -80,14 +78,14 @@ export class SourceCreateButton extends React.Component<Props, State> {
         return <div/>
     }
 
-    render() {
-        return (<div className="fixed-plugin-left" onClick={this.open}>
+    render () {
+        return (<div className='fixed-plugin-left' onClick={this.open}>
             <div>
-                <FontAwesome style={{ paddingTop: 6 }} size="2x" name="plus" />
-                <Modal size="lg" isOpen={this.state.showModal}>
+                <FontAwesome style={{ paddingTop: 6 }} size='2x' name='plus' />
+                <Modal size='lg' isOpen={this.state.showModal}>
                     {this.getModalContents()}
                 </Modal>
             </div>
-        </div>);
+        </div>)
     }
-};
+}

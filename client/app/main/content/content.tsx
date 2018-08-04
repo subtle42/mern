@@ -1,29 +1,28 @@
-import * as React from "react";
-import {Nav, NavItem, Button, NavLink} from "reactstrap";
-import {CreatePageButton} from "../page/create"
-import {DeletePageButton} from "../page/delete";
-import {connect} from "react-redux"
-import pageActions from "data/pages/actions";
-import {IPage} from "common/models";
-import {PageConfigButton} from "../page/config";
-import {SourceCreateButton} from "../source/modal";
-import {Widget} from "../widget/widget";
-import {PageContent} from "../page/content"
-
+import * as React from 'react'
+import { Nav, NavItem, Button, NavLink } from 'reactstrap'
+import { CreatePageButton } from '../page/create'
+import { DeletePageButton } from '../page/delete'
+import { connect } from 'react-redux'
+import pageActions from 'data/pages/actions'
+import { IPage } from 'common/models'
+import { PageConfigButton } from '../page/config'
+import { SourceCreateButton } from '../source/modal'
+import { Widget } from '../widget/widget'
+import { PageContent } from '../page/content'
 
 interface Props {
-    pages:IPage[],
-    selected:IPage
+    pages: IPage[],
+    selected: IPage
 }
 
-const Content:React.StatelessComponent<Props> = (props:Props) => {
-    const isSelected = (page:IPage):boolean => {
-        if (!props.selected) return false;
-        return props.selected._id === page._id;
+const Content: React.StatelessComponent<Props> = (props: Props) => {
+    const isSelected = (page: IPage): boolean => {
+        if (!props.selected) return false
+        return props.selected._id === page._id
     }
 
-    const buildTabs = ():JSX.Element[] => {
-        if (!props.pages) return [];
+    const buildTabs = (): JSX.Element[] => {
+        if (!props.pages) return []
 
         return props.pages.map((page, index) => {
             return <NavItem key={index}
@@ -33,7 +32,7 @@ const Content:React.StatelessComponent<Props> = (props:Props) => {
                     <DeletePageButton pageName={page.name} _id={page._id} />
                 </NavLink>
             </NavItem>
-        });
+        })
     }
 
     return (
@@ -47,10 +46,10 @@ const Content:React.StatelessComponent<Props> = (props:Props) => {
         <PageContent />
         {/* <Widget  /> */}
         </div>
-    );
+    )
 }
 
-export const MainConent = connect((store:any) => {
+export const MainConent = connect((store: any) => {
     return {
         pages: store.pages.list,
         selected: store.pages.selected

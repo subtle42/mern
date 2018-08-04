@@ -45,7 +45,7 @@ describe("Source API", () => {
             mySource:ISource;
 
         before(done => {
-            utils.createSource(tokens[0], "data/2012_SAT_RESULTS.csv")
+            utils.createSource(tokens[0], "./integration/data/2012_SAT_RESULTS.csv")
             .then(newId => sourceId = newId)
             .then(() => done())
         })
@@ -167,7 +167,7 @@ describe("Source API", () => {
                 removedIds = removedIds.concat(ids);
             });
 
-            utils.createSource(tokens[0], "data/2012_SAT_RESULTS.csv")
+            utils.createSource(tokens[0], "./integration/data/2012_SAT_RESULTS.csv")
             .then(newSourceId => sourceId = newSourceId)
             .then(() => done())
         })

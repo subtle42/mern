@@ -150,12 +150,10 @@ const readFile = (path:string):Promise<Buffer> => {
 }
 
 export const createSource = (token:string, filePath:string):Promise<string> => {
-    console.log(fs.readdirSync(path.resolve(__dirname, "data")))
-    
     return chai.request(getBaseUrl())
     .post("/api/sources")
     .set("authorization", token)
-    .attach("file", path.resolve(__dirname, filePath), "myFile.csv")
+    .attach("file", filePath, "myFile.csv")
     .then(res => res.body as string)
 }
 

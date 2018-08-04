@@ -9,7 +9,7 @@ import {socketAuth} from "./auth/socket/auth";
 var MONGO_URI = "mongodb://localhost/merntest";
 
 (<any>mongoose).connect(MONGO_URI, {
-    // useMongoClient: true
+    // useNewUrlParser: true
 });
 (<any>mongoose).Promise = global.Promise;
 mongoose.connection.on("error", () => {

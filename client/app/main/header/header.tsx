@@ -1,10 +1,10 @@
-import * as React from "react";
+import * as React from 'react'
 // import {Navbar, Nav, NavItem, NavDropdown, MenuItem} from "react-bootstrap";
-import {Link} from 'react-router-dom'
-import authActions from "data/auth/actions";
-import bookActions from "data/books/actions";
-import {connect, Dispatch} from "react-redux";
-import {IBook} from "common/models";
+import { Link } from 'react-router-dom'
+import authActions from 'data/auth/actions'
+import bookActions from 'data/books/actions'
+import { connect, Dispatch } from 'react-redux'
+import { IBook } from 'common/models'
 import {
     Collapse,
     Navbar,
@@ -16,61 +16,60 @@ import {
     UncontrolledDropdown,
     DropdownToggle,
     DropdownMenu,
-    DropdownItem, Dropdown } from 'reactstrap';
-
+    DropdownItem, Dropdown } from 'reactstrap'
 
 interface NavProps {
-    login:()=>void,
-    books:IBook[]
+    login: () => void,
+    books: IBook[]
 }
 
-const NavComp:React.StatelessComponent<NavProps> = (props:NavProps) => {
+const NavComp: React.StatelessComponent<NavProps> = (props: NavProps) => {
 
     return (
         <Navbar>
             <NavbarBrand> WhIM </NavbarBrand>
-            
+
             <Nav>
-                <NavItem onClick={()=>props.login()}>
-                    <Link to="/login"> Connect</Link>
+                <NavItem onClick={() => props.login()}>
+                    <Link to='/login'> Connect</Link>
                 </NavItem>
-                <Dropdown id="bookDropDown">
+                <Dropdown id='bookDropDown'>
                 <DropdownToggle nav caret> Books </DropdownToggle>
                 {props.books.map((book, index) => {
                     return (<DropdownItem key={index}
                     onClick={() => bookActions.select(book)}>
                         {book.name}
-                    </DropdownItem>);
+                    </DropdownItem>)
                 })}
                 </Dropdown>
             </Nav>
         </Navbar>
-    );
+    )
 }
 
-export default connect((store:any) => {
+export default connect((store: any) => {
     return {
         books: store.books.list
     }
-}, (dispatch:Dispatch<any>) => {
+}, (dispatch: Dispatch<any>) => {
     return {
-        login: () => {}//authActions.login("", "")
-    };
+        login: () => undefined// authActions.login("", "")
+    }
 })(NavComp)
 
 export class MainNavbar extends React.Component<{}, {}> {
-    render() {
+    render () {
         return <Navbar>
             <NavbarBrand> WhIM </NavbarBrand>
             <Nav>
                 <NavItem >
-                    <NavLink href="#"> Link </NavLink> 
+                    <NavLink href='#'> Link </NavLink>
                 </NavItem>
             </Nav>
         </Navbar>
     }
 
-    test():boolean {
-        return true;
+    test (): boolean {
+        return true
     }
 }
