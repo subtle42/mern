@@ -1,35 +1,35 @@
-import {IPageModel} from "../../dbModels";
-import {Page} from "./model";
-import {Book} from "../book/model"
-import {Schema, Document} from "mongoose";
-import BaseSocket from "../../sockets/sockets";
+import { IPageModel } from '../../dbModels'
+import { Page } from './model'
+import { Book } from '../book/model'
+import { Schema, Document } from 'mongoose'
+import BaseSocket from '../../sockets/sockets'
 
 class PageSocket extends BaseSocket {
-    constructor() {
-        super("pages");
+    constructor () {
+        super('pages')
     }
 
-    getParentId(model:IPageModel) {
+    getParentId (model: IPageModel) {
         return model.bookId
     }
 
-    getInitialState(bookId:string) {
+    getInitialState (bookId: string) {
         return Page.find({
             bookId
-        }).exec();
+        }).exec()
     }
 
-    getSharedModel(bookId:string) {
+    getSharedModel (bookId: string) {
         return Book.findById(bookId).exec()
     }
 
-    onAddOrChange(model:IPageModel) {
-        this._onAddOrChange(this.getParentId(model), [model]);
+    onAddOrChange (model: IPageModel) {
+        this._onAddOrChange(this.getParentId(model), [model])
     }
 
-    onDelete(model:IPageModel) {
-        this._onDelete(this.getParentId(model), [model._id]);
+    onDelete (model: IPageModel) {
+        this._onDelete(this.getParentId(model), [model._id])
     }
-};
+}
 
-export const pageSocket = new PageSocket();
+export const pageSocket = new PageSocket()

@@ -1,12 +1,12 @@
-import {Router} from "express";
-import {controller} from "./controller";
-import * as auth from "../../auth/auth.service";
+import { Router } from 'express'
+import { controller } from './controller'
+import * as auth from '../../auth/auth.service'
 
-var router = Router();
+let router = Router()
 
-router.post("/", auth.isAuthenticated, (req, res) => controller.create(req, res));
-router.delete("/:id", auth.isAuthenticated, controller.remove);
-router.put("/", auth.isAuthenticated, controller.update);
-router.get("/:id", auth.isAuthenticated, controller.get)
+router.post('/', auth.isAuthenticated, (req, res) => controller.create(req, res))
+router.delete('/:id', auth.isAuthenticated, controller.remove)
+router.put('/', auth.isAuthenticated, controller.update)
+router.get('/:id', auth.isAuthenticated, controller.get)
 
-module.exports = router;
+module.exports = router

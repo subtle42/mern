@@ -1,9 +1,9 @@
-import "mocha";
-import {stub, spy, SinonStub} from "sinon"
-import {expect, assert, should} from "chai"
-import {Model} from "mongoose";
+import 'mocha'
+import { stub, spy, SinonStub } from 'sinon'
+import { expect, assert, should } from 'chai'
+import { Model } from 'mongoose'
 
-declare var global;
+declare var global
 const mySocket = {
     on: spy(),
     leaveAll: spy(),
@@ -11,16 +11,16 @@ const mySocket = {
     emit: spy(),
     handshake: {
         query: {
-            token: "test"
+            token: 'test'
         }
     }
 }
 
-const emitSpy = spy();
+const emitSpy = spy()
 
 const ofResponse = {
     on: stub().callsFake((myStr, cb) => {
-        cb(mySocket);
+        cb(mySocket)
     }),
     in: stub().returns({
         emit: emitSpy
@@ -31,100 +31,100 @@ global.myIO = {
     of: stub().returns(ofResponse)
 }
 
-import {AclSocket} from "./aclSocket"
-import { Promise } from "bluebird";
-import * as jwt from "jsonwebtoken";
-import { ISharedModel } from "../dbModels";
-import { Socket } from "dgram";
-import { timeout } from "d3";
+import { AclSocket } from './aclSocket'
+import { Promise } from 'bluebird'
+import * as jwt from 'jsonwebtoken'
+import { ISharedModel } from '../dbModels'
+import { Socket } from 'dgram'
+import { timeout } from 'd3'
 
-describe("AclSocket Base class", () => {
-    let tmpClass:AclSocket;
-    let verify:SinonStub;
+describe('AclSocket Base class', () => {
+    let tmpClass: AclSocket
+    let verify: SinonStub
 
     beforeEach(() => {
-        verify = stub(jwt, "verify").callsFake((token, secret, cb) => {
+        verify = stub(jwt, 'verify').callsFake((token, secret, cb) => {
             cb(undefined, {
-                _id: "daniel"
+                _id: 'daniel'
             })
         })
-    });
+    })
 
     afterEach(() => {
         Object.keys(mySocket).forEach(key => {
-            if (key === "handshake") return;
+            if (key === 'handshake') return
             mySocket[key].resetHistory()
         })
-        verify.restore();
+        verify.restore()
         Object.keys(ofResponse).forEach(key => ofResponse[key].resetHistory())
-        emitSpy.resetHistory();
+        emitSpy.resetHistory()
     })
 
-    describe("constructor", () => {
-        let modelMock:any;
+    describe('constructor', () => {
+        let modelMock: any
         beforeEach(() => {
-            modelMock =  {
+            modelMock = {
                 find: stub().returns({
                     exec: () => new Promise(r => r({}))
                 })
             }
         })
 
-        it("should create a namespace base on first input", () => {
-            let name = "asdfasdf";
-            let tmp = new AclSocket("asdf", modelMock);
+        it('should create a namespace base on first input', () => {
+            let name = 'asdfasdf'
+            let tmp = new AclSocket('asdf', modelMock)
             expect(global.myIO.of.calledWith(name))
         })
 
-        it("should call jwt.verify", () => {
-            expect(verify.callCount).equals(0);
-            let tmp = new AclSocket("asdf", modelMock);
+        it('should call jwt.verify', () => {
+            expect(verify.callCount).equals(0)
+            let tmp = new AclSocket('asdf', modelMock)
             expect(verify.callCount).to.equal(1)
         })
 
-        it("should call socket.join if auth token can be decoded", done => {
+        it('should call socket.join if auth token can be decoded', done => {
             expect(mySocket.join.callCount).equal(0)
-            let tmp = new AclSocket("asdf", modelMock);
+            let tmp = new AclSocket('asdf', modelMock)
             timeout(() => {
                 expect(mySocket.join.callCount).equal(1)
                 done()
             })
         })
 
-        it("should NOT call socket.join if auth token cannot be decoded", done => {
-            verify.resetBehavior();
+        it('should NOT call socket.join if auth token cannot be decoded', done => {
+            verify.resetBehavior()
             verify.callsFake((token, secret, cb) => {
-                cb("hello", null)
+                cb('hello', null)
             })
-            
+
             expect(mySocket.join.callCount).equals(0)
-            let tmp = new AclSocket("asdf", modelMock);
+            let tmp = new AclSocket('asdf', modelMock)
             timeout(() => {
                 expect(mySocket.join.callCount).equals(0)
-                done();
-            })
-        })
-
-        it("should emit the error if auth token cannot be decoded", done => {
-            const myErr = "wafjwjef"
-            
-            verify.resetBehavior();
-            verify.callsFake((token, secret, cb) => {
-                cb(myErr, null)
-            })
-            expect(mySocket.emit.callCount).equals(0);
-            let tmp = new AclSocket("asdf", modelMock);
-            timeout(() => {
-                expect(mySocket.emit.calledWith("error", myErr))
                 done()
             })
         })
-    });
 
-    describe("onAddOrChange", () => {})
+        it('should emit the error if auth token cannot be decoded', done => {
+            const myErr = 'wafjwjef'
 
-    describe("onDelete", () => {
-        it("should call emit on 'removed' channel if model is public", () => {})
-        it("should call emit 'removed' for each user in the ACL if model is NOT public", () => {})
+            verify.resetBehavior()
+            verify.callsFake((token, secret, cb) => {
+                cb(myErr, null)
+            })
+            expect(mySocket.emit.callCount).equals(0)
+            let tmp = new AclSocket('asdf', modelMock)
+            timeout(() => {
+                expect(mySocket.emit.calledWith('error', myErr))
+                done()
+            })
+        })
     })
-});
+
+    describe('onAddOrChange', () => undefined)
+
+    describe('onDelete', () => {
+        it("should call emit on 'removed' channel if model is public", () => undefined)
+        it("should call emit 'removed' for each user in the ACL if model is NOT public", () => undefined)
+    })
+})
