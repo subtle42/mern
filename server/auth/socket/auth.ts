@@ -1,4 +1,3 @@
-import * as io from 'socket.io'
 import * as jwt from 'jsonwebtoken'
 import config from '../../config/environment'
 

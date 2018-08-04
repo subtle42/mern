@@ -1,5 +1,4 @@
 import { createStore, applyMiddleware, combineReducers, Store } from 'redux'
-import thunk from 'redux-thunk'
 import * as promiseMiddleware from 'redux-promise'
 
 import books from './books/reducer'

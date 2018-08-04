@@ -1,6 +1,5 @@
 import * as React from 'react'
-import axios from 'axios'
-import { Form, Col, Label, Input, Button, FormText, FormGroup, NavItem } from 'reactstrap'
+import { Form, Col, Input, Button, FormGroup } from 'reactstrap'
 import { Redirect } from 'react-router-dom'
 import AuthActions from 'data/auth/actions'
 

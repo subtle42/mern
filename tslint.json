@@ -1,9 +1,8 @@
 {
     "extends": "tslint-config-standard",
-    "tslint.enable": true,
-    "tslint.autoFixOnSave ": true,
     "rules": {
         "indent": [true, "spaces"],
-        "ter-indent": [true, 4]
+        "ter-indent": [true, 4],
+        "no-floating-promises": false
     }
   }

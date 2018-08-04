@@ -1,17 +1,16 @@
-import * as React from "react";
-import {InputGroup, Button, Modal, Input, Label, Row, Col, ListGroup, ListGroupItem, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Form, FormGroup, ModalHeader, ModalBody, ModalFooter, InputGroupAddon} from "reactstrap"
-import store from "../../../data/store";
-import {ISource, ISourceColumn, ColumnType} from "common/models"
-import * as FontAwesome from "react-fontawesome";
-import sourceActions from "data/sources/actions"
+import * as React from 'react'
+import { InputGroup, Button, Input, Label, Row, Col, ListGroup, ListGroupItem, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Form, FormGroup, ModalHeader, ModalBody, ModalFooter, InputGroupAddon } from 'reactstrap'
+import store from '../../../data/store'
+import { ISource, ISourceColumn, ColumnType } from 'common/models'
+import * as FontAwesome from 'react-fontawesome'
+import sourceActions from 'data/sources/actions'
 
-
-interface dropOption {
+interface DropOption {
     label: string
     value: ColumnType
 }
 
-const dropDownOptions: dropOption[] = [{
+const dropDownOptions: DropOption[] = [{
     label: 'Number',
     value: 'number'
 }, {

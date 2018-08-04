@@ -1,5 +1,4 @@
-import * as React from "react"
-import {IWidget} from "common/models";
+import * as React from 'react'
 import * as d3 from 'd3'
 import store from 'data/store'
 import './style.css'
@@ -11,53 +10,6 @@ interface Props {
 class State {
     height: number = 0
     width: number = 0
-}
-
-export class Histogram extends React.Component<{}, State> {
-    node
-
-    componentDidMount () {
-        setTimeout(() => this.drawChart(), 0)
-    }
-
-    // componentDidUpdate() {
-    //     this.setState({
-    //         width: this.node.parentElement.offsetWidth,
-    //         height: this.node.parentElement.offsetHeight - 100
-    //     })
-    // }
-
-    drawChart () {
-        // const data = d3.range(1000).map(d3.randomBates(10));
-        // const formatCount = d3.format(",.0f");
-        // let svg = d3.select(this.node);
-
-        // console.log("offsetHeight", this.node.height);
-        // let margin = {top:10, right:10, left:10, bottom:10};
-        // let width = (svg.attr("width") as any ) - margin.left - margin.right,
-        this.setState({
-            width: this.node.parentElement.offsetWidth,
-            height: this.node.parentElement.offsetHeight - 100
-        })
-    }
-
-    render () {
-        return <svg ref={node => this.node = node} style={{ height: '100%', width: '100%' }}>
-            {this.node && <Test _id='dan' {...this.state} node={this.node} />}
-        </svg>
-    }
-}
-
-interface TestProps {
-    height: number
-    width: number
-    _id: string
-    node: any
-}
-
-class TestState {
-    height: number
-    width: number
 }
 
 export class Test extends React.Component<TestProps, {}> {
@@ -108,8 +60,8 @@ export class Test extends React.Component<TestProps, {}> {
         this.svg.select('g').remove()
 
         let margin = { top: 10, right: 10, left: 10, bottom: 10 }
-        let width = this.props.width - margin.left - margin.right,
-            height = this.props.height - margin.top - margin.bottom
+        let width = this.props.width - margin.left - margin.right
+        let height = this.props.height - margin.top - margin.bottom
         this.focus = this.svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`)
 
         this.xScale = d3.scaleLinear()
@@ -153,3 +105,50 @@ export class Test extends React.Component<TestProps, {}> {
         return <div/>
     }
 }
+
+export class Histogram extends React.Component<Props, State> {
+    node
+
+    componentDidMount () {
+        setTimeout(() => this.drawChart(), 0)
+    }
+
+    // componentDidUpdate() {
+    //     this.setState({
+    //         width: this.node.parentElement.offsetWidth,
+    //         height: this.node.parentElement.offsetHeight - 100
+    //     })
+    // }
+
+    drawChart () {
+        // const data = d3.range(1000).map(d3.randomBates(10));
+        // const formatCount = d3.format(",.0f");
+        // let svg = d3.select(this.node);
+
+        // console.log("offsetHeight", this.node.height);
+        // let margin = {top:10, right:10, left:10, bottom:10};
+        // let width = (svg.attr("width") as any ) - margin.left - margin.right,
+        this.setState({
+            width: this.node.parentElement.offsetWidth,
+            height: this.node.parentElement.offsetHeight - 100
+        })
+    }
+
+    render () {
+        return <svg ref={node => this.node = node} style={{ height: '100%', width: '100%' }}>
+            {this.node && <Test _id='dan' {...this.state} node={this.node} />}
+        </svg>
+    }
+}
+
+interface TestProps {
+    height: number
+    width: number
+    _id: string
+    node: any
+}
+
+// class TestState {
+//     height: number
+//     width: number
+// }

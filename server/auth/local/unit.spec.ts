@@ -4,7 +4,6 @@ import { spy, SinonSpy, stub, SinonStub } from 'sinon'
 import * as passport from 'passport'
 import * as tokenService from '../auth.service'
 import auth from './passport'
-import config from '../../config/environment'
 
 describe('Local Auth', () => {
     let authenticate: SinonStub
@@ -73,7 +72,6 @@ describe('Local Auth', () => {
         })
 
         it('should call res.json with the generated token from signToken', done => {
-            const test = 'awefjwelfj'
             const user = {
                 _id: 'aaaaaaaa',
                 role: 'bbbbbbbbbb'

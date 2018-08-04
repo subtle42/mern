@@ -1,16 +1,14 @@
 import * as React from 'react'
 import authActions from 'data/auth/actions'
 import bookActions from 'data/books/actions'
-import { connect, Dispatch } from 'react-redux'
+import { connect } from 'react-redux'
 import { IUser, IBook } from 'common/models'
-import store from 'data/store'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import AddBookButton from '../main/book/add'
 
 import {
     Collapse,
     Navbar,
-    NavbarToggler,
     NavbarBrand,
     Nav,
     NavItem,
@@ -24,9 +22,6 @@ interface NavProps {
     user: IUser,
     books: IBook[],
     selectedBook?: IBook
-}
-interface NavState {
-    isOpen?: boolean,
 }
 
 const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {

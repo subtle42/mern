@@ -1,27 +1,6 @@
 import 'mocha'
-import { expect } from 'chai'
-import actions from './actions'
-import axios from 'axios'
-import { sandbox, SinonSandbox, SinonFakeServer, spy, stub, useFakeXMLHttpRequest, SinonFakeXMLHttpRequest } from 'sinon'
-import * as Promise from 'bluebird'
 
 describe('AuthActions', () => {
-    let mySandbox: SinonSandbox
-    let myServer: SinonFakeServer
-    let xhr: SinonFakeXMLHttpRequest
-
-    beforeEach(() => {
-        xhr = useFakeXMLHttpRequest()
-        mySandbox = sandbox.create()
-        myServer = mySandbox.useFakeServer()
-    })
-
-    afterEach(() => {
-        xhr.restore()
-        myServer.restore()
-        mySandbox.restore()
-    })
-
     describe('create function', () => {
         xit('should send a post request', () => undefined)
         xit('should send the input as the request body', () => undefined)

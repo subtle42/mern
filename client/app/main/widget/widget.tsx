@@ -1,11 +1,10 @@
 import * as React from 'react'
-import { connect } from 'react-redux'
 import { RemoveWidgetButton } from './remove'
 import { IWidget, ISource, ISourceColumn } from 'common/models'
 import store from 'data/store'
 import WidgetActions from 'data/widgets/actions'
 import { Histogram } from '../charts/histogram'
-import { Chart, MeasureDropdown } from '../charts/chart'
+import { MeasureDropdown } from '../charts/chart'
 import * as FontAwesome from 'react-fontawesome'
 import { Card, CardBody, CardTitle, Button, CardHeader } from 'reactstrap'
 

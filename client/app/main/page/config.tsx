@@ -1,6 +1,5 @@
 import * as React from 'react'
-import axios from 'axios'
-import { FormText, Label, ModalBody, ModalFooter, ModalHeader, Row, Col, Input, Modal, Button, FormGroup, NavItem, Tooltip } from 'reactstrap'
+import { FormText, Label, ModalBody, ModalFooter, ModalHeader, Row, Col, Input, Modal, Button, FormGroup, Tooltip } from 'reactstrap'
 import PageActions from 'data/pages/actions'
 import store from 'data/store'
 import { IPage } from 'common/models'

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Nav, NavItem, Button, NavLink } from 'reactstrap'
+import { Nav, NavItem, NavLink } from 'reactstrap'
 import { CreatePageButton } from '../page/create'
 import { DeletePageButton } from '../page/delete'
 import { connect } from 'react-redux'
@@ -7,7 +7,6 @@ import pageActions from 'data/pages/actions'
 import { IPage } from 'common/models'
 import { PageConfigButton } from '../page/config'
 import { SourceCreateButton } from '../source/modal'
-import { Widget } from '../widget/widget'
 import { PageContent } from '../page/content'
 
 interface Props {

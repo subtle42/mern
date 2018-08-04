@@ -3,7 +3,6 @@ import BaseActions from './baseActions'
 import { expect } from 'chai'
 import { spy, SinonSpy, stub, SinonStub } from 'sinon'
 import * as io from 'socket.io-client'
-import store from './store'
 import { factory } from './baseReducer'
 
 class TestBaseActions extends BaseActions {
@@ -34,7 +33,6 @@ describe('Base Actions for Redux', () => {
     let dispatchResolve: SinonStub
     let namespace: string = 'testing'
     let ioConnect: SinonStub
-    let ioOn: SinonStub
     let ioConnectResponse
     let onFnMap = {}
 

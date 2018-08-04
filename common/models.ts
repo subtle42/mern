@@ -1,13 +1,20 @@
 import { Layout } from 'react-grid-layout'
 import { ColumnType } from './constants'
 
-export  type ColumnType =  'number' | 'group' | 'text' | 'datetime'
+export type ColumnType = 'number' | 'group' | 'text' | 'datetime'
 
 export interface IUser {
     _id: any
     name: string
     email: string
     password?: string
+}
+
+export interface IShared {
+    owner: string
+    editors: string[]
+    viewers: string[]
+    isPublic: boolean
 }
 
 export interface IBook extends IShared {
@@ -64,13 +71,6 @@ export interface ISource extends IShared {
     size: number
     rowCount: number
     columns: ISourceColumn[]
-}
-
-export interface IShared {
-    owner: string
-    editors: string[]
-    viewers: string[]
-    isPublic: boolean
 }
 
 export interface ISourceColumn {

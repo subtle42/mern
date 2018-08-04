@@ -1,7 +1,6 @@
 import { AnyAction } from 'redux'
 import { factory } from '../baseReducer'
 import BookStore from './model'
-import { IBook } from 'common/models'
 
 const possibleActions: string[] = Object.keys(factory)
 

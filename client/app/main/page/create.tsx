@@ -1,10 +1,7 @@
 import * as React from 'react'
-import axios from 'axios'
-import { Modal, ModalBody, ModalHeader, ModalFooter, Label, Input, Button, FormText, FormGroup, NavItem, NavLink } from 'reactstrap'
+import { Modal, ModalBody, ModalHeader, ModalFooter, Label, Input, Button, FormGroup, NavItem, NavLink } from 'reactstrap'
 import pageActions from 'data/pages/actions'
 import * as FontAwesome from 'react-fontawesome'
-
-let actions: any
 
 class State {
     pageName?: string = ''

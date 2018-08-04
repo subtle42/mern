@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Button, ModalBody, Tooltip, ModalFooter, ModalHeader, Row, Col, ListGroup, ListGroupItem, Progress } from 'reactstrap'
+import { Button, ModalBody, ModalFooter, Row, Col, ListGroup, ListGroupItem, Progress } from 'reactstrap'
 import Dropzone, { ImageFile } from 'react-dropzone'
 import SourceActions from 'data/sources/actions'
 import store from 'data/store'

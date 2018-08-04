@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import { Widget } from './model'
 import Utils from '../utils'
 import { Page } from '../page/model'

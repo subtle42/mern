@@ -1,7 +1,6 @@
 import 'mocha'
 import { stub, spy, SinonStub } from 'sinon'
-import { expect, assert, should } from 'chai'
-import { Model } from 'mongoose'
+import { expect } from 'chai'
 
 declare var global
 const mySocket = {
@@ -34,13 +33,10 @@ global.myIO = {
 import { AclSocket } from './aclSocket'
 import { Promise } from 'bluebird'
 import * as jwt from 'jsonwebtoken'
-import { ISharedModel } from '../dbModels'
-import { Socket } from 'dgram'
-import { timeout } from 'd3'
 
 describe('AclSocket Base class', () => {
-    let tmpClass: AclSocket
     let verify: SinonStub
+    let tmpSocket: AclSocket
 
     beforeEach(() => {
         verify = stub(jwt, 'verify').callsFake((token, secret, cb) => {
@@ -72,20 +68,20 @@ describe('AclSocket Base class', () => {
 
         it('should create a namespace base on first input', () => {
             let name = 'asdfasdf'
-            let tmp = new AclSocket('asdf', modelMock)
+            tmpSocket = new AclSocket('asdf', modelMock)
             expect(global.myIO.of.calledWith(name))
         })
 
         it('should call jwt.verify', () => {
             expect(verify.callCount).equals(0)
-            let tmp = new AclSocket('asdf', modelMock)
+            tmpSocket = new AclSocket('asdf', modelMock)
             expect(verify.callCount).to.equal(1)
         })
 
         it('should call socket.join if auth token can be decoded', done => {
             expect(mySocket.join.callCount).equal(0)
-            let tmp = new AclSocket('asdf', modelMock)
-            timeout(() => {
+            tmpSocket = new AclSocket('asdf', modelMock)
+            setTimeout(() => {
                 expect(mySocket.join.callCount).equal(1)
                 done()
             })
@@ -98,8 +94,8 @@ describe('AclSocket Base class', () => {
             })
 
             expect(mySocket.join.callCount).equals(0)
-            let tmp = new AclSocket('asdf', modelMock)
-            timeout(() => {
+            tmpSocket = new AclSocket('asdf', modelMock)
+            setTimeout(() => {
                 expect(mySocket.join.callCount).equals(0)
                 done()
             })
@@ -113,8 +109,8 @@ describe('AclSocket Base class', () => {
                 cb(myErr, null)
             })
             expect(mySocket.emit.callCount).equals(0)
-            let tmp = new AclSocket('asdf', modelMock)
-            timeout(() => {
+            tmpSocket = new AclSocket('asdf', modelMock)
+            setTimeout(() => {
                 expect(mySocket.emit.calledWith('error', myErr))
                 done()
             })

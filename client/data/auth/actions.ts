@@ -1,4 +1,4 @@
-import axios, { AxiosPromise, AxiosAdapter } from 'axios'
+import axios, { AxiosPromise } from 'axios'
 import store from '../store'
 import bookActions from '../books/actions'
 import pageActions from '../pages/actions'

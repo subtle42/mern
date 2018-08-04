@@ -4,7 +4,8 @@ import * as http from 'http'
 import * as io from 'socket.io'
 import * as mongoose from 'mongoose'
 import * as passport from 'passport'
-import { socketAuth } from './auth/socket/auth'
+// import { socketAuth } from './auth/socket/auth'
+declare var global: any
 
 let MONGO_URI = 'mongodb://localhost/merntest';
 
@@ -20,7 +21,6 @@ mongoose.connection.on('error', () => {
 const app = express()
 let server = http.createServer(app)
 
-declare var global: any
 let myIO = io(server, {})
 global.myIO = myIO
 

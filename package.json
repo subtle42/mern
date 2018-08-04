@@ -11,6 +11,7 @@
     "test:server": "mocha --opts ./mocha.opts 'server/**/*.spec.*'",
     "integration": "mocha --opts ./mocha.opts 'integration/**/*.spec.*' --watch",
     "e2e": "wdio",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
     "coverage": "nyc --all run-s 'build:test:*'",
     "docs": "typedoc --exclude '**/*.spec.*' --out ./docs ./client/data ./server ./common",
     "build:code": "run-p build:code:*",

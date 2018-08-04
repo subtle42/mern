@@ -1,6 +1,6 @@
 import { AnyAction } from 'redux'
 import WidgetStore from './model'
-import { factory, GenericStore } from '../baseReducer'
+import { factory } from '../baseReducer'
 
 let myFactory = Object.assign({}, factory, {
     setSize: (store: WidgetStore, payload: any): WidgetStore => {

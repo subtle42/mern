@@ -1,4 +1,4 @@
-import axios, { AxiosPromise } from 'axios'
+import axios from 'axios'
 import { IBook } from 'common/models'
 import store from '../store'
 import BaseActions from '../baseActions'

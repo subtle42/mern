@@ -1,7 +1,4 @@
-import { Store } from 'redux'
-import axios from 'axios'
 import * as io from 'socket.io-client'
-import store from './store'
 
 export default abstract class BaseActions {
     private isNewList: boolean = true

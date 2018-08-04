@@ -220,7 +220,6 @@ describe('Page API', () => {
 })
 
 describe('Page Socket', () => {
-    let bookId: string
     let tokens: string[]
     let userIds: string[]
 

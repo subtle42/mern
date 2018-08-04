@@ -26,21 +26,6 @@ class SourceController {
         })
     }
 
-    private rowsToColumns (rows: Array<string[]>): Promise<string[][]> {
-        return new Promise((resolve: Function) => {
-            let response: Array<Array<string>> = []
-
-            rows.forEach(row => response.push([]))
-            rows.forEach((row) => {
-                row.forEach((entry: string, index: number) => {
-                    response[index].push(entry)
-                })
-            })
-
-            resolve(response)
-        })
-    }
-
     private getColumnTypes (data: Array<Array<string>>): Promise<ColumnType[]> {
         let calls: Array<Promise<string>> = []
         const dataSubSet: string[][] = data.slice(0, 100)
@@ -55,8 +40,6 @@ class SourceController {
     private getSingleColumnType (data: any[]): Promise<ColumnType> {
         return new Promise((resolve: Function) => {
             let isNumber = 0
-            let group = 0
-            let date = 0
             let groupCounts = {}
             let response: ColumnType
 
@@ -81,7 +64,6 @@ class SourceController {
     }
 
     private importData (rows: Array<any[]>, columnTypes: ColumnType[]): Promise<string> {
-        let headers: Array<string> = []
         let name = 'mern_' + new Date().getTime()
 
         return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
@@ -115,7 +97,7 @@ class SourceController {
                 client.close()
                 throw err
             })
-        }) as Promise<string>
+        })
     }
 
     private buildSourceObject (req: Request, headers: string[], columnTypes: ColumnType[], location: string, rowCount: number): Promise<ISourceModel> {

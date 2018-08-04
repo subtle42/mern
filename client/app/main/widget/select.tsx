@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { Button, Row, Col, ModalHeader, ModalFooter, ModalBody } from 'reactstrap'
 import { ChartType, ColumnType } from 'common/constants'
-import WidgetActions from '../../../data/widgets/actions'
 import * as FontAwesome from 'react-fontawesome'
 
 interface Props {

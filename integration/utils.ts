@@ -4,9 +4,7 @@ import axios from 'axios'
 import * as jwt from 'jsonwebtoken'
 import * as io from 'socket.io-client'
 import { IBook, ISource, IPage, IWidget } from 'common/models'
-import * as fs from 'fs'
 import { App } from '../server/app'
-import * as path from 'path'
 
 // Need to keep this to inject chai with http requests
 const chai = require('chai')
@@ -33,6 +31,37 @@ export const USERS: FakeUser[] = [{
     name: 'Test3'
 }]
 
+export const getBaseUrl = (): string => {
+    return `${config.server.protocol}://${config.server.location}:${config.server.port}`
+}
+
+export const decodeToken = (token: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, config.shared.secret, (err, decoded: any) => {
+            if (err) return reject(err)
+            resolve(decoded)
+        })
+    })
+}
+
+const removeDbRecords = (collectionName: string): Promise<void> => {
+    return MongoClient.connect(`mongodb://${config.db.mongoose.app.host}:${config.db.mongoose.app.port}`)
+    .then(client => {
+        return client.db(config.db.mongoose.app.dbname)
+        .collection(collectionName)
+        .deleteMany({})
+        .then(res => client.close(true))
+    })
+}
+
+const removeDataDb = (): Promise<void> => {
+    return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
+    .then(client => {
+        return client.db(config.db.mongoose.data.dbname).dropDatabase()
+        .then(() => client.close())
+    })
+}
+
 export const cleanDb = (): Promise<void> => {
     const collections = ['users', 'books', 'pages', 'widgets', 'sources']
     return Promise.all(collections.map(name => removeDbRecords(name)))
@@ -43,6 +72,21 @@ interface MySetup {
     tokens: string[]
     userIds: string[]
     server: Express.Application
+}
+
+export const getUserIdFromToken = (tokens: string[]) => {
+    return Promise.all(tokens.map(token => decodeToken(token)))
+    .then(decoded => decoded.map(item => item._id))
+}
+
+export const createUserAndLogin = (user: FakeUser): Promise<string> => {
+    return axios.post(`${getBaseUrl()}/api/user`, user)
+    .then(res => axios.post(`${getBaseUrl()}/api/auth/local`, user))
+    .then(res => res.data.token as string)
+}
+
+export const createAllUsers = () => {
+    return Promise.all(USERS.map(user => createUserAndLogin(user)))
 }
 
 export const testSetup = (): Promise<MySetup> => {
@@ -59,24 +103,6 @@ export const testSetup = (): Promise<MySetup> => {
     .then(() => setup)
 }
 
-const removeDataDb = (): Promise<void> => {
-    return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
-    .then(client => {
-        return client.db(config.db.mongoose.data.dbname).dropDatabase()
-        .then(() => client.close())
-    })
-}
-
-const removeDbRecords = (collectionName: string): Promise<void> => {
-    return MongoClient.connect(`mongodb://${config.db.mongoose.app.host}:${config.db.mongoose.app.port}`)
-    .then(client => {
-        return client.db(config.db.mongoose.app.dbname)
-        .collection(collectionName)
-        .deleteMany({})
-        .then(res => client.close(true))
-    })
-}
-
 const setHeader = (token: string) => {
     return {
         headers: {
@@ -85,37 +111,9 @@ const setHeader = (token: string) => {
     }
 }
 
-export const getBaseUrl = (): string => {
-    return `${config.server.protocol}://${config.server.location}:${config.server.port}`
-}
-
 export const websocketConnect = (channel: string, token: string): SocketIOClient.Socket => {
     return io.connect(`${getBaseUrl()}/${channel}`, {
         query: { token }
-    })
-}
-
-export const createUserAndLogin = (user: FakeUser): Promise<string> => {
-    return axios.post(`${getBaseUrl()}/api/user`, user)
-    .then(res => axios.post(`${getBaseUrl()}/api/auth/local`, user))
-    .then(res => res.data.token as string)
-}
-
-export const createAllUsers = () => {
-    return Promise.all(USERS.map(user => createUserAndLogin(user)))
-}
-
-export const getUserIdFromToken = (tokens: string[]) => {
-    return Promise.all(tokens.map(token => decodeToken(token)))
-    .then(decoded => decoded.map(item => item._id))
-}
-
-export const decodeToken = (token: string): Promise<any> => {
-    return new Promise((resolve, reject) => {
-        jwt.verify(token, config.shared.secret, (err, decoded: any) => {
-            if (err) return reject(err)
-            resolve(decoded)
-        })
     })
 }
 
@@ -138,15 +136,6 @@ export const updateBook = (token: string, item: IBook): Promise<void> => {
 export const createPage = (token: string, bookId: string, name: string): Promise<string> => {
     return axios.post(`${getBaseUrl()}/api/pages`, { name, bookId }, setHeader(token))
     .then(res => res.data as string)
-}
-
-const readFile = (path: string): Promise<Buffer> => {
-    return new Promise((resolve, reject) => {
-        fs.readFile(path, (err, data) => {
-            if (err) return reject(err)
-            resolve(data)
-        })
-    })
 }
 
 export const createSource = (token: string, filePath: string): Promise<string> => {

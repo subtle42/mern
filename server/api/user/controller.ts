@@ -2,11 +2,10 @@ import { User } from './model'
 import { Response, NextFunction } from 'express'
 import * as jwt from 'jsonwebtoken'
 import config from '../../config/environment'
-import { MyRequest, IUserModel } from '../../dbModels'
+import { MyRequest } from '../../dbModels'
 
 export class UserController {
     public static getPublic (req: MyRequest, res: Response): void {
-        let userIdList = req.body
         User.find({}, '-salt -password')
         .then(users => res.json(users))
         .catch(err => res.status(500).json(err))

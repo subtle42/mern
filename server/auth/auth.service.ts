@@ -1,7 +1,7 @@
 import config from '../config/environment'
 import { Request, Response, NextFunction } from 'express'
 import * as jwt from 'jsonwebtoken'
-import { IBookModel, ISharedModel } from '../dbModels'
+import { ISharedModel } from '../dbModels'
 
 interface MyRequest extends Request {
     user?: {
