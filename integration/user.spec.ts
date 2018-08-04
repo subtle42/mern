@@ -1,21 +1,20 @@
-import {expect} from "chai";
-import * as chai from "chai";
-import "chai-http";
-import * as utils from "./utils"
-import { IUser } from "common/models";
+import * as chai from 'chai'
+import 'chai-http'
+import * as utils from './utils'
+import { IUser } from 'common/models'
+const expect = chai.expect
 
-
-describe("User API", () => {
-    const userName = "test";
-    const email = "test@test.com";
-    const password = "testPass";
-    let server:Express.Application,
-        tokens:string[],
-        userIds:string[];
+describe('User API', () => {
+    const userName = 'test'
+    const email = 'test@test.com'
+    const password = 'testPass'
+    let server: Express.Application
+    let tokens: string[]
+    let userIds: string[]
 
     before(done => {
         utils.testSetup()
-        .then(setup => ({server, userIds, tokens} = setup))
+        .then(setup => ({ server, userIds, tokens } = setup))
         .then(() => done())
     })
 
@@ -24,10 +23,10 @@ describe("User API", () => {
         .then(() => done())
     })
 
-    describe("post /api/user", () => {
-        it("should create a user", done => {
+    describe('post /api/user', () => {
+        it('should create a user', done => {
             chai.request(server)
-            .post("/api/user")
+            .post('/api/user')
             .send({
                 name: userName,
                 email: email,
@@ -36,10 +35,10 @@ describe("User API", () => {
             .then(res => expect(res.status).to.equal(200))
             .then(() => done())
         })
-    
-        it("should not create a user if the email already exists", done => {
+
+        it('should not create a user if the email already exists', done => {
             chai.request(server)
-            .post("/api/user")
+            .post('/api/user')
             .send({
                 name: userName,
                 email: email,
@@ -49,29 +48,29 @@ describe("User API", () => {
             .then(() => done())
         })
     })
-    
-    describe("get /api/user/me", () => {
-        let token:string;
-        const myUser = utils.USERS[1];
+
+    describe('get /api/user/me', () => {
+        let token: string
+        const myUser = utils.USERS[1]
 
         before(() => {
-            token = tokens[1];
+            token = tokens[1]
         })
 
-        it("should return an error user if is NOT logged in", done => {
+        it('should return an error user if is NOT logged in', done => {
             chai.request(server)
             .get('/api/user/me')
             .then(res => expect(res.status).to.equal(401))
-            .then(() => done())          
+            .then(() => done())
         })
 
         it("should get current user's info", done => {
             chai.request(server)
             .get('/api/user/me')
-            .set("Authorization", token)
+            .set('Authorization', token)
             .then(res => {
-                expect(res.status).to.equal(200);
-                const user:IUser = res.body;
+                expect(res.status).to.equal(200)
+                const user: IUser = res.body
                 expect(user.email).to.equal(myUser.email)
                 expect(user.name).to.equal(myUser.name)
             })

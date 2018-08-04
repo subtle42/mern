@@ -1,18 +1,18 @@
-import {expect} from "chai";
-import * as chai from "chai";
-import "chai-http";
-import { ISource } from "common/models";
-import * as utils from "./utils";
-import * as fs from "fs"
+import * as chai from 'chai'
+import 'chai-http'
+import { ISource } from 'common/models'
+import * as utils from './utils'
+import * as fs from 'fs'
+const expect = chai.expect
 
-describe("Source API", () => {
-    let tokens:string[] =[],
-        userIds:string[] = [],
-        server:Express.Application;
+describe('Source API', () => {
+    let tokens: string[] = []
+    let userIds: string[] = []
+    let server: Express.Application
 
     before(done => {
         utils.testSetup()
-        .then(setup => ({userIds, tokens, server} = setup))
+        .then(setup => ({ userIds, tokens, server } = setup))
         .then(() => done())
     })
 
@@ -21,31 +21,31 @@ describe("Source API", () => {
         .then(() => done())
     })
 
-    describe("POST /api/sources", () => {
-        it("should return an error if user is NOT logged in", done => {
+    describe('POST /api/sources', () => {
+        it('should return an error if user is NOT logged in', done => {
             chai.request(server)
-            .post("/api/sources")
+            .post('/api/sources')
             .send({})
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => done())
         })
 
-        it("should return a string", done => {
+        it('should return a string', done => {
             chai.request(server)
-            .post("/api/sources")
-            .set("Authorization", tokens[0])
-            .attach("file", fs.readFileSync("./integration/data/2012_SAT_RESULTS.csv"), "2012_SAT_RESULTS.csv")
+            .post('/api/sources')
+            .set('Authorization', tokens[0])
+            .attach('file', fs.readFileSync('./integration/data/2012_SAT_RESULTS.csv'), '2012_SAT_RESULTS.csv')
             .then(res => expect(res.status).to.equal(200))
             .then(() => done())
         })
     })
 
-    describe("PUT /api/sources", () => {
-        let sourceId:string,
-            mySource:ISource;
+    describe('PUT /api/sources', () => {
+        let sourceId: string
+        let mySource: ISource
 
         before(done => {
-            utils.createSource(tokens[0], "./integration/data/2012_SAT_RESULTS.csv")
+            utils.createSource(tokens[0], './integration/data/2012_SAT_RESULTS.csv')
             .then(newId => sourceId = newId)
             .then(() => done())
         })
@@ -57,122 +57,121 @@ describe("Source API", () => {
             .catch(err => console.error(err.message))
         })
 
-        it("should return an error if user is NOT logged in", done => {
+        it('should return an error if user is NOT logged in', done => {
             chai.request(server)
-            .put("/api/sources")
+            .put('/api/sources')
             .send({})
             .then(res => expect(res.status).to.equal(401))
             .then(() => done())
         })
 
-        it("should return an error if user is NOT owner or editor", done => {
-            expect(mySource).not.to.be.undefined;
-            mySource = {...mySource, title: "changed"}
+        it('should return an error if user is NOT owner or editor', done => {
+            expect(mySource).not.to.equal(undefined)
+            mySource = { ...mySource, title: 'changed' }
 
             chai.request(server)
-            .put("/api/sources")
-            .set("authorization", tokens[1])
+            .put('/api/sources')
+            .set('authorization', tokens[1])
             .send(mySource)
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => utils.getSource(tokens[0], sourceId))
-            .then(updated => expect(updated.title).not.to.equal("changed"))
+            .then(updated => expect(updated.title).not.to.equal('changed'))
             .then(() => done())
         })
 
-        it("should return a success if user is the owner", done => {
-            expect(mySource).not.to.be.undefined;
+        it('should return a success if user is the owner', done => {
+            expect(mySource).not.to.equal(undefined)
             expect(mySource.owner).to.equal(userIds[0])
-            mySource = {...mySource, title: "updated"}
+            mySource = { ...mySource, title: 'updated' }
 
             chai.request(server)
-            .put("/api/sources")
-            .set("authorization", tokens[0])
+            .put('/api/sources')
+            .set('authorization', tokens[0])
             .send(mySource)
             .then(res => expect(res.status).to.equal(200))
             .then(() => utils.getSource(tokens[0], sourceId))
-            .then(updated => expect(updated.title).to.equal("updated"))
+            .then(updated => expect(updated.title).to.equal('updated'))
             .then(() => done())
         })
 
-        it("should return a success if user is an editor", done => {
-            expect(mySource).not.to.be.undefined;
+        it('should return a success if user is an editor', done => {
+            expect(mySource).not.to.equal(undefined)
             expect(mySource.owner).to.equal(userIds[0])
-            mySource = {...mySource};
+            mySource = { ...mySource }
             mySource.editors.push(userIds[1])
 
             chai.request(server)
-            .put("/api/sources")
-            .set("authorization", tokens[0])
+            .put('/api/sources')
+            .set('authorization', tokens[0])
             .send(mySource)
             .then(res => expect(res.status).to.equal(200))
-            .then(() => mySource.title = "new Updated")
+            .then(() => mySource.title = 'new Updated')
             .then(() => chai.request(server)
-            .put("/api/sources")
-            .set("authorization", tokens[1])
+            .put('/api/sources')
+            .set('authorization', tokens[1])
             .send(mySource)
             .then(res => expect(res.status).to.equal(200)))
             .then(() => done())
         })
 
-        it("should return an error if the schema does NOT match", done => {
-            expect(mySource).not.to.be.undefined;
-            let tmp:any = mySource;
-            tmp.size = [];
+        it('should return an error if the schema does NOT match', done => {
+            expect(mySource).not.to.equal(undefined)
+            let tmp: any = mySource
+            tmp.size = []
             chai.request(server)
-            .put("/api/sources")
-            .set("authorization", tokens[0])
+            .put('/api/sources')
+            .set('authorization', tokens[0])
             .send(tmp)
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => done())
         })
 
-        it("should return an error if a user other than the owner tries to change the owner", done => {
-            expect(mySource).not.to.be.undefined;
+        it('should return an error if a user other than the owner tries to change the owner', done => {
+            expect(mySource).not.to.equal(undefined)
             expect(mySource.owner).not.to.equal(userIds[1])
             expect(mySource.editors.indexOf(userIds[1])).not.to.equal(-1)
-            mySource = {...mySource};
-            mySource.owner = userIds[1];
+            mySource = { ...mySource }
+            mySource.owner = userIds[1]
 
             chai.request(server)
-            .put("/api/sources")
-            .set("authorization", tokens[1])
+            .put('/api/sources')
+            .set('authorization', tokens[1])
             .send(mySource)
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => done())
         })
 
-        it("should return a success if the owner changes the owner field", done => {
+        it('should return a success if the owner changes the owner field', done => {
             expect(mySource.owner).not.to.equal(userIds[1])
-            mySource = {...mySource};
-            mySource.owner = userIds[1];
+            mySource = { ...mySource }
+            mySource.owner = userIds[1]
 
             chai.request(server)
-            .put("/api/sources")
-            .set("authorization", tokens[0])
+            .put('/api/sources')
+            .set('authorization', tokens[0])
             .send(mySource)
             .then(res => expect(res.status).to.equal(200))
             .then(() => done())
         })
     })
 
-    describe("DELETE /api/sources", () => {
-        let sourceId:string,
-            socket:SocketIOClient.Socket,
-            removedIds:string[] = [];
-
+    describe('DELETE /api/sources', () => {
+        let sourceId: string
+        let socket: SocketIOClient.Socket
+        let removedIds: string[] = []
 
         before(done => {
-            socket = utils.websocketConnect("sources", tokens[0])
-            socket.on("removed", (ids:string[]) => {
-                removedIds = removedIds.concat(ids);
-            });
+            socket = utils.websocketConnect('sources', tokens[0])
+            socket.on('removed', (ids: string[]) => {
+                removedIds = removedIds.concat(ids)
+            })
 
-            utils.createSource(tokens[0], "./integration/data/2012_SAT_RESULTS.csv")
+            utils.createSource(tokens[0], './integration/data/2012_SAT_RESULTS.csv')
             .then(newSourceId => sourceId = newSourceId)
             .then(() => done())
         })
 
-        it("should return an error if user is NOT logged in", done => {
+        it('should return an error if user is NOT logged in', done => {
             chai.request(server)
             .del(`/api/sources/${sourceId}`)
             .then(res => expect(res.status).to.equal(401))
@@ -180,52 +179,52 @@ describe("Source API", () => {
             .then(() => done())
         })
 
-        it("should return an error if record does NOT exist", done => {
+        it('should return an error if record does NOT exist', done => {
             chai.request(server)
             .del(`/api/sources/ERROR`)
-            .set("authorization", tokens[0])
+            .set('authorization', tokens[0])
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => expect(removedIds.length).to.equal(0))
             .then(() => done())
         })
 
-        it("should return an error if a user other than owner tries to delete", done => {
+        it('should return an error if a user other than owner tries to delete', done => {
             chai.request(server)
             .del(`/api/sources/${sourceId}`)
-            .set("authorization", tokens[1])
+            .set('authorization', tokens[1])
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => expect(removedIds.indexOf(sourceId)).to.equal(-1))
             .then(() => done())
         })
 
-        it("should return a success if source exists and user is owner", done => {
+        it('should return a success if source exists and user is owner', done => {
             chai.request(server)
             .del(`/api/sources/${sourceId}`)
-            .set("authorization", tokens[0])
+            .set('authorization', tokens[0])
             .then(res => expect(res.status).to.equal(200))
             // .then(() => expect(removedIds.indexOf(sourceId)).not.to.equal(-1))
             .then(() => done())
         })
     })
 
-    describe("POST /api/sources/query", () => {
-        it("should return an error if user is NOT logged in", done => {
+    describe('POST /api/sources/query', () => {
+        it('should return an error if user is NOT logged in', done => {
             chai.request(server)
-            .post("/api/sources/query")
+            .post('/api/sources/query')
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => done())
         })
 
-        it("should return records", done => {
+        it('should return records', done => {
             chai.request(server)
-            .post("/api/sources")
-            .set("Authorization", tokens[0])
-            .attach("file", fs.readFileSync("./integration/data/2012_SAT_RESULTS.csv"), "2012_SAT_RESULTS.csv")
+            .post('/api/sources')
+            .set('Authorization', tokens[0])
+            .attach('file', fs.readFileSync('./integration/data/2012_SAT_RESULTS.csv'), '2012_SAT_RESULTS.csv')
             .then(res => {
-                expect(res.status).to.equal(200);
+                expect(res.status).to.equal(200)
                 return chai.request(server)
-                .post("/api/sources/query")
-                .set("Authorization", tokens[0])
+                .post('/api/sources/query')
+                .set('Authorization', tokens[0])
                 .send({
                     sourceId: res.body,
                     measures: [],

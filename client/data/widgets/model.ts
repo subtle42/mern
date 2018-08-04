@@ -1,12 +1,12 @@
-import {IWidget} from "common/models";
-import {GenericStore} from "../baseReducer"
+import { IWidget } from 'common/models'
+import { GenericStore } from '../baseReducer'
 
 interface WidgetSize {
-    height:number;
-    width:number;
+    height: number
+    width: number
 }
 
 export default class WidgetStore extends GenericStore {
-    list:IWidget[] = [];
-    sizes:{} = {}
+    list: IWidget[] = []
+    sizes: {} = {}
 }

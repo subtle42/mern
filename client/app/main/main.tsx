@@ -11,12 +11,11 @@ class MyState {
     currentPage?: IPage
 }
 
-export class Main extends React.Component<{}, myState> {
+export class Main extends React.Component<{}, MyState> {
     state: MyState = new MyState()
 
     componentDidMount () {
         AuthActions.preloadUser()
-
     }
 
     handleChange = (event: React.FormEvent<HTMLInputElement>) => {

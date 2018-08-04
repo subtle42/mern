@@ -1,28 +1,28 @@
-import store from "../store";
-import BaseActions from "../baseActions";
-import axios from "axios";
-import pageActions from "../pages/actions"
-import { ISource, IWidget } from "common/models";
+import store from '../store'
+import BaseActions from '../baseActions'
+import axios from 'axios'
+import pageActions from '../pages/actions'
+import { ISource, IWidget } from 'common/models'
 
-class WidgetActions extends BaseActions{
-    constructor(store) {
-        super(store, "widgets");
+class WidgetActions extends BaseActions {
+    constructor (store) {
+        super(store, 'widgets')
     }
 
-    select() {
-        console.warn("This does nothing");
-        return null;
+    select () {
+        console.warn('This does nothing')
+        return null
     }
 
-    create(config:{source:ISource, type:string}):Promise<void> {
-        const myPage = store.getState().pages.selected;
-        
+    create (config: {source: ISource, type: string}): Promise<void> {
+        const myPage = store.getState().pages.selected
+
         return axios.post(`/api/widgets`, {
             pageId: myPage._id,
             sourceId: config.source._id,
             type: config.type
         })
-        .then(res => undefined);
+        .then(res => undefined)
         // Doing spreads do not modify the store
         // myPage.layout = [...myPage.layout];
         // myPage.layout.push({
@@ -35,19 +35,19 @@ class WidgetActions extends BaseActions{
 
         // return pageActions.update(myPage);
     }
-    delete(id:string):Promise<void> {
+    delete (id: string): Promise<void> {
         return axios.delete(`/api/widgets/${id}`)
-        .then(res => res.data as undefined);
+        .then(res => res.data as undefined)
     }
-    update(widget:IWidget):Promise<void> {
+    update (widget: IWidget): Promise<void> {
         return axios.put(`/api/widgets`, widget)
-        .then(res => res.data as undefined);
+        .then(res => res.data as undefined)
     }
-    setSize(id:string, width:number, height:number):void {
-        this.sendDispatch("setSize", {id:id, size: {width, height}})
+    setSize (id: string, width: number, height: number): void {
+        this.sendDispatch('setSize', { id: id, size: { width, height } })
     }
 }
 
-const widgetActions = new WidgetActions(store);
+const widgetActions = new WidgetActions(store)
 
-export default widgetActions; 
+export default widgetActions
