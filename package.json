@@ -61,7 +61,6 @@
     "ts-node": "^3.3.0",
     "tslint": "^5.11.0",
     "tslint-config-standard": "^7.1.0",
-    "tslint-loader": "^3.6.0",
     "typescript": "^2.8.3",
     "url-loader": "^0.6.2",
     "webpack": "^4.12.2",

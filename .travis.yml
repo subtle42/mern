@@ -15,13 +15,9 @@ before_install:
 install:
   - npm install
 
-script: echo "Running tests against $(node -v) ..."
-
-jobs:
-  include:
-    - stage Build
-    - script: npm run build:code
-    - stage Unit Tests
-    - script: npm run build:test:unit
-    - stage Integration Tests
-    - script: npm run build:test:integration
+script: 
+  - npm run build:code
+  - npm run build:test:unit
+  - npm run build:test:integration
+  - npm run lint
+  
