@@ -17,6 +17,7 @@
                 "999999",
                 "--colors",
                 "${workspaceFolder}/integration/**/*.spec.*",
+                "--watch"
             ]
         },
         {
@@ -32,6 +33,7 @@
                 "999999",
                 "--colors",
                 "${workspaceFolder}/server/**/*.spec.*",
+                "--watch"
             ]
         },
         {
@@ -47,12 +49,13 @@
                 "999999",
                 "--colors",
                 "${workspaceFolder}/client/**/*.spec.*",
+                "--watch"
             ]
         },
         {
             "type": "node",
             "request": "attach",
-            "name": "Attach to Process",
+            "name": "Server Debug",
             "port": 5858,
             "restart": true,
             "protocol": "inspector"
