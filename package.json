@@ -127,7 +127,7 @@
       "./client"
     ],
     "ext": "ts",
-    "exec": "./node_modules/.bin/ts-node -P server"
+    "exec": "./node_modules/.bin/ts-node"
   },
   "nyc": {
     "include": [

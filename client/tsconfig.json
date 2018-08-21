@@ -1,0 +1,15 @@
+{
+    "extends": "../tsconfig",
+    "compilerOptions": {
+        "target": "es5",
+        "outDir": ".dist",
+        "module": "esnext",
+        "sourceMap": false
+    },
+    "exclude": [
+        "node_modules"
+    ],
+    "include": [
+        "./**/*"
+    ]
+}

@@ -26,7 +26,10 @@ module.exports = {
     module: {
         rules: [{
             test: /\.tsx?$/,
-            loader: 'ts-loader'
+            loader: 'ts-loader',
+            options: {
+                configFile: 'client/tsconfig.json'
+            }
         }, {
             test: /\.css$/,
             loader: 'style-loader!css-loader'
@@ -56,8 +59,8 @@ module.exports = {
     },
     plugins: [
         new LiveReloadPlugin({}),
-        new BundleAnalyzerPlugin({
-            analyzerMode: 'static'
-        })
+        // new BundleAnalyzerPlugin({
+        //     analyzerMode: 'static'
+        // })
     ]
 };
