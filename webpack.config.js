@@ -1,9 +1,7 @@
-// const webpack = require('webpack');
 const path = require('path');
 const LiveReloadPlugin = require('webpack-livereload-plugin');
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
-const BUILD_DIR = path.resolve(__dirname, 'client/.dist');
 const APP_DIR = path.resolve(__dirname, 'client/app');
 
 
@@ -13,8 +11,10 @@ module.exports = {
     devtool: "source-map",
     entry: APP_DIR + '/index.tsx',
     output: {
-        path: BUILD_DIR,
-        filename: 'bundle.js'
+        filename: '[name].bundle.js',
+        chunkFilename: '[name].bundle.js',
+        path: path.resolve(__dirname, 'client/.dist')
+
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js','.css'],
@@ -39,20 +39,25 @@ module.exports = {
         }],
     },
     optimization: {
+        runtimeChunk: {
+            name: "manifest"
+        },
         splitChunks: {
             cacheGroups: {
-                vendors: {
+                vendor: {
                     test: /[\\/]node_modules[\\/]/,
                     name: "vendors",
-                    chunks: "initial"
+                    priority: -20,
+                    chunks: "all"
                 }
             }
-        },
+        }
+
     },
     plugins: [
         new LiveReloadPlugin({}),
-        // new BundleAnalyzerPlugin({
-        //     analyzerMode: 'static'
-        // })
+        new BundleAnalyzerPlugin({
+            analyzerMode: 'static'
+        })
     ]
 };

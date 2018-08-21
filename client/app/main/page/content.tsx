@@ -1,11 +1,13 @@
 import * as React from 'react'
-import * as ReactGridLayout from 'react-grid-layout'
+// import * as ReactGridLayout from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import { connect } from 'react-redux'
 import { IPage } from 'common/models'
 import { Widget } from '../widget/widget'
 import PageActions from 'data/pages/actions'
 import widgetActions from 'data/widgets/actions'
+import * as Loadable from 'react-loadable'
+import Loading from '../../_common/loading'
 
 interface Props {
     page: IPage
@@ -29,6 +31,14 @@ const ContentComponent: React.StatelessComponent<Props> = (props: Props) => {
             widgetActions.setSize(oldItem.i, event.path[1].offsetHeight - 100, event.path[1].offsetWidth)
         }
     }
+
+    const ReactGridLayout = Loadable({
+        loader: () => import(/* webpackChunkName: "generateTags" */ 'react-grid-layout'),
+        loading () {
+            return <Loading />
+        }
+    })
+
     const asdf = Object.assign({}, defaultLayoutConfig, props.page)
 
     const buildGrid = (): JSX.Element => {

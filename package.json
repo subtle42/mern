@@ -48,6 +48,7 @@
     "react-dropzone": "^4.2.12",
     "react-fontawesome": "^1.6.1",
     "react-grid-layout": "^0.16.6",
+    "react-loadable": "^5.5.0",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.3.1",
     "reactstrap": "^5.0.0",
@@ -88,6 +89,7 @@
     "@types/react-dropzone": "^4.2.0",
     "@types/react-fontawesome": "^1.6.3",
     "@types/react-grid-layout": "^0.16.4",
+    "@types/react-loadable": "^5.4.1",
     "@types/react-redux": "^5.0.20",
     "@types/react-router-dom": "^4.2.7",
     "@types/reactstrap": "^5.0.27",
@@ -125,7 +127,7 @@
       "./client"
     ],
     "ext": "ts",
-    "exec": "./node_modules/.bin/ts-node"
+    "exec": "./node_modules/.bin/ts-node -P server"
   },
   "nyc": {
     "include": [

@@ -1,11 +1,9 @@
 import * as React from 'react'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
-import MainNavbar from '../nav/nav'
-import { MainConent } from './content/content'
-import RegisterPage from '../logon/register'
 import AuthActions from '../../data/auth/actions'
-import LoginPage from '../logon/login'
 import { IPage } from 'common/models'
+import Loading from '../_common/loading'
+import * as Loadable from 'react-loadable'
 
 class MyState {
     currentPage?: IPage
@@ -18,23 +16,49 @@ export class Main extends React.Component<{}, MyState> {
         AuthActions.preloadUser()
     }
 
-    handleChange = (event: React.FormEvent<HTMLInputElement>) => {
-        const target: any = event.target
-        this.setState({
-            [target.name]: target.value
-        })
-    }
+    main = Loadable({
+        loader: () => import(
+            /* webpackChunkName: "content" */
+            './content/content'),
+        loading () {
+            return <Loading/>
+        }
+    })
+
+    login = Loadable({
+        loader: () => import(
+            /* webpackChunkName: "logon" */
+            '../logon/login'),
+        loading () {
+            return <Loading/>
+        }
+    })
+
+    register = Loadable({
+        loader: () => import(
+            /* webpackChunkName: "register" */
+            '../logon/register'),
+        loading () {
+            return <Loading/>
+        }
+    })
+
+    MainNavBar = Loadable({
+        loader: () => import('../nav/nav'),
+        loading () {
+            return <Loading/>
+        }
+    })
 
     render () {
         return (
             <Router>
                 <div>
-                    <MainNavbar />
-
-                    {/* <MainConent /> */}
-                    <Route exact path='/home' component={MainConent}/>
-                    <Route exact path='/login' component={LoginPage}/>
-                    <Route exact path='/register' component={RegisterPage}/>
+                    <this.MainNavBar />
+                    <Route exact path='/home' component={this.main}/>
+                    <Route exact path='/login' component={this.login}/>
+                    <Route exact path='/register' component={this.register}
+                    />
                 </div>
             </Router>
         )

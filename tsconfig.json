@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
         "watch": false,
-        "module": "commonjs",
+        "module": "esnext",
         "noImplicitAny": false,
-        "removeComments": true,
+        "removeComments": false,
         "preserveConstEnums": true,
         "lib": ["es6", "dom"],
         "sourceMap": true,
