@@ -33,7 +33,7 @@ const ContentComponent: React.StatelessComponent<Props> = (props: Props) => {
     }
 
     const ReactGridLayout = Loadable({
-        loader: () => import(/* webpackChunkName: "generateTags" */ 'react-grid-layout'),
+        loader: () => import('react-grid-layout'),
         loading () {
             return <Loading />
         }

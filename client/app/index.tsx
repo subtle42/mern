@@ -1,11 +1,14 @@
-import * as React from 'react'
-import * as ReactDOM from 'react-dom'
-import { Provider } from 'react-redux'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'font-awesome/css/font-awesome.css'
-import store from '../data/store'
 
-import { Main } from './main/main'
-
-ReactDOM.render(<Provider store={store}><Main /></Provider>,
-    document.getElementById('start'))
+Promise.all([
+    import('react'),
+    import('react-dom'),
+    import('react-redux'),
+    import('../data/store'),
+    import('./main/main')
+])
+.then(([React, ReactDOM, ReactRedux, store, Main]) => {
+    ReactDOM.render(<ReactRedux.Provider store={store.default}><Main.Main /></ReactRedux.Provider>,
+        document.getElementById('start'))
+})

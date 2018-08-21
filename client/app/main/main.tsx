@@ -18,7 +18,6 @@ export class Main extends React.Component<{}, MyState> {
 
     main = Loadable({
         loader: () => import(
-            /* webpackChunkName: "content" */
             './content/content'),
         loading () {
             return <Loading/>
@@ -27,7 +26,6 @@ export class Main extends React.Component<{}, MyState> {
 
     login = Loadable({
         loader: () => import(
-            /* webpackChunkName: "logon" */
             '../logon/login'),
         loading () {
             return <Loading/>
@@ -36,7 +34,6 @@ export class Main extends React.Component<{}, MyState> {
 
     register = Loadable({
         loader: () => import(
-            /* webpackChunkName: "register" */
             '../logon/register'),
         loading () {
             return <Loading/>
