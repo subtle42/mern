@@ -21,7 +21,7 @@ import {
 interface NavProps {
     user: IUser,
     books: IBook[],
-    selectedBook?: IBook
+    selectedBook: IBook
 }
 
 const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {
