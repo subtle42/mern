@@ -3,6 +3,7 @@ import 'chai-http'
 import { ISource } from 'common/models'
 import * as utils from './utils'
 import * as fs from 'fs'
+import * as path from 'path'
 const expect = chai.expect
 
 describe('Source API', () => {
@@ -34,7 +35,7 @@ describe('Source API', () => {
             chai.request(server)
             .post('/api/sources')
             .set('Authorization', tokens[0])
-            .attach('file', fs.readFileSync('./integration/data/2012_SAT_RESULTS.csv'), '2012_SAT_RESULTS.csv')
+            .attach('file', fs.readFileSync(path.join(__dirname, 'data/2012_SAT_RESULTS.csv')), '2012_SAT_RESULTS.csv')
             .then(res => expect(res.status).to.equal(200))
             .then(() => done())
         })
@@ -45,7 +46,7 @@ describe('Source API', () => {
         let mySource: ISource
 
         before(done => {
-            utils.createSource(tokens[0], './integration/data/2012_SAT_RESULTS.csv')
+            utils.createSource(tokens[0], path.join(__dirname, 'data/2012_SAT_RESULTS.csv'))
             .then(newId => sourceId = newId)
             .then(() => done())
         })
@@ -166,7 +167,7 @@ describe('Source API', () => {
                 removedIds = removedIds.concat(ids)
             })
 
-            utils.createSource(tokens[0], './integration/data/2012_SAT_RESULTS.csv')
+            utils.createSource(tokens[0], path.join(__dirname, 'data/2012_SAT_RESULTS.csv'))
             .then(newSourceId => sourceId = newSourceId)
             .then(() => done())
         })
@@ -219,7 +220,7 @@ describe('Source API', () => {
             chai.request(server)
             .post('/api/sources')
             .set('Authorization', tokens[0])
-            .attach('file', fs.readFileSync('./integration/data/2012_SAT_RESULTS.csv'), '2012_SAT_RESULTS.csv')
+            .attach('file', fs.readFileSync(path.join(__dirname, 'data/2012_SAT_RESULTS.csv')), '2012_SAT_RESULTS.csv')
             .then(res => {
                 expect(res.status).to.equal(200)
                 return chai.request(server)

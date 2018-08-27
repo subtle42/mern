@@ -2,6 +2,7 @@ import * as chai from 'chai'
 import 'chai-http'
 import { IWidget, IBook } from 'common/models'
 import * as utils from './utils'
+import * as path from 'path'
 const expect = chai.expect
 
 describe('Widget API', () => {
@@ -19,7 +20,7 @@ describe('Widget API', () => {
         .then(id => bookId = id)
         .then(() => utils.createPage(tokens[0], bookId, 'top page'))
         .then(id => pageId = id)
-        .then(() => utils.createSource(tokens[0], './integration/data/2012_SAT_RESULTS.csv'))
+        .then(() => utils.createSource(tokens[0], path.join(__dirname, 'data/2012_SAT_RESULTS.csv')))
         .then(id => sourceId = id)
         .then(() => done())
     })
@@ -239,7 +240,7 @@ describe('Widget Channel', () => {
         .then(id => bookId = id)
         .then(() => utils.createPage(tokens[0], bookId, 'top page'))
         .then(id => pageId = id)
-        .then(() => utils.createSource(tokens[0], './integration/data/2012_SAT_RESULTS.csv'))
+        .then(() => utils.createSource(tokens[0], path.join(__dirname, 'data/2012_SAT_RESULTS.csv')))
         .then(id => sourceId = id)
         .then(() => done())
     })
