@@ -24,16 +24,17 @@ export default class CreateBookButton extends React.Component<{}, State> {
     }
 
     cancel = (event: React.FormEvent<any>) => {
-        event.stopPropagation()
+        if (event) event.stopPropagation()
         this.setState(new State())
     }
 
     save = (event: React.FormEvent<any>) => {
-        event.stopPropagation()
+        if (event) event.stopPropagation()
         BookActions.create(this.state.bookName.trim())
         .then(bookId => store.getState().books.list.filter(book => book._id === bookId)[0])
         .then(newBook => BookActions.select(newBook))
         .then(() => this.toggle())
+        .catch(err => console.error(err))
     }
 
     handleChange = (event: React.FormEvent<any>) => {

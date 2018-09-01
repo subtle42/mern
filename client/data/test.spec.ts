@@ -133,11 +133,10 @@ describe('Base Actions for Redux', () => {
 
         describe('on addedOrChanged function', () => {
             let selectSpy: SinonSpy
-            beforeEach(done => {
+            beforeEach(() => {
                 selectSpy = spy(service, 'select')
-                service.connect('')
+                return service.connect('')
                 .then(() => dispatchResolve.resetHistory())
-                .then(() => done())
             })
 
             it("should send a dispatch of 'addedOrChanged'", done => {
