@@ -12,20 +12,18 @@ describe('User API', () => {
     let tokens: string[]
     let userIds: string[]
 
-    before(done => {
-        utils.testSetup()
+    before(() => {
+        return utils.testSetup()
         .then(setup => ({ server, userIds, tokens } = setup))
-        .then(() => done())
     })
 
-    after(done => {
-        utils.cleanDb()
-        .then(() => done())
+    after(() => {
+        return utils.cleanDb()
     })
 
     describe('post /api/user', () => {
-        it('should create a user', done => {
-            chai.request(server)
+        it('should create a user', () => {
+            return chai.request(server)
             .post('/api/user')
             .send({
                 name: userName,
@@ -33,11 +31,10 @@ describe('User API', () => {
                 password: password
             })
             .then(res => expect(res.status).to.equal(200))
-            .then(() => done())
         })
 
-        it('should not create a user if the email already exists', done => {
-            chai.request(server)
+        it('should not create a user if the email already exists', () => {
+            return chai.request(server)
             .post('/api/user')
             .send({
                 name: userName,
@@ -45,7 +42,6 @@ describe('User API', () => {
                 password: password
             })
             .then(res => expect(res.status).not.to.equal(200))
-            .then(() => done())
         })
     })
 
@@ -57,15 +53,14 @@ describe('User API', () => {
             token = tokens[1]
         })
 
-        it('should return an error user if is NOT logged in', done => {
-            chai.request(server)
+        it('should return an error user if is NOT logged in', () => {
+            return chai.request(server)
             .get('/api/user/me')
             .then(res => expect(res.status).to.equal(401))
-            .then(() => done())
         })
 
-        it("should get current user's info", done => {
-            chai.request(server)
+        it("should get current user's info", () => {
+            return chai.request(server)
             .get('/api/user/me')
             .set('Authorization', token)
             .then(res => {
@@ -74,7 +69,6 @@ describe('User API', () => {
                 expect(user.email).to.equal(myUser.email)
                 expect(user.name).to.equal(myUser.name)
             })
-            .then(() => done())
         })
     })
 })

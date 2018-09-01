@@ -63,7 +63,6 @@ export default class BookController {
      */
     public static remove (req: Request, res: Response): void {
         let myId: string = req.params.id
-        console.log('myid', myId)
 
         Book.findById(myId).exec()
         .then(book => {

@@ -13,8 +13,8 @@ describe('Widget API', () => {
     let sourceId: string
     let server: Express.Application
 
-    before(done => {
-        utils.testSetup()
+    before(() => {
+        return utils.testSetup()
         .then(setup => ({ userIds, tokens, server } = setup))
         .then(() => utils.createBook(tokens[0], 'top book'))
         .then(id => bookId = id)
@@ -22,17 +22,15 @@ describe('Widget API', () => {
         .then(id => pageId = id)
         .then(() => utils.createSource(tokens[0], path.join(__dirname, 'data/2012_SAT_RESULTS.csv')))
         .then(id => sourceId = id)
-        .then(() => done())
     })
 
-    after(done => {
-        utils.cleanDb()
-        .then(() => done())
+    after(() => {
+        return utils.cleanDb()
     })
 
     describe('POST /api/widgets', () => {
-        it('should return an error if user is NOT logged in', done => {
-            chai.request(server)
+        it('should return an error if user is NOT logged in', () => {
+            return chai.request(server)
             .post(`/api/widgets`)
             .send({
                 pageId,
@@ -40,11 +38,10 @@ describe('Widget API', () => {
                 type: 'chart'
             })
             .then(res => expect(res.status).to.equal(401))
-            .then(() => done())
         })
 
-        it('should retiurn an error if the user does NOT have edit access', done => {
-            chai.request(server)
+        it('should retiurn an error if the user does NOT have edit access', () => {
+            return chai.request(server)
             .post(`/api/widgets`)
             .set('authorization', tokens[1])
             .send({
@@ -53,11 +50,10 @@ describe('Widget API', () => {
                 type: 'chart'
             })
             .then(res => expect(res.status).not.to.equal(200))
-            .then(() => done())
         })
 
-        it('should return a success if user is the owner of the book', done => {
-            chai.request(server)
+        it('should return a success if user is the owner of the book', () => {
+            return chai.request(server)
             .post(`/api/widgets`)
             .set('authorization', tokens[0])
             .send({
@@ -66,11 +62,10 @@ describe('Widget API', () => {
                 type: 'chart'
             })
             .then(res => expect(res.status).to.equal(200))
-            .then(() => done())
         })
 
-        it('should return a success if the user has edit access to the book', done => {
-            utils.getBook(tokens[0], bookId)
+        it('should return a success if the user has edit access to the book', () => {
+            return utils.getBook(tokens[0], bookId)
             .then(book => {
                 book.editors.push(userIds[1])
                 return utils.updateBook(tokens[0], book)
@@ -84,7 +79,6 @@ describe('Widget API', () => {
                 type: 'chart'
             }))
             .then(res => expect(res.status).to.equal(200))
-            .then(() => done())
         })
     })
 
@@ -92,98 +86,89 @@ describe('Widget API', () => {
         let widgetId: string
         let widget: IWidget
 
-        before(done => {
-            utils.createWidget(tokens[0], pageId, sourceId, 'chart')
+        before(() => {
+            return utils.createWidget(tokens[0], pageId, sourceId, 'chart')
             .then(id => widgetId = id)
-            .then(() => done())
         })
 
-        beforeEach(done => {
-            utils.getWidget(tokens[0], widgetId)
+        beforeEach(() => {
+            return utils.getWidget(tokens[0], widgetId)
             .then(data => widget = data)
-            .then(() => done())
         })
 
-        it('should return an error if user is NOT logged in', done => {
-            chai.request(server)
+        it('should return an error if user is NOT logged in', () => {
+            return chai.request(server)
             .put(`/api/widgets`)
             .send(widget)
             .then(res => expect(res.status).to.equal(401))
-            .then(() => done())
         })
 
-        it('should return an error if the user does NOT have edit access', done => {
+        it('should return an error if the user does NOT have edit access', () => {
             const test: string = 'awlefhqwoefjw'
             widget.dimensions.push(test)
 
-            chai.request(server)
+            return chai.request(server)
             .put(`/api/widgets`)
             .set('authorization', tokens[2])
             .send(widget)
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => utils.getWidget(tokens[0], widgetId))
             .then(data => expect(data.dimensions.filter(x => x === test).length).to.equal(0))
-            .then(() => done())
         })
 
-        it('should return a success if the user is the owner of the book', done => {
+        it('should return a success if the user is the owner of the book', () => {
             const test: string = 'works'
             widget.dimensions.push(test)
 
-            chai.request(server)
+            return chai.request(server)
             .put(`/api/widgets`)
             .set('authorization', tokens[0])
             .send(widget)
             .then(res => expect(res.status).to.equal(200))
             .then(() => utils.getWidget(tokens[0], widgetId))
             .then(data => expect(data.dimensions.filter(x => x === test).length).to.equal(1))
-            .then(() => done())
         })
 
-        it('should return a success if the user is an editor of the book', done => {
+        it('should return a success if the user is an editor of the book', () => {
             const test: string = 'editor'
             widget.dimensions.push(test)
 
-            chai.request(server)
+            return chai.request(server)
             .put(`/api/widgets`)
             .set('authorization', tokens[1])
             .send(widget)
             .then(res => expect(res.status).to.equal(200))
             .then(() => utils.getWidget(tokens[0], widgetId))
             .then(data => expect(data.dimensions.filter(x => x === test).length).to.equal(1))
-            .then(() => done())
         })
     })
 
     describe('DELETE /api/widgets', () => {
         let book: IBook
-        before(done => {
-            utils.getBook(tokens[0], bookId)
+        before(() => {
+            return utils.getBook(tokens[0], bookId)
             .then(data => book = data)
-            .then(() => done())
         })
 
-        it('should return an error if user is NOT logged in', done => {
-            chai.request(server)
+        it('should return an error if user is NOT logged in', () => {
+            return chai.request(server)
             .del(`/api/widgets/asdf`)
             .then(res => expect(res.status).to.equal(401))
-            .then(() => done())
         })
 
-        it('should return an error if widget does NOT exist', done => {
-            chai.request(server)
+        it('should return an error if widget does NOT exist', () => {
+            return chai.request(server)
             .del(`/api/widgets/asdf`)
             .set('authorization', tokens[0])
             .then(res => expect(res.status).not.to.equal(200))
-            .then(() => done())
         })
 
-        it('should return an error if user does NOT have edit access', done => {
+        it('should return an error if user does NOT have edit access', () => {
             let widgetId: string
             expect(book.owner).not.to.equal(userIds[2])
             expect(book.editors.indexOf(userIds[2])).to.equal(-1)
 
-            utils.createWidget(tokens[0], pageId, sourceId, 'chart')
+            return utils.createWidget(tokens[0], pageId, sourceId, 'chart')
             .then(id => widgetId = id)
             .then(() => chai.request(server)
             .del(`/api/widgets/${widgetId}`)
@@ -191,14 +176,13 @@ describe('Widget API', () => {
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => utils.getWidget(tokens[0], widgetId))
             .then(data => expect(data._id).to.equal(widgetId))
-            .then(() => done())
         })
 
-        it('should return a success if the user has owner access', done => {
+        it('should return a success if the user has owner access', () => {
             let widgetId: string
             expect(book.owner).to.equal(userIds[0])
 
-            utils.createWidget(tokens[0], pageId, sourceId, 'chart')
+            return utils.createWidget(tokens[0], pageId, sourceId, 'chart')
             .then(id => widgetId = id)
             .then(() => chai.request(server)
             .del(`/api/widgets/${widgetId}`)
@@ -206,14 +190,13 @@ describe('Widget API', () => {
             .then(res => expect(res.status).to.equal(200))
             .then(() => utils.getWidget(tokens[0], widgetId))
             .catch(res => expect(res.status).not.to.equal(200))
-            .then(() => done())
         })
 
-        it('should return a success if the user has edit access', done => {
+        it('should return a success if the user has edit access', () => {
             let widgetId: string
             expect(book.editors.indexOf(userIds[1])).not.to.equal(-1)
 
-            utils.createWidget(tokens[0], pageId, sourceId, 'chart')
+            return utils.createWidget(tokens[0], pageId, sourceId, 'chart')
             .then(id => widgetId = id)
             .then(() => chai.request(server)
             .del(`/api/widgets/${widgetId}`)
@@ -221,7 +204,6 @@ describe('Widget API', () => {
             .then(res => expect(res.status).to.equal(200))
             .then(() => utils.getWidget(tokens[0], widgetId))
             .catch(res => expect(res.status).not.to.equal(200))
-            .then(() => done())
         })
     })
 })
@@ -233,8 +215,8 @@ describe('Widget Channel', () => {
     let pageId: string
     let sourceId: string
 
-    before(done => {
-        utils.testSetup()
+    before(() => {
+        return utils.testSetup()
         .then(setup => ({ userIds, tokens } = setup))
         .then(() => utils.createBook(tokens[0], 'top book'))
         .then(id => bookId = id)
@@ -242,12 +224,10 @@ describe('Widget Channel', () => {
         .then(id => pageId = id)
         .then(() => utils.createSource(tokens[0], path.join(__dirname, 'data/2012_SAT_RESULTS.csv')))
         .then(id => sourceId = id)
-        .then(() => done())
     })
 
-    after(done => {
-        utils.cleanDb()
-        .then(() => done())
+    after(() => {
+        return utils.cleanDb()
     })
 
     describe('authorization', () => {
@@ -350,13 +330,12 @@ describe('Widget Channel', () => {
     describe('addedOrChanged channel', () => {
         let widgetIds: string[]
 
-        before(done => {
-            Promise.all([
+        before(() => {
+            return Promise.all([
                 utils.createWidget(tokens[0], pageId, sourceId, 'chart'),
                 utils.createWidget(tokens[0], pageId, sourceId, 'chart')
             ])
             .then(ids => widgetIds = ids)
-            .then(() => done())
         })
 
         it("should return all widgets in a page when joining a page's room", done => {

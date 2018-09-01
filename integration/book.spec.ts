@@ -11,8 +11,8 @@ describe('Book API', () => {
     let books: IBook[] = []
     let server: Express.Application
 
-    before(done => {
-        utils.testSetup()
+    before(() => {
+        return utils.testSetup()
         .then(setup => ({ userIds, tokens, server } = setup))
         .then(() => {
             nsp = utils.websocketConnect('books', tokens[0])
@@ -23,28 +23,24 @@ describe('Book API', () => {
                 })
             })
         })
-        .then(() => done())
-        .catch(err => console.error(err.Error))
     })
 
-    after(done => {
-        nsp.disconnect()
-        done()
+    after(() => {
+        return nsp.disconnect()
     })
 
     describe('POST /api/books', () => {
         const testName = 'unitTest'
 
-        it('should return an error if user is NOT logged in', done => {
-            chai.request(server)
+        it('should return an error if user is NOT logged in', () => {
+            return chai.request(server)
             .post('/api/books')
             .send({ name: testName })
             .then(res => expect(res.status).not.to.equal(200))
-            .then(() => done())
         })
 
-        it('should create a new book', done => {
-            chai.request(server)
+        it('should create a new book', () => {
+            return chai.request(server)
             .post('/api/books')
             .set('Authorization', tokens[0])
             .send({ name: testName })
@@ -55,9 +51,7 @@ describe('Book API', () => {
             .then(book => {
                 expect(book.name).to.equal(testName)
                 expect(book.owner).to.equal(userIds[0])
-                done()
             })
-            .catch(err => console.error(err))
         })
     })
 
@@ -65,56 +59,51 @@ describe('Book API', () => {
         let bookId: string
         let myBook: IBook
 
-        before(done => {
-            utils.createBook(tokens[0], 'update book test')
+        before(() => {
+            return utils.createBook(tokens[0], 'update book test')
             .then(id => bookId = id)
-            .then(() => done())
         })
 
-        beforeEach(done => {
-            utils.getBook(tokens[0], bookId)
+        beforeEach(() => {
+            return utils.getBook(tokens[0], bookId)
             .then(book => myBook = book)
-            .then(() => done())
         })
 
-        it('should return an error if user is NOT logged in', done => {
-            chai.request(server)
+        it('should return an error if user is NOT logged in', () => {
+            return chai.request(server)
             .put('/api/books')
             .send(myBook)
             .then(res => expect(res.status).to.equal(401))
-            .then(() => done())
         })
 
-        it('should return an error if user is NOT owner or editor', done => {
+        it('should return an error if user is NOT owner or editor', () => {
             expect(myBook.owner).not.to.equal(userIds[1])
             const newName = 'fawliejfwalef'
             myBook.name = newName
 
-            chai.request(server)
+            return chai.request(server)
             .put('/api/books')
             .set('authorization', tokens[1])
             .send(myBook)
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => utils.getBook(tokens[0], myBook._id))
             .then(book => expect(book.name).not.to.equal(newName))
-            .then(() => done())
         })
 
-        it('should return a success if user is the owner', done => {
+        it('should return a success if user is the owner', () => {
             expect(myBook.owner).to.equal(userIds[0])
-            chai.request(server)
+            return chai.request(server)
             .put('/api/books')
             .set('authorization', tokens[0])
             .send(books[0])
             .then(res => expect(res.status).to.equal(200))
-            .then(() => done())
         })
 
-        it('should return a success if user is an editor', done => {
+        it('should return a success if user is an editor', () => {
             const newName = 'editor update'
             myBook.editors.push(userIds[1])
 
-            chai.request(server)
+            return chai.request(server)
             .put('/api/books')
             .set('authorization', tokens[0])
             .send(myBook)
@@ -129,85 +118,77 @@ describe('Book API', () => {
             .then(res => expect(res.status).to.equal(200))
             .then(() => utils.getBook(tokens[1], myBook._id))
             .then(book => expect(book.name).to.equal(newName))
-            .then(() => done())
         })
 
-        it('should return an error if schema does NOT match', done => {
+        it('should return an error if schema does NOT match', () => {
             let tmp: any = myBook
             tmp.name = { bad: 'data' }
-            chai.request(server)
+            return chai.request(server)
             .put('/api/books')
             .set('Authorization', tokens[0])
             .send(tmp)
             .then(res => expect(res.status).not.to.equal(200))
-            .then(() => done())
         })
 
-        it('should return an error if a user other than the owner tries to change the owner', done => {
+        it('should return an error if a user other than the owner tries to change the owner', () => {
             expect(myBook.owner).to.equal(userIds[0])
             expect(myBook.editors.indexOf(userIds[1])).not.to.equal(-1)
             myBook.owner = userIds[1]
 
-            chai.request(server)
+            return chai.request(server)
             .put('/api/books')
             .set('authorization', tokens[1])
             .send(myBook)
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => utils.getBook(tokens[0], myBook._id))
             .then(book => expect(book.owner).to.equal(userIds[0]))
-            .then(res => done())
         })
 
-        it('should return a success if the owner changes the owner field', done => {
+        it('should return a success if the owner changes the owner field', () => {
             expect(myBook.owner).to.equal(userIds[0])
             myBook.owner = userIds[1]
-            chai.request(server)
+            return chai.request(server)
             .put('/api/books')
             .set('authorization', tokens[0])
             .send(myBook)
             .then(res => expect(res.status).to.equal(200))
-            .then(res => done())
         })
     })
 
     describe('DELETE /api/books', () => {
         let removed: string[] = []
         let myBook: IBook
-        before(done => {
+        before(() => {
             nsp.on('removed', (ids: string[]) => {
                 removed = removed.concat(ids)
             })
-            utils.createBook(tokens[0], 'to delete')
+            return utils.createBook(tokens[0], 'to delete')
             .then(id => utils.getBook(tokens[0], id))
             .then(book => myBook = book)
-            .then(() => done())
         })
 
         after(() => nsp.removeListener('removed'))
 
-        it('should return an error if user is NOT logged in', done => {
-            chai.request(server)
+        it('should return an error if user is NOT logged in', () => {
+            return chai.request(server)
             .del(`/api/books/myBookID`)
             .then(res => expect(res.status).to.equal(401))
-            .then(() => done())
         })
 
-        it('should return and error if book does NOT exist', done => {
-            chai.request(server)
+        it('should return and error if book does NOT exist', () => {
+            return chai.request(server)
             .del(`/api/books/myBookID`)
             .set('Authorization', tokens[0])
             .then(res => expect(res.status).not.to.equal(200))
-            .then(() => done())
         })
 
-        it('should stop a delete if user is NOT the owner', done => {
-            chai.request(server)
+        it('should stop a delete if user is NOT the owner', () => {
+            return chai.request(server)
             .del(`/api/books/${myBook._id}`)
             .set('Authorization', tokens[1])
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => utils.getBook(tokens[0], myBook._id))
             .then(book => expect(book).not.to.be.undefined)
-            .then(() => done())
         })
     })
 })
@@ -217,16 +198,13 @@ describe('Book Socket', () => {
     let userIds: string[] = []
     let server: Express.Application
 
-    before(done => {
-        utils.testSetup()
+    before(() => {
+        return utils.testSetup()
         .then(setup => ({ userIds, tokens, server } = setup))
-        .then(() => done())
-        .catch(err => console.error(err))
     })
 
-    after(done => {
-        utils.cleanDb()
-        .then(() => done())
+    after(() => {
+        return utils.cleanDb()
     })
 
     describe('authentication', () => {
@@ -340,19 +318,18 @@ describe('Book Socket', () => {
 
             beforeEach(() => books = [])
 
-            it('should send an item when it is added', done => {
+            it('should send an item when it is added', () => {
                 expect(books.length).to.equal(0)
-                utils.createBook(tokens[2], 'alwefjowie')
+                return utils.createBook(tokens[2], 'alwefjowie')
                 .then(bookId => {
                     expect(books.length).to.equal(1)
                     expect(books[0]._id).to.equal(bookId)
                 })
-                .then(() => done())
             })
 
-            it('should send an item when it is updated', done => {
+            it('should send an item when it is updated', () => {
                 const updatedName = 'waeiouweofiuwqioefu'
-                utils.createBook(tokens[2], 'woifjjw')
+                return utils.createBook(tokens[2], 'woifjjw')
                 .then(bookId => utils.getBook(tokens[2], bookId))
                 .then(book => {
                     books = []
@@ -361,7 +338,6 @@ describe('Book Socket', () => {
                 })
                 .then(() => expect(books.length).to.equal(1))
                 .then(() => expect(books[0].name).to.equal(updatedName))
-                .then(() => done())
             })
 
             it('should send an item if a user is added as an editor', done => {
