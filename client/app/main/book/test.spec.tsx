@@ -87,7 +87,24 @@ describe('Book Add component', () => {
     })
 
     describe('input validation', () => {
-        xit('should do nothing if input is less than 3 characters', () => undefined)
+        beforeEach(() => {
+            wrapper.find('DropdownItem').simulate('click')
+        })
+
+        it('should set Create button to disabled if input is less than 3 characters', () => {
+            expect(reqs.length).to.equal(0)
+            wrapper.find('Input')
+            .simulate('change', {
+                target: {
+                    value: 'aa'
+                }
+            })
+            wrapper.update()
+            const createBtn = wrapper.find('Button')
+            .filterWhere(btn => btn.props().children === 'Create')
+
+            expect(createBtn.prop('disabled')).to.equal(true)
+        })
     })
 
     describe('on cancel', () => {
