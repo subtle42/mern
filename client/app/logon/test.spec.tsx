@@ -76,13 +76,12 @@ describe('Login component', () => {
             })))
         })
 
-        it('should do nothing if email is too short', () => undefined)
+        xit('should do nothing if email is too short', () => undefined)
 
-        it('should do nothing if passwrod is too short', () => undefined)
+        xit('should do nothing if passwrod is too short', () => undefined)
 
         it('should redirect to home upon login success', () => {
-            let loginStub: SinonStub
-            loginStub = sandbox.stub(AuthActions, 'login').returns(Promise.resolve())
+            const loginStub = sandbox.stub(AuthActions, 'login').returns(Promise.resolve())
 
             emailInput.simulate('change', {
                 target: {
