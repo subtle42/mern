@@ -1,24 +1,30 @@
 import 'jsdom-global/register'
 import { expect } from 'chai'
-import { shallow, ShallowWrapper, configure } from 'enzyme'
-const Adapter = require('enzyme-adapter-react-16')
+import { mount, ReactWrapper } from 'enzyme'
 import * as React from 'react'
-import { createSandbox, SinonSandbox } from 'sinon'
-import authActions from 'data/auth/actions'
+import { createSandbox, SinonSandbox, SinonFakeXMLHttpRequest, SinonStub } from 'sinon'
 import LoginPage from './login'
+import * as utils from '../../testUtils'
+import * as router from 'react-router-dom'
+import AuthActions from 'data/auth/actions'
 
 describe('Login component', () => {
-    configure({
-        adapter: new Adapter()
-    })
-    let wrapper: ShallowWrapper<any, any>
     const sandbox: SinonSandbox = createSandbox({})
+    let wrapper: ReactWrapper<any, any>
+    let xhr: SinonFakeXMLHttpRequest
+    let requests: SinonFakeXMLHttpRequest[]
+    let redirectStub: SinonStub
 
     beforeEach(() => {
-        wrapper = shallow(<LoginPage />)
+        redirectStub = sandbox.stub(router, 'Redirect').returns(<div />)
+        requests = []
+        wrapper = mount(<LoginPage />)
+        xhr = sandbox.useFakeXMLHttpRequest()
+        xhr.onCreate = (req) => requests.push(req)
     })
 
     afterEach(() => {
+        xhr.restore()
         sandbox.restore()
     })
 
@@ -31,12 +37,71 @@ describe('Login component', () => {
     })
 
     describe('login', () => {
-        it('should call authActions.login', () => {
-            const myLogin = sandbox.stub(authActions, 'login').returns(new Promise(resolve => {
-                return {}
-            }))
+        let emailInput: ReactWrapper
+        let pswrdInput: ReactWrapper
+
+        beforeEach(() => {
+            emailInput = wrapper.find('Input[name="email"]')
+            pswrdInput = wrapper.find('Input[name="password"]')
+        })
+
+        it('should send a REST call with inputs if form is valid', () => {
+            const myEmail = 'aweoverjvler'
+            const myPswrd = 'wiejrvkrgjio'
+
+            emailInput.simulate('change', {
+                target: {
+                    value: myEmail,
+                    name: 'email'
+                }
+            })
+
+            pswrdInput.simulate('change', {
+                target: {
+                    value: myPswrd,
+                    name: 'password'
+                }
+            })
+
+            wrapper.update()
             wrapper.find('Button').simulate('click')
-            expect(myLogin.calledOnce).to.equal(true)
+
+            return utils.waitATick()
+            .then(() => expect(requests.length).to.equal(1))
+            .then(() => expect(requests[0].method).to.equal('POST'))
+            .then(() => expect(requests[0].url).to.equal('/api/auth/local'))
+            .then(() => expect(requests[0].requestBody).to.equal(JSON.stringify({
+                email: myEmail,
+                password: myPswrd
+            })))
+        })
+
+        xit('should do nothing if email is too short', () => undefined)
+
+        xit('should do nothing if passwrod is too short', () => undefined)
+
+        it('should redirect to home upon login success', () => {
+            const loginStub = sandbox.stub(AuthActions, 'login').returns(Promise.resolve())
+
+            emailInput.simulate('change', {
+                target: {
+                    value: 'awefwef',
+                    name: 'email'
+                }
+            })
+
+            pswrdInput.simulate('change', {
+                target: {
+                    value: 'erervserv',
+                    name: 'password'
+                }
+            })
+
+            wrapper.update()
+            wrapper.find('Button').simulate('click')
+            return utils.waitATick()
+            .then(() => expect(loginStub.getCalls().length).to.equal(1))
+            .then(() => expect(redirectStub.getCalls().length).to.equal(1))
         })
     })
 })
