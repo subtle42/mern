@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { Page } from './model'
 import { Book } from '../book/model'
-import Util from '../utils'
+import * as utils from '../utils'
 import { pageSocket } from './socket'
 import * as auth from '../../auth/auth.service'
 import { Widget } from '../widget/model'
@@ -26,8 +26,8 @@ export default class PageController {
             pageSocket.onAddOrChange(page)
             return page._id
         })
-        .then(Util.handleResponse(res))
-        .catch(Util.handleError(res))
+        .then(utils.handleResponse(res))
+        .catch(utils.handleError(res))
     }
 
     /**
@@ -48,8 +48,8 @@ export default class PageController {
             .then(() => Page.findByIdAndUpdate(myId, myPage).exec())
         })
         .then(() => pageSocket.onAddOrChange(myPage))
-        .then(Util.handleResponseNoData(res))
-        .catch(Util.handleError(res))
+        .then(utils.handleResponseNoData(res))
+        .catch(utils.handleError(res))
     }
 
     /**
@@ -70,8 +70,8 @@ export default class PageController {
             .then(() => page.remove())
             .then(() => pageSocket.onDelete(page))
         })
-        .then(Util.handleResponseNoData(res))
-        .catch(Util.handleError(res))
+        .then(utils.handleResponseNoData(res))
+        .catch(utils.handleError(res))
     }
 
     public static getPages (req: Request, res: Response): void {
@@ -79,7 +79,7 @@ export default class PageController {
         Book.findById(bookId).exec()
         .then(book => auth.hasViewerAccess(req.user._id, book))
         .then(() => Page.find({ bookId }).exec())
-        .then(Util.handleResponse(res))
-        .catch(Util.handleError(res))
+        .then(utils.handleResponse(res))
+        .catch(utils.handleError(res))
     }
 }

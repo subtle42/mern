@@ -1,6 +1,6 @@
 import { Model, Schema } from 'mongoose'
 import { IPageModel } from '../../dbModels'
-import Utils from '../utils'
+import { createSchema } from '../utils'
 
 const PageSchema = new Schema({
     bookId: { type: String, required: true },
@@ -29,4 +29,4 @@ const PageSchema = new Schema({
     layout: { type: Array, default: [], required: true }
 })
 
-export const Page: Model<IPageModel> = Utils.createSchema('Page', PageSchema)
+export const Page: Model<IPageModel> = createSchema('Page', PageSchema)

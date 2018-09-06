@@ -1,6 +1,6 @@
 import { Schema, Model } from 'mongoose'
 import { ISourceModel } from '../../dbModels'
-import Utils from '../utils'
+import { createSchema } from '../utils'
 
 let SourceSchema = new Schema({
     title: { type: String, required: true },
@@ -14,4 +14,4 @@ let SourceSchema = new Schema({
     isPublic: { type: Boolean, default: false }
 })
 
-export const Source: Model<ISourceModel> = Utils.createSchema('Source', SourceSchema)
+export const Source: Model<ISourceModel> = createSchema('Source', SourceSchema)

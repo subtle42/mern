@@ -2,19 +2,20 @@ import { User } from './model'
 import { Response, NextFunction } from 'express'
 import * as jwt from 'jsonwebtoken'
 import config from '../../config/environment'
+import * as utils from '../utils'
 import { MyRequest } from '../../dbModels'
 
 export class UserController {
     public static getPublic (req: MyRequest, res: Response): void {
         User.find({}, '-salt -password')
         .then(users => res.json(users))
-        .catch(err => res.status(500).json(err))
+        .catch(utils.handleError(res))
     }
 
     public static index (req: MyRequest, res: Response): void {
         User.find({}, '-salt -password')
         .then(users => res.json(users))
-        .catch(err => res.status(500).json(err))
+        .catch(utils.handleError(res))
     }
 
     public static create (req: MyRequest, res: Response): void {
@@ -38,9 +39,7 @@ export class UserController {
             })
             res.json({ token })
         })
-        .catch(err => {
-            res.status(422).json(err)
-        })
+        .catch(utils.handleError(res, 422))
     }
 
     public static show (req: MyRequest, res: Response, next: NextFunction): void {
@@ -52,13 +51,13 @@ export class UserController {
             }
             res.json(user.profile)
         })
-        .catch(err => res.status(500).json(err))
+        .catch(utils.handleError(res))
     }
 
     public static destroy (req: MyRequest, res: Response) {
         User.findByIdAndRemove(req.params.id)
         .then(() => res.status(204).end())
-        .catch(err => res.status(500).json(err))
+        .catch(utils.handleError(res))
     }
 
     public static changePassword (req: MyRequest, res: Response): void {
@@ -77,7 +76,7 @@ export class UserController {
             return myUser.save()
         })
         .then(user => res.json())
-        .catch(err => res.status(500).json(err))
+        .catch(utils.handleError(res))
     }
 
     public static me (req: MyRequest, res: Response) {
@@ -92,10 +91,6 @@ export class UserController {
             }
             res.json(user)
         })
-        .catch(err => res.status(500).json(err))
-    }
-
-    public static authCallback (req: MyRequest, res: Response) {
-        res.redirect('/')
+        .catch(utils.handleError(res))
     }
 }

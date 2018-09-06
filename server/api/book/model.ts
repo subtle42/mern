@@ -1,6 +1,6 @@
 import { Model, Schema } from 'mongoose'
 import { IBookModel } from '../../dbModels'
-import Utils from '../utils'
+import { createSchema } from '../utils'
 
 const BookSchema = new Schema({
     name: { type: String, required: true },
@@ -11,4 +11,4 @@ const BookSchema = new Schema({
     isPublic: { type: Boolean, required: true, default: false }
 })
 
-export const Book: Model<IBookModel> = Utils.createSchema('Book', BookSchema)
+export const Book: Model<IBookModel> = createSchema('Book', BookSchema)

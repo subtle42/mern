@@ -4,6 +4,7 @@ import * as http from 'http'
 import * as io from 'socket.io'
 import * as mongoose from 'mongoose'
 import * as passport from 'passport'
+import * as utils from './api/utils'
 // import { socketAuth } from './auth/socket/auth'
 declare var global: any
 
@@ -29,8 +30,24 @@ myIO.on('connection', socket => {
 })
 // socketAuth(myIO);
 
+const test = () => {
+    return (req, res, next) => {
+        req.reqId = (new Date()).getTime()
+        // utils.logger.info(`${req.method} - ${req.url}: ${req.headers}`)
+        utils.logger.info({
+            method: req.method,
+            url: req.url,
+            id: req.reqId,
+            headers: req.headers,
+            body: req.body
+        })
+        next()
+    }
+}
+
 app.use(body.json())
 app.use(passport.initialize())
+app.use(test())
 require('./routes').default(app)
 
 // Used for integration testing, to not start server multiple times

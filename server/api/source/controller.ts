@@ -7,7 +7,7 @@ import { ISourceColumn, ColumnType, IQuery, ISource } from 'common/models'
 import { ISourceModel } from '../../dbModels'
 import * as auth from '../../auth/auth.service'
 import config from '../../config/environment'
-import Util from '../utils'
+import * as utils from '../utils'
 const csv = require('fast-csv')
 
 class SourceController {
@@ -145,8 +145,8 @@ class SourceController {
             .then(() => Source.findByIdAndUpdate(id, req.body).exec())
             .then(() => SourceSocket.onAddOrChange(mySource, source))
         })
-        .then(Util.handleResponseNoData(res))
-        .catch(Util.handleError(res))
+        .then(utils.handleResponseNoData(res))
+        .catch(utils.handleError(res))
     }
 
     remove (req: Request, res: Response): void {
@@ -156,8 +156,8 @@ class SourceController {
             .then(() => source.remove())
             .then(() => SourceSocket.onDelete(source))
         })
-        .then(Util.handleResponseNoData(res))
-        .catch(Util.handleError(res))
+        .then(utils.handleResponseNoData(res))
+        .catch(utils.handleError(res))
     }
 
     create (req: Request, res: Response): void {
@@ -201,8 +201,8 @@ class SourceController {
         .then(source => mySource = source)
         .then(() => this.buildMongoQuery(mySource, myQuery))
         .then(query => this.runMongoQuery(mySource, query))
-        .then(Util.handleResponse(res))
-        .catch(Util.handleError(res))
+        .then(utils.handleResponse(res))
+        .catch(utils.handleError(res))
     }
 
     private buildMongoQuery (source: ISource, input: IQuery): any[] {
@@ -269,8 +269,8 @@ class SourceController {
                 isPublic: true
             }]
         })
-        .then(Util.handleResponse(res))
-        .catch(Util.handleError(res))
+        .then(utils.handleResponse(res))
+        .catch(utils.handleError(res))
     }
 
     getSource (req: Request, res: Response): void {
@@ -279,8 +279,8 @@ class SourceController {
             return auth.hasViewerAccess(req.user._id, source)
             .then(() => source)
         })
-        .then(Util.handleResponse(res))
-        .catch(Util.handleError(res))
+        .then(utils.handleResponse(res))
+        .catch(utils.handleError(res))
     }
 }
 

@@ -44,18 +44,7 @@ module.exports = {
     optimization: {
         runtimeChunk: {
             name: "manifest"
-        },
-        splitChunks: {
-            cacheGroups: {
-                vendor: {
-                    test: /[\\/]node_modules[\\/]/,
-                    name: "vendors",
-                    priority: -20,
-                    chunks: "all"
-                }
-            }
         }
-
     },
     plugins: [
         new LiveReloadPlugin({}),

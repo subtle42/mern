@@ -3,7 +3,7 @@ import { Page } from '../page/model'
 import { Widget } from '../widget/model'
 import { BookSocket } from './socket'
 import { Request, Response } from 'express'
-import Util from '../utils'
+import * as utils from '../utils'
 import * as auth from '../../auth/auth.service'
 
 export default class BookController {
@@ -24,10 +24,10 @@ export default class BookController {
             BookSocket.onAddOrChange(myBook)
             return myBook
         })
-        .then(Util.handleNoResult(res))
+        .then(utils.handleNoResult(res))
         .then(data => data._id)
-        .then(Util.handleResponse(res))
-        .catch(Util.handleError(res))
+        .then(utils.handleResponse(res))
+        .catch(utils.handleError(res))
     }
 
     /**
@@ -52,8 +52,8 @@ export default class BookController {
             .then(() => Book.findByIdAndUpdate(myId, req.body).exec())
             .then(data => BookSocket.onAddOrChange(myBook, oldBook))
         })
-        .then(Util.handleResponseNoData(res))
-        .catch(Util.handleError(res))
+        .then(utils.handleResponseNoData(res))
+        .catch(utils.handleError(res))
     }
 
     /**
@@ -73,8 +73,8 @@ export default class BookController {
             .then(() => book.remove())
             .then(() => BookSocket.onDelete(book))
         })
-        .then(Util.handleResponseNoData(res))
-        .catch(Util.handleError(res))
+        .then(utils.handleResponseNoData(res))
+        .catch(utils.handleError(res))
     }
 
     /**
@@ -95,8 +95,8 @@ export default class BookController {
                 isPublic: true
             }]
         }).exec()
-        .then(Util.handleResponse(res))
-        .catch(Util.handleError(res))
+        .then(utils.handleResponse(res))
+        .catch(utils.handleError(res))
     }
 
     /**
@@ -111,7 +111,7 @@ export default class BookController {
             return auth.hasViewerAccess(req.user._id, book)
             .then(() => book)
         })
-        .then(Util.handleResponse(res))
-        .catch(Util.handleError(res))
+        .then(utils.handleResponse(res))
+        .catch(utils.handleError(res))
     }
 }

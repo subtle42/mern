@@ -1,6 +1,6 @@
 import { Schema, Model } from 'mongoose'
 import { IWidgetModel } from '../../dbModels'
-import Utils from '../utils'
+import { createSchema } from '../utils'
 
 let WidgetSchema = new Schema({
     pageId: { type: String, required: true },
@@ -16,4 +16,4 @@ let WidgetSchema = new Schema({
     type: { type: String, required: true }
 })
 
-export const Widget: Model<IWidgetModel> = Utils.createSchema('Widget', WidgetSchema)
+export const Widget: Model<IWidgetModel> = createSchema('Widget', WidgetSchema)

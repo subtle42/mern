@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { Widget } from './model'
-import Utils from '../utils'
+import * as utils from '../utils'
 import { Page } from '../page/model'
 import { Book } from '../book/model'
 import { Source } from '../source/model'
@@ -41,8 +41,8 @@ class WidgetController {
             })
             .then(() => widget._id)
         })
-        .then(Utils.handleResponse(res))
-        .catch(Utils.handleError(res))
+        .then(utils.handleResponse(res))
+        .catch(utils.handleError(res))
     }
 
     private addDefaultsToWidget (myWidget: IWidget, mySource: ISource): Promise<void> {
@@ -80,8 +80,8 @@ class WidgetController {
             .then(() => Widget.findByIdAndRemove(id))
             .then(() => widgetSocket.onDelete(widget))
         })
-        .then(Utils.handleResponseNoData(res))
-        .catch(Utils.handleError(res))
+        .then(utils.handleResponseNoData(res))
+        .catch(utils.handleError(res))
     }
 
     update (req: Request, res: Response) {
@@ -95,8 +95,8 @@ class WidgetController {
         .then(book => auth.hasEditAccess(req.user._id, book))
         .then(() => Widget.findByIdAndUpdate(myId, req.body))
         .then(() => widgetSocket.onAddOrChange(myWidget))
-        .then(Utils.handleResponseNoData(res))
-        .catch(Utils.handleError(res))
+        .then(utils.handleResponseNoData(res))
+        .catch(utils.handleError(res))
     }
 
     get (req: Request, res: Response) {
@@ -111,8 +111,8 @@ class WidgetController {
                 .then(() => widget)
             })
         })
-        .then(Utils.handleResponse(res))
-        .catch(Utils.handleError(res))
+        .then(utils.handleResponse(res))
+        .catch(utils.handleError(res))
     }
 }
 
