@@ -11,6 +11,7 @@ import pagesModel from './pages/model'
 import sourcesModel from './sources/model'
 import widgetsModel from './widgets/model'
 import authModel from './auth/model'
+import { NotificationStore, notifReducer } from './notifications/reducer'
 
 interface MyStore {
     books: booksModel,
@@ -18,6 +19,7 @@ interface MyStore {
     widgets: widgetsModel,
     auth: authModel,
     sources: sourcesModel
+    notifcations: NotificationStore
 }
 
 const reducers = combineReducers({
@@ -25,7 +27,8 @@ const reducers = combineReducers({
     pages,
     widgets,
     auth,
-    sources
+    sources,
+    notifications: notifReducer
 })
 
 // Should reset the store

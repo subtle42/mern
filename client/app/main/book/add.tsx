@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Input, Label, ModalHeader, ModalBody, ModalFooter, Modal, FormGroup, DropdownItem, Button, FormFeedback } from 'reactstrap'
 import BookActions from 'data/books/actions'
+import NotifActions from 'data/notifications/actions'
 import store from 'data/store'
 import { FormControl, FormCtrlGroup } from '../../_common/validation'
 import * as Validators from '../../_common/validators'
@@ -49,6 +50,7 @@ export default class CreateBookButton extends React.Component<undefined, State> 
         BookActions.create(myFormValues.title)
         .then(bookId => store.getState().books.list.filter(book => book._id === bookId)[0])
         .then(newBook => BookActions.select(newBook))
+        .then(() => NotifActions.notify('success', `Created Book`))
         .then(() => this.toggle())
         .catch(err => console.error(err))
     }

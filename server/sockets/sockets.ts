@@ -3,6 +3,7 @@ import { ISharedModel } from '../dbModels'
 import * as jwt from 'jsonwebtoken'
 import config from '../config/environment'
 import * as auth from '../auth/auth.service'
+import { logger } from '../api/utils'
 
 declare var global: any
 let myIO: SocketIO.Server = global.myIO
@@ -18,17 +19,8 @@ export default abstract class BaseSocket {
     }
 
     setupSocket (name: string) {
-        this.namespace.on('connection', socket => {
-            this.onJoin(socket)
-            // this.veryifyToken(socket.handshake.query.token)
-            // .then(decoded => )
-            // .catch(err => {
-            //     console.error(err)
-            //     socket.emit("message", err)
-            // })
-        })
-
-        console.log(`Created Namespace: ${name}`)
+        this.namespace.on('connection', socket => this.onJoin(socket))
+        logger.debug(`Created socket namespace: ${this.name}`)
     }
 
     protected abstract getParentId (model: Document): string
@@ -55,10 +47,11 @@ export default abstract class BaseSocket {
                 socket.emit('message', `${this.name.toUpperCase()}, joined room: ${room}`)
                 return this.getInitialState(room)
             })
-            .then(data => {
-                this._onAddOrChange(room, data)
+            .then(data => this._onAddOrChange(room, data))
+            .catch(err => {
+                logger.error(err)
+                socket.emit('message', err)
             })
-            .catch(err => socket.emit('message', err))
         })
     }
 

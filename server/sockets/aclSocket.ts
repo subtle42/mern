@@ -2,6 +2,8 @@ import { Model } from 'mongoose'
 import { ISharedModel } from '../dbModels'
 import * as jwt from 'jsonwebtoken'
 import config from '../config/environment'
+import { logger } from '../api/utils'
+
 declare var global: any
 let myIO: SocketIO.Server = global.myIO
 
@@ -13,7 +15,7 @@ export class AclSocket {
         protected model: Model<ISharedModel>
     ) {
         this.namespace = myIO.of(this.name)
-        console.log(`Create namespace: ${this.name}`)
+        logger.debug(`Created socket namespace: ${this.name}`)
         this.setupSockEvents()
     }
 
@@ -26,6 +28,7 @@ export class AclSocket {
                 .then(data => this.namespace.in(decoded._id).emit('addedOrChanged', data))
             })
             .catch(err => {
+                logger.error(err)
                 socket.emit('message', err)
             })
         })
