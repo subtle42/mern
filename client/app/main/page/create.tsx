@@ -1,81 +1,90 @@
 import * as React from 'react'
-import { Modal, ModalBody, ModalHeader, ModalFooter, Label, Input, Button, FormGroup, NavItem, NavLink } from 'reactstrap'
+import { Modal, ModalBody, ModalHeader, ModalFooter, Label, Input, Button, FormGroup, NavItem, NavLink, FormFeedback } from 'reactstrap'
 import pageActions from 'data/pages/actions'
 import * as FontAwesome from 'react-fontawesome'
+import { FormCtrlGroup, FormControl } from '../../_common/validation'
+import * as Validators from '../../_common/validators'
 
 class State {
-    pageName?: string = ''
     showModal?: boolean = false
-    validationState?: myStyle = undefined
+    rules: FormCtrlGroup
 }
 
 interface Props {
     _id?: string
 }
 
-type myStyle = 'success' | 'warning' | 'error'
-
 export class CreatePageButton extends React.Component<Props, State> {
     state: State = new State()
 
-    close = (event) => {
-        event.stopPropagation()
-        pageActions.create(this.state.pageName.trim())
-        .then(pageId => {
-            this.setState(new State())
-            return pageActions.mySelect(pageId)
+    componentWillMount () {
+        const rules = new FormCtrlGroup({
+            title: new FormControl('', [
+                Validators.isRequired,
+                Validators.minLength(3),
+                Validators.maxLength(15)
+            ])
         })
+        this.setState({ rules })
     }
 
-    open = () => {
-        this.setState({ showModal: true })
-    }
-
-    cancel = () => {
+    close = (event?) => {
         if (event) event.stopPropagation()
-        this.setState(new State())
+        const formValues = this.state.rules.getValues()
+        pageActions.create(formValues.title)
+        .then(pageId => pageActions.mySelect(pageId))
+        .then(() => this.toggle())
+    }
+
+    toggle = (event?) => {
+        if (event) event.stopPropagation()
+        this.state.rules.reset()
+        this.setState({
+            showModal: !this.state.showModal,
+            rules: this.state.rules
+        })
     }
 
     handleChange = (event: React.FormEvent<any>) => {
         const target: any = event.target
-        this.setState({
-            [target.name]: target.value,
-            validationState: this.getValidationState(target.value)
-        })
+        this.state.rules.controls[target.name].setValue(target.value)
+        this.setState(this.state)
     }
 
-    getValidationState = (input: string): myStyle => {
-        if (input.length < 3) return 'error'
+    getError (field: string): string {
+        return this.state.rules.controls[field].error
+            ? this.state.rules.controls[field].error.message
+            : ''
     }
 
     render () {
         return (
-            <NavItem onClick={this.open}>
+            <NavItem onClick={this.toggle}>
                 <NavLink style={{ height: 42 }}>
                     <FontAwesome name='plus' />
                 </NavLink>
-                <Modal size='sm' isOpen={this.state.showModal} onClosed={this.cancel}>
+                <Modal size='sm' isOpen={this.state.showModal}>
                     <ModalHeader>Create Page</ModalHeader>
                     <ModalBody>
                         <FormGroup>
                             <Label>Name:</Label>
                             <Input
                                 type='text'
-                                value={this.state.pageName}
-                                name='pageName'
+                                name='title'
                                 placeholder='Enter Name'
                                 onChange={this.handleChange}
+                                value={this.state.rules.controls.title.value}
+                                invalid={this.state.rules.controls.title.invalid}
                             />
-                            {/* {!this.state.validationState || <FormText>Name must be at least 3 characters.</FormText>} */}
-
+                            <FormFeedback>{this.getError('title')}</FormFeedback>
                         </FormGroup>
                     </ModalBody>
                     <ModalFooter>
                         <Button color='primary'
-                            disabled={!!this.state.validationState || this.state.pageName.length === 0}
+                            disabled={this.state.rules.invalid || this.state.rules.pristine}
                             onClick={this.close}
                         >Create</Button>
-                        <Button color='secondary' onClick={this.cancel}>Cancel</Button>
+                        <Button color='secondary' onClick={this.toggle}>Cancel</Button>
                     </ModalFooter>
                 </Modal>
             </NavItem>

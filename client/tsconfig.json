@@ -4,7 +4,7 @@
         "target": "es5",
         "outDir": ".dist",
         "module": "esnext",
-        "sourceMap": false
+        "sourceMap": true
     },
     "exclude": [
         "node_modules"
