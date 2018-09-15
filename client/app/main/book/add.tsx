@@ -29,11 +29,6 @@ export default class CreateBookButton extends React.Component<undefined, State> 
         this.setState({ rules })
     }
 
-    close = () => {
-        BookActions.create(this.state.title)
-        .then(book => this.toggle())
-    }
-
     toggle = (event?: React.FormEvent<any>) => {
         if (event) event.stopPropagation()
         this.state.rules.reset()
@@ -52,7 +47,7 @@ export default class CreateBookButton extends React.Component<undefined, State> 
         .then(newBook => BookActions.select(newBook))
         .then(() => NotifActions.notify('success', `Created Book`))
         .then(() => this.toggle())
-        .catch(err => console.error(err))
+        .catch(err => NotifActions.notify('danger', err))
     }
 
     handleChange = (event: React.FormEvent<any>) => {

@@ -1,10 +1,12 @@
 import * as React from 'react'
+import * as Loadable from 'react-loadable'
 import { Button, ModalBody, ModalFooter, Row, Col, ListGroup, ListGroupItem, Progress } from 'reactstrap'
-import Dropzone, { ImageFile } from 'react-dropzone'
+import { ImageFile } from 'react-dropzone'
 import SourceActions from 'data/sources/actions'
 import store from 'data/store'
 import { ISource } from 'common/models'
 import * as FontAwesome from 'react-fontawesome'
+import Loading from '../../_common/loading'
 
 class State {
     sources: ISource[] = []
@@ -21,6 +23,13 @@ interface Props {
 
 export class SelectSourceContent extends React.Component<Props, State> {
     state: State = new State()
+
+    Dropzone = Loadable({
+        loader: () => import('react-dropzone').then(mod => mod.default),
+        loading () {
+            return <Loading/>
+        }
+    })
 
     componentDidMount () {
         store.subscribe(() => {
@@ -80,7 +89,7 @@ export class SelectSourceContent extends React.Component<Props, State> {
         return (
             <div className='modal-header'>
                 <h5>Sources</h5>
-                <Dropzone disabled={this.state.isLoading} onDrop={this.onFileDrop} style={{ width: 'max-content' }} >
+                <this.Dropzone disabled={this.state.isLoading} onDrop={this.onFileDrop} style={{ width: 'max-content' }} >
                     <Button color='general' id='TooltipExample'>
                         <FontAwesome name='file' />
                     </Button>
@@ -89,7 +98,7 @@ export class SelectSourceContent extends React.Component<Props, State> {
                         target="TooltipExample" toggle={this.toggle}>
                         Import File
                     </Tooltip> */}
-                </Dropzone>
+                </this.Dropzone>
             </div>
         )
     }

@@ -10,10 +10,11 @@ interface Props {
 
 class AlertState {
     isOpen: boolean = true
+    timeout
 }
 
 interface AlertProps {
-    key: number
+    index: number
     duration?: number
     message: string
     type: string
@@ -21,22 +22,25 @@ interface AlertProps {
 
 class MyAlert extends React.Component<AlertProps, AlertState> {
     state = new AlertState()
-    myTimeout
 
-    autoClose () {
+    componentWillMount () {
         const duration = this.props.duration || 10000
-        this.myTimeout = setTimeout(() => this.close(), duration)
+        this.setState({
+            timeout: setTimeout(() => this.close(), duration)
+        })
     }
 
     close () {
-        clearTimeout(this.myTimeout)
-        this.setState({ isOpen: false })
-        setTimeout(() => NotifActions.remove(this.props.key), 500)
+        if (this.state.timeout) clearTimeout(this.state.timeout)
+        this.setState({
+            isOpen: false,
+            timeout: undefined
+        })
+        setTimeout(() => NotifActions.remove(this.props.index), 500)
     }
 
     render () {
-        this.autoClose()
-        return <Alert color={this.props.type} isOpen={this.state.isOpen} toggle={this.close}>
+        return <Alert color={this.props.type} isOpen={this.state.isOpen} toggle={() => this.close()}>
             {this.props.message}
         </Alert>
     }
@@ -57,7 +61,7 @@ const MyComponent: React.StatelessComponent<Props> = (props: Props) => {
         top: 30
     }}>
         {props.alerts.map((alert, index) => {
-            return (<MyAlert key={index} {...alert}></MyAlert>)
+            return (<MyAlert index={index} key={index} {...alert}></MyAlert>)
         })}
     </div>)
 }

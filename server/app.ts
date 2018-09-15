@@ -11,7 +11,7 @@ declare var global: any
 let MONGO_URI = 'mongodb://localhost/merntest';
 
 (mongoose as any).connect(MONGO_URI, {
-    // useNewUrlParser: true
+    useNewUrlParser: true
 });
 (mongoose as any).Promise = global.Promise
 mongoose.connection.on('error', () => {

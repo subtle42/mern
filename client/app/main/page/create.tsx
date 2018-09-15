@@ -4,6 +4,7 @@ import pageActions from 'data/pages/actions'
 import * as FontAwesome from 'react-fontawesome'
 import { FormCtrlGroup, FormControl } from '../../_common/validation'
 import * as Validators from '../../_common/validators'
+import NotifActions from 'data/notifications/actions'
 
 class State {
     showModal?: boolean = false
@@ -33,7 +34,9 @@ export class CreatePageButton extends React.Component<Props, State> {
         const formValues = this.state.rules.getValues()
         pageActions.create(formValues.title)
         .then(pageId => pageActions.mySelect(pageId))
+        .then(() => NotifActions.notify('success', `Created page: ${formValues.title}`))
         .then(() => this.toggle())
+        .catch(err => NotifActions.notify('danger', JSON.stringify(err)))
     }
 
     toggle = (event?) => {
