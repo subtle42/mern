@@ -15,7 +15,7 @@ class State {
 
 type myStyle = 'success' | 'warning' | 'error'
 
-export default class CreateBookButton extends React.Component<undefined, State> {
+export default class CreateBookButton extends React.Component<{}, State> {
     state: State = new State()
 
     componentWillMount () {

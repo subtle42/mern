@@ -1,55 +1,53 @@
-// import {Button, Modal, Glyphicon, Row, Col, Checkbox, FormGroup, ControlLabel, ModalBody} from "react-bootstrap";
-// import * as React from "react";
+import { ModalHeader, ModalBody, ModalFooter, Modal, Button } from 'reactstrap'
+import * as React from 'react'
 
-// interface Props {}
+interface Props {
+    header: string
+    message: string
+}
 
-// class State {
-//     showModal:boolean = false;
-// }
+class State {
+    showModal: boolean = false
+}
 
-// export class DeletePageButton extends React.Component<Props, State> {
-//     state:State = new State();
+export class ConfirmModal extends React.Component<Props, State> {
+    state: State = new State()
+    // Copying children and replacing click event
+    newChildren = React.Children.map(this.props.children, child => {
+        return React.cloneElement(child as any, {
+            onClick: (event) => this.open(event)
+        })
+    })
 
-//     open = (event) => {
-//         this.setState({showModal: true});
-//     }
+    open = (event) => {
+        if (event) event.stopPropagation()
+        this.setState({ showModal: true })
+    }
 
-//     cancel = (event) => {
-//         if (event) event.stopPropagation();
-//         this.setState(new State());
-//     }
+    cancel = () => {
+        this.setState(new State())
+    }
 
-//     close = (event) => {}
+    close = (event) => {
+        if (event) event.stopPropagation()
+        this.setState(new State())
+        const tmp: any = this.props.children
+        tmp.props.onClick()
+    }
 
-//     getHeader():JSX.Element {
-//         return (<Modal.Header>Page Configuration</Modal.Header>);
-//     }
-
-//     getFooter():JSX.Element {
-//         return (
-//             <Modal.Footer>
-//                 <Button onClick={this.cancel} color="warning">Cancel</Button>
-//                 <Button onClick={this.cancel} color="primary">Save</Button>
-//             </Modal.Footer>
-//         );
-//     }
-
-//     getBody():JSX.Element {
-//         return (<ModalBody></ModalBody>);
-//     }
-
-//     render() {
-//         return (<div>
-//             <Button>
-//                 <Glyphicon glyph="cog" />
-//                 <Modal size="large" show={this.state.showModal} onHide={this.cancel}>
-//                     <form>
-//                         {this.getHeader()}
-//                         {this.getBody()}
-//                         {this.getFooter()}
-//                     </form>
-//                 </Modal>
-//             </Button>
-//         </div>);
-//     }
-// }
+    render () {
+        return (<span>
+            {this.newChildren}
+            <Modal size='sm'
+            isOpen={this.state.showModal}
+            onClosed={this.cancel}>
+                <ModalHeader>{this.props.header}</ModalHeader>
+                <ModalBody>{this.props.message}</ModalBody>
+                <ModalFooter>
+                    <Button onClick={this.cancel} color='secondary'>Cancel</Button>
+                    <Button onClick={this.close} color='primary'>Confirm</Button>
+                </ModalFooter>
+            </Modal>
+        </span>)
+    }
+}

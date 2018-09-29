@@ -47,7 +47,8 @@ describe('Book Add component', () => {
             wrapper.find('Input')
             .simulate('change', {
                 target: {
-                    value: myName
+                    value: myName,
+                    name: 'title'
                 }
             })
         })
@@ -96,7 +97,8 @@ describe('Book Add component', () => {
             wrapper.find('Input')
             .simulate('change', {
                 target: {
-                    value: 'aa'
+                    value: 'aa',
+                    name: 'title'
                 }
             })
             wrapper.update()

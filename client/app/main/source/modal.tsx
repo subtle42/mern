@@ -25,10 +25,7 @@ export class SourceCreateButton extends React.Component<Props, State> {
             source: this.state.confirmedSource,
             type: chartType
         })
-        .then(widgetId => {
-            let resetState = new State()
-            this.setState(resetState)
-        })
+        .then(widgetId => this.setState(new State()))
     }
 
     open = () => {

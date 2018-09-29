@@ -1,10 +1,10 @@
 import * as React from 'react'
-import { Modal, ModalBody, ModalFooter, ModalHeader, Button } from 'reactstrap'
 import pageActions from 'data/pages/actions'
+import { ConfirmModal } from '../../_common/confirmation'
 import * as FontAwesome from 'react-fontawesome'
 
 class State {
-    showModal: boolean = false
+    showConfirm: boolean = false
 }
 
 class Props {
@@ -15,43 +15,19 @@ class Props {
 export class DeletePageButton extends React.Component<Props, State> {
     state: State = new State()
 
-    close = (event) => {
-        event.stopPropagation()
+    removePage = () => {
         pageActions.delete(this.props._id)
         .then(() => this.setState(new State()))
     }
 
-    open = (event) => {
-        event.stopPropagation()
-        this.setState({ showModal: true })
-    }
-
-    cancel = () => {
-        if (event) event.stopPropagation()
-        this.setState(new State())
-    }
-
     render () {
-        return (
-            <div
-                onClick={this.open}
-                style={{ float: 'right' }}
-            >
+        return (<ConfirmModal
+            header='Delete Page'
+            message={`Are you sure you want to delete: ${this.props.pageName}?`}>
+            <div onClick={this.removePage}
+                style={{ float: 'right' }}>
                 <FontAwesome style={{ paddingLeft: 5, paddingTop: 3 }} name='times' />
-                <Modal size='sm' isOpen={this.state.showModal} onClosed={this.cancel}>
-                    <ModalHeader>Delete Page</ModalHeader>
-                    <ModalBody>Are you sure you want to delete <b>{this.props.pageName}</b>?</ModalBody>
-                    <ModalFooter>
-                        <Button color='primary'
-                        onClick={this.close}>
-                            Confirm
-                        </Button>
-                        <Button color='secondary' onClick={this.cancel}>
-                            Cancel
-                        </Button>
-                    </ModalFooter>
-                </Modal>
             </div>
-        )
+        </ConfirmModal>)
     }
 }

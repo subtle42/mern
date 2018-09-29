@@ -33,7 +33,6 @@ myIO.on('connection', socket => {
 const test = () => {
     return (req, res, next) => {
         req.reqId = (new Date()).getTime()
-        // utils.logger.info(`${req.method} - ${req.url}: ${req.headers}`)
         utils.logger.info({
             method: req.method,
             url: req.url,

@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { RemoveWidgetButton } from './remove'
 import { IWidget, ISource, ISourceColumn } from 'common/models'
 import store from 'data/store'
 import WidgetActions from 'data/widgets/actions'
@@ -7,6 +6,8 @@ import { Histogram } from '../charts/histogram'
 import { MeasureDropdown } from '../charts/chart'
 import * as FontAwesome from 'react-fontawesome'
 import { Card, CardBody, CardTitle, Button, CardHeader } from 'reactstrap'
+import { ConfirmModal } from '../../_common/confirmation'
+import NotifyActions from 'data/notifications/actions'
 
 interface Props {
     _id?: any
@@ -60,6 +61,11 @@ export class Widget extends React.Component<Props, State> {
         this.unsubscribe()
     }
 
+    removeWidget () {
+        WidgetActions.delete(this.props._id)
+        .catch(err => NotifyActions.notify('danger', JSON.stringify(err)))
+    }
+
     getDropdown (): JSX.Element {
         if (!this.state.widgetConfig) return
         return <MeasureDropdown
@@ -83,7 +89,15 @@ export class Widget extends React.Component<Props, State> {
                 <Button className='pull-left' color='secondary' outline size='small' >
                     <FontAwesome name='cog' />
                 </Button>
-                <RemoveWidgetButton _id={this.props._id} />
+                <ConfirmModal header='Delete Widget'
+                    message='Are you sure you want to delete this widget?'>
+                    <Button onClick={this.removeWidget}
+                        className='pull-right'
+                        color='secondary'
+                        outline size='small'>
+                        <FontAwesome name='times' />
+                    </Button>
+                </ConfirmModal>
                 <CardTitle style={{ margin: 0 }}>{this.state.source ? this.state.source.title : 'Loading..'}</CardTitle>
             </CardHeader>
             <CardBody style={{ height: '100%' }}>
