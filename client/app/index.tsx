@@ -10,6 +10,6 @@ Promise.all([
     import('reactstrap')
 ])
 .then(([React, ReactDOM, ReactRedux, store, Main, reactstrap]) => {
-    ReactDOM.render(<ReactRedux.Provider store={store.default}><Main.Main /></ReactRedux.Provider>,
+    ReactDOM.render(<ReactRedux.Provider store={store.store}><Main.Main /></ReactRedux.Provider>,
         document.getElementById('start'))
 })

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { IWidget, ISource, ISourceColumn } from 'common/models'
-import store from 'data/store'
+import { store } from 'data/store'
 import WidgetActions from 'data/widgets/actions'
 import { Histogram } from '../charts/histogram'
 import { MeasureDropdown } from '../charts/chart'

@@ -2,7 +2,7 @@ import 'mocha'
 import { SinonSandbox, createSandbox, SinonFakeServer } from 'sinon'
 import AuthActions from './actions'
 import { expect } from 'chai'
-import store from 'data/store'
+import { store } from 'data/store'
 
 describe('AuthActions', () => {
     const sandbox: SinonSandbox = createSandbox({})

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { IBook } from 'common/models'
-import store from '../store'
+import { store } from '../store'
 import BaseActions from '../baseActions'
 import pageActions from '../pages/actions'
 
@@ -9,9 +9,9 @@ class BookActions extends BaseActions {
         super(store, 'books')
     }
 
-    select (book: IBook) {
-        return this._select(book)
-        .then(() => pageActions.joinRoom(book._id))
+    select (id: string) {
+        return this._select(id)
+        .then(() => pageActions.joinRoom(id))
     }
 
     create (input: string): Promise<string> {

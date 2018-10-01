@@ -16,7 +16,7 @@ export interface ValidatorFn {
 export class FormControl {
     value
     private default
-    parent: FormCtrlGroup
+    parent: FormCtrlGroup | FormCtrlArray
     error?: ValidationErrors
     private validators: ValidatorFn[] = []
     dirty: boolean
@@ -77,6 +77,45 @@ export class FormControl {
 
     setValidators (newValidtors: ValidatorFn[]): void {
         this.validators = newValidtors
+    }
+}
+
+export class FormCtrlArray {
+    dirty: boolean
+    pristine: boolean
+    valid: boolean
+    invalid: boolean
+
+    constructor (
+        public controls: FormControl[]
+    ) {
+        this.controls
+        .forEach(ctrl => ctrl.parent = this)
+    }
+
+    digest (): void {
+        const keys = this.controls.map((item, index) => index)
+        this.isDirty(keys)
+        this.isValid(keys)
+    }
+
+    private isDirty (keys: number[]) {
+        this.dirty = keys.filter(key => this.controls[key].dirty).length > 0
+        this.pristine = !this.dirty
+    }
+
+    private isValid (keys: number[]) {
+        this.valid = keys.filter(key => this.controls[key].valid).length === keys.length
+        this.invalid = !this.valid
+    }
+
+    getValues (): any {
+        return this.controls.map(ctrl => ctrl.getValue())
+    }
+
+    reset (): void {
+        this.controls.forEach(ctrl => ctrl.reset())
+        this.digest()
     }
 }
 

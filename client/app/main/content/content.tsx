@@ -7,19 +7,20 @@ import { IPage } from 'common/models'
 import { PageConfigButton } from '../page/config'
 import { SourceCreateButton } from '../source/modal'
 import { PageContent } from '../page/content'
+import { StoreModel } from 'data/store'
 import Loading from '../../_common/loading'
 
 import * as Loadable from 'react-loadable'
 
 interface Props {
     pages: IPage[],
-    selected: IPage
+    selected: string
 }
 
 const Content: React.StatelessComponent<Props> = (props: Props) => {
     const isSelected = (page: IPage): boolean => {
         if (!props.selected) return false
-        return props.selected._id === page._id
+        return props.selected === page._id
     }
 
     const CreatePageButton = Loadable({
@@ -34,7 +35,7 @@ const Content: React.StatelessComponent<Props> = (props: Props) => {
 
         return props.pages.map((page, index) => {
             return <NavItem key={index}
-                onClick={() => pageActions.select(page) }>
+                onClick={() => pageActions.select(page._id) }>
                 <NavLink active={isSelected(page)}>
                     {page.name}
                     <DeletePageButton pageName={page.name} _id={page._id} />
@@ -45,7 +46,7 @@ const Content: React.StatelessComponent<Props> = (props: Props) => {
 
     return (
         <div>
-        <PageConfigButton _id={props.selected ? props.selected._id : null} />
+        <PageConfigButton _id={props.selected || null} />
         <SourceCreateButton />
         <Nav tabs>
             {buildTabs()}
@@ -57,7 +58,7 @@ const Content: React.StatelessComponent<Props> = (props: Props) => {
     )
 }
 
-export default connect((store: any) => {
+export default connect((store: StoreModel): Props => {
     return {
         pages: store.pages.list,
         selected: store.pages.selected

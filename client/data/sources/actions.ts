@@ -1,4 +1,4 @@
-import store from '../store'
+import { store } from '../store'
 import BaseActions from '../baseActions'
 import axios from 'axios'
 import { ISource } from 'common/models'
@@ -8,19 +8,15 @@ class SourceActions extends BaseActions {
         super(store, 'sources')
     }
 
-    select (source: ISource) {
-        return this._select(source)
+    select (id: string) {
+        return Promise.reject('This is not implemented')
     }
 
     create (file: File): Promise<string> {
-        let data = new FormData()
+        const data = new FormData()
         data.append('file', file)
 
-        return axios.post(`/api/sources`, data, {
-            // headers: {
-            //     'Content-Type': 'multipart/form-data'
-            // }
-        })
+        return axios.post(`/api/sources`, data)
         .then(res => res.data)
     }
     delete (sourceId: string): Promise<void> {

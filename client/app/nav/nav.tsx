@@ -17,24 +17,30 @@ import {
     DropdownToggle,
     DropdownMenu,
     DropdownItem } from 'reactstrap'
+import { StoreModel } from 'data/store'
 
 interface NavProps {
     user: IUser,
     books: IBook[],
-    selectedBook: IBook
+    selectedBook: string
 }
 
 const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {
+    const getBookName = (): string => {
+        const myBook: IBook = props.books.filter(book => book._id === props.selectedBook)[0]
+        return myBook ? myBook.name : 'No Book Selected'
+    }
+
     const getBookDropDown = (): JSX.Element => {
         return (
             <Nav>
                 <UncontrolledDropdown nav inNavbar>
-                 <DropdownToggle nav caret>{props.selectedBook.name || 'No Book Selected'}</DropdownToggle>
+                 <DropdownToggle nav caret>{getBookName()}</DropdownToggle>
                  <DropdownMenu right>
                      {props.books.map((book, index) => {
                          return <DropdownItem
                             key={index}
-                            onClick={() => bookActions.select(book)}>
+                            onClick={() => bookActions.select(book._id)}>
                             {book.name}
                         </DropdownItem>
                      })}
@@ -76,10 +82,10 @@ const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {
     )
 }
 
-export default connect((store: any) => {
+export default connect((store: StoreModel): NavProps => {
     return {
         user: store.auth.me,
         books: store.books.list,
-        selectedBook: store.books.selected || {}
+        selectedBook: store.books.selected
     }
 })(myComponent)

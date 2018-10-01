@@ -1,5 +1,4 @@
-import store from '../store'
-import {} from 'reactstrap'
+import { store } from '../store'
 
 type NotifColors = 'primary'
     | 'secondary'

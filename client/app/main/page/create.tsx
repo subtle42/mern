@@ -33,7 +33,7 @@ export class CreatePageButton extends React.Component<Props, State> {
         if (event) event.stopPropagation()
         const formValues = this.state.rules.getValues()
         pageActions.create(formValues.title)
-        .then(pageId => pageActions.mySelect(pageId))
+        .then(pageId => pageActions.select(pageId))
         .then(() => NotifActions.notify('success', `Created page: ${formValues.title}`))
         .then(() => this.toggle())
         .catch(err => NotifActions.notify('danger', JSON.stringify(err)))

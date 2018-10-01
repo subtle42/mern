@@ -13,7 +13,7 @@ import widgetsModel from './widgets/model'
 import authModel from './auth/model'
 import { NotificationStore, notifReducer } from './notifications/reducer'
 
-interface MyStore {
+export interface StoreModel {
     books: booksModel,
     pages: pagesModel,
     widgets: widgetsModel,
@@ -40,9 +40,4 @@ const rootReducer = (state, action) => {
 }
 
 const middleware = applyMiddleware(promiseMiddleware)
-
-const store: Store<MyStore> = createStore(rootReducer, middleware) as Store<MyStore>
-let tmp: any = window
-tmp.store = store
-
-export default store
+export const store: Store<StoreModel> = createStore(rootReducer, middleware)

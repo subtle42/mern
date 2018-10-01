@@ -1,6 +1,6 @@
 import * as React from 'react'
 // import * as d3 from 'd3'
-import store from 'data/store'
+import { store } from 'data/store'
 import './style.css'
 
 interface Props {

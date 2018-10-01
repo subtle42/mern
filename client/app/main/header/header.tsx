@@ -12,6 +12,7 @@ import {
     NavLink,
     DropdownToggle,
     DropdownItem, Dropdown } from 'reactstrap'
+import { StoreModel } from 'data/store'
 
 interface NavProps {
     login: () => void,
@@ -32,7 +33,7 @@ const NavComp: React.StatelessComponent<NavProps> = (props: NavProps) => {
                 <DropdownToggle nav caret> Books </DropdownToggle>
                 {props.books.map((book, index) => {
                     return (<DropdownItem key={index}
-                    onClick={() => bookActions.select(book)}>
+                    onClick={() => bookActions.select(book._id)}>
                         {book.name}
                     </DropdownItem>)
                 })}
@@ -42,7 +43,7 @@ const NavComp: React.StatelessComponent<NavProps> = (props: NavProps) => {
     )
 }
 
-export default connect((store: any) => {
+export default connect((store: StoreModel) => {
     return {
         books: store.books.list
     }

@@ -1,5 +1,5 @@
 import axios, { AxiosPromise } from 'axios'
-import store from '../store'
+import { store } from '../store'
 import bookActions from '../books/actions'
 import pageActions from '../pages/actions'
 import widgetActions from '../widgets/actions'
@@ -62,7 +62,7 @@ class AuthActions {
         .then(() => bookActions.joinRoom(this.store.getState().auth.me._id))
         .then(() => {
             if (store.getState().books.list.length === 0) return
-            return bookActions.select(store.getState().books.list[0])
+            return bookActions.select(store.getState().books.list[0]._id)
         })
     }
 

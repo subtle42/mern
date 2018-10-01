@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { FormText, Label, ModalBody, ModalFooter, ModalHeader, Row, Col, Input, Modal, Button, FormGroup, Tooltip } from 'reactstrap'
 import PageActions from 'data/pages/actions'
-import store from 'data/store'
+import { store } from 'data/store'
 import { IPage } from 'common/models'
 import * as FontAwesome from 'react-fontawesome'
 import './page.css'

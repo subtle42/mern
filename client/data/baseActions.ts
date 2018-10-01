@@ -30,9 +30,6 @@ export default abstract class BaseActions {
         return this.sendDispatch(`storeSocket`, socket)
     }
 
-    /**
-     * Disconnect on channel
-     */
     disconnect (): Promise<void> {
         let mySocket: SocketIOClient.Socket = this.store.getState()[this.nameSpace].socket
         if (mySocket) {
@@ -42,11 +39,11 @@ export default abstract class BaseActions {
         return this.sendDispatch(`disconnect`, undefined)
     }
 
-    protected _select (item): Promise<void> {
-        return this.sendDispatch(`select`, item)
+    protected _select (id: string): Promise<void> {
+        return this.sendDispatch(`select`, id)
     }
 
-    abstract select (item: any): Promise<void>
+    abstract select (id: string): Promise<void>
     abstract create (item: any): Promise<any>
     abstract update (item: any): Promise<any>
     abstract delete (item: any): Promise<void>
@@ -57,7 +54,7 @@ export default abstract class BaseActions {
      */
     connect (auth: string): Promise<void> {
         if (this.store.getState()[this.nameSpace].socket) {
-            return new Promise((resolve, reject) => reject(`Already connected to ${this.nameSpace}`))
+            return Promise.reject(`Already connected to ${this.nameSpace}`)
         }
 
         let nsp = io.connect(`/${this.nameSpace}`, {
@@ -71,7 +68,7 @@ export default abstract class BaseActions {
             if (this.isNewList && items.length > 0) {
                 this.isNewList = false
                 this.addedOrChanged(items)
-                .then(() => this.select(items[0]))
+                .then(() => this.select(items[0]._id))
             } else {
                 this.addedOrChanged(items)
             }

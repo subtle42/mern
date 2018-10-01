@@ -1,5 +1,5 @@
 import axios from 'axios'
-import store from '../store'
+import { store } from '../store'
 import { IPage } from 'common/models'
 import BaseActions from '../baseActions'
 import WidgetActions from '../widgets/actions'
@@ -9,15 +9,10 @@ class PageActions extends BaseActions {
         super(store, 'pages')
     }
 
-    select (page: IPage) {
-        return this._select(page)
-        .then(() => WidgetActions.joinRoom(page._id))
+    select (id: string) {
+        return this._select(id)
+        .then(() => WidgetActions.joinRoom(id))
         // WidgetActions.joinRoom(page._id);
-    }
-
-    mySelect (pageId: string) {
-        let myPage = this.store.getState().pages.list.filter(x => x._id === pageId)[0]
-        this.select(myPage)
     }
 
     create (input: string): Promise<string> {

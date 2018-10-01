@@ -1,4 +1,4 @@
-import store from '../store'
+import { store } from '../store'
 import BaseActions from '../baseActions'
 import axios from 'axios'
 import { ISource, IWidget } from 'common/models'
@@ -14,10 +14,8 @@ class WidgetActions extends BaseActions {
     }
 
     create (config: {source: ISource, type: string}): Promise<void> {
-        const myPage = store.getState().pages.selected
-
         return axios.post(`/api/widgets`, {
-            pageId: myPage._id,
+            pageId: store.getState().pages.selected,
             sourceId: config.source._id,
             type: config.type
         })

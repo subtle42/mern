@@ -1,4 +1,4 @@
-import store from 'data/store'
+import { store } from 'data/store'
 
 const addItemToStore = (namespace: string, item) => {
     store.dispatch({

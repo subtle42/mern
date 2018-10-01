@@ -18,13 +18,6 @@ const myLogger = createLogger({
     ]
 })
 
-if (process.env.NODE_ENV !== 'production') {
-    myLogger.add(new transports.Console({
-        format: format.splat(),
-        level: 'error'
-    }))
-}
-
 export const logger = myLogger
 
 export const handleError = (res: Response, statusCode?: number): any => {
