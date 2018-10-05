@@ -18,7 +18,7 @@ class PageActions extends BaseActions {
     create (input: string): Promise<string> {
         return axios.post(`/api/pages`, {
             name: input,
-            bookId: this.store.getState().books.selected._id
+            bookId: this.store.getState().books.selected
         })
         .then(res => res.data as string)
     }

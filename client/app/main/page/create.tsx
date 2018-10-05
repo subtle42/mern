@@ -31,7 +31,7 @@ export class CreatePageButton extends React.Component<Props, State> {
 
     close = (event?) => {
         if (event) event.stopPropagation()
-        const formValues = this.state.rules.getValues()
+        const formValues = this.state.rules.value
         pageActions.create(formValues.title)
         .then(pageId => pageActions.select(pageId))
         .then(() => NotifActions.notify('success', `Created page: ${formValues.title}`))
@@ -50,7 +50,7 @@ export class CreatePageButton extends React.Component<Props, State> {
 
     handleChange = (event: React.FormEvent<any>) => {
         const target: any = event.target
-        this.state.rules.controls[target.name].setValue(target.value)
+        this.state.rules.controls[target.name].value = target.value
         this.setState(this.state)
     }
 

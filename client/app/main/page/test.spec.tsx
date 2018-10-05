@@ -1,11 +1,10 @@
 import { expect } from 'chai'
 import { ReactWrapper, mount } from 'enzyme'
-import * as Adapter from 'enzyme-adapter-react-16'
 import * as React from 'react'
-
-import { createSandbox, SinonSandbox, SinonFakeXMLHttpRequest, SinonStub } from 'sinon'
+import { createSandbox, SinonSandbox, SinonFakeXMLHttpRequest, stub } from 'sinon'
 import { CreatePageButton } from './create'
 import * as utils from '../../../testUtils'
+import PageActions from 'data/pages/actions'
 
 describe('Page Add component', () => {
     const sandbox: SinonSandbox = createSandbox({})
@@ -39,15 +38,14 @@ describe('Page Add component', () => {
         let pageNameInput: ReactWrapper
         beforeEach(() => {
             wrapper.find('NavItem').simulate('click')
-            createBtn = wrapper.find('Button')
-                .filterWhere(el => el.text() === 'Create')
             pageNameInput = wrapper.find('Input')
+            createBtn = wrapper.find('Button').filterWhere(el => el.text() === 'Create')
         })
 
         it('should close the modal when user clicks the cancel button', () => {
             wrapper.find('Button')
-            .filterWhere(el => el.text() === 'Cancel')
-            .simulate('click')
+                .filterWhere(el => el.text() === 'Cancel')
+                .simulate('click')
             expect(wrapper.find('Modal').prop('isOpen')).to.equal(false)
         })
 
@@ -65,7 +63,7 @@ describe('Page Add component', () => {
             expect(createBtn.prop('disabled')).to.equal(true)
         })
 
-        it('should enable the create button if input is greater than 3', () => {
+        xit('should enable the create button if input is greater than 3', () => {
             pageNameInput.simulate('change', {
                 target: {
                     value: 'aaaa',
@@ -75,19 +73,43 @@ describe('Page Add component', () => {
             expect(createBtn.prop('disabled')).to.equal(false)
         })
 
-        it('should send a REST call on create', () => {
-            pageNameInput.simulate('change', {
-                target: {
-                    value: 'aaaa',
-                    name: 'title'
-                }
+        describe('on success', () => {
+            const pageName = 'aoiwevalwe'
+            const bookId = 'iubnjl'
+
+            beforeEach(() => {
+                pageNameInput.simulate('change', {
+                    target: {
+                        value: pageName,
+                        name: 'title'
+                    }
+                })
+                utils.setSelectedBook(bookId)
+                createBtn.simulate('click')
+
+                return utils.waitATick()
             })
-            utils.addBookToStore({
-                _id: 'bookId'
+
+            it('should send a REST', () => {
+                expect(requests.length).to.equal(1)
+                expect(requests[0].requestBody).to.equal(JSON.stringify({
+                    name: pageName,
+                    bookId
+                }))
             })
-            createBtn.simulate('click')
-            utils.waitATick()
-            .then(() => expect(requests.length).to.equal(1))
+
+            it('should set the selected page to the created page on success', () => {})
+
+            it('should close the modal on success', () => {
+                sandbox.stub(PageActions, 'select').returns(Promise.resolve())
+
+                expect(wrapper.find('Modal').prop('isOpen')).to.equal(true)
+                const newPageId = 'woeiveojbpt'
+                requests[0].respond(200, {}, newPageId)
+
+                return utils.waitATick()
+                .then(() => expect(wrapper.find('Modal').prop('isOpen')).to.equal(false))
+            })
         })
     })
 })

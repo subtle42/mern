@@ -14,7 +14,8 @@ export interface ValidatorFn {
 }
 
 export class FormControl {
-    value
+    data
+    controls: FormCtrlGroup | FormCtrlArray
     private default
     parent: FormCtrlGroup | FormCtrlArray
     error?: ValidationErrors
@@ -28,7 +29,7 @@ export class FormControl {
         validtors?: ValidatorFn[]
     ) {
         this.default = value
-        this.value = value
+        this.data = value
         this.validators = validtors || []
     }
 
@@ -36,13 +37,13 @@ export class FormControl {
         this.dirty = false
         this.valid = false
         this.invalid = false
-        this.value = this.default
+        this.data = this.default
         this.error = undefined
     }
 
-    setValue (value): void {
+    set value (value) {
         this.dirty = true
-        this.value = value
+        this.data = value
         this.error = undefined
 
         this.validators.forEach(validFn => {
@@ -59,9 +60,9 @@ export class FormControl {
         this.parent.digest()
     }
 
-    getValue () {
-        let response = this.value
-        if (typeof this.value === 'string') {
+    get value () {
+        let response = this.data
+        if (typeof this.data === 'string') {
             response = response.trim()
         }
         return response
@@ -81,13 +82,15 @@ export class FormControl {
 }
 
 export class FormCtrlArray {
+    error
     dirty: boolean
     pristine: boolean
     valid: boolean
     invalid: boolean
+    parent: FormCtrlArray | FormCtrlGroup
 
     constructor (
-        public controls: FormControl[]
+        public controls: Array<FormControl | FormCtrlArray | FormCtrlGroup>
     ) {
         this.controls
         .forEach(ctrl => ctrl.parent = this)
@@ -97,6 +100,7 @@ export class FormCtrlArray {
         const keys = this.controls.map((item, index) => index)
         this.isDirty(keys)
         this.isValid(keys)
+        if (this.parent) this.parent.digest()
     }
 
     private isDirty (keys: number[]) {
@@ -109,25 +113,31 @@ export class FormCtrlArray {
         this.invalid = !this.valid
     }
 
-    getValues (): any {
-        return this.controls.map(ctrl => ctrl.getValue())
+    get value () {
+        return this.controls.map(ctrl => ctrl.value)
     }
 
     reset (): void {
         this.controls.forEach(ctrl => ctrl.reset())
         this.digest()
     }
+
+    set value (input: any[]) {
+        this.controls.forEach((ctrl, index) => ctrl.value = input[index])
+    }
 }
 
 export class FormCtrlGroup {
+    error
     dirty: boolean
     pristine: boolean
     valid: boolean
     invalid: boolean
+    parent: FormCtrlArray | FormCtrlGroup
 
     constructor (
         public controls: {
-            [key: string]: FormControl
+            [key: string]: FormControl | FormCtrlArray | FormCtrlGroup
         }
     ) {
         Object.keys(this.controls)
@@ -138,6 +148,7 @@ export class FormCtrlGroup {
         const keys = Object.keys(this.controls)
         this.isDirty(keys)
         this.isValid(keys)
+        if (this.parent) this.parent.digest()
     }
 
     private isDirty (keys: string[]) {
@@ -150,15 +161,23 @@ export class FormCtrlGroup {
         this.invalid = !this.valid
     }
 
-    getValues (): any {
+    get value () {
         const response = {}
         Object.keys(this.controls)
-        .forEach(key => response[key] = this.controls[key].getValue())
+        .forEach(key => response[key] = this.controls[key].value)
         return response
     }
 
     reset (): void {
         Object.keys(this.controls).forEach(key => this.controls[key].reset())
         this.digest()
+    }
+
+    set value (input: {[key: string]: any}) {
+        Object.keys(this.controls)
+        .forEach(key => {
+            if (!input[key]) return
+            this.controls[key].value = input[key]
+        })
     }
 }

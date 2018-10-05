@@ -26,6 +26,47 @@ type myStyle = 'success' | 'warning' | 'error'
 export class PageConfigButton extends React.Component<Props, State> {
     state: State = new State()
 
+    // const rules = new FormCtrlGroup({
+    //     name: new FormControl('', [
+    //         Validators.isRequired,
+    //         Validators.minLength(3),
+    //         Validators.maxLength(15)
+    //     ]),
+    //     isDraggable: new FormControl(false),
+    //     isResizable: new FormControl(false),
+    //     isRearrangeable: new FormControl(false),
+    //     preventCollision: new FormControl(false),
+    //     margin: new FormCtrlArray([
+    //         new FormControl(0, [
+    //             Validators.isRequired,
+    //             Validators.min(1),
+    //             Validators.max(30)
+    //         ]),
+    //         new FormControl(0, [
+    //             Validators.isRequired,
+    //             Validators.min(1),
+    //             Validators.max(30)
+    //         ])
+    //     ]),
+    //     containerPadding: new FormCtrlArray([
+    //         new FormControl(0, [
+    //             Validators.isRequired,
+    //             Validators.min(1),
+    //             Validators.max(30)
+    //         ]),
+    //         new FormControl(0, [
+    //             Validators.isRequired,
+    //             Validators.min(1),
+    //             Validators.max(30)
+    //         ])
+    //     ]),
+    //     cols: new FormControl(1, [
+    //         Validators.isRequired,
+    //         Validators.min(1),
+    //         Validators.max(30)
+    //     ])
+    // })
+
     close = (event) => {
         event.stopPropagation()
         PageActions.update(this.state.page)

@@ -40,7 +40,7 @@ export default class CreateBookButton extends React.Component<{}, State> {
 
     save = (event: React.FormEvent<any>) => {
         if (event) event.stopPropagation()
-        const myFormValues = this.state.rules.getValues()
+        const myFormValues = this.state.rules.value
 
         BookActions.create(myFormValues.title)
         .then(bookId => BookActions.select(bookId))
@@ -51,7 +51,7 @@ export default class CreateBookButton extends React.Component<{}, State> {
 
     handleChange = (event: React.FormEvent<any>) => {
         const target: any = event.target
-        this.state.rules.controls[target.name].setValue(target.value)
+        this.state.rules.controls[target.name].value = target.value
         this.setState(this.state)
     }
 

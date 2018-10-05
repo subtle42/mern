@@ -8,6 +8,18 @@ const addItemToStore = (namespace: string, item) => {
     })
 }
 
+const setSelected = (namespace: string, payload: string) => {
+    store.dispatch({
+        type: 'select',
+        namespace,
+        payload
+    })
+}
+
+export const setSelectedBook = (id: string) => {
+    setSelected('books', id)
+}
+
 export const addBookToStore = (item) => {
     addItemToStore('books', item)
 }
