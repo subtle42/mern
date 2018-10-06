@@ -24,7 +24,7 @@ export default class LoginPage extends React.Component<{}, State> {
             ]),
             name: new FormControl('', [
                 Validators.isRequired,
-                Validators.minLength(5),
+                Validators.minLength(4),
                 Validators.maxLength(100)
             ]),
             password: new FormControl('', [

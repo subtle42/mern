@@ -101,8 +101,8 @@ describe('Login component', () => {
             wrapper.update()
             wrapper.find('Button').simulate('click')
             return utils.waitATick()
-            .then(() => expect(loginStub.getCalls().length).to.equal(1))
-            .then(() => expect(redirectStub.getCalls().length).to.equal(1))
+            .then(() => expect(redirectStub.called).to.equal(true))
+            .then(() => expect(redirectStub.getCall(0).args[0].to).to.equal('home'))
         })
     })
 })
@@ -187,13 +187,14 @@ describe('Register component', () => {
             })
 
             it('should redirect to login page upon register success', () => {
-                expect(redirectStub.getCalls().length).to.equal(0)
+                expect(redirectStub.called).to.equal(false)
                 submitBtn.simulate('click')
 
                 return utils.waitATick()
                 .then(() => requests[0].respond(200, {}, ''))
                 .then(() => utils.waitATick())
-                .then(() => expect(redirectStub.getCalls().length).to.equal(1))
+                .then(() => expect(redirectStub.called).to.equal(true))
+                .then(() => expect(redirectStub.getCall(0).args[0].to).to.equal('/login'))
             })
 
             it('should do nothing if email is NOT valid', () => {
