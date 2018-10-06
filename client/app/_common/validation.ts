@@ -84,7 +84,7 @@ export class FormControl {
 export class FormCtrlArray {
     error
     dirty: boolean
-    pristine: boolean
+    pristine: boolean = true
     valid: boolean
     invalid: boolean
     parent: FormCtrlArray | FormCtrlGroup

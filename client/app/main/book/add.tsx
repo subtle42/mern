@@ -83,7 +83,7 @@ export default class CreateBookButton extends React.Component<{}, State> {
                     </ModalBody>
                     <ModalFooter>
                         <Button color='primary'
-                            disabled={this.state.rules.invalid || this.state.rules.pristine}
+                            disabled={!this.state.rules.valid}
                             onClick={this.save}
                         >Create</Button>
                         <Button color='secondary' onClick={this.toggle}>Cancel</Button>
