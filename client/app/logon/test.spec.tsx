@@ -46,7 +46,7 @@ describe('Login component', () => {
             pswrdInput = wrapper.find('Input[name="password"]')
         })
 
-        it('should send a REST call with inputs if form is valid', () => {
+        it('should send a REST call with inputs from the form', () => {
             const myEmail = 'aweoverjvler'
             const myPswrd = 'wiejrvkrgjio'
 
@@ -76,10 +76,6 @@ describe('Login component', () => {
                 password: myPswrd
             })))
         })
-
-        it('should do nothing if email is not valid', () => undefined)
-
-        xit('should do nothing if password is too short', () => undefined)
 
         it('should redirect to home upon login success', () => {
             const loginStub = sandbox.stub(AuthActions, 'login').returns(Promise.resolve())
