@@ -56,7 +56,7 @@ export default class LoginPage extends React.Component<any, State> {
         if (this.state.loginSuccess) {
             return (<Redirect to='home' />)
         }
-        console.log(this.state.rules)
+
         return (
             <Form>
                 <FormGroup><Col xs={{ size: 6, offset: 3 }}>

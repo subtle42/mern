@@ -10,11 +10,11 @@ describe('Basic User Authentication', () => {
     })
 
     before(() => {
-        utils.cleanDb()
+        return utils.cleanDb()
     })
 
-    after(done => {
-        utils.cleanDb()
+    after(() => {
+        return utils.cleanDb()
     })
 
     it('should be able to open the page', () => {
