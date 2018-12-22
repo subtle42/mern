@@ -6,6 +6,10 @@ let myFactory = Object.assign({}, factory, {
     setSize: (store: WidgetStore, payload: any): WidgetStore => {
         store.sizes[payload.id] = payload.size
         return store
+    },
+    setData: (store: WidgetStore, payload: any): WidgetStore => {
+        store.data = {...store.data, [payload._id]: payload.data}
+        return store
     }
 })
 

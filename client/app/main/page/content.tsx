@@ -8,6 +8,7 @@ import PageActions from 'data/pages/actions'
 import widgetActions from 'data/widgets/actions'
 import * as Loadable from 'react-loadable'
 import Loading from '../../_common/loading'
+import { StoreModel } from 'data/store'
 
 interface Props {
     page: IPage
@@ -58,9 +59,9 @@ const ContentComponent: React.StatelessComponent<Props> = (props: Props) => {
     return buildGrid()
 }
 
-export const PageContent = connect((store: any) => {
+export const PageContent = connect((store: StoreModel): Props => {
     return {
         // Need to serve back the page from the list because it is the one that gets updated
-        page: store.pages.selected ? store.pages.list.filter(x => x._id === store.pages.selected._id)[0] : undefined
+        page: store.pages.selected ? store.pages.list.filter(x => x._id === store.pages.selected)[0] : undefined
     }
 })(ContentComponent)

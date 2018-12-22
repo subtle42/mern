@@ -41,6 +41,16 @@ const chartConfList: ChartConf[] = [{
         count: 1,
         colType: 'group'
     }]
+}, {
+    name: 'Bar',
+    type: 'barSingle',
+    requires: [{
+        count: 1,
+        colType: 'number'
+    }, {
+        count: 1,
+        colType: 'group'
+    }]
 }]
 
 export class SelectWidget extends React.Component<Props, State> {
@@ -68,11 +78,13 @@ export class SelectWidget extends React.Component<Props, State> {
         return rows.map((row, rowIndex) => {
             return (<Row key={rowIndex}>
             {row.map((col, colIndex) => {
-                return (<Col key={colIndex} xs={12 / this.rowSize}><Button
-                    onClick={() => this.selectConfig(col)}
-                    color={col === this.state.selected ? 'primary' : 'warning'}
-                    size='large'>
-                        <FontAwesome name='puzzle-piece' size='4x' /><br/>
+                return (<Col key={colIndex} xs={12 / this.rowSize}>
+                    <Button
+                        onClick={() => this.selectConfig(col)}
+                        color={col === this.state.selected ? 'primary' : 'warning'}
+                        size='large'>
+                        <FontAwesome name='puzzle-piece' size='4x' />
+                        <br/>
                         {col.name}
                     </Button>
                 </Col>)
@@ -92,12 +104,13 @@ export class SelectWidget extends React.Component<Props, State> {
             <div>
                 <Button color='primary' disabled={!this.state.selected}
                     style={{ marginRight: 20 }}
-                    onClick={() => this.props.done(this.state.selected.type)}
-                >Create</Button>
-                <Button
-                    color='secondary'
-                    onClick={() => this.props.cancel()}
-                >Cancel</Button>
+                    onClick={() => this.props.done(this.state.selected.type)}>
+                    Create
+                </Button>
+                <Button color='secondary'
+                    onClick={() => this.props.cancel()}>
+                    Cancel
+                </Button>
             </div>
         </ModalFooter>
     }

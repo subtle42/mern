@@ -45,10 +45,12 @@ export class MeasureDropdown extends React.Component<DropdownProps, DropdownStat
     }
 
     render () {
-        console.log(this.props)
-
         return (
-            <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+            <ButtonDropdown
+                className='column-btn'
+                isOpen={this.state.dropdownOpen}
+                style={{fontSize:10}}
+                toggle={this.toggle}>
                 <DropdownToggle color='secondary' outline caret size='small'>
                     {this.getSelectedColumn() ? this.getSelectedColumn().name : ''}
                 </DropdownToggle>

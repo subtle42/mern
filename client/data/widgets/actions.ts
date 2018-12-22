@@ -1,7 +1,7 @@
 import { store } from '../store'
 import BaseActions from '../baseActions'
 import axios from 'axios'
-import { ISource, IWidget } from 'common/models'
+import { ISource, IWidget, IQuery } from 'common/models'
 
 class WidgetActions extends BaseActions {
     constructor (store) {
@@ -20,17 +20,6 @@ class WidgetActions extends BaseActions {
             type: config.type
         })
         .then(res => undefined)
-        // Doing spreads do not modify the store
-        // myPage.layout = [...myPage.layout];
-        // myPage.layout.push({
-        //     i: (myPage.layout.length +1).toString(),
-        //     x:0,
-        //     y:0,
-        //     w:1,
-        //     h:1
-        // });
-
-        // return pageActions.update(myPage);
     }
     delete (id: string): Promise<void> {
         return axios.delete(`/api/widgets/${id}`)
@@ -42,6 +31,16 @@ class WidgetActions extends BaseActions {
     }
     setSize (id: string, width: number, height: number): void {
         this.sendDispatch('setSize', { id: id, size: { width, height } })
+    }
+    query (widget: IWidget): Promise<void> {
+        const query: IQuery = {
+            sourceId: widget.sourceId,
+            measures: widget.measures,
+            dimensions: widget.dimensions,
+            filters: []
+        }
+        return axios.post(`/api/sources/query`, query)
+        .then(res => console.log(res.data))
     }
 }
 

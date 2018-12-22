@@ -6,3 +6,8 @@
     fill: #fff;
     font: 10px sans-serif;
   }
+
+  .column-btn button {
+    padding: 2px;
+    font-size: 10;
+  }
