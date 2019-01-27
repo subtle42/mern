@@ -1,9 +1,5 @@
 import axios, { AxiosPromise } from 'axios'
 import { store } from '../store'
-import bookActions from '../books/actions'
-import pageActions from '../pages/actions'
-import widgetActions from '../widgets/actions'
-import sourceActions from '../sources/actions'
 import { IUser } from 'common/models'
 
 class AuthActions {
@@ -54,16 +50,16 @@ class AuthActions {
     private loadConnections (token: string): Promise<void> {
         return this.setToken(token)
         .then(() => this.me())
-        .then(() => bookActions.connect(token))
-        .then(() => pageActions.connect(token))
-        .then(() => widgetActions.connect(token))
-        .then(() => sourceActions.connect(token))
-        .then(() => sourceActions.joinRoom(this.store.getState().auth.me._id))
-        .then(() => bookActions.joinRoom(this.store.getState().auth.me._id))
-        .then(() => {
-            if (store.getState().books.list.length === 0) return
-            return bookActions.select(store.getState().books.list[0]._id)
-        })
+        // .then(() => bookActions.connect(token))
+        // .then(() => pageActions.connect(token))
+        // .then(() => widgetActions.connect(token))
+        // .then(() => sourceActions.connect(token))
+        // .then(() => sourceActions.joinRoom(this.store.getState().auth.me._id))
+        // .then(() => bookActions.joinRoom(this.store.getState().auth.me._id))
+        // .then(() => {
+        //     if (store.getState().books.list.length === 0) return
+        //     return bookActions.select(store.getState().books.list[0]._id)
+        // })
     }
 
     login (email: string, password: string): Promise<void> {
@@ -77,18 +73,18 @@ class AuthActions {
     logout (): Promise<void> {
         return axios.get('/api/auth/logout')
         .then(() => this._logout())
-        .then(() => Promise.all([
-            bookActions.disconnect()
-        ]))
+        // .then(() => Promise.all([
+        //     bookActions.disconnect()
+        // ]))
         .then(() => {
             axios.defaults.headers.common['Authorization'] = undefined
             this.deleteAuthCookie()
         })
         .then(() => this.setUser(undefined))
-        .then(() => bookActions.disconnect())
-        .then(() => pageActions.disconnect())
-        .then(() => widgetActions.disconnect())
-        .then(() => sourceActions.disconnect())
+        // .then(() => bookActions.disconnect())
+        // .then(() => pageActions.disconnect())
+        // .then(() => widgetActions.disconnect())
+        // .then(() => sourceActions.disconnect())
     }
 
     private deleteAuthCookie () {
