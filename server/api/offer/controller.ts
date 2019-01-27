@@ -1,8 +1,8 @@
 import { Offer } from './model'
 import { Response, NextFunction } from 'express'
-import { MyRequest } from '../../dbModels'
+import { MyRequest, IOfferModel } from '../../dbModels'
 import * as utils from '../utils'
-
+import { offerSocket } from './socket'
 
 export class UserController {
     public static getAll (req: MyRequest, res: Response): void {
@@ -19,13 +19,21 @@ export class UserController {
 
     public static destroy (req: MyRequest, res: Response): void {
         Offer.findByIdAndRemove(req.params.id).exec()
-        .then(docs => res.json())
+        .then(docs => {
+            offerSocket.onDelete({
+                _id: req.params.id
+            } as IOfferModel);
+            res.json()
+        })
         .catch(utils.handleError)
     }
 
     public static update (req: MyRequest, res: Response): void {
         Offer.findByIdAndUpdate(req.params.id, req.body).exec()
-        .then(docs => res.json(docs))
+        .then(doc => {
+            offerSocket.onAddOrChange(doc)
+            res.json(doc)
+        })
         .catch(utils.handleError)
     }
 
@@ -33,7 +41,10 @@ export class UserController {
         const newOffer = new Offer(req.body);
         
         newOffer.save()
-        .then(docs => res.json(docs))
+        .then(doc => {
+            offerSocket.onAddOrChange(doc)
+            res.json(doc)
+        })
         .catch(utils.handleError)
     }
 }

@@ -1,7 +1,7 @@
 import axios, { AxiosPromise } from 'axios'
 import { store } from '../store'
 import { IUser } from 'common/models'
-
+import offerActions from '../offer/actions'
 class AuthActions {
     private nameSpace = 'auth'
 
@@ -50,6 +50,7 @@ class AuthActions {
     private loadConnections (token: string): Promise<void> {
         return this.setToken(token)
         .then(() => this.me())
+        .then(() => offerActions.connect(token))
         // .then(() => bookActions.connect(token))
         // .then(() => pageActions.connect(token))
         // .then(() => widgetActions.connect(token))
@@ -73,9 +74,9 @@ class AuthActions {
     logout (): Promise<void> {
         return axios.get('/api/auth/logout')
         .then(() => this._logout())
-        // .then(() => Promise.all([
-        //     bookActions.disconnect()
-        // ]))
+        .then(() => Promise.all([
+            offerActions.disconnect()
+        ]))
         .then(() => {
             axios.defaults.headers.common['Authorization'] = undefined
             this.deleteAuthCookie()

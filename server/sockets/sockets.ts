@@ -71,10 +71,18 @@ export default abstract class BaseSocket {
     }
 
     protected _onDelete (room: string, ids: string[]): void {
-        this.namespace.in(room).emit('removed', ids)
+        if (!room) {
+            this.namespace.emit('removed', ids)
+        } else {
+            this.namespace.in(room).emit('removed', ids)
+        }
     }
 
     protected _onAddOrChange (room: string, items: Document[]): void {
-        this.namespace.in(room).emit('addedOrChanged', items)
+        if (!room) {
+            this.namespace.emit('addedOrChanged', items)
+        } else {
+            this.namespace.in(room).emit('addedOrChanged', items)
+        }
     }
 }

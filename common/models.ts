@@ -18,6 +18,7 @@ export interface IShared {
 }
 
 export interface IOffer {
+    _id: any;
     offerType: string;
     clientName: string;
     propertyAddress: {
