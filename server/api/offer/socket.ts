@@ -4,7 +4,7 @@ import BaseSocket from '../../sockets/sockets'
 
 class OfferSocket extends BaseSocket {
     constructor () {
-        super('offers')
+        super('offer')
     }
 
     getParentId () {

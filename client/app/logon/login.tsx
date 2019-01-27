@@ -54,7 +54,7 @@ export default class LoginPage extends React.Component<any, State> {
 
     render () {
         if (this.state.loginSuccess) {
-            return (<Redirect to='home' />)
+            return (<Redirect to='offer' />)
         }
 
         return (

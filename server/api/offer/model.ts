@@ -16,11 +16,11 @@ const OfferSchema = new Schema({
     state: String,
     zip: String
   },
-  commision: {
+  commission: {
     type: String,
     flatAmout: Number,
     percentRate: Number
-}
+    }
 });
 
 export const Offer: Model<IOfferModel> = createSchema('Offer', OfferSchema);

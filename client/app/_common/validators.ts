@@ -10,6 +10,16 @@ export const isRequired: ValidatorFn = (ctrl: FormControl) => {
     return undefined
 }
 
+export const isNumber: ValidatorFn = (ctrl: FormControl) => {
+    if (isNaN(ctrl.value)) {
+        return {
+            message: 'Value must be a number.'
+        }
+    }
+    return undefined
+}
+
+
 export const maxLength = (expected: number): ValidatorFn => {
     return (ctrl: FormControl) => {
         const actual = ctrl.value.trim().length

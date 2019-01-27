@@ -2,7 +2,7 @@
 import { GenericStore } from '../baseReducer'
 import { IOffer } from 'common/models'
 
-export default class BookStore extends GenericStore {
+export default class OfferStore extends GenericStore {
     list: IOffer[] = []
     selected?: string
 }

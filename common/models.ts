@@ -28,7 +28,7 @@ export interface IOffer {
         state: string,
         zip: string
     }
-    commision: {
+    commission: {
         type: string,
         flatAmout: number,
         percentRate: number

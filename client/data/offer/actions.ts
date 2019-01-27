@@ -5,7 +5,7 @@ import BaseActions from 'data/baseActions';
 
 class OfferActions extends BaseActions {
     constructor () {
-        super(store, 'offers')
+        super(store, 'offer')
     }
 
     create (offer: IOffer): AxiosPromise<string> {
