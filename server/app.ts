@@ -5,7 +5,7 @@ import * as io from 'socket.io'
 import * as mongoose from 'mongoose'
 import * as passport from 'passport'
 import * as utils from './api/utils'
-// import { socketAuth } from './auth/socket/auth'
+import { socketAuth } from './auth/socket/auth'
 declare var global: any
 
 let MONGO_URI = 'mongodb://localhost/merntest';
@@ -28,7 +28,7 @@ global.myIO = myIO
 myIO.on('connection', socket => {
     socket.emit('message', 'connected')
 })
-// socketAuth(myIO);
+socketAuth(myIO);
 
 const test = () => {
     return (req, res, next) => {

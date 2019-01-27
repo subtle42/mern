@@ -10,6 +10,9 @@ import * as Validators from '../../_common/validators'
 import FormFeedback from 'reactstrap/lib/FormFeedback';
 import Input from 'reactstrap/lib/Input';
 import OfferList from './list'
+import FormGroup from 'reactstrap/lib/FormGroup';
+import { stateAbbreviations } from '../../_common/consts';
+import NotifActions from 'data/notifications/actions'
 
 
 export interface OfferProps extends React.ReactPropTypes, RouteComponentProps {
@@ -186,17 +189,18 @@ class asdf extends React.Component<{}, MyState> {
                 type: new FormControl('', [
                     Validators.isRequired
                 ]),
-                flatAmount: new FormControl(''),
-                percentrate: new FormControl('')
+                flatAmount: new FormControl(0),
+                percentRate: new FormControl(0)
             })
         })
 
         this.setState({ rules })
     }
 
-    postOffer() {
-        offerActions.create({} as any)
-        .then()
+    postOffer = () => {
+        offerActions.create(this.state.rules.value as IOffer)
+        .then(res => NotifActions.notify('success', 'worked'))
+        .catch(err => NotifActions.notify('danger', err))
     }
 
     getError = (field: string): string => {
@@ -238,6 +242,7 @@ class asdf extends React.Component<{}, MyState> {
 
     render () {
         return <Form className="container">
+            <OfferList />
             <Row>
                 <Label for="clientName">Client's Preferred Name</Label>
                 <Input
@@ -283,18 +288,51 @@ class asdf extends React.Component<{}, MyState> {
                     onChange={this.handleChange}/>
                 <FormFeedback>{this.getError('propertyAddress.street2')}</FormFeedback>
             </Row>
-            <Row>
-                <Label>City</Label>
-                <Input
-                    type="text"
-                    name="propertyAddress.city"
-                    placeholder="Address"
-                    value={this.state.rules.controls.propertyAddress.controls['city'].value}
-                    invalid={this.state.rules.controls.propertyAddress.controls['city'].error}
-                    onChange={this.handleChange}/>
-                <FormFeedback>{this.getError('propertyAddress.city')}</FormFeedback>
+            <Row form='true'>
+                <Col md={6}>
+                    <FormGroup>
+                        <Label for="propertyAddress.city">City</Label>
+                        <Input 
+                            type="text" 
+                            name="propertyAddress.city"
+                            placeholder="City"
+                            value={this.state.rules.controls.propertyAddress.controls['city'].value}
+                            invalid={this.state.rules.controls.propertyAddress.controls['city'].error}
+                            onChange={this.handleChange}
+                        />
+                        <FormFeedback>{this.getError('propertyAddress.city')}</FormFeedback>
+                    </FormGroup>
+                </Col>
+                <Col md={4}>
+                    <FormGroup>
+                        <Label for="exampleState">State</Label>
+                        <Input type="select" name="offerType"
+                            onChange={this.handleChange}
+                            value={this.state.rules.controls.propertyAddress.controls['state'].value}
+                            invalid={this.state.rules.controls.propertyAddress.controls['state'].error}>
+                            {stateAbbreviations.map((type, key) => <option key={key} value={type}>{type}</option>)}
+                        </Input>
+                        <FormFeedback>{this.getError('propertyAddress.state')}</FormFeedback>
+                    </FormGroup>
+                </Col>
+                <Col md={2}>
+                    <FormGroup>
+                        <Label for="propertyAddress.zip">Zip</Label>
+                        <Input 
+                            type="text" 
+                            name="propertyAddress.zip"
+                            placeholder="Zip"
+                            value={this.state.rules.controls.propertyAddress.controls['zip'].value}
+                            invalid={this.state.rules.controls.propertyAddress.controls['zip'].error}
+                            onChange={this.handleChange}
+                        />
+                        <FormFeedback>{this.getError('propertyAddress.zip')}</FormFeedback>
+                    </FormGroup>  
+                </Col>
             </Row>
-            <Button className="btn btn-primary" onClick={this.postOffer}>
+            <Button className="btn btn-primary"
+                // disabled={!this.state.rules.valid}
+                onClick={this.postOffer}>
                 Post Offer
             </Button>
             </Form>

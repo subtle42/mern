@@ -42,9 +42,13 @@ export default abstract class BaseSocket {
             this.veryifyToken(socket.handshake.query.token)
             .then(decoded => this.hasViewAccess(decoded, room))
             .then(() => {
-                socket.leaveAll()
-                socket.join(room)
-                socket.emit('message', `${this.name.toUpperCase()}, joined room: ${room}`)
+                if (!(!room || room.length === 0)) {
+                    socket.leaveAll()
+                    socket.join(room)
+                    socket.emit('message', `${this.name.toUpperCase()}, joined room: ${room}`)
+                } else {
+                    socket.emit('message', `Joined no room.`)
+                }
                 return this.getInitialState(room)
             })
             .then(data => this._onAddOrChange(room, data))

@@ -1,4 +1,4 @@
-import { IOfferModel } from '../../dbModels'
+import { IOfferModel, ISharedModel } from '../../dbModels'
 import { Offer } from './model'
 import BaseSocket from '../../sockets/sockets'
 
@@ -15,10 +15,11 @@ class OfferSocket extends BaseSocket {
         return Offer.find({}).exec()
     }
 
-    getSharedModel () {
-        return {
+    getSharedModel (id: string) {
+        const response: any = {
             isPublic: true
-        } as any
+        }
+        return new Promise(resolve => resolve(response)) as Promise<ISharedModel>;
     }
 
     onAddOrChange (model: IOfferModel) {

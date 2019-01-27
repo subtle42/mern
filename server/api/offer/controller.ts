@@ -40,10 +40,11 @@ export class UserController {
     public static create (req: MyRequest, res: Response): void {
         const newOffer = new Offer(req.body);
         
-        newOffer.save()
+        newOffer.validate()
+        .then(() => newOffer.save())
         .then(doc => {
             offerSocket.onAddOrChange(doc)
-            res.json(doc)
+            return res.json(doc)
         })
         .catch(utils.handleError)
     }

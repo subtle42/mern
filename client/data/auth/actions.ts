@@ -51,6 +51,7 @@ class AuthActions {
         return this.setToken(token)
         .then(() => this.me())
         .then(() => offerActions.connect(token))
+        .then(() => offerActions.joinRoom(''))
         // .then(() => bookActions.connect(token))
         // .then(() => pageActions.connect(token))
         // .then(() => widgetActions.connect(token))
