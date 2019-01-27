@@ -27,7 +27,7 @@ export class Main extends React.Component<{}, MyState> {
                     <Route exact path='/home' component={MainPage}/>
                     <Route exact path='/login' component={LoadingPage}/>
                     <Route exact path='/register' component={RegisterPage} />
-                    <Route exact path='/offers' component={Offers} />
+                    <Route exact path='/offer' component={Offers} />
                 </div>
             </Router>
         )

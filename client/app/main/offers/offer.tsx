@@ -3,9 +3,9 @@ import {
     RouteComponentProps
   } from "react-router";
 import {IOffer} from 'common/models'
-import { Label, Button } from 'reactstrap';
+import { Label, Button, Row, Form, Col } from 'reactstrap';
 import offerActions from 'data/offer/actions'
-import { FormCtrlGroup, FormControl } from '../../_common/validation';
+import { FormCtrlGroup, FormControl, FormCtrlArray } from '../../_common/validation';
 import * as Validators from '../../_common/validators'
 import FormFeedback from 'reactstrap/lib/FormFeedback';
 import Input from 'reactstrap/lib/Input';
@@ -37,6 +37,8 @@ class MyState {
 }
 
 class asdf extends React.Component<{}, MyState> {
+    getBracketValue = new RegExp(/\[(.*?)\]/);
+
     // Address(): React.ReactNode {
     //     return (
     //       <div>
@@ -198,48 +200,104 @@ class asdf extends React.Component<{}, MyState> {
     }
 
     getError = (field: string): string => {
-        return this.state.rules.controls[field].error
-            ? this.state.rules.controls[field].error.message
+        let schema: FormCtrlGroup | FormControl | FormCtrlArray = this.state.rules;
+        field.split('.').forEach(attr => {
+            if (attr.indexOf('[') !== -1) {
+                const firstPart = attr.split('[')[0]
+                const index: number = parseInt(this.getBracketValue.exec(attr)[1])
+                schema = schema.controls[firstPart]
+                schema = schema.controls[index]
+            } else {
+              schema = schema.controls[attr]
+            }
+        })
+        return schema.error
+            ? schema.error.message
             : ''
     }
 
     handleChange = (event: React.FormEvent<any>) => {
         const target: any = event.target
-        this.state.rules.controls[target.name].value = target.value
+        let schema: FormCtrlGroup | FormControl | FormCtrlArray = this.state.rules;
+        target.name.split('.').forEach(attr => {
+            if (attr.indexOf('[') !== -1) {
+                const firstPart = attr.split('[')[0]
+                const index: number = parseInt(this.getBracketValue.exec(attr)[1])
+                schema = schema.controls[firstPart]
+                schema = schema.controls[index]
+            } else {
+              schema = schema.controls[attr]
+            }
+        })
+        schema.value = target.value;
+
         this.setState({
             rules: this.state.rules
         })
     }
 
     render () {
-        return <div> 
-            <OfferList />
-        <section className="container">
-        <h2>Show a property</h2>
-        <form>
-          {/* {this.Address()} */}
-          <div className="form-row">
-            <div className="form-group col-md-6">
-              <Label for="clientName">Client's Preferred Name</Label>
-              <Input
-                type="text"
-                name="clientName"
-                placeholder="Enter Client's Name"
-                value={this.state.rules.controls.clientName.value}
-                invalid={this.state.rules.controls.clientName.invalid}
-                onChange={this.handleChange}
-              />
-            <FormFeedback>{this.getError('clientName')}</FormFeedback>
-
-            </div>
-          </div>
-          {/* {this.Commission()} */}
-          <Button className="btn btn-primary" onClick={this.postOffer}>
-            Post Offer
-          </Button>
-        </form>
-      </section>
-      </div>
+        return <Form className="container">
+            <Row>
+                <Label for="clientName">Client's Preferred Name</Label>
+                <Input
+                    type="text"
+                    name="clientName"
+                    placeholder="Enter Client's Name"
+                    value={this.state.rules.controls.clientName.value}
+                    invalid={this.state.rules.controls.clientName.invalid}
+                    onChange={this.handleChange}/>
+                <FormFeedback>{this.getError('clientName')}</FormFeedback>
+            </Row>
+            <Row>
+                <Label>Offer Type</Label>
+                <Input type="select" name="offerType"
+                    onChange={this.handleChange}
+                    value={this.state.rules.controls.offerType.value}
+                    invalid={this.state.rules.controls.offerType.error}>
+                    {OfferTypes.map((type, key) => {
+                        return <option key={key} value={type.value}>{type.displayName}</option>
+                    })}
+                </Input>
+                <FormFeedback>{this.getError('offerType')}</FormFeedback>
+            </Row>
+            <Row>
+                <Label>Address</Label>
+                <Input
+                    type="text"
+                    name="propertyAddress.street1"
+                    placeholder="Address"
+                    value={this.state.rules.controls.propertyAddress.controls['street1'].value}
+                    invalid={this.state.rules.controls.propertyAddress.controls['street1'].error}
+                    onChange={this.handleChange}/>
+                <FormFeedback>{this.getError('propertyAddress.street1')}</FormFeedback>
+            </Row>
+            <Row>
+                <Label>Address 2</Label>
+                <Input
+                    type="text"
+                    name="propertyAddress.street2"
+                    placeholder="Address"
+                    value={this.state.rules.controls.propertyAddress.controls['street2'].value}
+                    invalid={this.state.rules.controls.propertyAddress.controls['street2'].error}
+                    onChange={this.handleChange}/>
+                <FormFeedback>{this.getError('propertyAddress.street2')}</FormFeedback>
+            </Row>
+            <Row>
+                <Label>City</Label>
+                <Input
+                    type="text"
+                    name="propertyAddress.city"
+                    placeholder="Address"
+                    value={this.state.rules.controls.propertyAddress.controls['city'].value}
+                    invalid={this.state.rules.controls.propertyAddress.controls['city'].error}
+                    onChange={this.handleChange}/>
+                <FormFeedback>{this.getError('propertyAddress.city')}</FormFeedback>
+            </Row>
+            <Button className="btn btn-primary" onClick={this.postOffer}>
+                Post Offer
+            </Button>
+            </Form>
     }
 }
 
