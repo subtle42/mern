@@ -153,13 +153,13 @@ class asdf extends React.Component<{}, MyState> {
     //   }
     componentWillMount() {
         const rules = new FormCtrlGroup({
-            offerType: new FormControl('', [
+            offerType: new FormControl(OfferTypes[0].value, [
                 Validators.isRequired,
             ]),
             clientName: new FormControl('', [
                 Validators.isRequired,
-                Validators.minLength(3),
-                Validators.maxLength(100)
+                // Validators.minLength(3),
+                // Validators.maxLength(100)
             ]),
             propertyAddress: new FormCtrlGroup ({
                 street1: new FormControl('', [
@@ -173,7 +173,7 @@ class asdf extends React.Component<{}, MyState> {
                     Validators.isRequired,
                     Validators.maxLength(100)
                 ]),
-                state: new FormControl('', [
+                state: new FormControl(stateAbbreviations[0], [
                     Validators.isRequired,
                     Validators.maxLength(2),
                     Validators.minLength(2)
@@ -198,8 +198,14 @@ class asdf extends React.Component<{}, MyState> {
     }
 
     postOffer = () => {
+        console.log(this.state.rules.value)
         offerActions.create(this.state.rules.value as IOffer)
-        .then(res => NotifActions.notify('success', 'worked'))
+        .then(res => {
+            this.state.rules.reset();
+            this.setState({
+                rules: this.state.rules
+            });
+        })
         .catch(err => NotifActions.notify('danger', err))
     }
 
@@ -234,7 +240,7 @@ class asdf extends React.Component<{}, MyState> {
             }
         })
         schema.value = target.value;
-
+        console.log(this.state.rules.value)
         this.setState({
             rules: this.state.rules
         })
@@ -306,7 +312,9 @@ class asdf extends React.Component<{}, MyState> {
                 <Col md={4}>
                     <FormGroup>
                         <Label for="exampleState">State</Label>
-                        <Input type="select" name="offerType"
+                        <Input 
+                            type="select" 
+                            name="propertyAddress.state"
                             onChange={this.handleChange}
                             value={this.state.rules.controls.propertyAddress.controls['state'].value}
                             invalid={this.state.rules.controls.propertyAddress.controls['state'].error}>

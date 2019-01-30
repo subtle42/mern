@@ -61,11 +61,11 @@ export class FormControl {
     }
 
     get value () {
-        let response = this.data
-        if (typeof this.data === 'string') {
-            response = response.trim()
-        }
-        return response
+        // let response = this.data
+        // if (typeof this.data === 'string') {
+        //     response = response.trim()
+        // }
+        return this.data
     }
 
     get isPristine () {
