@@ -144,7 +144,7 @@ class OfferForm extends React.Component<{}, MyState> {
         return <Form className="container">
             <OfferDetails />
             <OfferList />
-            <Row>
+            <Row><Col>
                 <Label for="clientName">Client's Preferred Name</Label>
                 <Input
                     type="text"
@@ -154,8 +154,8 @@ class OfferForm extends React.Component<{}, MyState> {
                     invalid={this.state.rules.controls.clientName.invalid}
                     onChange={this.handleChange}/>
                 <FormFeedback>{this.getError('clientName')}</FormFeedback>
-            </Row>
-            <Row>
+            </Col></Row>
+            <Row><Col>
                 <Label>Offer Type</Label>
                 <Input type="select" name="offerType"
                     onChange={this.handleChange}
@@ -166,8 +166,8 @@ class OfferForm extends React.Component<{}, MyState> {
                     })}
                 </Input>
                 <FormFeedback>{this.getError('offerType')}</FormFeedback>
-            </Row>
-            <Row>
+            </Col></Row>
+            <Row><Col>
                 <Label>Address</Label>
                 <Input
                     type="text"
@@ -177,8 +177,8 @@ class OfferForm extends React.Component<{}, MyState> {
                     invalid={this.state.rules.controls.propertyAddress.controls['street1'].error}
                     onChange={this.handleChange}/>
                 <FormFeedback>{this.getError('propertyAddress.street1')}</FormFeedback>
-            </Row>
-            <Row>
+            </Col></Row>
+            <Row><Col>
                 <Label>Address 2</Label>
                 <Input
                     type="text"
@@ -188,7 +188,7 @@ class OfferForm extends React.Component<{}, MyState> {
                     invalid={this.state.rules.controls.propertyAddress.controls['street2'].error}
                     onChange={this.handleChange}/>
                 <FormFeedback>{this.getError('propertyAddress.street2')}</FormFeedback>
-            </Row>
+            </Col></Row>
             <Row form='true'>
                 <Col md={6}>
                     <FormGroup>
