@@ -39,7 +39,7 @@ class MyState {
     rules: FormCtrlGroup
 }
 
-class asdf extends React.Component<{}, MyState> {
+class OfferForm extends React.Component<{}, MyState> {
     getBracketValue = new RegExp(/\[(.*?)\]/);
 
     // Address(): React.ReactNode {
@@ -158,8 +158,8 @@ class asdf extends React.Component<{}, MyState> {
             ]),
             clientName: new FormControl('', [
                 Validators.isRequired,
-                // Validators.minLength(3),
-                // Validators.maxLength(100)
+                Validators.minLength(3),
+                Validators.maxLength(100)
             ]),
             propertyAddress: new FormCtrlGroup ({
                 street1: new FormControl('', [
@@ -186,7 +186,7 @@ class asdf extends React.Component<{}, MyState> {
                 ])
             }),
             commission: new FormCtrlGroup({
-                type: new FormControl('', [
+                type: new FormControl('flat', [
                     Validators.isRequired
                 ]),
                 flatAmount: new FormControl(0),
@@ -247,6 +247,8 @@ class asdf extends React.Component<{}, MyState> {
     }
 
     render () {
+
+
         return <Form className="container">
             <OfferList />
             <Row>
@@ -335,8 +337,58 @@ class asdf extends React.Component<{}, MyState> {
                             onChange={this.handleChange}
                         />
                         <FormFeedback>{this.getError('propertyAddress.zip')}</FormFeedback>
-                    </FormGroup>  
+                    </FormGroup>
                 </Col>
+            </Row>
+            <Row form='true'>
+                <Col md={6}>
+                    <FormGroup>
+                        <Label for="commission.type">Commission</Label>
+                        <Input 
+                            type="select" 
+                            name="commission.type"
+                            placeholder="Type"
+                            value={this.state.rules.controls.commission.controls['type'].value}
+                            invalid={this.state.rules.controls.commission.controls['type'].error}
+                            onChange={this.handleChange}
+                        >
+                            <option value="percent">% of Commission</option>
+                            <option value="flat">Flat Fee</option>
+                            <option value="both">Both (Applicant Chooses)</option>
+                        </Input>
+                        <FormFeedback>{this.getError('commission.type')}</FormFeedback>
+                    </FormGroup>
+                </Col>
+                {this.state.rules.controls.commission.controls['type'].value === 'percent' || this.state.rules.controls.commission.controls['type'].value === 'both' ? 
+                <Col md={4}>
+                    <FormGroup>
+                        <Label for="commission.percentRate">% of Commission</Label>
+                        <Input 
+                            type="number" 
+                            name="commission.percentRate"
+                            onChange={this.handleChange}
+                            value={this.state.rules.controls.commission.controls['percentRate'].value}
+                            invalid={this.state.rules.controls.commission.controls['percentRate'].error}
+                            />
+                        <FormFeedback>{this.getError('commission.percentRate')}</FormFeedback>
+                    </FormGroup>
+                </Col> : ''
+                }
+                {this.state.rules.controls.commission.controls['type'].value === 'flat' || this.state.rules.controls.commission.controls['type'].value === 'both' ? 
+                <Col md={2}>
+                    <FormGroup>
+                        <Label for="commission.flatAmount">Flat Fee</Label>
+                        <Input 
+                            type="number" 
+                            name="commission.flatAmount"
+                            placeholder="Amount"
+                            value={this.state.rules.controls.commission.controls['flatAmount'].value}
+                            invalid={this.state.rules.controls.commission.controls['flatAmount'].error}
+                            onChange={this.handleChange}
+                        />
+                        <FormFeedback>{this.getError('commission.flatAmount')}</FormFeedback>
+                    </FormGroup>
+                </Col> : '' }
             </Row>
             <Button className="btn btn-primary"
                 // disabled={!this.state.rules.valid}
@@ -347,5 +399,4 @@ class asdf extends React.Component<{}, MyState> {
     }
 }
 
-
-export default asdf;
+export default OfferForm;
