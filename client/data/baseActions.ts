@@ -68,7 +68,7 @@ export default abstract class BaseActions {
             if (this.isNewList && items.length > 0) {
                 this.isNewList = false
                 this.addedOrChanged(items)
-                .then(() => this.select(items[0]._id))
+                // .then(() => this.select(items[0]._id))
             } else {
                 this.addedOrChanged(items)
             }

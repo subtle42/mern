@@ -11,7 +11,7 @@ interface Props {
 }
 
 const myComponent: React.StatelessComponent<Props> = (props: Props) => {
-     function  getOfferDisplay  (offerType: string): string {
+    const getOfferDisplay = (offerType: string): string => {
          const myType = OfferTypes.find(type => type.value === offerType)
         return myType ? myType.displayName : ''
     }
@@ -19,7 +19,10 @@ const myComponent: React.StatelessComponent<Props> = (props: Props) => {
     return (
         <ListGroup>
             {props.list.map((offer, index) => {
-                return <ListGroupItem key={index}>{getOfferDisplay(offer.offerType)} - {offer._id}</ListGroupItem>
+                return <ListGroupItem key={index}
+                    onClick={() => offerActions.select(offer._id)}>
+                    {getOfferDisplay(offer.offerType)} - {offer._id}
+                </ListGroupItem>
             })}
         </ListGroup>
     )

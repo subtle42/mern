@@ -13,6 +13,7 @@ import OfferList from './list'
 import FormGroup from 'reactstrap/lib/FormGroup';
 import { stateAbbreviations } from '../../_common/consts';
 import NotifActions from 'data/notifications/actions'
+import { OfferDetails } from './details'
 
 
 export interface OfferProps extends React.ReactPropTypes, RouteComponentProps {
@@ -42,115 +43,6 @@ class MyState {
 class asdf extends React.Component<{}, MyState> {
     getBracketValue = new RegExp(/\[(.*?)\]/);
 
-    // Address(): React.ReactNode {
-    //     return (
-    //       <div>
-    //         <div className="form-group">
-    //           <Label for="inputAddress">Address</Label>
-    //           <input
-    //             type="text"
-    //             className="form-control"
-    //             id="inputAddress"
-    //             placeholder="1234 Main St"
-    //             value={this.state.propertyAddress.street1}
-    //             onChange={event => {
-    //               let address = this.state.propertyAddress;
-    //               address.street1 = event.target.value;
-    //               this.setState({ propertyAddress: address });
-    //             }}
-    //           />
-    //         </div>
-    //         <div className="form-group">
-    //           <Label for="inputAddress2">Address 2</Label>
-    //           <input
-    //             type="text"
-    //             className="form-control"
-    //             id="inputAddress2"
-    //             placeholder="Apartment, studio, or floor"
-    //             value={this.state.propertyAddress.street2}
-    //             onChange={event => {
-    //               let address = this.state.propertyAddress;
-    //               address.street2 = event.target.value;
-    //               this.setState({ propertyAddress: address });
-    //             }}
-    //           />
-    //         </div>
-    //         <div className="form-row">
-    //           <div className="form-group col-md-6">
-    //             <Label for="inputCity">City</Label>
-    //             <input
-    //               type="text"
-    //               className="form-control"
-    //               id="inputCity"
-    //               value={this.state.propertyAddress.city}
-    //               onChange={event => {
-    //                 let address = this.state.propertyAddress;
-    //                 address.city = event.target.value;
-    //                 this.setState({ propertyAddress: address });
-    //               }}
-    //             />
-    //           </div>
-    //           <div className="form-group col-md-4">
-    //             <Label for="inputState">State</Label>
-    //             <select
-    //               id="inputState"
-    //               className="form-control"
-    //               value={this.state.propertyAddress.state}
-    //               onChange={event => {
-    //                 let address = this.state.propertyAddress;
-    //                 address.state = event.target.value;
-    //                 this.setState({ propertyAddress: address });
-    //               }}
-    //             >
-    //               {stateAbbreviations.map(state => <option key={state}>{state}</option>)}
-    //             </select>
-    //           </div>
-    //           <div className="form-group col-md-2">
-    //             <Label for="inputZip">Zip</Label>
-    //             <input
-    //               type="text"
-    //               className="form-control"
-    //               id="inputZip"
-    //               value={this.state.propertyAddress.zip}
-    //               onChange={event => {
-    //                 let address = this.state.propertyAddress;
-    //                 address.zip = event.target.value;
-    //                 this.setState({ propertyAddress: address });
-    //               }}
-    //             />
-    //           </div>
-    //         </div>
-    //       </div>
-    //     );
-    //   }
-
-    // Commission() {
-    //     let type = this.state.commissionType;
-    //     return (
-    //       <div className="form-row">
-    //         <div className="form-group col-md-4">
-    //           <Label for="commissionType">Compenstation</Label>
-    //           <select
-    //             id="commissionType"
-    //             className="form-control"
-    //             value={this.state.commissionType}
-    //             onChange={event =>
-    //               this.setState({ commissionType: event.target.value })
-    //             }
-    //           >
-    //             <option >Choose...</option>
-    //             <option value="percent">% of Commission</option>
-    //             <option value="flat">Flat Fee</option>
-    //             <option value="both">Both (Applicant Chooses)</option>
-    //           </select>
-    //         </div>
-    //         {type === "percent" || type === "both"
-    //           ? this.renderPercentCommission()
-    //           : ""}
-    //         {type === "flat" || type === "both" ? this.renderFlatCommission() : ""}
-    //       </div>
-    //     );
-    //   }
     componentWillMount() {
         const rules = new FormCtrlGroup({
             offerType: new FormControl(OfferTypes[0].value, [
@@ -248,6 +140,7 @@ class asdf extends React.Component<{}, MyState> {
 
     render () {
         return <Form className="container">
+            <OfferDetails />
             <OfferList />
             <Row>
                 <Label for="clientName">Client's Preferred Name</Label>

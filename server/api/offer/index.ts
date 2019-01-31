@@ -7,7 +7,7 @@ const router = Router()
 router.get('/', auth.isAuthenticated, auth.isAdmin, controller.getAll)
 router.get('/:id', auth.isAuthenticated, auth.isAdmin, controller.getOne)
 router.delete('/:id', auth.isAuthenticated, auth.isAdmin, controller.destroy)
-router.put('/:id', auth.isAuthenticated, auth.isAdmin, controller.update)
-router.post('/', auth.isAuthenticated, auth.isAdmin, controller.create)
+router.put('/:id', auth.isAuthenticated, controller.update)
+router.post('/', auth.isAuthenticated, controller.create)
 
 module.exports = router
