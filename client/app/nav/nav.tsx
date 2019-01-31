@@ -23,7 +23,7 @@ interface NavProps {
 const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {
     return (
         <Navbar color='light' light expand='md'>
-            <NavbarBrand> WhIM </NavbarBrand>
+            <NavbarBrand>Digi-Team</NavbarBrand>
             <Collapse navbar style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
             <Nav >
                 <NavItem key={1}>
@@ -35,14 +35,12 @@ const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {
                         ? <NavItem key={2}><NavLink><Link to='/register'>Register</Link></NavLink></NavItem>
                         : undefined
                     }
-                <NavItem key={3}>
-                    <NavLink>
-                    { props.user
-                        ? <Link onClick={() => authActions.logout()} to='/home'>Logout</Link>
-                        : <Link to='/login'>Login</Link>
-                    }
-                    </NavLink>
-                </NavItem>
+                    { props.user && <NavItem><NavLink><Link to="/post">Post</Link></NavLink></NavItem> }
+                    { props.user && <NavItem><NavLink><Link to="/offers">Offers</Link></NavLink></NavItem> }
+                    { props.user && <NavItem><NavLink><Link to='/home'
+                        onClick={() => authActions.logout()}>
+                        Logout</Link></NavLink></NavItem> }
+                    { !props.user && <NavItem><NavLink><Link to='/login'>Login</Link></NavLink></NavItem> }
             </Nav>
             </Collapse>
         </Navbar>

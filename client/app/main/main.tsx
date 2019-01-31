@@ -6,7 +6,8 @@ import LoadingPage from '../logon/login'
 import RegisterPage from '../logon/register'
 import MainNavBar from '../nav/nav'
 import { AlertComponent } from '../_common/alert'
-import Offers from './offers/offer'
+import {OfferPage} from './pages/post'
+import {OffersPage} from './pages/offers'
 
 class MyState {
 }
@@ -27,7 +28,8 @@ export class Main extends React.Component<{}, MyState> {
                     <Route exact path='/home' component={MainPage}/>
                     <Route exact path='/login' component={LoadingPage}/>
                     <Route exact path='/register' component={RegisterPage} />
-                    <Route exact path='/offer' component={Offers} />
+                    <Route exact path='/offers' component={OffersPage} />
+                    <Route exact path='/post' component={OfferPage} />
                 </div>
             </Router>
         )

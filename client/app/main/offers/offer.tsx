@@ -139,11 +139,9 @@ class OfferForm extends React.Component<{}, MyState> {
     }
 
     render () {
-
-
         return <Form className="container">
-            <OfferDetails />
-            <OfferList />
+            {/* <OfferDetails />
+            <OfferList /> */}
             <Row><Col>
                 <Label for="clientName">Client's Preferred Name</Label>
                 <Input
@@ -284,7 +282,7 @@ class OfferForm extends React.Component<{}, MyState> {
                 </Col> : '' }
             </Row>
             <Button className="btn btn-primary"
-                // disabled={!this.state.rules.valid}
+                disabled={!this.state.rules.valid}
                 onClick={this.postOffer}>
                 Post Offer
             </Button>

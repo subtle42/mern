@@ -54,7 +54,7 @@ export default class LoginPage extends React.Component<any, State> {
 
     render () {
         if (this.state.loginSuccess) {
-            return (<Redirect to='offer' />)
+            return (<Redirect to='offers' />)
         }
 
         return (
@@ -81,7 +81,7 @@ export default class LoginPage extends React.Component<any, State> {
                     </Col>
                     <Col sm={10}>
                         <Input
-                            type='text'
+                            type='password'
                             value={this.state.rules.controls.password.value}
                             invalid={this.state.rules.controls.password.invalid}
                             name='password'
