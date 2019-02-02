@@ -37,6 +37,7 @@ const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {
                     }
                     { props.user && <NavItem><NavLink><Link to="/post">Post</Link></NavLink></NavItem> }
                     { props.user && <NavItem><NavLink><Link to="/offers">Offers</Link></NavLink></NavItem> }
+                    { props.user&& props.user.role === 'admin' && <NavItem><NavLink><Link to="/admin">Admin</Link></NavLink></NavItem> }
                     { props.user && <NavItem><NavLink><Link to='/home'
                         onClick={() => authActions.logout()}>
                         Logout</Link></NavLink></NavItem> }

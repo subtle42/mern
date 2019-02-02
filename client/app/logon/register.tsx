@@ -27,6 +27,9 @@ export default class LoginPage extends React.Component<{}, State> {
                 Validators.minLength(4),
                 Validators.maxLength(100)
             ]),
+            role: new FormControl('user', [
+                Validators.isRequired,
+            ]),
             password: new FormControl('', [
                 Validators.isRequired,
                 Validators.minLength(4),
@@ -106,6 +109,24 @@ export default class LoginPage extends React.Component<{}, State> {
                             invalid={this.state.rules.controls.password.invalid}
                             onChange={this.handleChange} />
                         <FormFeedback>{this.getError('password')}</FormFeedback>
+                    </Col>
+                </FormGroup>
+                <FormGroup id='formRole'>
+                    <Col sm={2}>
+                        Role
+                    </Col>
+                    <Col sm={10}>
+                        <Input
+                            type='select'
+                            name='role'
+                            placeholder='Select Role'
+                            value={this.state.rules.controls.role.value}
+                            invalid={this.state.rules.controls.role.invalid}
+                            onChange={this.handleChange} > 
+                            <option value='user'>User</option>
+                            <option value='admin'>Admin</option>
+                            </Input>
+                        <FormFeedback>{this.getError('role')}</FormFeedback>
                     </Col>
                 </FormGroup>
                 <FormGroup>

@@ -6,6 +6,7 @@ export type ColumnType = 'number' | 'group' | 'text' | 'datetime'
 export interface IUser {
     _id: any
     name: string
+    role: string
     email: string
     password?: string
 }
