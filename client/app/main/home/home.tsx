@@ -1,8 +1,10 @@
 
 import * as React from 'react';
-import {Jumbotron, Button} from 'reactstrap'
+import {Jumbotron, Button, InputGroup, InputGroupAddon, Input} from 'reactstrap'
+import {Link} from 'react-router-dom'
 import OfferForm from '../offers/offer'
 class State {
+    
 }
 
 export default class LoginPage extends React.Component<any, State> {
@@ -10,12 +12,18 @@ export default class LoginPage extends React.Component<any, State> {
 
     render() {
         return (<div><Jumbotron>
-            <h1 className="display-3">Hello, world!</h1>
-            <p className="lead">This is a simple hero unit, a simple Jumbotron-style component for calling extra attention to featured content or information.</p>
-            <hr className="my-2" />
-            <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
+            <h1 className="display-3">Start earning with DigiTeam!</h1>
+            <p className="lead">Register with your referral code and start posting!</p>
             <p className="lead">
-              <Button color="primary">Learn More</Button>
+              
+              <InputGroup>
+                <Input />
+                <Link to='/register'>
+                    <InputGroupAddon addonType="append">
+                        <Button color="primary">Sign Up</Button>
+                    </InputGroupAddon>
+                </Link>
+            </InputGroup>
             </p>
           </Jumbotron></div>)
     }
