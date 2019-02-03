@@ -5,6 +5,7 @@ import AuthActions from 'data/auth/actions'
 import NotifActions from 'data/notifications/actions'
 import { FormCtrlGroup, FormControl } from '../_common/validation'
 import * as Validators from '../_common/validators'
+import Label from 'reactstrap/lib/Label';
 
 class State {
     rules: FormCtrlGroup
@@ -59,12 +60,9 @@ export default class LoginPage extends React.Component<any, State> {
 
         return (
             <Form>
-                <FormGroup><Col xs={{ size: 6, offset: 3 }}>
+                <Col sm="12" md={{ size: 6, offset: 3 }} xl={{ size: 4, offset: 4 }}>
                 <FormGroup id='formEmail'>
-                    <Col sm={2}>
-                        Email
-                    </Col>
-                    <Col sm={10}>
+                    <Label for='email'> Email </Label>
                       <Input
                           type='email'
                           name='email'
@@ -73,13 +71,9 @@ export default class LoginPage extends React.Component<any, State> {
                           placeholder='Email'
                           onChange={this.handleChange} />
                         <FormFeedback>{this.getError('email')}</FormFeedback>
-                    </Col>
                 </FormGroup>
                 <FormGroup id='formPassword'>
-                    <Col sm={2}>
-                        Password
-                    </Col>
-                    <Col sm={10}>
+                    <Label for='password'> Password </Label>
                         <Input
                             type='password'
                             value={this.state.rules.controls.password.value}
@@ -88,19 +82,15 @@ export default class LoginPage extends React.Component<any, State> {
                             placeholder='Password'
                             onChange={this.handleChange} />
                         <FormFeedback>{this.getError('password')}</FormFeedback>
-                    </Col>
                 </FormGroup>
-                <FormGroup>
-                <Col sm={{ size: 10, offset: 2 }}>
                     <Button disabled={!this.state.rules.valid}
-                        className='pull-right'
-                        type='button'
+                        color="primary" 
+                        size="lg" 
+                        block
                         onClick={() => this.tryLogin()}>
                         Sign in
                     </Button>
                 </Col>
-                </FormGroup>
-                </Col></FormGroup>
             </Form>
         )
     }
