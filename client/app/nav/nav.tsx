@@ -38,8 +38,8 @@ const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {
                         {  props.user && <NavItem><NavLink><Link to="/post">Post</Link></NavLink></NavItem> }
                         {  props.user && <NavItem><NavLink><Link to="/offers">Offers</Link></NavLink></NavItem> }
                         { !props.user && <NavItem><Link to='/login'><NavLink>Login</NavLink></Link></NavItem> }
-                        { props.user && (<UncontrolledDropdown >
-                            <DropdownToggle caret>
+                        { props.user && (<UncontrolledDropdown nav>
+                            <DropdownToggle nav caret>
                                 {props.user.name}
                             </DropdownToggle>
                             <DropdownMenu right>
