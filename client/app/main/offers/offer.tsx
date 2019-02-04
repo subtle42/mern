@@ -5,15 +5,14 @@ import {
 import {IOffer} from 'common/models'
 import { Label, Button, Row, Form, Col } from 'reactstrap';
 import offerActions from 'data/offer/actions'
-import { FormCtrlGroup, FormControl, FormCtrlArray } from '../../_common/validation';
+import { FormCtrlGroup, FormControl, FormCtrlArray, ValidatorFn } from '../../_common/validation';
 import * as Validators from '../../_common/validators'
 import FormFeedback from 'reactstrap/lib/FormFeedback';
 import Input from 'reactstrap/lib/Input';
-import OfferList from './list'
 import FormGroup from 'reactstrap/lib/FormGroup';
 import { stateAbbreviations } from '../../_common/consts';
 import NotifActions from 'data/notifications/actions'
-import { OfferDetails } from './details'
+import * as utils from '../../_common/utils'
 
 
 export interface OfferProps extends React.ReactPropTypes, RouteComponentProps {
@@ -42,6 +41,11 @@ class MyState {
 
 class OfferForm extends React.Component<{}, MyState> {
     getBracketValue = new RegExp(/\[(.*?)\]/);
+    commissionRules:ValidatorFn[] = [
+        Validators.isRequired,
+        Validators.isNumber,
+        Validators.min(0)
+    ]
 
     componentWillMount() {
         const rules = new FormCtrlGroup({
@@ -81,16 +85,14 @@ class OfferForm extends React.Component<{}, MyState> {
                 type: new FormControl('flat', [
                     Validators.isRequired
                 ]),
-                flatAmount: new FormControl(0),
-                percentRate: new FormControl(0)
+                flatAmount: new FormControl(undefined, this.commissionRules),
+                percentRate: new FormControl(undefined)
             })
         })
-
         this.setState({ rules })
     }
 
     postOffer = () => {
-        console.log(this.state.rules.value)
         offerActions.create(this.state.rules.value as IOffer)
         .then(res => {
             this.state.rules.reset();
@@ -101,38 +103,76 @@ class OfferForm extends React.Component<{}, MyState> {
         .catch(err => NotifActions.notify('danger', err))
     }
 
-    getError = (field: string): string => {
-        let schema: FormCtrlGroup | FormControl | FormCtrlArray = this.state.rules;
-        field.split('.').forEach(attr => {
-            if (attr.indexOf('[') !== -1) {
-                const firstPart = attr.split('[')[0]
-                const index: number = parseInt(this.getBracketValue.exec(attr)[1])
-                schema = schema.controls[firstPart]
-                schema = schema.controls[index]
-            } else {
-              schema = schema.controls[attr]
-            }
-        })
-        return schema.error
-            ? schema.error.message
+    getError = (ctrl: FormControl | FormCtrlArray | FormCtrlGroup): string => {
+        return ctrl.error
+            ? ctrl.error.message
             : ''
     }
 
-    handleChange = (event: React.FormEvent<any>) => {
-        const target: any = event.target
-        let schema: FormCtrlGroup | FormControl | FormCtrlArray = this.state.rules;
-        target.name.split('.').forEach(attr => {
-            if (attr.indexOf('[') !== -1) {
-                const firstPart = attr.split('[')[0]
-                const index: number = parseInt(this.getBracketValue.exec(attr)[1])
-                schema = schema.controls[firstPart]
-                schema = schema.controls[index]
-            } else {
-              schema = schema.controls[attr]
-            }
+    getFlatRateTemplate(): JSX.Element {
+        if (this.state.rules.get('commission').get('type').value !== 'percent'
+            && this.state.rules.get('commission').get('type').value !== 'both') {
+            return
+        }
+        return <Col md={4}>
+            <FormGroup>
+                <Label for="commission.percentRate">% of Commission</Label>
+                <Input 
+                    type="number" 
+                    name="commission.percentRate"
+                    onChange={this.handleChange}
+                    value={this.state.rules.get('commission').get('percentRate').value}
+                    invalid={this.state.rules.get('commission').get('percentRate').error}
+                    />
+                <FormFeedback>{this.getError(this.state.rules.get('commission').get('percentRate'))}</FormFeedback>
+            </FormGroup>
+        </Col>
+    }
+
+    getPercentRateTemplate(): JSX.Element {
+        if (this.state.rules.get('commission').get('type').value !== 'flat'
+            && this.state.rules.get('commission').get('type').value !== 'both') {
+            return
+        }
+        return <Col md={2}>
+            <FormGroup>
+                <Label for="commission.flatAmount">Flat Fee</Label>
+                <Input 
+                    type="number" 
+                    name="commission.flatAmount"
+                    placeholder="Amount"
+                    value={this.state.rules.get('commission').get('flatAmount').value}
+                    invalid={this.state.rules.get('commission').get('flatAmount').error}
+                    onChange={this.handleChange}
+                />
+                <FormFeedback>{this.getError(this.state.rules.get('commission').get('flatAmount'))}</FormFeedback>
+            </FormGroup>
+        </Col>
+    }
+
+    onCommissionTypeChange = (event: React.FormEvent<any>) => {
+        this.handleChange(event);
+        const typeCtrl: FormControl = this.state.rules.get('commission').get('type') as FormControl
+        const percentCtrl: FormControl = this.state.rules.get('commission').get('percentRate') as FormControl
+        const flatCtrl: FormControl = this.state.rules.get('commission').get('flatAmount') as FormControl
+        if (typeCtrl.value === 'flat') {
+            percentCtrl.setValidators([]);
+            flatCtrl.setValidators(this.commissionRules);
+        } else if(typeCtrl.value === 'percent') {
+            percentCtrl.setValidators(this.commissionRules);
+            flatCtrl.setValidators([]);
+        } else if(typeCtrl.value === 'both') {
+            percentCtrl.setValidators(this.commissionRules);
+            flatCtrl.setValidators(this.commissionRules);
+        }
+        this.state.rules.get('commission').value = this.state.rules.get('commission').value
+        this.setState({
+            rules: this.state.rules
         })
-        schema.value = target.value;
-        console.log(this.state.rules.value)
+    }
+
+    handleChange = (event: React.FormEvent<any>) => {
+        utils.handleChange(event, this.state.rules)
         this.setState({
             rules: this.state.rules
         })
@@ -140,52 +180,58 @@ class OfferForm extends React.Component<{}, MyState> {
 
     render () {
         return <Form className="container">
-            {/* <OfferDetails />
-            <OfferList /> */}
             <Row><Col>
-                <Label for="clientName">Client's Preferred Name</Label>
-                <Input
-                    type="text"
-                    name="clientName"
-                    placeholder="Enter Client's Name"
-                    value={this.state.rules.controls.clientName.value}
-                    invalid={this.state.rules.controls.clientName.invalid}
-                    onChange={this.handleChange}/>
-                <FormFeedback>{this.getError('clientName')}</FormFeedback>
+                <FormGroup>
+                    <Label for="clientName">Client's Preferred Name</Label>
+                    <Input
+                        type="text"
+                        name="clientName"
+                        placeholder="Enter Client's Name"
+                        value={this.state.rules.get('clientName').value}
+                        invalid={this.state.rules.get('clientName').invalid}
+                        onChange={this.handleChange}/>
+                    <FormFeedback>{this.getError(this.state.rules.get('clientName'))}</FormFeedback>
+                </FormGroup>
             </Col></Row>
             <Row><Col>
-                <Label>Offer Type</Label>
-                <Input type="select" name="offerType"
-                    onChange={this.handleChange}
-                    value={this.state.rules.controls.offerType.value}
-                    invalid={this.state.rules.controls.offerType.error}>
-                    {OfferTypes.map((type, key) => {
-                        return <option key={key} value={type.value}>{type.displayName}</option>
-                    })}
-                </Input>
-                <FormFeedback>{this.getError('offerType')}</FormFeedback>
+                <FormGroup>
+                    <Label>Offer Type</Label>
+                    <Input type="select" name="offerType"
+                        onChange={this.handleChange}
+                        value={this.state.rules.get('offerType').value}
+                        invalid={this.state.rules.get('offerType').error}>
+                        {OfferTypes.map((type, key) => {
+                            return <option key={key} value={type.value}>{type.displayName}</option>
+                        })}
+                    </Input>
+                    <FormFeedback>{this.getError(this.state.rules.get('offerType'))}</FormFeedback>
+                </FormGroup>
             </Col></Row>
             <Row><Col>
-                <Label>Address</Label>
-                <Input
-                    type="text"
-                    name="propertyAddress.street1"
-                    placeholder="Address"
-                    value={this.state.rules.controls.propertyAddress.controls['street1'].value}
-                    invalid={this.state.rules.controls.propertyAddress.controls['street1'].error}
-                    onChange={this.handleChange}/>
-                <FormFeedback>{this.getError('propertyAddress.street1')}</FormFeedback>
+                <FormGroup>
+                    <Label>Address</Label>
+                    <Input
+                        type="text"
+                        name="propertyAddress.street1"
+                        placeholder="Address"
+                        value={this.state.rules.get('propertyAddress').get('street1').value}
+                        invalid={this.state.rules.get('propertyAddress').get('street1').error}
+                        onChange={this.handleChange}/>
+                    <FormFeedback>{this.getError(this.state.rules.get('propertyAddress').get('street1'))}</FormFeedback>
+                </FormGroup>
             </Col></Row>
             <Row><Col>
-                <Label>Address 2</Label>
-                <Input
-                    type="text"
-                    name="propertyAddress.street2"
-                    placeholder="Address"
-                    value={this.state.rules.controls.propertyAddress.controls['street2'].value}
-                    invalid={this.state.rules.controls.propertyAddress.controls['street2'].error}
-                    onChange={this.handleChange}/>
-                <FormFeedback>{this.getError('propertyAddress.street2')}</FormFeedback>
+                <FormGroup>
+                    <Label>Address 2</Label>
+                    <Input
+                        type="text"
+                        name="propertyAddress.street2"
+                        placeholder="Address"
+                        value={this.state.rules.get('propertyAddress').get('street2').value}
+                        invalid={this.state.rules.get('propertyAddress').get('street2').error}
+                        onChange={this.handleChange}/>
+                    <FormFeedback>{this.getError(this.state.rules.get('propertyAddress').get('street2'))}</FormFeedback>
+                </FormGroup>
             </Col></Row>
             <Row form='true'>
                 <Col md={6}>
@@ -195,11 +241,11 @@ class OfferForm extends React.Component<{}, MyState> {
                             type="text" 
                             name="propertyAddress.city"
                             placeholder="City"
-                            value={this.state.rules.controls.propertyAddress.controls['city'].value}
-                            invalid={this.state.rules.controls.propertyAddress.controls['city'].error}
+                            value={this.state.rules.get('propertyAddress').get('city').value}
+                            invalid={this.state.rules.get('propertyAddress').get('city').error}
                             onChange={this.handleChange}
                         />
-                        <FormFeedback>{this.getError('propertyAddress.city')}</FormFeedback>
+                        <FormFeedback>{this.getError(this.state.rules.get('propertyAddress').get('city'))}</FormFeedback>
                     </FormGroup>
                 </Col>
                 <Col md={4}>
@@ -209,11 +255,11 @@ class OfferForm extends React.Component<{}, MyState> {
                             type="select" 
                             name="propertyAddress.state"
                             onChange={this.handleChange}
-                            value={this.state.rules.controls.propertyAddress.controls['state'].value}
-                            invalid={this.state.rules.controls.propertyAddress.controls['state'].error}>
+                            value={this.state.rules.get('propertyAddress').get('state').value}
+                            invalid={this.state.rules.get('propertyAddress').get('state').error}>
                             {stateAbbreviations.map((type, key) => <option key={key} value={type}>{type}</option>)}
                         </Input>
-                        <FormFeedback>{this.getError('propertyAddress.state')}</FormFeedback>
+                        <FormFeedback>{this.getError(this.state.rules.get('propertyAddress').get('state'))}</FormFeedback>
                     </FormGroup>
                 </Col>
                 <Col md={2}>
@@ -223,11 +269,11 @@ class OfferForm extends React.Component<{}, MyState> {
                             type="text" 
                             name="propertyAddress.zip"
                             placeholder="Zip"
-                            value={this.state.rules.controls.propertyAddress.controls['zip'].value}
-                            invalid={this.state.rules.controls.propertyAddress.controls['zip'].error}
+                            value={this.state.rules.get('propertyAddress').get('zip').value}
+                            invalid={this.state.rules.get('propertyAddress').get('zip').error}
                             onChange={this.handleChange}
                         />
-                        <FormFeedback>{this.getError('propertyAddress.zip')}</FormFeedback>
+                        <FormFeedback>{this.getError(this.state.rules.get('propertyAddress').get('zip'))}</FormFeedback>
                     </FormGroup>
                 </Col>
             </Row>
@@ -239,54 +285,25 @@ class OfferForm extends React.Component<{}, MyState> {
                             type="select" 
                             name="commission.type"
                             placeholder="Type"
-                            value={this.state.rules.controls.commission.controls['type'].value}
-                            invalid={this.state.rules.controls.commission.controls['type'].error}
-                            onChange={this.handleChange}
-                        >
+                            value={this.state.rules.get('commission').get('type').value}
+                            invalid={this.state.rules.get('commission').get('type').error}
+                            onChange={this.onCommissionTypeChange}>
                             <option value="percent">% of Commission</option>
                             <option value="flat">Flat Fee</option>
                             <option value="both">Both (Applicant Chooses)</option>
                         </Input>
-                        <FormFeedback>{this.getError('commission.type')}</FormFeedback>
+                        <FormFeedback>{this.getError(this.state.rules.get('propertyAddress').get('zip'))}</FormFeedback>
                     </FormGroup>
                 </Col>
-                {this.state.rules.controls.commission.controls['type'].value === 'percent' || this.state.rules.controls.commission.controls['type'].value === 'both' ? 
-                <Col md={4}>
-                    <FormGroup>
-                        <Label for="commission.percentRate">% of Commission</Label>
-                        <Input 
-                            type="number" 
-                            name="commission.percentRate"
-                            onChange={this.handleChange}
-                            value={this.state.rules.controls.commission.controls['percentRate'].value}
-                            invalid={this.state.rules.controls.commission.controls['percentRate'].error}
-                            />
-                        <FormFeedback>{this.getError('commission.percentRate')}</FormFeedback>
-                    </FormGroup>
-                </Col> : ''
-                }
-                {this.state.rules.controls.commission.controls['type'].value === 'flat' || this.state.rules.controls.commission.controls['type'].value === 'both' ? 
-                <Col md={2}>
-                    <FormGroup>
-                        <Label for="commission.flatAmount">Flat Fee</Label>
-                        <Input 
-                            type="number" 
-                            name="commission.flatAmount"
-                            placeholder="Amount"
-                            value={this.state.rules.controls.commission.controls['flatAmount'].value}
-                            invalid={this.state.rules.controls.commission.controls['flatAmount'].error}
-                            onChange={this.handleChange}
-                        />
-                        <FormFeedback>{this.getError('commission.flatAmount')}</FormFeedback>
-                    </FormGroup>
-                </Col> : '' }
+                {this.getPercentRateTemplate()}
+                {this.getFlatRateTemplate()}
             </Row>
             <Button className="btn btn-primary"
                 disabled={!this.state.rules.valid}
                 onClick={this.postOffer}>
                 Post Offer
             </Button>
-            </Form>
+        </Form>
     }
 }
 
