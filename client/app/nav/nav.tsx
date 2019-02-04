@@ -12,36 +12,48 @@ import {
     NavLink,
     UncontrolledDropdown,
     DropdownToggle,
+    Dropdown,
     DropdownMenu,
     DropdownItem } from 'reactstrap'
 import { StoreModel } from 'data/store'
 
 interface NavProps {
     user: IUser,
+    dropdownOpen: boolean
 }
 
 const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {
     return (
-        <Navbar color='light' light expand='md'>
+        <Navbar expand='md'>
             <NavbarBrand>Digi-Team</NavbarBrand>
-            <Collapse navbar style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-            <Nav >
-                <NavItem key={1}>
-                    <NavLink>
-                        <Link to='/home'>Home</Link>
-                    </NavLink>
-                </NavItem>
-                    { !props.user
-                        ? <NavItem key={2}><NavLink><Link to='/register'>Register</Link></NavLink></NavItem>
-                        : undefined
-                    }
-                    { props.user && <NavItem><NavLink><Link to="/post">Post</Link></NavLink></NavItem> }
-                    { props.user && <NavItem><NavLink><Link to="/offers">Offers</Link></NavLink></NavItem> }
-                    { props.user && <NavItem><NavLink><Link to='/home'
-                        onClick={() => authActions.logout()}>
-                        Logout</Link></NavLink></NavItem> }
-                    { !props.user && <NavItem><NavLink><Link to='/login'>Login</Link></NavLink></NavItem> }
-            </Nav>
+            <Collapse navbar>
+                <Nav className="ml-auto" navbar>
+                    <NavItem key={1}>
+                        <NavLink> <Link to='/home'>Home</Link> </NavLink>
+                    </NavItem>
+                        { !props.user
+                            ? <NavItem key={2}><NavLink><Link to='/register'>Register</Link></NavLink></NavItem>
+                            : undefined
+                        }
+                        {  props.user && <NavItem><NavLink><Link to="/post">Post</Link></NavLink></NavItem> }
+                        {  props.user && <NavItem><NavLink><Link to="/offers">Offers</Link></NavLink></NavItem> }
+                        { !props.user && <NavItem><Link to='/login'><NavLink>Login</NavLink></Link></NavItem> }
+                        { props.user && (<UncontrolledDropdown >
+                            <DropdownToggle caret>
+                                {props.user.name}
+                            </DropdownToggle>
+                            <DropdownMenu right>
+                                <Link to="/admin">
+                                <DropdownItem>Dashboard</DropdownItem>
+                                </Link>
+                                <DropdownItem divider/> 
+                                <Link to='/home' onClick={() => authActions.logout()}>
+                                    <DropdownItem> Logout </DropdownItem>
+                                </Link>
+                            </DropdownMenu>
+                            </UncontrolledDropdown>)
+                        }
+                </Nav>
             </Collapse>
         </Navbar>
     )
@@ -50,5 +62,6 @@ const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {
 export default connect((store: StoreModel): NavProps => {
     return {
         user: store.auth.me,
+        dropdownOpen: false,
     }
 })(myComponent)

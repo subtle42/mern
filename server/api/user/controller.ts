@@ -21,7 +21,6 @@ export class UserController {
     public static create (req: MyRequest, res: Response): void {
         let newUser = new User(req.body)
         newUser.provider = 'local'
-        newUser.role = 'user'
         newUser.validate()
         .then(() => newUser.makeSalt())
         .then(salt => {

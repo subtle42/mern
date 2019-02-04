@@ -8,6 +8,7 @@ import MainNavBar from '../nav/nav'
 import { AlertComponent } from '../_common/alert'
 import {OfferPage} from './pages/post'
 import {OffersPage} from './pages/offers'
+import { AdminPage } from './pages/admin';
 
 class MyState {
 }
@@ -30,6 +31,7 @@ export class Main extends React.Component<{}, MyState> {
                     <Route exact path='/register' component={RegisterPage} />
                     <Route exact path='/offers' component={OffersPage} />
                     <Route exact path='/post' component={OfferPage} />
+                    <Route exact path='/admin' component={AdminPage} />
                 </div>
             </Router>
         )
