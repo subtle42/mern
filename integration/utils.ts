@@ -3,7 +3,6 @@ import config from '../server/config/environment'
 import axios from 'axios'
 import * as jwt from 'jsonwebtoken'
 import * as io from 'socket.io-client'
-import { IBook, ISource, IPage, IWidget } from 'common/models'
 import { App } from '../server/app'
 
 // Need to keep this to inject chai with http requests
@@ -63,7 +62,7 @@ const removeDataDb = (): Promise<void> => {
 }
 
 export const cleanDb = (): Promise<void> => {
-    const collections = ['users', 'books', 'pages', 'widgets', 'sources']
+    const collections = ['users']
     return Promise.all(collections.map(name => removeDbRecords(name)))
     .then(() => removeDataDb())
 }
@@ -115,92 +114,4 @@ export const websocketConnect = (channel: string, token: string): SocketIOClient
     return io.connect(`${getBaseUrl()}/${channel}`, {
         query: { token }
     })
-}
-
-export const createBook = (token: string, name: string): Promise<string> => {
-    return axios.post(`${getBaseUrl()}/api/books`, { name }, setHeader(token))
-    .then(res => res.data as string)
-}
-
-export const updateBook = (token: string, item: IBook): Promise<void> => {
-    return axios.put(`${getBaseUrl()}/api/books`, item, setHeader(token))
-    .then(res => res.data as undefined)
-}
-
-/**
- * Will create a page and return it's id
- * @param token
- * @param bookId
- * @param name
- */
-export const createPage = (token: string, bookId: string, name: string): Promise<string> => {
-    return axios.post(`${getBaseUrl()}/api/pages`, { name, bookId }, setHeader(token))
-    .then(res => res.data as string)
-}
-
-export const createSource = (token: string, filePath: string): Promise<string> => {
-    return chai.request(getBaseUrl())
-    .post('/api/sources')
-    .set('authorization', token)
-    .attach('file', filePath, 'myFile.csv')
-    .then(res => res.body as string)
-}
-
-export const deleteSource = (token: string, sourceId: string): Promise<void> => {
-    return axios.delete(`${getBaseUrl()}/api/sources/${sourceId}`, setHeader(token))
-    .then(res => res.data as undefined)
-}
-
-export const getSource = (token: string, id: string): Promise<ISource> => {
-    return axios.get(`${getBaseUrl()}/api/sources/${id}`, setHeader(token))
-    .then(res => res.data as ISource)
-}
-
-export const getBook = (token: string, id: string): Promise<IBook> => {
-    return axios.get(`${getBaseUrl()}/api/books/${id}`, setHeader(token))
-    .then(res => res.data as IBook)
-}
-
-export const getPages = (token: string, bookId: string): Promise<IPage[]> => {
-    return axios.get(`${getBaseUrl()}/api/pages/${bookId}`, setHeader(token))
-    .then(res => res.data as IPage[])
-}
-
-export const deleteBook = (token: string, bookId: string): Promise<void> => {
-    return axios.delete(`${getBaseUrl()}/api/books/${bookId}`, setHeader(token))
-    .then(res => res.data as undefined)
-}
-
-export const updatePage = (token: string, page: IPage): Promise<void> => {
-    return axios.put(`${getBaseUrl()}/api/pages`, page, setHeader(token))
-    .then(res => res.data as undefined)
-}
-
-export const deletePage = (token: string, pageId: string): Promise<void> => {
-    return axios.delete(`${getBaseUrl()}/api/pages/${pageId}`, setHeader(token))
-    .then(res => res.data as undefined)
-}
-
-export const getWidget = (token: string, widgetId: string): Promise<IWidget> => {
-    return axios.get(`${getBaseUrl()}/api/widgets/${widgetId}`, setHeader(token))
-    .then(res => res.data as IWidget)
-}
-
-export const createWidget = (token: string, pageId: string, sourceId: string, type: string): Promise<string> => {
-    return axios.post(`${getBaseUrl()}/api/widgets`, {
-        pageId,
-        sourceId,
-        type
-    }, setHeader(token))
-    .then(res => res.data as string)
-}
-
-export const updateWidget = (token: string, widget: IWidget): Promise<void> => {
-    return axios.put(`${getBaseUrl()}/api/widgets`, widget, setHeader(token))
-    .then(res => res.data as undefined)
-}
-
-export const deleteWidget = (token: string, widgetId: string): Promise<void> => {
-    return axios.delete(`${getBaseUrl()}/api/widgets/${widgetId}`, setHeader(token))
-    .then(res => res.data as undefined)
 }
