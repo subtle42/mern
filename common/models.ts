@@ -20,9 +20,9 @@ export interface IShared {
 }
 
 export interface IOffer {
-    _id: any;
-    offerType: string;
-    clientName: string;
+    _id: any
+    offerType: string
+    clientName: string
     propertyAddress: {
         street1: string,
         street2: string,
@@ -35,4 +35,8 @@ export interface IOffer {
         flatAmout: number,
         percentRate: number
     }
+    isPublic: boolean
+    whiteList: string[]
+    createdBy?: string
+    ownedBy?: string
 }

@@ -4,14 +4,12 @@ import {
   } from 'react-router'
 import { IOffer } from 'common/models'
 import { Label, Button, Row, Form, Col } from 'reactstrap'
-import offerActions from 'data/offer/actions'
 import { FormCtrlGroup, FormControl, FormCtrlArray, ValidatorFn } from '../../../_common/validation'
 import * as Validators from '../../../_common/validators'
 import FormFeedback from 'reactstrap/lib/FormFeedback'
 import Input from 'reactstrap/lib/Input'
 import FormGroup from 'reactstrap/lib/FormGroup'
 import { stateAbbreviations } from '../../../_common/consts'
-import NotifActions from 'data/notifications/actions'
 import * as utils from '../../../_common/utils'
 
 export interface OfferProps extends React.ReactPropTypes, RouteComponentProps {
@@ -38,7 +36,11 @@ class MyState {
     rules: FormCtrlGroup
 }
 
-export class OfferForm extends React.Component<{}, MyState> {
+interface Props {
+    next: (offer: IOffer) => void
+}
+
+export class OfferForm extends React.Component<Props, MyState> {
     getBracketValue = new RegExp(/\[(.*?)\]/)
     commissionRules: ValidatorFn[] = [
         Validators.isRequired,
@@ -90,14 +92,15 @@ export class OfferForm extends React.Component<{}, MyState> {
     }
 
     postOffer = () => {
-        offerActions.create(this.state.rules.value as IOffer)
-        .then(res => {
-            this.state.rules.reset()
-            this.setState({
-                rules: this.state.rules
-            })
-        })
-        .catch(err => NotifActions.notify('danger', err))
+        this.props.next(this.state.rules.value as IOffer)
+        // offerActions.create(this.state.rules.value as IOffer)
+        // .then(res => {
+        //     this.state.rules.reset()
+        //     this.setState({
+        //         rules: this.state.rules
+        //     })
+        // })
+        // .catch(err => NotifActions.notify('danger', err))
     }
 
     getError = (ctrl: FormControl | FormCtrlArray | FormCtrlGroup): string => {

@@ -1,5 +1,5 @@
 import { User } from './model'
-import { Response, NextFunction } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import * as jwt from 'jsonwebtoken'
 import config from '../../config/environment'
 import * as utils from '../utils'
@@ -75,6 +75,22 @@ export class UserController {
             return myUser.save()
         })
         .then(user => res.json())
+        .catch(utils.handleError(res))
+    }
+
+    public static search (req: Request, res: Response) {
+        User.find({
+            $or: {
+                'name': { '$regex': req.params.search, '$options': 'i' },
+                'email': { '$regex': req.params.search, '$options': 'i' }
+            }
+        }, {
+            name: 1,
+            email: 1,
+            company: 1,
+            _id: 1
+        }).exec()
+        .then(users => res.json(users))
         .catch(utils.handleError(res))
     }
 

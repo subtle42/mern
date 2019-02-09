@@ -29,6 +29,11 @@ class AuthActions {
         .then(res => this.setUser(user))
     }
 
+    search (searchString: string): Promise<IUser> {
+        return axios.get(`/api/user/search/${searchString}`)
+        .then(res => res.data)
+    }
+
     private setAuths (token: string): void {
         axios.defaults.headers.common['Authorization'] = token
         document.cookie = `authToken=${token}`
