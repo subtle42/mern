@@ -23,6 +23,7 @@ let UserSchema = new mongoose.Schema({
         }
     }},
     role: { type: String, default: 'user' },
+    company: { type: String, required: true },
     provider: String,
     salt: String,
     facebook: {},

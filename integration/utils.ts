@@ -4,6 +4,7 @@ import axios from 'axios'
 import * as jwt from 'jsonwebtoken'
 import * as io from 'socket.io-client'
 import { App } from '../server/app'
+import { IOffer } from 'common/models'
 
 // Need to keep this to inject chai with http requests
 const chai = require('chai')
@@ -114,4 +115,42 @@ export const websocketConnect = (channel: string, token: string): SocketIOClient
     return io.connect(`${getBaseUrl()}/${channel}`, {
         query: { token }
     })
+}
+
+export const User = {
+    create: (offer: IOffer, token: string): Promise<string> => {
+        return axios.post(`${getBaseUrl()}/api/offer`, setHeader(token))
+        .then(res => res.data as string)
+    },
+    update: (offer: IOffer, token: string): Promise<string> => {
+        return axios.put(`${getBaseUrl()}/api/offer`, offer, setHeader(token))
+        .then(res => res.data as string)
+    },
+    get: (token: string): Promise<string> => {
+        return axios.get(`${getBaseUrl()}/api/offer`, setHeader(token))
+        .then(res => res.data as string)
+    },
+    delete: (id: string, token: string): Promise<string> => {
+        return axios.delete(`${getBaseUrl()}/api/offer/${id}`, setHeader(token))
+        .then(res => res.data as string)
+    }
+}
+
+export const Offer = {
+    create: (): Promise<string> => {
+        return axios.post(`${getBaseUrl()}/api/offer`)
+        .then(res => res.data as string)
+    },
+    update: (): Promise<string> => {
+        return axios.put(`${getBaseUrl()}/api/offer`)
+        .then(res => res.data as string)
+    },
+    get: (): Promise<string> => {
+        return axios.get(`${getBaseUrl()}/api/offer`)
+        .then(res => res.data as string)
+    },
+    delete: (id: string): Promise<string> => {
+        return axios.delete(`${getBaseUrl()}/api/offer/${id}`)
+        .then(res => res.data as string)
+    }
 }

@@ -1,7 +1,6 @@
 import { createStore, applyMiddleware, combineReducers, Store } from 'redux'
 import * as promiseMiddleware from 'redux-promise'
 
-
 import auth from './auth/reducer'
 import authModel from './auth/model'
 import offer from './offer/reducer'

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Row, Container, Col} from 'reactstrap'
-import OfferForm from '../offers/offer'
+import {OfferForm} from '../offers/create/offer'
 
 export const OfferPage: React.StatelessComponent = () => {
     return <Container>

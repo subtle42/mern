@@ -5,7 +5,7 @@ import AuthActions from 'data/auth/actions'
 import NotifActions from 'data/notifications/actions'
 import { FormCtrlGroup, FormControl } from '../_common/validation'
 import * as Validators from '../_common/validators'
-import Label from 'reactstrap/lib/Label';
+import Label from 'reactstrap/lib/Label'
 
 class State {
     rules: FormCtrlGroup
@@ -15,7 +15,7 @@ class State {
 export default class LoginPage extends React.Component<any, State> {
     state: State = new State()
 
-    componentWillMount() {
+    componentWillMount () {
         const rules = new FormCtrlGroup({
             email: new FormControl('', [
                 Validators.isRequired,
@@ -31,14 +31,14 @@ export default class LoginPage extends React.Component<any, State> {
 
     handleChange = (event: React.FormEvent<any>) => {
         const target: any = event.target
-        this.state.rules.controls[target.name].value = target.value;
+        this.state.rules.controls[target.name].value = target.value
         this.setState({
             rules: this.state.rules
         })
     }
 
     tryLogin = () => {
-        const { email, password } = this.state.rules.value;
+        const { email, password } = this.state.rules.value
         AuthActions.login(email, password)
         .then(() => this.setState({
             ...(new State()),
@@ -60,7 +60,7 @@ export default class LoginPage extends React.Component<any, State> {
 
         return (
             <Form>
-                <Col sm="12" md={{ size: 6, offset: 3 }} xl={{ size: 4, offset: 4 }}>
+                <Col sm={12} md={{ size: 6, offset: 3 }} xl={{ size: 4, offset: 4 }}>
                 <FormGroup id='formEmail'>
                     <Label for='email'> Email </Label>
                       <Input
@@ -84,8 +84,8 @@ export default class LoginPage extends React.Component<any, State> {
                         <FormFeedback>{this.getError('password')}</FormFeedback>
                 </FormGroup>
                     <Button disabled={!this.state.rules.valid}
-                        color="primary" 
-                        size="lg" 
+                        color='primary'
+                        size='lg'
                         block
                         onClick={() => this.tryLogin()}>
                         Sign in

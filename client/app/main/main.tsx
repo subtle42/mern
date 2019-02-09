@@ -6,9 +6,9 @@ import LoadingPage from '../logon/login'
 import RegisterPage from '../logon/register'
 import MainNavBar from '../nav/nav'
 import { AlertComponent } from '../_common/alert'
-import {OfferPage} from './pages/post'
-import {OffersPage} from './pages/offers'
-import { AdminPage } from './pages/admin';
+import { OfferPage } from './pages/post'
+import { OffersPage } from './pages/offers'
+import { AdminPage } from './pages/admin'
 
 class MyState {
 }

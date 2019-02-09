@@ -1,13 +1,13 @@
 import * as React from 'react'
-import {connect} from 'react-redux'
-import {StoreModel} from 'data/store'
-import { IOffer } from 'common/models';
-import ListGroup from 'reactstrap/lib/ListGroup';
-import ListGroupItem from 'reactstrap/lib/ListGroupItem';
-import ListGroupItemHeading from 'reactstrap/lib/ListGroupItemHeading';
-import ListGroupItemText from 'reactstrap/lib/ListGroupItemText';
-import {OfferTypes} from './offer'
-import offerActions from 'data/offer/actions';
+import { connect } from 'react-redux'
+import { StoreModel } from 'data/store'
+import { IOffer } from 'common/models'
+import ListGroup from 'reactstrap/lib/ListGroup'
+import ListGroupItem from 'reactstrap/lib/ListGroupItem'
+import ListGroupItemHeading from 'reactstrap/lib/ListGroupItemHeading'
+import ListGroupItemText from 'reactstrap/lib/ListGroupItemText'
+import { OfferTypes } from './create/offer'
+import offerActions from 'data/offer/actions'
 interface Props {
     list: IOffer[],
     selectedId: string
@@ -15,7 +15,7 @@ interface Props {
 
 const myComponent: React.StatelessComponent<Props> = (props: Props) => {
     const getOfferDisplay = (offerType: string): string => {
-         const myType = OfferTypes.find(type => type.value === offerType)
+        const myType = OfferTypes.find(type => type.value === offerType)
         return myType ? myType.displayName : ''
     }
 

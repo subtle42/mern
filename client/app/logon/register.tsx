@@ -14,7 +14,7 @@ class State {
 export default class LoginPage extends React.Component<{}, State> {
     state: State = new State()
 
-    componentWillMount() {
+    componentWillMount () {
         const rules = new FormCtrlGroup({
             email: new FormControl('', [
                 Validators.isRequired,
@@ -27,7 +27,7 @@ export default class LoginPage extends React.Component<{}, State> {
                 Validators.maxLength(100)
             ]),
             role: new FormControl('user', [
-                Validators.isRequired,
+                Validators.isRequired
             ]),
             password: new FormControl('', [
                 Validators.isRequired,
@@ -80,7 +80,6 @@ export default class LoginPage extends React.Component<{}, State> {
                         placeholder='User Name'
                         onChange={this.handleChange} />
                     <FormFeedback>{this.getError(this.state.rules.get('name'))}</FormFeedback>
-        
                 </FormGroup>
                 <FormGroup id='formEmail'>
                     <Label for='email'>
@@ -94,7 +93,6 @@ export default class LoginPage extends React.Component<{}, State> {
                         placeholder='Email'
                         onChange={this.handleChange} />
                     <FormFeedback>{this.getError(this.state.rules.get('email'))}</FormFeedback>
-    
                 </FormGroup>
                 <FormGroup id='formPassword'>
                     <Label for='password'>
@@ -119,14 +117,14 @@ export default class LoginPage extends React.Component<{}, State> {
                             placeholder='Select Role'
                             value={this.state.rules.get('role').value}
                             invalid={this.state.rules.get('role').invalid}
-                            onChange={this.handleChange} > 
+                            onChange={this.handleChange}>
                             <option value='user'>User</option>
                             <option value='admin'>Admin</option>
                             </Input>
                         <FormFeedback>{this.getError(this.state.rules.get('role'))}</FormFeedback>
                 </FormGroup>
                 <FormGroup id='formReferral'>
-                    <Label  for='referralCode'>
+                    <Label for='referralCode'>
                         Referral Code (optional)
                     </Label>
                     <Input
@@ -139,15 +137,13 @@ export default class LoginPage extends React.Component<{}, State> {
                     <FormFeedback>{this.getError(this.state.rules.get('referralCode'))}</FormFeedback>
                 </FormGroup>
                 <Button disabled={!this.state.rules.valid}
-                    size="lg" 
+                    size='lg'
                     block
                     className='pull-right'
                     type='button'
                     onClick={() => this.createUser()}>
                     Submit
                 </Button>
-
-
                 </Col></FormGroup>
             </Form>
         )
