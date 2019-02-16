@@ -84,8 +84,8 @@ export class OfferForm extends React.Component<Props, MyState> {
                 type: new FormControl('flat', [
                     Validators.isRequired
                 ]),
-                flatAmount: new FormControl(undefined, this.commissionRules),
-                percentRate: new FormControl(undefined)
+                flatAmount: new FormControl('', this.commissionRules),
+                percentRate: new FormControl('')
             })
         })
         this.setState({ rules })
@@ -101,7 +101,7 @@ export class OfferForm extends React.Component<Props, MyState> {
             : ''
     }
 
-    getFlatRateTemplate (): JSX.Element {
+    getPercentRateTemplate (): JSX.Element {
         if (this.state.rules.get('commission').get('type').value !== 'percent'
             && this.state.rules.get('commission').get('type').value !== 'both') {
             return
@@ -112,16 +112,16 @@ export class OfferForm extends React.Component<Props, MyState> {
                 <Input
                     type='number'
                     name='commission.percentRate'
-                    onChange={this.handleChange}
+                    onChange={this.handleChangeNumber}
                     value={this.state.rules.get('commission').get('percentRate').value}
-                    invalid={this.state.rules.get('commission').get('percentRate').error}
+                    invalid={!!this.state.rules.get('commission').get('percentRate').error}
                     />
                 <FormFeedback>{this.getError(this.state.rules.get('commission').get('percentRate'))}</FormFeedback>
             </FormGroup>
         </Col>
     }
 
-    getPercentRateTemplate (): JSX.Element {
+    getFlatRateTemplate (): JSX.Element {
         if (this.state.rules.get('commission').get('type').value !== 'flat'
             && this.state.rules.get('commission').get('type').value !== 'both') {
             return
@@ -134,8 +134,8 @@ export class OfferForm extends React.Component<Props, MyState> {
                     name='commission.flatAmount'
                     placeholder='Amount'
                     value={this.state.rules.get('commission').get('flatAmount').value}
-                    invalid={this.state.rules.get('commission').get('flatAmount').error}
-                    onChange={this.handleChange}
+                    invalid={!!this.state.rules.get('commission').get('flatAmount').error}
+                    onChange={this.handleChangeNumber}
                 />
                 <FormFeedback>{this.getError(this.state.rules.get('commission').get('flatAmount'))}</FormFeedback>
             </FormGroup>
@@ -168,6 +168,7 @@ export class OfferForm extends React.Component<Props, MyState> {
         const typeCtrl: FormControl = this.state.rules.get('commission').get('type') as FormControl
         const percentCtrl: FormControl = this.state.rules.get('commission').get('percentRate') as FormControl
         const flatCtrl: FormControl = this.state.rules.get('commission').get('flatAmount') as FormControl
+
         if (typeCtrl.value === 'flat') {
             percentCtrl.setValidators([])
             flatCtrl.setValidators(this.commissionRules)
@@ -178,6 +179,7 @@ export class OfferForm extends React.Component<Props, MyState> {
             percentCtrl.setValidators(this.commissionRules)
             flatCtrl.setValidators(this.commissionRules)
         }
+
         this.state.rules.get('commission').value = this.state.rules.get('commission').value
         this.setState({
             rules: this.state.rules
@@ -185,6 +187,14 @@ export class OfferForm extends React.Component<Props, MyState> {
     }
 
     handleChange = (event: React.FormEvent<any>) => {
+        utils.handleChange(event, this.state.rules)
+        this.setState({
+            rules: this.state.rules
+        })
+    }
+
+    handleChangeNumber = (event) => {
+        event.target.value = parseInt(event.target.value)
         utils.handleChange(event, this.state.rules)
         this.setState({
             rules: this.state.rules
