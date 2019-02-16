@@ -71,7 +71,7 @@ export class FormControl {
         return this.data
     }
 
-    get(): FormControl | FormCtrlArray | FormCtrlGroup {
+    get(key?: any): FormControl | FormCtrlArray | FormCtrlGroup {
         return undefined
     }
 
@@ -97,6 +97,7 @@ export class FormCtrlArray {
     valid: boolean
     invalid: boolean
     parent: FormCtrlArray | FormCtrlGroup
+    setValidators
 
     constructor (
         public controls: Array<FormControl | FormCtrlArray | FormCtrlGroup>
@@ -112,8 +113,8 @@ export class FormCtrlArray {
         if (this.parent) this.parent.digest()
     }
 
-    get(index: number | string): FormControl | FormCtrlArray | FormCtrlGroup {
-        return this.controls[index]
+    get(key: any): FormControl | FormCtrlArray | FormCtrlGroup {
+        return this.controls[key]
     }
 
     private isDirty (keys: number[]) {
@@ -147,6 +148,7 @@ export class FormCtrlGroup {
     valid: boolean
     invalid: boolean
     parent: FormCtrlArray | FormCtrlGroup
+    setValidators
 
     constructor (
         public controls: {
@@ -181,7 +183,7 @@ export class FormCtrlGroup {
         return response
     }
 
-    get(key: number | string): FormControl | FormCtrlArray | FormCtrlGroup {
+    get(key: any): FormControl | FormCtrlArray | FormCtrlGroup {
         return this.controls[key]
     }
 

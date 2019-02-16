@@ -19,7 +19,7 @@ import { OfferDetails } from './details'
 export interface OfferProps extends React.ReactPropTypes, RouteComponentProps {
     offerType: OfferType[];
   }
-  
+
 export interface OfferType {
 value: string;
 displayName: string;
@@ -140,7 +140,7 @@ class OfferForm extends React.Component<{}, MyState> {
     onCommissionChange = (event: React.FormEvent<any>) => {
         const target: any = event.target
         if (target.value === 'percent') {
-            this.state.rules.get('commission').get('type').setValidation([
+            this.state.rules.get('commission').get('type').setValidators([
                 Validators.isRequired
             ])
         } else if (target.value === 'flat') {
@@ -204,8 +204,8 @@ class OfferForm extends React.Component<{}, MyState> {
                 <Col md={6}>
                     <FormGroup>
                         <Label for="propertyAddress.city">City</Label>
-                        <Input 
-                            type="text" 
+                        <Input
+                            type="text"
                             name="propertyAddress.city"
                             placeholder="City"
                             value={this.state.rules.controls.propertyAddress.controls['city'].value}
@@ -218,8 +218,8 @@ class OfferForm extends React.Component<{}, MyState> {
                 <Col md={4}>
                     <FormGroup>
                         <Label for="exampleState">State</Label>
-                        <Input 
-                            type="select" 
+                        <Input
+                            type="select"
                             name="propertyAddress.state"
                             onChange={this.handleChange}
                             value={this.state.rules.controls.propertyAddress.controls['state'].value}
@@ -232,8 +232,8 @@ class OfferForm extends React.Component<{}, MyState> {
                 <Col md={2}>
                     <FormGroup>
                         <Label for="propertyAddress.zip">Zip</Label>
-                        <Input 
-                            type="text" 
+                        <Input
+                            type="text"
                             name="propertyAddress.zip"
                             placeholder="Zip"
                             value={this.state.rules.controls.propertyAddress.controls['zip'].value}
@@ -248,8 +248,8 @@ class OfferForm extends React.Component<{}, MyState> {
                 <Col md={6}>
                     <FormGroup>
                         <Label for="commission.type">Commission</Label>
-                        <Input 
-                            type="select" 
+                        <Input
+                            type="select"
                             name="commission.type"
                             placeholder="Type"
                             value={this.state.rules.controls.commission.controls['type'].value}
@@ -263,12 +263,12 @@ class OfferForm extends React.Component<{}, MyState> {
                         <FormFeedback>{this.getError('commission.type')}</FormFeedback>
                     </FormGroup>
                 </Col>
-                {this.state.rules.controls.commission.controls['type'].value === 'percent' || this.state.rules.controls.commission.controls['type'].value === 'both' ? 
+                {this.state.rules.controls.commission.controls['type'].value === 'percent' || this.state.rules.controls.commission.controls['type'].value === 'both' ?
                 <Col md={4}>
                     <FormGroup>
                         <Label for="commission.percentRate">% of Commission</Label>
-                        <Input 
-                            type="number" 
+                        <Input
+                            type="number"
                             name="commission.percentRate"
                             onChange={this.handleChange}
                             value={this.state.rules.controls.commission.controls['percentRate'].value}
@@ -278,12 +278,12 @@ class OfferForm extends React.Component<{}, MyState> {
                     </FormGroup>
                 </Col> : ''
                 }
-                {this.state.rules.controls.commission.controls['type'].value === 'flat' || this.state.rules.controls.commission.controls['type'].value === 'both' ? 
+                {this.state.rules.controls.commission.controls['type'].value === 'flat' || this.state.rules.controls.commission.controls['type'].value === 'both' ?
                 <Col md={2}>
                     <FormGroup>
                         <Label for="commission.flatAmount">Flat Fee</Label>
-                        <Input 
-                            type="number" 
+                        <Input
+                            type="number"
                             name="commission.flatAmount"
                             placeholder="Amount"
                             value={this.state.rules.controls.commission.controls['flatAmount'].value}
