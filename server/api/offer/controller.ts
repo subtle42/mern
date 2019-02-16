@@ -37,6 +37,20 @@ export class UserController {
         .catch(utils.handleError(res))
     }
 
+    public static takeOffer (req: MyRequest, res: Response): void {
+        const id = req.params.id
+        Offer.findById(id)
+        .then(offer => {
+            if (offer.assignedTo) return Promise.reject('Offer is already taken')
+            offer.assignedTo = req.user._id
+            return offer.update(offer).exec()
+            .then(() => offer)
+        })
+        .then(offer => offerSocket.onAddOrChange(offer))
+        .then(() => res.json(''))
+        .catch(utils.handleError(res))
+    }
+
     public static create (req: MyRequest, res: Response): void {
         const newOffer = new Offer(req.body);
         newOffer.createdBy = req.user._id

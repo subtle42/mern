@@ -58,6 +58,9 @@ export class OfferForm extends React.Component<Props, MyState> {
                 Validators.minLength(3),
                 Validators.maxLength(100)
             ]),
+            comments: new FormControl('', [
+                Validators.maxLength(1000)
+            ]),
             propertyAddress: new FormCtrlGroup({
                 street1: new FormControl('', [
                     Validators.isRequired,
@@ -299,7 +302,11 @@ export class OfferForm extends React.Component<Props, MyState> {
             <Row><Col>
                 <FormGroup>
                     <Label>Additional Info</Label>
-                    <Input type='textarea' rows='5'></Input>
+                    <Input type='textarea' rows='5'
+                      value={this.state.rules.get('comments').value}
+                      invalid={this.state.rules.get('comments').error}>
+                    </Input>
+                    <FormFeedback>{this.getError(this.state.rules.get('comments'))}</FormFeedback>
                 </FormGroup>
             </Col></Row>
             <Row><Col>

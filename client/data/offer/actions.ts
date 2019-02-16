@@ -32,11 +32,15 @@ class OfferActions extends BaseActions {
         return axios.get(`/api/offer/${id}`)
         .then(res => res.data as IOffer)
     }
-    
+
     select (id: string): Promise<void> {
         return this._select(id)
     }
 
+    take (id: string): Promise<void> {
+        return axios.get(`/api/offer/take/${id}`)
+        .then(res => res.data as undefined)
+    }
 }
 
 const offerActions = new OfferActions()

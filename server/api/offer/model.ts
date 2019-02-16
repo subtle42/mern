@@ -22,6 +22,7 @@ const OfferSchema = new Schema({
         type: String,
         required: true,
     },
+    comments: {type: String, required: true},
     clientName: String,
     propertyAddress: addressSchema,
     commission: commissionSchema,

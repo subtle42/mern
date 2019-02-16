@@ -35,8 +35,9 @@ export interface IOffer {
         flatAmout: number,
         percentRate: number
     }
+    comments: string
     isPublic: boolean
-    failover: boolean,
+    failover: boolean
     whiteList: string[]
     createdBy?: string
     assignedTo?: string

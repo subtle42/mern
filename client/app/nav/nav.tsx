@@ -43,10 +43,10 @@ const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {
                                 {props.user.name}
                             </DropdownToggle>
                             <DropdownMenu right>
-                                <Link to="/admin">
-                                <DropdownItem>Dashboard</DropdownItem>
+                                <Link to="/dashboard">
+                                    <DropdownItem>Dashboard</DropdownItem>
                                 </Link>
-                                <DropdownItem divider/> 
+                                <DropdownItem divider/>
                                 <Link to='/home' onClick={() => authActions.logout()}>
                                     <DropdownItem> Logout </DropdownItem>
                                 </Link>

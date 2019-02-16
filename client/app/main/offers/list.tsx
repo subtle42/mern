@@ -8,6 +8,7 @@ import ListGroupItemHeading from 'reactstrap/lib/ListGroupItemHeading'
 import ListGroupItemText from 'reactstrap/lib/ListGroupItemText'
 import { OfferTypes } from './create/offer'
 import offerActions from 'data/offer/actions'
+
 interface Props {
     list: IOffer[],
     selectedId: string
@@ -26,6 +27,7 @@ const myComponent: React.StatelessComponent<Props> = (props: Props) => {
                     <ListGroupItemHeading>{getOfferDisplay(offer.offerType)} - {offer._id}</ListGroupItemHeading>
                     <ListGroupItemText> {offer.propertyAddress.city}, {offer.propertyAddress.state}</ListGroupItemText>
                     <ListGroupItemText> {offer.commission.flatAmout}</ListGroupItemText>
+
                 </ListGroupItem>
             })}
         </ListGroup>
@@ -34,7 +36,7 @@ const myComponent: React.StatelessComponent<Props> = (props: Props) => {
 
 export default connect((store: StoreModel): Props => {
     return {
-        list: store.offer.list,
+        list: store.offer.list.filter(offer => !offer.assignedTo),
         selectedId: store.offer.selected
     }
 })(myComponent)

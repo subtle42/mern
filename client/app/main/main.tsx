@@ -9,6 +9,7 @@ import { AlertComponent } from '../_common/alert'
 import { OfferPage } from './pages/post'
 import { OffersPage } from './pages/offers'
 import { AdminPage } from './pages/admin'
+import { DashboardPage } from '../main/pages/dashboard'
 
 class MyState {
 }
@@ -32,6 +33,7 @@ export class Main extends React.Component<{}, MyState> {
                     <Route exact path='/offers' component={OffersPage} />
                     <Route exact path='/post' component={OfferPage} />
                     <Route exact path='/admin' component={AdminPage} />
+                    <Route exact path='/dashboard' component={DashboardPage} />
                 </div>
             </Router>
         )
