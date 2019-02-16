@@ -4,6 +4,7 @@ import { PostOptions } from './create/post'
 import NotifActions from 'data/notifications/actions'
 import offerActions from 'data/offer/actions'
 import { IOffer } from 'common/models'
+import { Failover } from './create/failover'
 
 export const CreatePost: React.StatelessComponent = () => {
     const [offer, setOffer] = React.useState({} as IOffer)
@@ -27,8 +28,19 @@ export const CreatePost: React.StatelessComponent = () => {
         if (step === 0) {
             return <OfferForm next={newOffer => afterStep1(newOffer)} />
         } else if (step === 1) {
-            return <PostOptions next={newOffer => afterStep1(newOffer)} />
+            return <PostOptions
+                next={newOffer => afterStep1(newOffer)}
+                back={() => back()}
+            />
+        } else if (step === 2) {
+            return <Failover
+              next={newOffer => afterStep1(newOffer)}
+              back={() => back()}
+            />
+        } else if (step === 3) {
+
         }
+        return <div/>
     }
 
     return getCurrentForm()

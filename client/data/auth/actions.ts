@@ -29,7 +29,10 @@ class AuthActions {
         .then(res => this.setUser(user))
     }
 
-    search (searchString: string): Promise<IUser> {
+    search (searchString: string): Promise<IUser[]> {
+        if (searchString.length === 0) {
+            return Promise.resolve([])
+        }
         return axios.get(`/api/user/search/${searchString}`)
         .then(res => res.data)
     }

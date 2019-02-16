@@ -80,10 +80,10 @@ export class UserController {
 
     public static search (req: Request, res: Response) {
         User.find({
-            $or: {
+            $or: [{
                 'name': { '$regex': req.params.search, '$options': 'i' },
                 'email': { '$regex': req.params.search, '$options': 'i' }
-            }
+            }]
         }, {
             name: 1,
             email: 1,

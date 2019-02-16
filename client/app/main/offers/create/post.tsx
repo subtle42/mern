@@ -10,12 +10,14 @@ import authActions from 'data/auth/actions';
 
 interface Props {
     next: (offer: IOffer) => void
+    back: () => void
     // isValid?: (valid: boolean) => void
 }
 
 class State {
     isPublic: boolean = true
-    emails: string[] = []
+    selectedUsers: IUser[] = []
+    users: IUser[] = []
     search: string = ''
 }
 
@@ -38,20 +40,61 @@ export class PostOptions extends React.Component<Props, State> {
 
     searchUsers = (event: React.FormEvent<any>) => {
         this.updateSearch(event)
-        const name = this.state.search
-        authActions.search(name)
-        .then(users => console.log(users))
+        const target: any = event.target
+        authActions.search(target.value)
+        .then(users => this.setState({ users }))
         .catch(err => console.error(err))
+    }
+
+    selectUser = (event) => {
+        const target: any = event.target
+        console.log(this.state)
+        const clickedUser: IUser = this.state.users[target.value]
+
+        const myUser = this.state.selectedUsers.filter(user => user.email === clickedUser.email)[0]
+        if (myUser) {
+            this.setState({
+                selectedUsers: this.state.selectedUsers.filter(user => {
+                    return user.email !== clickedUser.email
+                })
+            })
+        } else {
+            this.state.selectedUsers.push(clickedUser)
+            this.setState({
+                selectedUsers: this.state.selectedUsers
+            })
+        }
     }
 
     getWhiteListForm = () => {
         if (!this.state.isPublic) {
             return <div>
-                <Input name='searchInput'
+              <Row><Col>
+                  <FormGroup>
+                      <Input name='searchInput'
                     placeholder='Search...'
                     onChange={this.searchUsers}
                     value={this.state.search} />
-                {/* <WhiteList /> */}
+                  </FormGroup>
+              </Col></Row>
+              <Row><Col>
+                  <FormGroup>
+                      <p>{this.state.selectedUsers.map(user => user.email)}</p>
+                  </FormGroup>
+            </Col></Row>
+              <Row><Col>
+                  <FormGroup>
+                <ListGroup>
+                    {this.state.users.map((user, index) => {
+                        return <ListGroupItem key={index} action
+                            value={index}
+                            onClick={this.selectUser}>
+                            {user.name} - {user.email}
+                        </ListGroupItem>
+                    })}
+                </ListGroup>
+              </FormGroup>
+            </Col></Row>
             </div>
         }
     }
@@ -59,48 +102,40 @@ export class PostOptions extends React.Component<Props, State> {
     nextPage = () => {
         this.props.next({
             isPublic: this.state.isPublic,
-            whiteList: this.state.emails
+            whiteList: this.state.selectedUsers.map(user => user._id)
         } as IOffer)
     }
 
+    backPage = () => {
+        this.props.back()
+    }
+
     render () {
-        return <Form className='container'>
+        return <Form>
             <Row><Col>
                 <FormGroup>
                     <Label>Is this a PUBLIC post?</Label>
-                    <FormGroup check>
-                        <Label check>
-                            <Input
-                                onChange={this.updateForm}
-                                type='radio'
-                                checked={this.state.isPublic}
-                                value='true'
-                                name='isPublic' />
+                    <ListGroup>
+                        <ListGroupItem
+                            active={true}>
                             Yes
-                        </Label>
-                    </FormGroup>
-                    <FormGroup check>
-                        <Label check>
-                            <Input
-                                onChange={this.updateForm}
-                                type='radio'
-                                checked={!this.state.isPublic}
-                                value='false'
-                                name='isPublic' />
+                        </ListGroupItem>
+                        <ListGroupItem
+                            active={!true}>
                             No
-                        </Label>
-                    </FormGroup>
+                        </ListGroupItem>
+                    </ListGroup>
                 </FormGroup>
             </Col></Row>
+                {this.getWhiteListForm()}
             <Row><Col>
-                <FormGroup>
-                    {this.getWhiteListForm()}
-                </FormGroup>
-            </Col></Row>
-            <Row><Col>
-                <Button className='btn btn-primary'
+              <Button color='secondary'
+                  onClick={this.backPage}>
+                  Back
+              </Button>
+                <Button color='primary'
                     onClick={this.nextPage}>
-                    Post Offer
+                    Next
                 </Button>
             </Col></Row>
         </Form>

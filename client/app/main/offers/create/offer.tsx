@@ -215,7 +215,7 @@ export class OfferForm extends React.Component<Props, MyState> {
                     <FormFeedback>{this.getError(this.state.rules.get('offerType'))}</FormFeedback>
                 </FormGroup>
             </Col></Row>
-            {this.getClientNameTemplate()}
+                {this.getClientNameTemplate()}
             <Row><Col>
                 <FormGroup>
                     <Label>Address</Label>
@@ -300,11 +300,13 @@ export class OfferForm extends React.Component<Props, MyState> {
                     <Input type='textarea' rows='5'></Input>
                 </FormGroup>
             </Col></Row>
-            <Button className='btn btn-primary'
-                disabled={!this.state.rules.valid}
-                onClick={this.postOffer}>
-                Post Offer
-            </Button>
+            <Row><Col>
+                <Button className='btn btn-primary'
+                    disabled={!this.state.rules.valid}
+                    onClick={this.postOffer}>
+                    Next
+                </Button>
+          </Col></Row>
         </Form>
     }
 }
