@@ -36,7 +36,8 @@ export interface IOffer {
         percentRate: number
     }
     isPublic: boolean
+    failover: boolean,
     whiteList: string[]
     createdBy?: string
-    ownedBy?: string
+    assignedTo?: string
 }

@@ -93,14 +93,6 @@ export class OfferForm extends React.Component<Props, MyState> {
 
     postOffer = () => {
         this.props.next(this.state.rules.value as IOffer)
-        // offerActions.create(this.state.rules.value as IOffer)
-        // .then(res => {
-        //     this.state.rules.reset()
-        //     this.setState({
-        //         rules: this.state.rules
-        //     })
-        // })
-        // .catch(err => NotifActions.notify('danger', err))
     }
 
     getError = (ctrl: FormControl | FormCtrlArray | FormCtrlGroup): string => {

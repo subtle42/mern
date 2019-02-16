@@ -11,7 +11,6 @@ import authActions from 'data/auth/actions';
 interface Props {
     next: (offer: IOffer) => void
     back: () => void
-    // isValid?: (valid: boolean) => void
 }
 
 class State {
@@ -27,7 +26,7 @@ export class PostOptions extends React.Component<Props, State> {
     updateForm = (event: React.FormEvent<any>) => {
         const target: any = event.target
         this.setState({
-            isPublic: target.value === 'true'
+            isPublic: target.innerText === 'Yes'
         })
     }
 
@@ -48,22 +47,21 @@ export class PostOptions extends React.Component<Props, State> {
 
     selectUser = (event) => {
         const target: any = event.target
-        console.log(this.state)
         const clickedUser: IUser = this.state.users[target.value]
+        let updatedList: IUser[] = []
 
-        const myUser = this.state.selectedUsers.filter(user => user.email === clickedUser.email)[0]
-        if (myUser) {
-            this.setState({
-                selectedUsers: this.state.selectedUsers.filter(user => {
-                    return user.email !== clickedUser.email
-                })
+        if (this.state.selectedUsers.filter(user => user.email === clickedUser.email)[0]) {
+            updatedList = this.state.selectedUsers.filter(user => {
+                return user.email !== clickedUser.email
             })
         } else {
-            this.state.selectedUsers.push(clickedUser)
-            this.setState({
-                selectedUsers: this.state.selectedUsers
-            })
+            updatedList = [...this.state.selectedUsers]
+            updatedList.push(clickedUser)
         }
+
+        this.setState({
+            selectedUsers: updatedList
+        })
     }
 
     getWhiteListForm = () => {
@@ -117,11 +115,13 @@ export class PostOptions extends React.Component<Props, State> {
                     <Label>Is this a PUBLIC post?</Label>
                     <ListGroup>
                         <ListGroupItem
-                            active={true}>
+                            onClick={this.updateForm}
+                            active={this.state.isPublic}>
                             Yes
                         </ListGroupItem>
                         <ListGroupItem
-                            active={!true}>
+                            onClick={this.updateForm}
+                            active={!this.state.isPublic}>
                             No
                         </ListGroupItem>
                     </ListGroup>
@@ -129,10 +129,10 @@ export class PostOptions extends React.Component<Props, State> {
             </Col></Row>
                 {this.getWhiteListForm()}
             <Row><Col>
-              <Button color='secondary'
-                  onClick={this.backPage}>
-                  Back
-              </Button>
+                <Button color='secondary'
+                    onClick={this.backPage}>
+                    Back
+                </Button>
                 <Button color='primary'
                     onClick={this.nextPage}>
                     Next

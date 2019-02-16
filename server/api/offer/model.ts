@@ -20,11 +20,16 @@ const commissionSchema = new Schema({
 const OfferSchema = new Schema({
     offerType: {
         type: String,
-        // required: true,
+        required: true,
     },
-  clientName: String,
-  propertyAddress: addressSchema,
-  commission: commissionSchema
+    clientName: String,
+    propertyAddress: addressSchema,
+    commission: commissionSchema,
+    isPublic: Boolean,
+    whiteList: {default: [], required: true, type: [String]},
+    failover: Boolean,
+    createdBy: {type: String, required: true},
+    assignedTo: {type: String}
 });
 
 export const Offer: Model<IOfferModel> = createSchema('Offer', OfferSchema);

@@ -8,13 +8,13 @@ export class UserController {
     public static getAll (req: MyRequest, res: Response): void {
         Offer.find({}).exec()
         .then(docs => res.json(docs))
-        .catch(utils.handleError)
+        .catch(utils.handleError(res))
     }
 
     public static getOne (req: MyRequest, res: Response): void {
         Offer.findById(req.params.id).exec()
         .then(docs => res.json(docs))
-        .catch(utils.handleError)
+        .catch(utils.handleError(res))
     }
 
     public static destroy (req: MyRequest, res: Response): void {
@@ -25,7 +25,7 @@ export class UserController {
             } as IOfferModel);
             res.json()
         })
-        .catch(utils.handleError)
+        .catch(utils.handleError(res))
     }
 
     public static update (req: MyRequest, res: Response): void {
@@ -34,18 +34,19 @@ export class UserController {
             offerSocket.onAddOrChange(doc)
             res.json(doc)
         })
-        .catch(utils.handleError)
+        .catch(utils.handleError(res))
     }
 
     public static create (req: MyRequest, res: Response): void {
         const newOffer = new Offer(req.body);
-        
+        newOffer.createdBy = req.user._id
+
         newOffer.validate()
         .then(() => newOffer.save())
         .then(doc => {
             offerSocket.onAddOrChange(doc)
             return res.json(doc)
         })
-        .catch(utils.handleError)
+        .catch(utils.handleError(res))
     }
 }
