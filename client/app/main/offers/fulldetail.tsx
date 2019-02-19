@@ -6,7 +6,7 @@ interface Props {
     selected: IOffer
 }
 
-export const FullDetailOffer: React.StatelessComponent = (props: Props) => {
+export const FullDetailOffer: React.StatelessComponent<Props> = (props: Props) => {
 
     return <Form>
         <Row>

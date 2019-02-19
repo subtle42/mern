@@ -56,7 +56,7 @@ export class UserController {
         newOffer.createdBy = req.user._id
 
         newOffer.validate()
-        .then(() => newOffer.save())
+        .then(() => Offer.create(newOffer))
         .then(doc => {
             offerSocket.onAddOrChange(doc)
             return res.json(doc)

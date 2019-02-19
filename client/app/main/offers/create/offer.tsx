@@ -303,6 +303,8 @@ export class OfferForm extends React.Component<Props, MyState> {
                 <FormGroup>
                     <Label>Additional Info</Label>
                     <Input type='textarea' rows='5'
+                      name='comments'
+                      onChange={this.handleChange}
                       value={this.state.rules.get('comments').value}
                       invalid={this.state.rules.get('comments').error}>
                     </Input>
