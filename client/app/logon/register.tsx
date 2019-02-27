@@ -15,7 +15,7 @@ type myStyle = 'success' | 'warning' | 'error'
 export default class LoginPage extends React.Component<{}, State> {
     state: State = new State()
 
-    componentWillMount() {
+    componentWillMount () {
         const rules = new FormCtrlGroup({
             email: new FormControl('', [
                 Validators.isRequired,

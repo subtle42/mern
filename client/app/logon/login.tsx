@@ -14,7 +14,7 @@ class State {
 export default class LoginPage extends React.Component<any, State> {
     state: State = new State()
 
-    componentWillMount() {
+    componentWillMount () {
         const rules = new FormCtrlGroup({
             email: new FormControl('', [
                 Validators.isRequired,
@@ -30,14 +30,14 @@ export default class LoginPage extends React.Component<any, State> {
 
     handleChange = (event: React.FormEvent<any>) => {
         const target: any = event.target
-        this.state.rules.controls[target.name].value = target.value;
+        this.state.rules.controls[target.name].value = target.value
         this.setState({
             rules: this.state.rules
         })
     }
 
     tryLogin = () => {
-        const { email, password } = this.state.rules.value;
+        const { email, password } = this.state.rules.value
         AuthActions.login(email, password)
         .then(() => this.setState({
             ...(new State()),

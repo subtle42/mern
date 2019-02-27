@@ -31,50 +31,50 @@ type myStyle = 'success' | 'warning' | 'error'
 
 export class PageConfigButton extends React.Component<Props, State> {
     state: State = new State()
-    getBracketValue = new RegExp(/\[(.*?)\]/);
+    getBracketValue = new RegExp(/\[(.*?)\]/)
 
-    componentDidMount() {
-      const rules = new FormCtrlGroup({
-          name: new FormControl('', [
-              Validators.isRequired,
-              Validators.minLength(3),
-              Validators.maxLength(15)
-          ]),
-          isDraggable: new FormControl(false),
-          isResizable: new FormControl(false),
-          isRearrangeable: new FormControl(false),
-          margin: new FormCtrlArray([
-              new FormControl(0, [
-                  Validators.isRequired,
-                  Validators.min(0),
-                  Validators.max(100)
-              ]),
-              new FormControl(0, [
-                  Validators.isRequired,
-                  Validators.min(0),
-                  Validators.max(100)
-              ])
-          ]),
-          containerPadding: new FormCtrlArray([
-              new FormControl(0, [
-                  Validators.isRequired,
-                  Validators.min(0),
-                  Validators.max(100)
-              ]),
-              new FormControl(0, [
-                  Validators.isRequired,
-                  Validators.min(0),
-                  Validators.max(100)
-              ])
-          ]),
-          cols: new FormControl(1, [
-              Validators.isRequired,
-              Validators.min(1),
-              Validators.max(30)
-          ])
-      })
+    componentDidMount () {
+        const rules = new FormCtrlGroup({
+            name: new FormControl('', [
+                Validators.isRequired,
+                Validators.minLength(3),
+                Validators.maxLength(15)
+            ]),
+            isDraggable: new FormControl(false),
+            isResizable: new FormControl(false),
+            isRearrangeable: new FormControl(false),
+            margin: new FormCtrlArray([
+                new FormControl(0, [
+                    Validators.isRequired,
+                    Validators.min(0),
+                    Validators.max(100)
+                ]),
+                new FormControl(0, [
+                    Validators.isRequired,
+                    Validators.min(0),
+                    Validators.max(100)
+                ])
+            ]),
+            containerPadding: new FormCtrlArray([
+                new FormControl(0, [
+                    Validators.isRequired,
+                    Validators.min(0),
+                    Validators.max(100)
+                ]),
+                new FormControl(0, [
+                    Validators.isRequired,
+                    Validators.min(0),
+                    Validators.max(100)
+                ])
+            ]),
+            cols: new FormControl(1, [
+                Validators.isRequired,
+                Validators.min(1),
+                Validators.max(30)
+            ])
+        })
 
-      this.setState({ rules })
+        this.setState({ rules })
     }
 
     close = (event) => {
@@ -99,22 +99,21 @@ export class PageConfigButton extends React.Component<Props, State> {
         this.setState(new State())
     }
 
-
     handleChange = (event: React.FormEvent<any>) => {
         const target: any = event.target
 
-        let schema: FormCtrlGroup | FormControl | FormCtrlArray = this.state.rules;
+        let schema: FormCtrlGroup | FormControl | FormCtrlArray = this.state.rules
         target.name.split('.').forEach(attr => {
             if (attr.indexOf('[') !== -1) {
                 const firstPart = attr.split('[')[0]
-                const index: number = parseInt(this.getBracketValue.exec(attr)[1])
+                const index: number = parseInt(this.getBracketValue.exec(attr)[1], 10)
                 schema = schema.controls[firstPart]
                 schema = schema.controls[index]
             } else {
-              schema = schema.controls[attr]
+                schema = schema.controls[attr]
             }
         })
-        schema.value = target.value;
+        schema.value = target.value
 
         this.setState(this.state)
     }

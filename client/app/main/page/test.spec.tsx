@@ -90,7 +90,7 @@ describe('Page Add component', () => {
                 return utils.waitATick()
             })
 
-            it('should send a REST', () => {
+            it('should send a REST call', () => {
                 expect(requests.length).to.equal(1)
                 expect(requests[0].requestBody).to.equal(JSON.stringify({
                     name: pageName,
@@ -98,16 +98,15 @@ describe('Page Add component', () => {
                 }))
             })
 
-            it('should set the selected page to the created page on success', () => {})
-
             xit('should close the modal on success', () => {
                 sandbox.stub(PageActions, 'select').returns(Promise.resolve())
 
                 expect(wrapper.find('Modal').prop('isOpen')).to.equal(true)
                 const newPageId = 'woeiveojbpt'
-                requests[0].respond(200, {}, newPageId)
 
                 return utils.waitATick()
+                .then(() => requests[0].respond(200, {}, newPageId))
+                .then(() => utils.waitATick())
                 .then(() => expect(wrapper.find('Modal').prop('isOpen')).to.equal(false))
             })
         })

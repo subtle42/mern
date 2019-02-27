@@ -13,43 +13,43 @@ class State {
 }
 
 export class Test extends React.Component<TestProps, {}> {
-    height: number = 0
-    width: number = 0
-    svg: d3.Selection<any, {}, null, undefined>
-    focus: d3.Selection<any, {}, null, undefined>
-    bins: d3.Bin<number, number>[]
-    chart: d3.Selection<d3.BaseType, d3.Bin<number, number>, d3.BaseType, {}>
-    xScale: d3.ScaleLinear<number, number>
-    yScale: d3.ScaleLinear<number, number>
+    // height: number = 0
+    // width: number = 0
+    // svg: d3.Selection<any, {}, null, undefined>
+    // focus: d3.Selection<any, {}, null, undefined>
+    // bins: d3.Bin<number, number>[]
+    // chart: d3.Selection<d3.BaseType, d3.Bin<number, number>, d3.BaseType, {}>
+    // xScale: d3.ScaleLinear<number, number>
+    // yScale: d3.ScaleLinear<number, number>
 
     componentDidMount () {
-        this.setState({
-            height: this.props.height,
-            width: this.props.width
-        })
-        setTimeout(() => this.drawChart(), 20)
+        // this.setState({
+        //     height: this.props.height,
+        //     width: this.props.width
+        // })
+        // setTimeout(() => this.drawChart(), 20)
 
-        store.subscribe(() => {
-            const mySize = store.getState().widgets.sizes['dan']
+        // store.subscribe(() => {
+        //     const mySize = store.getState().widgets.sizes['dan']
 
-            if (this.width !== mySize.width || this.height !== mySize.height) {
-                this.width = mySize.width
-                this.height = mySize.height
-                this.onResize()
-            }
-        })
+        //     if (this.width !== mySize.width || this.height !== mySize.height) {
+        //         this.width = mySize.width
+        //         this.height = mySize.height
+        //         this.onResize()
+        //     }
+        // })
     }
 
     onResize () {
-        // this.focus.attr("transform", `translate(10, 10`);
-        this.xScale.rangeRound([0, this.width])
-        this.yScale.range([this.height, 0])
+        // // this.focus.attr("transform", `translate(10, 10`);
+        // this.xScale.rangeRound([0, this.width])
+        // this.yScale.range([this.height, 0])
 
-        // this.svg
+        // // this.svg
 
-        this.chart
-            .attr('width', this.xScale(this.bins[0].x1) - this.xScale(this.bins[0].x0) - 1)
-            .attr('height', d => this.height - this.yScale(d.length))
+        // this.chart
+        //     .attr('width', this.xScale(this.bins[0].x1) - this.xScale(this.bins[0].x0) - 1)
+        //     .attr('height', d => this.height - this.yScale(d.length))
     }
 
     drawChart () {

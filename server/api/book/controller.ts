@@ -67,7 +67,7 @@ export default class BookController {
         Book.findById(myId).exec()
         .then(book => {
             return auth.hasOwnerAccess(req.user._id, book)
-            .then(() => Page.find({ bookId: myId }))
+            .then(() => Page.find({ bookId: myId }).exec())
             .then(pages => Promise.all(pages.map(p => Widget.remove({ pageId: p._id }).exec())))
             .then(() => Page.remove({ bookId: myId }).exec())
             .then(() => book.remove())
