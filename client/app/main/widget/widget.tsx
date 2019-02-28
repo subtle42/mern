@@ -28,14 +28,13 @@ export class Widget extends React.Component<Props, State> {
         let source = undefined
         if (widget) {
             source = storeState.sources.list.filter(s => s._id === widget.sourceId)[0]
+            WidgetActions.query(widget)
+            .catch(err => console.warn(err))
         }
         this.setState({
             widgetConfig: widget,
             source: source
         })
-        WidgetActions.query(widget)
-        .then(data => console.log(data))
-        .catch(err => console.warn(err))
     }
 
     componentDidMount () {
@@ -64,7 +63,7 @@ export class Widget extends React.Component<Props, State> {
     }
 
     componentWillUnmount () {
-        this.unsubscribe()
+        this.unsubscribe && this.unsubscribe()
     }
 
     removeWidget () {
@@ -97,7 +96,7 @@ export class Widget extends React.Component<Props, State> {
                 </Button>
                 <ConfirmModal header='Delete Widget'
                     message='Are you sure you want to delete this widget?'>
-                    <Button onClick={this.removeWidget}
+                    <Button onClick={() => this.removeWidget()}
                         className='pull-right'
                         color='secondary'
                         outline size='small'>
@@ -106,7 +105,7 @@ export class Widget extends React.Component<Props, State> {
                 </ConfirmModal>
                 <CardTitle style={{ margin: 0 }}>{this.state.source ? this.state.source.title : 'Loading..'}</CardTitle>
             </CardHeader>
-            <CardBody style={{ height: '100%' }}>
+            <CardBody style={{ height: '100%', padding: 0 }}>
                 {this.getDropdown()}
                 <Histogram
                     id={this.props._id}
