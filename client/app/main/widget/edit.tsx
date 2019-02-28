@@ -17,6 +17,9 @@ import Button from 'reactstrap/lib/Button'
 import Nav from 'reactstrap/lib/Nav'
 import NavItem from 'reactstrap/lib/NavItem'
 import NavLink from 'reactstrap/lib/NavLink'
+import * as FontAwesome from 'react-fontawesome'
+import TabContent from 'reactstrap/lib/TabContent'
+import TabPane from 'reactstrap/lib/TabPane'
 
 interface Props {
     id: string
@@ -42,6 +45,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
     }))
 
     const [isOpen, setOpen] = React.useState(false)
+    const [currentTab, setTab] = React.useState('general')
 
     const getErrorMsg = (msg) => {
         return msg.error && msg.error.message
@@ -109,21 +113,46 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
         </Form>
     }
 
-    return <Modal>
-        <ModalHeader>Edit Widget</ModalHeader>
-        <ModalBody>
-            <Nav tabs>
-                <NavItem>
-                    <NavLink>General</NavLink>
-                </NavItem>
-                <NavItem>
-                    <NavLink>{rules.get('type').value}</NavLink>
-                </NavItem>
-            </Nav>
-        </ModalBody>
-        <ModalFooter>
-            <Button>Cancel</Button>
-            <Button>Done</Button>
-        </ModalFooter>
-    </Modal>
+    const getModalTemplate = (): JSX.Element => {
+        return <Modal isOpen={isOpen}>
+            <ModalHeader>Edit Widget</ModalHeader>
+            <ModalBody>
+                <Nav tabs fill={true}>
+                    <NavItem>
+                        <NavLink
+                            active={currentTab === 'general'}
+                            onClick={() => setTab('general')}>
+                            General
+                        </NavLink>
+                    </NavItem>
+                    <NavItem>
+                        <NavLink
+                            active={currentTab === 'specific'}
+                            onClick={() => setTab('specific')}>
+                            {rules.get('type').value}
+                        </NavLink>
+                    </NavItem>
+                </Nav>
+                <TabContent activeTab={currentTab}>
+                    <TabPane tabId='general'>
+                        {getFormTemplate()}
+                    </TabPane>
+                    <TabPane tabId='specific'></TabPane>
+                </TabContent>
+            </ModalBody>
+            <ModalFooter>
+                <Button color='primary'>Done</Button>
+                <Button color='secondary'>Cancel</Button>
+            </ModalFooter>
+        </Modal>
+    }
+
+    return <Button className='pull-left'
+        color='secondary'
+        outline
+        size='small'
+        onClick={toggleModal}>
+        <FontAwesome name='cog' />
+        {getModalTemplate()}
+    </Button>
 }

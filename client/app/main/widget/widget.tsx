@@ -8,6 +8,7 @@ import * as FontAwesome from 'react-fontawesome'
 import { Card, CardBody, CardTitle, Button, CardHeader } from 'reactstrap'
 import { ConfirmModal } from '../../_common/confirmation'
 import NotifyActions from 'data/notifications/actions'
+import { EditButton } from './edit'
 
 interface Props {
     _id?: any
@@ -91,9 +92,7 @@ export class Widget extends React.Component<Props, State> {
     render () {
         return (<Card style={{ height: '100%' }}>
             <CardHeader style={{ padding: 0, border: 0 }} color='secondary'>
-                <Button className='pull-left' color='secondary' outline size='small' >
-                    <FontAwesome name='cog' />
-                </Button>
+                <EditButton id={this.props._id} />
                 <ConfirmModal header='Delete Widget'
                     message='Are you sure you want to delete this widget?'>
                     <Button onClick={() => this.removeWidget()}
