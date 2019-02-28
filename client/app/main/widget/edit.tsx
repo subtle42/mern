@@ -20,12 +20,16 @@ import NavLink from 'reactstrap/lib/NavLink'
 import * as FontAwesome from 'react-fontawesome'
 import TabContent from 'reactstrap/lib/TabContent'
 import TabPane from 'reactstrap/lib/TabPane'
+import { IWidget, ISource } from 'common/models'
+import * as utils from '../../_common/utils'
 
 interface Props {
     id: string
 }
 
 export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
+    let config: IWidget
+    let source: ISource
     const marginRules: ValidatorFn[] = [
         Validators.isRequired,
         Validators.min(0),
@@ -44,6 +48,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
         ])
     }))
 
+    const [specificRules, setSpecificRules] = React.useState(new FormCtrlGroup({}))
     const [isOpen, setOpen] = React.useState(false)
     const [currentTab, setTab] = React.useState('general')
 
@@ -53,11 +58,20 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
 
     const toggleModal = () => {
         if (!isOpen) {
-            rules.value = store.getState().widgets.list
+            config = store.getState().widgets.list
                 .find(w => w._id === props.id)
+            source = store.getState().sources.list
+                .find(s => s._id === config.sourceId)
+            rules.value = config
             setRules(rules)
         }
         setOpen(!isOpen)
+    }
+
+    const handleChange = (event: React.FormEvent<any>) => {
+        const target: any = event.target
+        rules.controls[target.name].value = target.value
+        setRules(rules)
     }
 
     const getFormTemplate = (): JSX.Element => {
@@ -67,8 +81,9 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                     <FormGroup>
                         <Label>Top</Label>
                         <Input
-                            type='text'
+                            type='number'
                             name='margins.top'
+                            onChange={handleChange}
                             value={rules.get('margins').get('top').value}
                             invalid={rules.get('margins').get('top').error} />
                         <FormFeedback>{getErrorMsg(rules.get('margins').get('top'))}</FormFeedback>
@@ -78,7 +93,8 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                     <FormGroup>
                         <Label>Bottom</Label>
                         <Input
-                            type='text'
+                            type='number'
+                            onChange={handleChange}
                             name='margins.bottom'
                             value={rules.get('margins').get('bottom').value}
                             invalid={rules.get('margins').get('bottom').error} />
@@ -91,7 +107,8 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                     <FormGroup>
                         <Label>Left</Label>
                         <Input
-                            type='text'
+                            type='number'
+                            onChange={handleChange}
                             name='margins.left'
                             value={rules.get('margins').get('left').value}
                             invalid={rules.get('margins').get('left').error} />
@@ -102,7 +119,8 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                     <FormGroup>
                         <Label>Right</Label>
                         <Input
-                            type='text'
+                            type='number'
+                            onChange={handleChange}
                             name='margins.right'
                             value={rules.get('margins').get('right').value}
                             invalid={rules.get('margins').get('right').error} />
@@ -133,8 +151,15 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                         </NavLink>
                     </NavItem>
                 </Nav>
-                <TabContent activeTab={currentTab}>
-                    <TabPane tabId='general'>
+                <TabContent activeTab={currentTab}
+                    style={{
+                        borderColor: 'transparent #dee2e6 #dee2e6 #dee2e6',
+                        borderWidth: 1,
+                        borderStyle: 'solid',
+                        borderBottomLeftRadius: '.25rem',
+                        borderBottomRightRadius: '.25rem'
+                    }}>
+                    <TabPane tabId='general' style={{ padding: 10 }}>
                         {getFormTemplate()}
                     </TabPane>
                     <TabPane tabId='specific'></TabPane>
@@ -142,9 +167,53 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
             </ModalBody>
             <ModalFooter>
                 <Button color='primary'>Done</Button>
-                <Button color='secondary'>Cancel</Button>
+                <Button color='secondary'
+                    onClick={cancel}>Cancel</Button>
             </ModalFooter>
         </Modal>
+    }
+
+    const histogram = (): JSX.Element => {
+        return <Form>
+            <Row>
+                <Col>
+                    <FormGroup>
+                        <Label>X Min</Label>
+                        <Input type='number'
+                            value={specificRules.get('xMin').value}
+                            invalid={specificRules.get('xMin').error}/>
+                        <FormFeedback>{specificRules.get('xMin').error.msg}</FormFeedback>
+                    </FormGroup>
+                </Col>
+            </Row>
+        </Form>
+    }
+
+    const getSpecificRules = () => {
+        const tmp = {
+            histogram: new FormCtrlGroup({
+                xMin: new FormControl('', [
+                    Validators.max(source.columns.find(x => x.ref === config.measures[0].ref).min)
+                ]),
+                xMax: new FormControl('', [
+                    Validators.min(source.columns.find(x => x.ref === config.measures[0].ref).max)
+                ]),
+                yMin: new FormControl('', [
+                    Validators.min(0)
+                ]),
+                yMax: new FormControl('', []),
+                columnCount: new FormControl('', [
+                    Validators.min(3),
+                    Validators.max(100)
+                ])
+            })
+        }
+
+        setSpecificRules(tmp[config.type])
+    }
+
+    const cancel = () => {
+        setOpen(false)
     }
 
     return <Button className='pull-left'

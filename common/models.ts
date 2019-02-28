@@ -62,6 +62,11 @@ export interface IWidget {
     type: string
     measures: [{ref: string}]
     dimensions: string[]
+    columnCount?: number
+    xMin?: number
+    xMax?: number
+    yMin?: number
+    yMax?: number
 }
 
 export interface ISource extends IShared {
@@ -77,6 +82,9 @@ export interface ISourceColumn {
     name: string
     ref: string
     type: ColumnType
+    min?: number
+    max?: number
+    values?: string[]
 }
 
 export interface IUser {
