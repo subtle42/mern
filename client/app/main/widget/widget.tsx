@@ -33,6 +33,9 @@ export class Widget extends React.Component<Props, State> {
             widgetConfig: widget,
             source: source
         })
+        WidgetActions.query(widget)
+        .then(data => console.log(data))
+        .catch(err => console.warn(err))
     }
 
     componentDidMount () {
@@ -44,6 +47,9 @@ export class Widget extends React.Component<Props, State> {
                 this.setState({
                     widgetConfig: newValue
                 })
+                WidgetActions.query(newValue)
+                .then(data => console.log(data))
+                .catch(err => console.warn(err))
             }
 
             if (!this.state.widgetConfig) return
@@ -102,8 +108,10 @@ export class Widget extends React.Component<Props, State> {
             </CardHeader>
             <CardBody style={{ height: '100%' }}>
                 {this.getDropdown()}
-                {/* <Chart {...this.state.widgetConfig} /> */}
-                <Histogram />
+                <Histogram
+                    id={this.props._id}
+                    height={300}
+                    width={300} />
             </CardBody>
         </Card>)
     }

@@ -1,3 +1,5 @@
+import * as Validators from './validators'
+
 export class FormError {
     message?: string
     type?: string
@@ -31,6 +33,7 @@ export class FormControl {
         this.default = value
         this.data = value
         this.validators = validtors || []
+        if (this.validators.indexOf(Validators.isRequired) === -1 || this.data) this.runValidation()
     }
 
     reset (): void {
@@ -44,6 +47,11 @@ export class FormControl {
     set value (value) {
         this.dirty = true
         this.data = value
+        this.runValidation()
+        this.parent.digest()
+    }
+
+    private runValidation () {
         this.error = undefined
 
         this.validators.forEach(validFn => {
@@ -51,21 +59,20 @@ export class FormControl {
             try {
                 this.error = validFn(this)
             } catch (err) {
-                console.error(err)
+                console.warn(err)
             }
         })
 
         this.valid = !this.error
         this.invalid = !!this.error
-        this.parent.digest()
     }
 
     get value () {
-        let response = this.data
-        if (typeof this.data === 'string') {
-            response = response.trim()
-        }
-        return response
+        return this.data
+    }
+
+    get (): FormControl | FormCtrlArray | FormCtrlGroup {
+        return undefined
     }
 
     get isPristine () {
@@ -74,10 +81,12 @@ export class FormControl {
 
     addValidator (newFn: ValidatorFn): void {
         this.validators.push(newFn)
+        this.runValidation()
     }
 
     setValidators (newValidtors: ValidatorFn[]): void {
         this.validators = newValidtors
+        this.runValidation()
     }
 }
 
@@ -103,13 +112,17 @@ export class FormCtrlArray {
         if (this.parent) this.parent.digest()
     }
 
+    get (index: number | string): FormControl | FormCtrlArray | FormCtrlGroup {
+        return this.controls[index]
+    }
+
     private isDirty (keys: number[]) {
         this.dirty = keys.filter(key => this.controls[key].dirty).length > 0
         this.pristine = !this.dirty
     }
 
     private isValid (keys: number[]) {
-        this.valid = keys.filter(key => this.controls[key].valid).length === keys.length
+        this.valid = keys.filter(key => this.controls[key].invalid).length === 0
         this.invalid = !this.valid
     }
 
@@ -166,6 +179,10 @@ export class FormCtrlGroup {
         Object.keys(this.controls)
         .forEach(key => response[key] = this.controls[key].value)
         return response
+    }
+
+    get (key: number | string): FormControl | FormCtrlArray | FormCtrlGroup {
+        return this.controls[key]
     }
 
     reset (): void {

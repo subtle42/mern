@@ -227,6 +227,9 @@ class SourceController {
             _id: input.dimensions.length > 0 ? `$${input.dimensions[0]}` : '$_id',
             count: { $sum: 1 }
         }
+        input.measures.forEach(measure => {
+            groupByObj[measure.ref] = { $sum: `$${measure.ref}` }
+        })
         input.dimensions.forEach(dim => {
             groupByObj[dim] = { $sum: `$${dim}` }
         })

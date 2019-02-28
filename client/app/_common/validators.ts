@@ -66,10 +66,10 @@ export const max = (expected: number): ValidatorFn => {
     }
 }
 
-const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
 export const isEmail: ValidatorFn = (ctrl: FormControl) => {
-      if (!emailRegex.test(String(ctrl.value).toLowerCase())) {
+    if (!emailRegex.test(String(ctrl.value).toLowerCase())) {
         return {
             message: 'Input must be in email format.'
         }

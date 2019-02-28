@@ -40,7 +40,10 @@ class WidgetActions extends BaseActions {
             filters: []
         }
         return axios.post(`/api/sources/query`, query)
-        .then(res => console.log(res.data))
+        .then(res => this.sendDispatch('setData', {
+            _id: widget._id,
+            data: res.data
+        }))
     }
 }
 

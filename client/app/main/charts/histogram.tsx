@@ -1,154 +1,95 @@
 import * as React from 'react'
-// import * as d3 from 'd3'
+import * as d3 from 'd3'
 import { store } from 'data/store'
 import './style.css'
-
-interface Props {
-    _id?: any
-}
+import { Unsubscribe } from 'redux'
+import { IWidget } from 'common/models'
 
 class State {
-    height: number = 0
-    width: number = 0
+    chart: any[] = []
+    data: any[]
+    // config: IWidget
 }
 
-export class Test extends React.Component<TestProps, {}> {
-    // height: number = 0
-    // width: number = 0
-    // svg: d3.Selection<any, {}, null, undefined>
-    // focus: d3.Selection<any, {}, null, undefined>
-    // bins: d3.Bin<number, number>[]
-    // chart: d3.Selection<d3.BaseType, d3.Bin<number, number>, d3.BaseType, {}>
-    // xScale: d3.ScaleLinear<number, number>
-    // yScale: d3.ScaleLinear<number, number>
-
-    componentDidMount () {
-        // this.setState({
-        //     height: this.props.height,
-        //     width: this.props.width
-        // })
-        // setTimeout(() => this.drawChart(), 20)
-
-        // store.subscribe(() => {
-        //     const mySize = store.getState().widgets.sizes['dan']
-
-        //     if (this.width !== mySize.width || this.height !== mySize.height) {
-        //         this.width = mySize.width
-        //         this.height = mySize.height
-        //         this.onResize()
-        //     }
-        // })
-    }
-
-    onResize () {
-        // // this.focus.attr("transform", `translate(10, 10`);
-        // this.xScale.rangeRound([0, this.width])
-        // this.yScale.range([this.height, 0])
-
-        // // this.svg
-
-        // this.chart
-        //     .attr('width', this.xScale(this.bins[0].x1) - this.xScale(this.bins[0].x0) - 1)
-        //     .attr('height', d => this.height - this.yScale(d.length))
-    }
-
-    drawChart () {
-        // const data = d3.range(1000).map(d3.randomBates(10))
-        // const formatCount = d3.format(',.0f')
-        // this.svg = d3.select(this.props.node)
-
-        // this.svg.select('g').remove()
-
-        // let margin = { top: 10, right: 10, left: 10, bottom: 10 }
-        // let width = this.props.width - margin.left - margin.right
-        // let height = this.props.height - margin.top - margin.bottom
-        // this.focus = this.svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`)
-
-        // this.xScale = d3.scaleLinear()
-        //     .rangeRound([0, width])
-
-        // this.bins = d3.histogram()
-        //     .domain(this.xScale.domain() as any)
-        //     .thresholds(this.xScale.ticks(20))(data)
-
-        // this.yScale = d3.scaleLinear()
-        //     .domain([0, d3.max(this.bins, d => d.length)])
-        //     .range([height, 0])
-
-        // let bar = this.focus.selectAll('.bar')
-        //     .data(this.bins)
-        //     .enter().append('g')
-        //     .attr('class', 'bar')
-        //     .attr('transform', d => `translate(${this.xScale(d.x0)}, ${this.yScale(d.length)})`)
-
-        // bar.append('rect')
-        //     .attr('x', 1)
-        //     .attr('width', this.xScale(this.bins[0].x1) - this.xScale(this.bins[0].x0) - 1)
-        //     .attr('height', d => height - this.yScale(d.length))
-
-        // bar.append('text')
-        //     .attr('dy', '.75em')
-        //     .attr('y', 6)
-        //     .attr('x', (this.xScale(this.bins[0].x1 - this.xScale(this.bins[0].x0))) / 2)
-        //     .attr('text-anchor', 'middle')
-        //     .text(d => formatCount(d.length))
-
-        // this.focus.append('g')
-        //     .attr('class', 'axis axis--x')
-        //     .attr('transform', `translate(0, ${height})`)
-        //     .call(d3.axisBottom(this.xScale))
-
-        // this.chart = bar
-    }
-
-    render () {
-        return <div/>
-    }
+interface Props {
+    id: string
+    width: number
+    height: number
 }
 
 export class Histogram extends React.Component<Props, State> {
-    node
+    state = new State()
+    xScale = d3.scaleLinear()
+    yScale = d3.scaleLinear()
+    bins = d3.histogram()
+    unsub: Unsubscribe
+    data: any[] = []
+    config: IWidget
 
-    componentDidMount () {
-        setTimeout(() => this.drawChart(), 0)
+    componentWillUpdate () {
+        // if (!this.state.config) return
+        // const config = this.state.config
+        // this.xScale.rangeRound([0, this.props.width - config.margins.left - config.margins.right])
+        // this.yScale.range([this.props.height - config.margins.top - config.margins.bottom, 0])
     }
 
-    // componentDidUpdate() {
-    //     this.setState({
-    //         width: this.node.parentElement.offsetWidth,
-    //         height: this.node.parentElement.offsetHeight - 100
-    //     })
-    // }
+    updateChart () {
+        if (!this.data || this.data.length === 0) return
+        const mappedData = this.data.map(d => d[this.config.measures[0].ref])
 
-    drawChart () {
-        // const data = d3.range(1000).map(d3.randomBates(10));
-        // const formatCount = d3.format(",.0f");
-        // let svg = d3.select(this.node);
-
-        // console.log("offsetHeight", this.node.height);
-        // let margin = {top:10, right:10, left:10, bottom:10};
-        // let width = (svg.attr("width") as any ) - margin.left - margin.right,
+        this.xScale.domain(d3.extent(mappedData) as any)
+        this.bins
+            .domain(this.xScale.domain() as any)
+            .thresholds(this.xScale.ticks(20))
+        const myData = this.bins(mappedData)
+        this.yScale.domain([0, d3.max(myData, d => d.length)])
         this.setState({
-            width: this.node.parentElement.offsetWidth,
-            height: this.node.parentElement.offsetHeight - 100
+            chart: myData
         })
     }
 
+    componentDidMount () {
+        const config = store.getState().widgets.list.find(w => w._id === this.props.id)
+        this.xScale.rangeRound([0, this.props.width - config.margins.left - config.margins.right])
+        this.yScale.range([this.props.height - config.margins.top - config.margins.bottom, 0])
+        // this.setState({ config })
+        this.config = config
+
+        this.unsub = store.subscribe(() => {
+            const config = store.getState().widgets.list.find(w => w._id === this.props.id)
+            if (this.config !== config) {
+                this.config = config
+            }
+
+            const data = store.getState().widgets.data[this.props.id] || []
+            if (this.data === data) return
+            this.data = data
+            this.updateChart()
+        })
+    }
+
+    componentWillUnmount () {
+        this.unsub()
+    }
+
+    getBarSvg (data, index: number): JSX.Element {
+        return <rect key={index}
+            fill='steelblue'
+            x={this.xScale(data.x0) + 1}
+            y={this.yScale(data.length)}
+            height={this.yScale(0) - this.yScale(data.length)}
+            width={Math.max(0, this.xScale(data.x1) - this.xScale(data.x0) - 1)}>
+        </rect>
+    }
+
     render () {
-        return <svg ref={node => this.node = node} style={{ height: '100%', width: '100%' }}>
-            {this.node && <Test _id='dan' {...this.state} node={this.node} />}
+        if (!this.config) return <div />
+        return <svg
+            width={this.props.width}
+            height={this.props.height}>
+            <g transform={`translate(${this.config.margins.left}, ${this.config.margins.top})`}>
+                {this.state.chart.map((bin, index) => this.getBarSvg(bin, index))}
+            </g>
         </svg>
     }
 }
-
-interface TestProps {
-    height: number
-    width: number
-    _id: string
-    node: any
-}
-
-// class TestState {
-//     height: number
-//     width: number
-// }
