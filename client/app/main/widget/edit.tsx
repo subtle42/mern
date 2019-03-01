@@ -69,8 +69,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
     }
 
     const handleChange = (event: React.FormEvent<any>) => {
-        const target: any = event.target
-        rules.controls[target.name].value = target.value
+        utils.handleChange(event, rules)
         setRules(rules)
     }
 

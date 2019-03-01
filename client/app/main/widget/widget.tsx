@@ -17,11 +17,14 @@ interface Props {
 class State {
     widgetConfig: IWidget = undefined
     source: ISource = undefined
+    width: number = 0
+    height: number = 0
 }
 
 export class Widget extends React.Component<Props, State> {
     state = new State()
     unsubscribe: Function
+    myRef: any = React.createRef()
 
     getInitalState () {
         const storeState = store.getState()
@@ -38,6 +41,16 @@ export class Widget extends React.Component<Props, State> {
         })
     }
 
+    componentDidUpdate () {
+        const width = this.myRef.current.offsetWidth
+        const height = this.myRef.current.offsetHeight - 60
+        if (this.state.width === width && this.state.height === height) return
+        this.setState({
+            width,
+            height
+        })
+    }
+
     componentDidMount () {
         this.getInitalState()
 
@@ -48,7 +61,6 @@ export class Widget extends React.Component<Props, State> {
                     widgetConfig: newValue
                 })
                 WidgetActions.query(newValue)
-                .then(data => console.log(data))
                 .catch(err => console.warn(err))
             }
 
@@ -105,11 +117,13 @@ export class Widget extends React.Component<Props, State> {
                 <CardTitle style={{ margin: 0 }}>{this.state.source ? this.state.source.title : 'Loading..'}</CardTitle>
             </CardHeader>
             <CardBody style={{ height: '100%', padding: 0 }}>
-                {this.getDropdown()}
-                <Histogram
-                    id={this.props._id}
-                    height={300}
-                    width={300} />
+                <div ref={this.myRef} style={{ height: '100%', width: '100%' }}>
+                    {this.getDropdown()}
+                    <Histogram
+                        id={this.props._id}
+                        height={this.state.height}
+                        width={this.state.width} />
+                </div>
             </CardBody>
         </Card>)
     }
