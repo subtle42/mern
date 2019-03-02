@@ -4,7 +4,7 @@ import bookActions from 'data/books/actions'
 import { connect } from 'react-redux'
 import { IUser, IBook } from 'common/models'
 import { Link } from 'react-router-dom'
-import AddBookButton from '../main/book/add'
+import { CreateBookButton } from '../main/book/add'
 
 import {
     Collapse,
@@ -45,7 +45,7 @@ const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {
                         </DropdownItem>
                      })}
                      <DropdownItem divider />
-                     <AddBookButton />
+                     <CreateBookButton />
                  </DropdownMenu>
 
              </UncontrolledDropdown>

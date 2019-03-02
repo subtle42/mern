@@ -5,7 +5,7 @@ import * as Adapter from 'enzyme-adapter-react-16'
 import * as React from 'react'
 
 import { createSandbox, SinonSandbox, SinonFakeXMLHttpRequest } from 'sinon'
-import AddBook from './add'
+import { CreateBookButton } from './add'
 import * as utils from '../../../testUtils'
 import BookActions from 'data/books/actions'
 
@@ -24,7 +24,7 @@ describe('Book Add component', () => {
         xhr.onCreate = (fakeReq) => {
             reqs.push(fakeReq)
         }
-        wrapper = shallow(<AddBook />)
+        wrapper = shallow(<CreateBookButton />)
     })
 
     afterEach(() => {
