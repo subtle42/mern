@@ -27,3 +27,7 @@ export const debounce = (fn: Function, delay: number) => {
         }, delay)
     }
 }
+
+export const getError = (ctrl: FormCtrlGroup | FormControl | FormCtrlArray): string => {
+    return ctrl.error && ctrl.error.message
+}

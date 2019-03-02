@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route } from 'react-router-dom'
 import AuthActions from '../../data/auth/actions'
 import { IPage } from 'common/models'
 import MainPage from './content/content'
-import LoadingPage from '../logon/login'
+import { LoginPage } from '../logon/login'
 import RegisterPage from '../logon/register'
 import MainNavBar from '../nav/nav'
 import { AlertComponent } from '../_common/alert'
@@ -26,7 +26,7 @@ export class Main extends React.Component<{}, MyState> {
                     <AlertComponent />
                     <MainNavBar />
                     <Route exact path='/home' component={MainPage}/>
-                    <Route exact path='/login' component={LoadingPage}/>
+                    <Route exact path='/login' component={LoginPage}/>
                     <Route exact path='/register' component={RegisterPage}
                     />
                 </div>

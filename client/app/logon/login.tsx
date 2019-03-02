@@ -5,13 +5,16 @@ import AuthActions from 'data/auth/actions'
 import NotifActions from 'data/notifications/actions'
 import { FormCtrlGroup, FormControl } from '../_common/validation'
 import * as Validators from '../_common/validators'
+import * as utils from '../_common/utils'
 
 class State {
     rules: FormCtrlGroup
     loginSuccess?: boolean = false
 }
 
-export default class LoginPage extends React.Component<any, State> {
+interface Props {}
+
+export class LoginPage extends React.Component<Props, State> {
     state: State = new State()
 
     componentWillMount () {
@@ -29,8 +32,7 @@ export default class LoginPage extends React.Component<any, State> {
     }
 
     handleChange = (event: React.FormEvent<any>) => {
-        const target: any = event.target
-        this.state.rules.controls[target.name].value = target.value
+        utils.handleChange(event, this.state.rules)
         this.setState({
             rules: this.state.rules
         })
@@ -44,12 +46,6 @@ export default class LoginPage extends React.Component<any, State> {
             loginSuccess: true
         }))
         .catch(err => NotifActions.notify('danger', err))
-    }
-
-    getError = (field: string): string => {
-        return this.state.rules.controls[field].error
-            ? this.state.rules.controls[field].error.message
-            : ''
     }
 
     render () {
@@ -68,11 +64,11 @@ export default class LoginPage extends React.Component<any, State> {
                       <Input
                           type='email'
                           name='email'
-                          value={this.state.rules.controls.email.value}
-                          invalid={this.state.rules.controls.email.invalid}
+                          value={this.state.rules.get('email').value}
+                          invalid={this.state.rules.get('email').invalid}
                           placeholder='Email'
                           onChange={this.handleChange} />
-                        <FormFeedback>{this.getError('email')}</FormFeedback>
+                        <FormFeedback>{utils.getError(this.state.rules.get('email'))}</FormFeedback>
                     </Col>
                 </FormGroup>
                 <FormGroup id='formPassword'>
@@ -82,12 +78,12 @@ export default class LoginPage extends React.Component<any, State> {
                     <Col sm={10}>
                         <Input
                             type='text'
-                            value={this.state.rules.controls.password.value}
-                            invalid={this.state.rules.controls.password.invalid}
+                            value={this.state.rules.get('password').value}
+                            invalid={this.state.rules.get('password').invalid}
                             name='password'
                             placeholder='Password'
                             onChange={this.handleChange} />
-                        <FormFeedback>{this.getError('password')}</FormFeedback>
+                        <FormFeedback>{utils.getError(this.state.rules.get('password'))}</FormFeedback>
                     </Col>
                 </FormGroup>
                 <FormGroup>
