@@ -1,6 +1,12 @@
 import * as React from 'react'
-import { Form, Col, Input, Button, FormGroup, FormFeedback } from 'reactstrap'
 import { Redirect } from 'react-router-dom'
+import Form from 'reactstrap/lib/Form'
+import FormGroup from 'reactstrap/lib/FormGroup'
+import Col from 'reactstrap/lib/Col'
+import Input from 'reactstrap/lib/Input'
+import FormFeedback from 'reactstrap/lib/FormFeedback'
+import Button from 'reactstrap/lib/Button'
+
 import AuthActions from 'data/auth/actions'
 import NotifActions from 'data/notifications/actions'
 import { FormCtrlGroup, FormControl } from '../_common/validation'
@@ -21,11 +27,6 @@ export const LoginPage: React.StatelessComponent<Props> = (props: Props) => {
             Validators.maxLength(100)
         ])
     }))
-
-    const handleChange = (event: React.FormEvent<any>) => {
-        utils.handleChange(event, rules)
-        setRules(Object.create(rules))
-    }
 
     const tryLogin = () => {
         const { email, password } = rules.value
@@ -51,7 +52,7 @@ export const LoginPage: React.StatelessComponent<Props> = (props: Props) => {
                     value={rules.get('email').value}
                     invalid={rules.get('email').invalid}
                     placeholder='Email'
-                    onChange={handleChange} />
+                    onChange={e => utils.handleChange(e, rules, setRules)} />
                 <FormFeedback>{utils.getError(rules.get('email'))}</FormFeedback>
             </Col>
         </FormGroup>
@@ -66,7 +67,7 @@ export const LoginPage: React.StatelessComponent<Props> = (props: Props) => {
                     invalid={rules.get('password').invalid}
                     name='password'
                     placeholder='Password'
-                    onChange={handleChange} />
+                    onChange={e => utils.handleChange(e, rules, setRules)} />
                 <FormFeedback>{utils.getError(rules.get('password'))}</FormFeedback>
             </Col>
         </FormGroup>

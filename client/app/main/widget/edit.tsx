@@ -68,11 +68,6 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
         setOpen(!isOpen)
     }
 
-    const handleChange = (event: React.FormEvent<any>) => {
-        utils.handleChange(event, rules)
-        setRules(rules)
-    }
-
     const getFormTemplate = (): JSX.Element => {
         return <Form>
             <Row>
@@ -82,7 +77,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                         <Input
                             type='number'
                             name='margins.top'
-                            onChange={handleChange}
+                            onChange={e => utils.handleChange(e, rules, setRules)}
                             value={rules.get('margins').get('top').value}
                             invalid={rules.get('margins').get('top').error} />
                         <FormFeedback>{getErrorMsg(rules.get('margins').get('top'))}</FormFeedback>
@@ -93,8 +88,8 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                         <Label>Bottom</Label>
                         <Input
                             type='number'
-                            onChange={handleChange}
                             name='margins.bottom'
+                            onChange={e => utils.handleChange(e, rules, setRules)}
                             value={rules.get('margins').get('bottom').value}
                             invalid={rules.get('margins').get('bottom').error} />
                         <FormFeedback>{getErrorMsg(rules.get('margins').get('bottom'))}</FormFeedback>
@@ -107,8 +102,8 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                         <Label>Left</Label>
                         <Input
                             type='number'
-                            onChange={handleChange}
                             name='margins.left'
+                            onChange={e => utils.handleChange(e, rules, setRules)}
                             value={rules.get('margins').get('left').value}
                             invalid={rules.get('margins').get('left').error} />
                         <FormFeedback>{getErrorMsg(rules.get('margins').get('left'))}</FormFeedback>
@@ -119,8 +114,8 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                         <Label>Right</Label>
                         <Input
                             type='number'
-                            onChange={handleChange}
                             name='margins.right'
+                            onChange={e => utils.handleChange(e, rules, setRules)}
                             value={rules.get('margins').get('right').value}
                             invalid={rules.get('margins').get('right').error} />
                         <FormFeedback>{getErrorMsg(rules.get('margins').get('right'))}</FormFeedback>
