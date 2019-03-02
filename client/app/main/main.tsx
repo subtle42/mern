@@ -4,7 +4,7 @@ import AuthActions from '../../data/auth/actions'
 import { IPage } from 'common/models'
 import MainPage from './content/content'
 import { LoginPage } from '../logon/login'
-import RegisterPage from '../logon/register'
+import { RegisterPage } from '../logon/register'
 import MainNavBar from '../nav/nav'
 import { AlertComponent } from '../_common/alert'
 
@@ -20,17 +20,14 @@ export class Main extends React.Component<{}, MyState> {
     }
 
     render () {
-        return (
-            <Router>
-                <div>
-                    <AlertComponent />
-                    <MainNavBar />
-                    <Route exact path='/home' component={MainPage}/>
-                    <Route exact path='/login' component={LoginPage}/>
-                    <Route exact path='/register' component={RegisterPage}
-                    />
-                </div>
-            </Router>
-        )
+        return <Router>
+            <div>
+                <AlertComponent />
+                <MainNavBar />
+                <Route exact path='/home' component={MainPage}/>
+                <Route exact path='/login' component={LoginPage}/>
+                <Route exact path='/register' component={RegisterPage}/>
+            </div>
+        </Router>
     }
 }

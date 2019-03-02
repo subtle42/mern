@@ -2,13 +2,10 @@ import * as React from 'react'
 import Form from 'reactstrap/lib/Form'
 import Row from 'reactstrap/lib/Row'
 import Col from 'reactstrap/lib/Col'
-import { FormCtrlGroup, FormControl, ValidatorFn } from '../../_common/validation'
-import * as Validators from '../../_common/validators'
 import Input from 'reactstrap/lib/Input'
 import FormFeedback from 'reactstrap/lib/FormFeedback'
 import FormGroup from 'reactstrap/lib/FormGroup'
 import Label from 'reactstrap/lib/Label'
-import { store } from 'data/store'
 import Modal from 'reactstrap/lib/Modal'
 import ModalHeader from 'reactstrap/lib/ModalHeader'
 import ModalBody from 'reactstrap/lib/ModalBody'
@@ -17,10 +14,13 @@ import Button from 'reactstrap/lib/Button'
 import Nav from 'reactstrap/lib/Nav'
 import NavItem from 'reactstrap/lib/NavItem'
 import NavLink from 'reactstrap/lib/NavLink'
-import * as FontAwesome from 'react-fontawesome'
 import TabContent from 'reactstrap/lib/TabContent'
 import TabPane from 'reactstrap/lib/TabPane'
+import * as FontAwesome from 'react-fontawesome'
 import { IWidget, ISource } from 'common/models'
+import { store } from 'data/store'
+import { FormCtrlGroup, FormControl, ValidatorFn } from '../../_common/validation'
+import * as Validators from '../../_common/validators'
 import * as utils from '../../_common/utils'
 
 interface Props {
@@ -52,10 +52,6 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
     const [currentTab, setTab] = React.useState('general')
 
-    const getErrorMsg = (msg) => {
-        return msg.error && msg.error.message
-    }
-
     const toggleModal = () => {
         if (!isOpen) {
             config = store.getState().widgets.list
@@ -80,7 +76,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                             onChange={e => utils.handleChange(e, rules, setRules)}
                             value={rules.get('margins').get('top').value}
                             invalid={rules.get('margins').get('top').error} />
-                        <FormFeedback>{getErrorMsg(rules.get('margins').get('top'))}</FormFeedback>
+                        <FormFeedback>{utils.getError(rules.get('margins').get('top'))}</FormFeedback>
                     </FormGroup>
                 </Col>
                 <Col>
@@ -92,7 +88,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                             onChange={e => utils.handleChange(e, rules, setRules)}
                             value={rules.get('margins').get('bottom').value}
                             invalid={rules.get('margins').get('bottom').error} />
-                        <FormFeedback>{getErrorMsg(rules.get('margins').get('bottom'))}</FormFeedback>
+                        <FormFeedback>{utils.getError(rules.get('margins').get('bottom'))}</FormFeedback>
                     </FormGroup>
                 </Col>
             </Row>
@@ -106,7 +102,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                             onChange={e => utils.handleChange(e, rules, setRules)}
                             value={rules.get('margins').get('left').value}
                             invalid={rules.get('margins').get('left').error} />
-                        <FormFeedback>{getErrorMsg(rules.get('margins').get('left'))}</FormFeedback>
+                        <FormFeedback>{utils.getError(rules.get('margins').get('left'))}</FormFeedback>
                     </FormGroup>
                 </Col>
                 <Col>
@@ -118,7 +114,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                             onChange={e => utils.handleChange(e, rules, setRules)}
                             value={rules.get('margins').get('right').value}
                             invalid={rules.get('margins').get('right').error} />
-                        <FormFeedback>{getErrorMsg(rules.get('margins').get('right'))}</FormFeedback>
+                        <FormFeedback>{utils.getError(rules.get('margins').get('right'))}</FormFeedback>
                     </FormGroup>
                 </Col>
             </Row>
