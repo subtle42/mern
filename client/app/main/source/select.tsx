@@ -1,169 +1,131 @@
 import * as React from 'react'
+import Button from 'reactstrap/lib/Button'
+import ModalBody from 'reactstrap/lib/ModalBody'
+import Progress from 'reactstrap/lib/Progress'
+import Row from 'reactstrap/lib/Row'
+import ListGroup from 'reactstrap/lib/ListGroup'
+import Col from 'reactstrap/lib/Col'
+import ListGroupItem from 'reactstrap/lib/ListGroupItem'
+import ModalFooter from 'reactstrap/lib/ModalFooter'
 import * as Loadable from 'react-loadable'
-import { Button, ModalBody, ModalFooter, Row, Col, ListGroup, ListGroupItem, Progress } from 'reactstrap'
 import { ImageFile } from 'react-dropzone'
+import * as FontAwesome from 'react-fontawesome'
+
 import SourceActions from 'data/sources/actions'
+import NotifActions from 'data/notifications/actions'
 import { store } from 'data/store'
 import { ISource } from 'common/models'
-import * as FontAwesome from 'react-fontawesome'
 import Loading from '../../_common/loading'
 
-class State {
-    sources: ISource[] = []
-    selected: ISource = undefined
-    tooltipOpen: boolean = false
-    isLoading: boolean = false
-}
-
 interface Props {
+    selectedId?: string
     done: (source: ISource) => void
     editSource: (source: ISource) => void
     cancel: () => void
 }
 
-export class SelectSourceContent extends React.Component<Props, State> {
-    state: State = new State()
+export const SelectSource: React.StatelessComponent<Props> = (props: Props) => {
+    const getSelected = (): ISource => {
+        return props.selectedId ?
+            store.getState().sources.list.find(s => s._id === props.selectedId)
+            : undefined
+    }
 
-    Dropzone = Loadable({
+    const [isLoading, setLoading] = React.useState(false)
+    const [selected, setSelected] = React.useState(getSelected())
+    const [sources, setSources] = React.useState(store.getState().sources.list)
+
+    const Dropzone = Loadable({
         loader: () => import('react-dropzone').then(mod => mod.default),
         loading () {
             return <Loading/>
         }
     })
 
-    componentDidMount () {
-        store.subscribe(() => {
-            const storeSources = store.getState().sources.list
-            if (storeSources === this.state.sources) return
-            this.setState({
-                sources: storeSources
-            })
-        })
+    const sourceDetails = (): JSX.Element => {
+        if (!selected) return <div/>
 
-        this.setState({
-            sources: store.getState().sources.list
-        })
+        return <div>
+            Title: {selected.title} <br />
+            Owner: {selected.owner} <br />
+            Row Count: {selected.rowCount} <br />
+            Size: {selected.size} <br />
+        </div>
     }
 
-    next = () => {
-        this.props.done(this.state.selected)
-        let resetState = new State()
-        resetState.sources = this.state.sources
-        this.setState(resetState)
-    }
-
-    cancel = () => {
-        let resetState = new State()
-        resetState.sources = this.state.sources
-        this.setState(resetState)
-        this.props.cancel()
-    }
-
-    onFileDrop = (acceptedFiles: ImageFile[], rejectedFiles: ImageFile[]) => {
+    const onFileDrop = (acceptedFiles: ImageFile[], rejectedFiles: ImageFile[]) => {
         // Needed to make sure there is no memory leak
         acceptedFiles.forEach(file => window.URL.revokeObjectURL(file.preview))
         rejectedFiles.forEach(file => window.URL.revokeObjectURL(file.preview))
 
         const reader = new FileReader()
         reader.onloadend = (event) => {
-            this.setState({ isLoading: true })
+            setLoading(true)
             SourceActions.create(acceptedFiles[0])
-            .then(sourceId => {
-                this.setState({ isLoading: false })
-                this.props.done(this.state.sources.filter(s => s._id === sourceId)[0])
-            })
-            .catch(() => this.setState({ isLoading: false }))
+            .then(sourceId => props.done(sources.find(s => s._id === sourceId)))
+            .catch(err => NotifActions.error(err.message))
+            .then(() => setLoading(false))
         }
         reader.readAsArrayBuffer(acceptedFiles[0])
     }
 
-    getModal (): JSX.Element {
-        return <div>
-            {this.renderHeader()}
-            {this.renderBody()}
-            {this.renderFooter()}
+    const renderHeader = (): JSX.Element => {
+        return <div className='modal-header'>
+            <h5>Sources</h5>
+            <Dropzone disabled={isLoading}
+                onDrop={onFileDrop}
+                style={{ width: 'max-content' }}>
+                <Button color='general' id='TooltipExample'>
+                    <FontAwesome name='file' />
+                </Button>
+            </Dropzone>
         </div>
     }
 
-    renderHeader (): JSX.Element {
-        return (
-            <div className='modal-header'>
-                <h5>Sources</h5>
-                <this.Dropzone disabled={this.state.isLoading} onDrop={this.onFileDrop} style={{ width: 'max-content' }} >
-                    <Button color='general' id='TooltipExample'>
-                        <FontAwesome name='file' />
-                    </Button>
-                    {/* <Tooltip placement="bottom"
-                        isOpen={this.state.tooltipOpen}
-                        target="TooltipExample" toggle={this.toggle}>
-                        Import File
-                    </Tooltip> */}
-                </this.Dropzone>
-            </div>
-        )
-    }
-
-    renderBody (): JSX.Element {
-        if (this.state.isLoading) {
-            return <ModalBody>{this.getLoadingBar()}</ModalBody>
+    const renderBody = (): JSX.Element => {
+        if (isLoading) {
+            return <ModalBody>
+                <Progress animated color='info' value={100}></Progress>
+            </ModalBody>
         }
 
         return <ModalBody><Row>
-            <Col xs={6}> <ListGroup>
-                {this.state.sources.map((source) => <ListGroupItem
-                    className={source === this.state.selected && 'active'}
+            <Col xs={6}><ListGroup>
+                {sources.map(source => <ListGroupItem
+                    className={source === selected && 'active'}
                     href='#'
                     key={source._id}
-                    onClick={() => this.setSource(source)}> {source.title}
-                    <FontAwesome onClick={event => this.props.editSource(source)}
-                        name='edit'
-                        style={{ float: 'right', cursor: 'pointer' }}
-                    />
+                    onClick={() => setSelected(source)}>
+                    {source.title}
+                    <FontAwesome name='edit'
+                        onClick={() => props.editSource(source)}
+                        style={{ float: 'right', cursor: 'pointer' }}/>
                 </ListGroupItem>)}
             </ListGroup></Col>
             <Col xs={6}>
-                {this.sourceDetails()}
+                {sourceDetails()}
             </Col>
         </Row></ModalBody>
     }
 
-    renderFooter (): JSX.Element {
-        return (
-            <ModalFooter style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button color='primary' disabled={!this.state.selected || this.state.isLoading}
-                    style={{ marginRight: 20 }}
-                    onClick={() => this.next()}
-                >Next</Button>
-                <Button disabled={this.state.isLoading}
-                    color='secondary'
-                    onClick={this.cancel}
-                >Cancel</Button>
-            </ModalFooter>
-        )
+    const renderFooter = (): JSX.Element => {
+        return <ModalFooter style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button color='primary'
+                disabled={!selected || isLoading}
+                onClick={() => props.done(selected)}>
+                Next
+            </Button>
+            <Button color='secondary'
+                disabled={isLoading}
+                onClick={() => props.cancel()}>
+                Cancel
+            </Button>
+        </ModalFooter>
     }
 
-    setSource = (source: ISource): void => {
-        this.setState({
-            selected: this.state.selected === source ? undefined : source
-        })
-    }
-
-    getLoadingBar (): JSX.Element {
-        return <Progress animated color='info' value={100}></Progress>
-    }
-
-    sourceDetails (): JSX.Element {
-        if (!this.state.selected) return <div/>
-
-        return (<div>
-            Title: {this.state.selected.title} <br />
-            Owner: {this.state.selected.owner} <br />
-            Row Count: {this.state.selected.rowCount} <br />
-            Size: {this.state.selected.size} <br />
-        </div>)
-    }
-
-    render () {
-        return this.getModal()
-    }
+    return <div>
+        {renderHeader()}
+        {renderBody()}
+        {renderFooter()}
+    </div>
 }

@@ -4,7 +4,7 @@ import widgetActions from 'data/widgets/actions'
 import NotifActions from 'data/notifications/actions'
 import { ISource } from 'common/models'
 import { EditSourceContent } from './edit'
-import { SelectSourceContent } from './select'
+import { SelectSource } from './select'
 import { SelectWidget } from '../widget/select'
 import * as FontAwesome from 'react-fontawesome'
 import './style.css'
@@ -34,7 +34,8 @@ export const SourceCreateButton: React.StatelessComponent<Props> = (props: Props
 
     const getModalTemplate = (): JSX.Element => {
         if (mode === 'selectSource') {
-            return <SelectSourceContent
+            return <SelectSource
+            selectedId={source && source._id}
             done={confirmed => {
                 setSource(confirmed)
                 setMode('selectWidget')
