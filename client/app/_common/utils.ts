@@ -1,6 +1,8 @@
 import { FormCtrlGroup, FormControl, FormCtrlArray } from './validation'
 
 const getSchemaFromEvent = (event, schema: FormCtrlGroup | FormControl | FormCtrlArray): FormControl => {
+    if (event.target.name === '') return schema as FormControl
+
     event.target.name.split('.').forEach(attr => {
         if (attr.indexOf('[') !== -1) {
             const firstPart = attr.split('[')[0]

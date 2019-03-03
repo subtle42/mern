@@ -1,163 +1,89 @@
 import * as React from 'react'
-import { InputGroup, Button, Input, Label, Row, Col, ListGroup, ListGroupItem, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Form, FormGroup, ModalHeader, ModalBody, ModalFooter, InputGroupAddon } from 'reactstrap'
+import Button from 'reactstrap/lib/Button'
+import Input from 'reactstrap/lib/Input'
+import ListGroup from 'reactstrap/lib/ListGroup'
+import ListGroupItem from 'reactstrap/lib/ListGroupItem'
+import Row from 'reactstrap/lib/Row'
+import Col from 'reactstrap/lib/Col'
+import ModalHeader from 'reactstrap/lib/ModalHeader'
+import ModalBody from 'reactstrap/lib/ModalBody'
+import Form from 'reactstrap/lib/Form'
+import FormGroup from 'reactstrap/lib/FormGroup'
+import Label from 'reactstrap/lib/Label'
+import ModalFooter from 'reactstrap/lib/ModalFooter'
+import FormFeedback from 'reactstrap/lib/FormFeedback'
+import CustomInput from 'reactstrap/lib/CustomInput'
+
 import { store } from '../../../data/store'
-import { ISource, ISourceColumn, ColumnType } from 'common/models'
-import * as FontAwesome from 'react-fontawesome'
+import { ISource } from 'common/models'
 import sourceActions from 'data/sources/actions'
+import NotifActions from 'data/notifications/actions'
+import { FormControl, FormCtrlGroup, FormCtrlArray } from '../../_common/validation'
+import * as Validators from '../../_common/validators'
+import * as utils from '../../_common/utils'
 
-interface DropOption {
-    label: string
-    value: ColumnType
-}
-
-const dropDownOptions: DropOption[] = [{
-    label: 'Number',
-    value: 'number'
-}, {
-    label: 'Group',
-    value: 'group'
-}, {
-    label: 'Text',
-    value: 'text'
-}]
-
-interface DropProps extends ISourceColumn {
-    color: string
-    colRef: string
-    selectType: (ref: string, type: ColumnType) => void
-}
-
-class ColumnTypeDropdown extends React.Component<DropProps, {}> {
-    state = {
-        dropdownOpen: false
-    }
-
-    toggle = () => {
-        this.setState({
-            dropdownOpen: !this.state.dropdownOpen
-        })
-    }
-
-    render () {
-        return <Dropdown size='sm' style={{ float: 'right' }} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-            <DropdownToggle outline color={this.props.color !== '' ? this.props.color : 'secondary'} caret>
-                {dropDownOptions.filter(option => option.value === this.props.type)[0].label}
-            </DropdownToggle>
-            <DropdownMenu>
-                {dropDownOptions
-                .filter(option => option.value !== this.props.type)
-                .map((option, index) => {
-                    return (<DropdownItem
-                        key={index}
-                        onClick={() => this.props.selectType(this.props.colRef, option.value)}>
-                            {option.label}
-                    </DropdownItem>)
-                })}
-            </DropdownMenu>
-        </Dropdown>
-    }
-}
-
-interface ColumnNameFieldProps extends ISourceColumn {
-    update: (name: string) => void
-}
-
-class ColumnNameState {
-    isEditing: boolean = false
-    changedName: string = ''
-}
-
-class ColumnNameField extends React.Component<ColumnNameFieldProps, ColumnNameState> {
-    state = new ColumnNameState()
-
-    setEditMode = (): void => {
-        this.setState({
-            changedName: this.props.name,
-            isEditing: true
-        })
-    }
-
-    done = (): void => {
-        this.props.update(this.state.changedName)
-        this.setState(new ColumnNameState())
-    }
-
-    handleChange = (event: React.FormEvent<any>) => {
-        const target: any = event.target
-        this.setState({
-            changedName: target.value
-        })
-    }
-
-    render () {
-        return <div>
-            <span hidden={this.state.isEditing}>
-                {this.props.name}
-                <FontAwesome name='edit'
-                    style={{ paddingLeft: 10, cursor: 'pointer' }}
-                    onClick={() => this.setEditMode()} />
-            </span>
-            <InputGroup hidden={!this.state.isEditing}>
-                <InputGroupAddon addonType='prepend'>
-                    <Button color='primary' onClick={() => this.done()}>Done</Button>
-                </InputGroupAddon>
-                <Input onChange={this.handleChange} value={this.state.changedName} />
-            </InputGroup>
-        </div>
-    }
-}
-
-class State {
-    toEdit: ISource
-}
+import { ColumnNameField } from './edit/columnName'
+import { ColumnTypeDropdown } from './edit/columnType'
 
 interface Props {
     _id: any
     done: () => void
 }
 
-export class EditSourceContent extends React.Component<Props, State> {
-    state = new State()
+export const EditSource: React.StatelessComponent<Props> = (props: Props) => {
+    const toEdit: ISource = store.getState().sources.list.find(s => s._id === props._id)
+    const [rules, setRules] = React.useState(new FormCtrlGroup({
+        title: new FormControl(toEdit.title, [
+            Validators.isRequired,
+            Validators.max(30)
+        ]),
+        isPublic: new FormControl(toEdit.isPublic),
+        columns: new FormCtrlArray(
+            toEdit.columns.map(col => new FormCtrlGroup({
+                name: new FormControl(col.name),
+                ref: new FormControl(col.ref),
+                type: new FormControl(col.type)
+            }))
+        )
+    }))
 
-    componentDidMount () {
-        const tmp = store.getState().sources.list.filter(source => source._id === this.props._id)[0]
-        this.setState({
-            toEdit: tmp
-        })
+    const save = (): void => {
+        const tmp = Object.assign({}, toEdit, rules.value)
+        sourceActions.update(tmp)
+        .then(() => NotifActions.success(`Updated source: ${tmp.title}`))
+        .then(() => props.done())
+        .catch(err => NotifActions.error(err.message))
     }
 
-    setColumnType (ref: string, newType: ColumnType) {
-        let toEditCol = this.state.toEdit.columns.filter(col => col.ref === ref)[0]
-        toEditCol.type = newType
-        this.setState({
-            toEdit: this.state.toEdit
-        })
+    const getColumnColor = (type: string): string => {
+        if (type === 'number') {
+            return 'info'
+        } else if (type === 'group') {
+            return 'success'
+        }
+        return ''
     }
 
-    setColumnName (ref: string, newName: string) {
-        let toEditCol = this.state.toEdit.columns.filter(col => col.ref === ref)[0]
-        toEditCol.name = newName
-        this.setState({
-            toEdit: this.state.toEdit
-        })
+    const updateColumn = (index: number, field: string, value: string) => {
+        rules.get('columns').get(index).get(field).value = value
+        setRules(Object.create(rules))
     }
 
-    renderColumns (columns: ISourceColumn[]): JSX.Element {
+    const renderColumns = (columns: FormCtrlGroup[]): JSX.Element => {
         return <ListGroup style={{ height: 300, overflowY: 'auto' }}>
-            {this.state.toEdit.columns.map(sourceCol => {
+            {columns.map((sourceCol, index) => {
                 return <ListGroupItem
-                    color={this.getColumnColor(sourceCol)}
-                    key={sourceCol.ref}>
+                    color={getColumnColor(sourceCol.get('type').value)}
+                    key={index}>
                     <Row>
                         <Col xs={10}>
-                            <ColumnNameField {...sourceCol}
-                            update={(newName) => this.setColumnName(sourceCol.ref, newName)} />
+                            <ColumnNameField name={sourceCol.get('name').value}
+                            update={newName => updateColumn(index, 'name', newName)} />
                         </Col>
                         <Col xs={2}>
                             <ColumnTypeDropdown
-                            selectType={(ref, type) => this.setColumnType(ref, type)}
-                            colRef={sourceCol.ref} {...sourceCol}
-                            color={this.getColumnColor(sourceCol)} />
+                            selectType={type => updateColumn(index, 'type', type)}
+                            type={sourceCol.get('type').value} />
                         </Col>
                     </Row>
                 </ListGroupItem>
@@ -165,44 +91,17 @@ export class EditSourceContent extends React.Component<Props, State> {
         </ListGroup>
     }
 
-    getColumnColor (col: ISourceColumn): string {
-        if (col.type === 'number') {
-            return 'info'
-        } else if (col.type === 'group') {
-            return 'success'
-        }
-        return ''
-    }
-
-    handleChange = (event: any): void => {
-        const target: any = event.target
-        this.state.toEdit[target.name] = target.value
-        this.setState({
-            toEdit: this.state.toEdit
-        })
-    }
-
-    handleCheckbox = (event: any): void => {
-        const target: any = event.target
-        this.state.toEdit[target.name] = target.value === 'true' ? false : true
-        this.setState({
-            toEdit: this.state.toEdit
-        })
-    }
-
-    getHeader (): JSX.Element {
-        return <ModalHeader>Edit Source</ModalHeader>
-    }
-
-    getBody (): JSX.Element {
+    const getBody = (): JSX.Element => {
         return <ModalBody>
             <Form>
                 <FormGroup row>
                     <Label xs={2}>Title:</Label>
                     <Col xs={10}>
                         <Input name='title'
-                        onChange={this.handleChange}
-                        value={this.state.toEdit.title} />
+                        onChange={utils.handleChange(rules, setRules)}
+                        value={rules.get('title').value}
+                        invalid={rules.get('title').invalid}/>
+                        <FormFeedback>{utils.getError(rules.get('title'))}</FormFeedback>
                     </Col>
                 </FormGroup>
                 <FormGroup row>
@@ -210,50 +109,36 @@ export class EditSourceContent extends React.Component<Props, State> {
                         Is Public:
                     </Label>
                     <Col xs={10}>
-                        <Input type='checkbox'
-                        onChange={this.handleCheckbox}
-                        style={{ marginLeft: 0 }}
-                        id='isPublicInput'
-                        name='isPublic'
-                        value={this.state.toEdit.isPublic.toString()}
-                        checked={this.state.toEdit.isPublic} />
+                        <CustomInput id='isPublic'
+                            type='switch'
+                            name='isPublic'
+                            onChange={utils.handleToggle(rules, setRules)}
+                            checked={rules.get('isPublic').value}>
+                        </CustomInput>
                     </Col>
                 </FormGroup>
                 <Row>
                     <Col xs={12}>
-                        {this.renderColumns(this.state.toEdit.columns)}
+                        {renderColumns(rules.get('columns').controls as FormCtrlGroup[])}
                     </Col>
                 </Row>
             </Form>
         </ModalBody>
     }
 
-    getFooter (): JSX.Element {
+    const getFooter = (): JSX.Element => {
         return <ModalFooter>
-            <Button color='primary' onClick={this.save}>Save</Button>
-            <Button color='secondary' onClick={this.cancel}>Cancel</Button>
+            <Button color='primary' onClick={e => save()}>Save</Button>
+            <Button color='secondary'
+                onClick={e => props.done()}>
+                Cancel
+            </Button>
         </ModalFooter>
     }
 
-    getModal = (): JSX.Element => {
-        if (!this.state.toEdit) return <div/>
-        return <div>
-            {this.getHeader()}
-            {this.getBody()}
-            {this.getFooter()}
-        </div>
-    }
-
-    save = (event): void => {
-        sourceActions.update(this.state.toEdit)
-        .then(() => this.props.done())
-    }
-
-    cancel = (): void => {
-        this.props.done()
-    }
-
-    render () {
-        return this.getModal()
-    }
+    return <div>
+        <ModalHeader>Edit Source</ModalHeader>
+        {getBody()}
+        {getFooter()}
+    </div>
 }

@@ -3,7 +3,7 @@ import { Modal } from 'reactstrap'
 import widgetActions from 'data/widgets/actions'
 import NotifActions from 'data/notifications/actions'
 import { ISource } from 'common/models'
-import { EditSourceContent } from './edit'
+import { EditSource } from './edit'
 import { SelectSource } from './select'
 import { SelectWidget } from '../widget/select'
 import * as FontAwesome from 'react-fontawesome'
@@ -48,7 +48,7 @@ export const SourceCreateButton: React.StatelessComponent<Props> = (props: Props
         }
 
         if (mode === 'editSource') {
-            return <EditSourceContent
+            return <EditSource
             _id={source._id}
             done={() => setMode('selectSource')} />
         }
@@ -63,8 +63,10 @@ export const SourceCreateButton: React.StatelessComponent<Props> = (props: Props
         return <div/>
     }
 
-    return <div className='fixed-plugin-left' onClick={open}>
-        <FontAwesome style={{ paddingTop: 6 }} size='2x' name='plus' />
+    return <div>
+        <div className='fixed-plugin-left' onClick={open}>
+            <FontAwesome style={{ paddingTop: 6 }} size='2x' name='plus' />
+        </div>
         <Modal size='lg' isOpen={isOpen}>
             {getModalTemplate()}
         </Modal>

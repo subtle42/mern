@@ -48,7 +48,7 @@ export class FormControl {
         this.dirty = true
         this.data = value
         this.runValidation()
-        this.parent.digest()
+        this.parent && this.parent.digest()
     }
 
     private runValidation () {
