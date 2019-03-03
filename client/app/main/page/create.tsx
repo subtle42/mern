@@ -1,96 +1,89 @@
 import * as React from 'react'
-import { Modal, ModalBody, ModalHeader, ModalFooter, Label, Input, Button, FormGroup, NavItem, NavLink, FormFeedback } from 'reactstrap'
-import pageActions from 'data/pages/actions'
+import ModalHeader from 'reactstrap/lib/ModalHeader'
+import ModalBody from 'reactstrap/lib/ModalBody'
+import FormGroup from 'reactstrap/lib/FormGroup'
+import Label from 'reactstrap/lib/Label'
+import Input from 'reactstrap/lib/Input'
+import FormFeedback from 'reactstrap/lib/FormFeedback'
+import ModalFooter from 'reactstrap/lib/ModalFooter'
+import Button from 'reactstrap/lib/Button'
+import NavItem from 'reactstrap/lib/NavItem'
+import NavLink from 'reactstrap/lib/NavLink'
 import * as FontAwesome from 'react-fontawesome'
+
+import pageActions from 'data/pages/actions'
+import NotifActions from 'data/notifications/actions'
 import { FormCtrlGroup, FormControl } from '../../_common/validation'
 import * as Validators from '../../_common/validators'
-import NotifActions from 'data/notifications/actions'
-
-class State {
-    showModal?: boolean = false
-    rules: FormCtrlGroup
-}
+import * as utils from '../../_common/utils'
+import Modal from 'reactstrap/lib/Modal'
 
 interface Props {
     _id?: string
 }
 
-export class CreatePageButton extends React.Component<Props, State> {
-    state: State = new State()
+export const CreatePageButton: React.StatelessComponent<Props> = (props: Props) => {
+    const [isOpen, setOpen] = React.useState(false)
+    const [rules, setRules] = React.useState(new FormCtrlGroup({
+        title: new FormControl('', [
+            Validators.isRequired,
+            Validators.minLength(3),
+            Validators.maxLength(15)
+        ])
+    }))
 
-    componentWillMount () {
-        const rules = new FormCtrlGroup({
-            title: new FormControl('', [
-                Validators.isRequired,
-                Validators.minLength(3),
-                Validators.maxLength(15)
-            ])
-        })
-        this.setState({ rules })
+    const cancel = (event: React.FormEvent<any>) => {
+        if (event) event.stopPropagation()
+        setOpen(false)
     }
 
-    close = (event?) => {
+    const open = (event: React.FormEvent<any>) => {
         if (event) event.stopPropagation()
-        const formValues = this.state.rules.value
-        pageActions.create(formValues.title)
+        setOpen(true)
+        rules.reset()
+        setRules(rules)
+    }
+
+    const close = (event: React.FormEvent<any>) => {
+        if (event) event.stopPropagation()
+        const title: string = rules.value.title
+        pageActions.create(title)
         .then(pageId => pageActions.select(pageId))
-        .then(() => NotifActions.notify('success', `Created page: ${formValues.title}`))
-        .then(() => this.toggle())
-        .catch(err => NotifActions.notify('danger', JSON.stringify(err)))
+        .then(() => NotifActions.notify('success', `Created page: ${title}`))
+        .then(() => setOpen(false))
+        .catch(err => NotifActions.notify('danger', err.message))
     }
 
-    toggle = (event?) => {
-        if (event) event.stopPropagation()
-        this.state.rules.reset()
-        this.setState({
-            showModal: !this.state.showModal,
-            rules: this.state.rules
-        })
+    const getModalTemplate = (): JSX.Element => {
+        return <Modal size='sm' isOpen={isOpen}>
+            <ModalHeader>Create Page</ModalHeader>
+            <ModalBody>
+                <FormGroup>
+                    <Label>Name:</Label>
+                    <Input
+                        type='text'
+                        name='title'
+                        placeholder='Enter Name'
+                        onChange={utils.handleChange(rules, setRules)}
+                        value={rules.get('title').value}
+                        invalid={rules.get('title').invalid}/>
+                    <FormFeedback>{utils.getError(rules.get('title'))}</FormFeedback>
+                </FormGroup>
+            </ModalBody>
+            <ModalFooter>
+                <Button color='primary'
+                    disabled={rules.invalid || rules.pristine}
+                    onClick={close}
+                >Create</Button>
+                <Button color='secondary' onClick={cancel}>Cancel</Button>
+            </ModalFooter>
+        </Modal>
     }
 
-    handleChange = (event: React.FormEvent<any>) => {
-        const target: any = event.target
-        this.state.rules.controls[target.name].value = target.value
-        this.setState(this.state)
-    }
-
-    getError (field: string): string {
-        return this.state.rules.controls[field].error
-            ? this.state.rules.controls[field].error.message
-            : ''
-    }
-
-    render () {
-        return (
-            <NavItem onClick={this.toggle}>
-                <NavLink style={{ height: 42 }}>
-                    <FontAwesome name='plus' />
-                </NavLink>
-                <Modal size='sm' isOpen={this.state.showModal}>
-                    <ModalHeader>Create Page</ModalHeader>
-                    <ModalBody>
-                        <FormGroup>
-                            <Label>Name:</Label>
-                            <Input
-                                type='text'
-                                name='title'
-                                placeholder='Enter Name'
-                                onChange={this.handleChange}
-                                value={this.state.rules.controls.title.value}
-                                invalid={this.state.rules.controls.title.invalid}
-                            />
-                            <FormFeedback>{this.getError('title')}</FormFeedback>
-                        </FormGroup>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button color='primary'
-                            disabled={this.state.rules.invalid || this.state.rules.pristine}
-                            onClick={this.close}
-                        >Create</Button>
-                        <Button color='secondary' onClick={this.toggle}>Cancel</Button>
-                    </ModalFooter>
-                </Modal>
-            </NavItem>
-        )
-    }
+    return <NavItem onClick={open}>
+        <NavLink style={{ height: 42 }}>
+            <FontAwesome name='plus' />
+        </NavLink>
+        {getModalTemplate()}
+    </NavItem>
 }

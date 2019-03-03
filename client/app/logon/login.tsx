@@ -52,7 +52,7 @@ export const LoginPage: React.StatelessComponent<Props> = (props: Props) => {
                     value={rules.get('email').value}
                     invalid={rules.get('email').invalid}
                     placeholder='Email'
-                    onChange={e => utils.handleChange(e, rules, setRules)} />
+                    onChange={utils.handleChange(rules, setRules)} />
                 <FormFeedback>{utils.getError(rules.get('email'))}</FormFeedback>
             </Col>
         </FormGroup>
@@ -67,7 +67,7 @@ export const LoginPage: React.StatelessComponent<Props> = (props: Props) => {
                     invalid={rules.get('password').invalid}
                     name='password'
                     placeholder='Password'
-                    onChange={e => utils.handleChange(e, rules, setRules)} />
+                    onChange={utils.handleChange(rules, setRules)} />
                 <FormFeedback>{utils.getError(rules.get('password'))}</FormFeedback>
             </Col>
         </FormGroup>

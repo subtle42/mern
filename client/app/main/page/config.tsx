@@ -110,7 +110,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                             placeholder='Enter Name'
                             value={rules.get('name').value}
                             invalid={rules.get('name').invalid}
-                            onChange={e => utils.handleChange(e, rules, setRules)} />
+                            onChange={utils.handleChange(rules, setRules)} />
                         <FormFeedback>{utils.getError(rules.get('name'))}</FormFeedback>
                     </FormGroup>
                 </Col>
@@ -123,7 +123,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                             max={30}
                             value={rules.get('cols').value}
                             invalid={rules.get('cols').invalid}
-                            onChange={e => utils.handleChange(e, rules, setRules)}
+                            onChange={utils.handleChange(rules, setRules)}
                             name='cols' />
                         <FormFeedback>{utils.getError(rules.get('cols'))}</FormFeedback>
                     </FormGroup>
@@ -139,7 +139,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                             max={100}
                             value={rules.get('margin').get(0).value}
                             invalid={rules.get('margin').get(0).invalid}
-                            onChange={e => utils.handleChange(e, rules, setRules)}
+                            onChange={utils.handleChange(rules, setRules)}
                             name='margin[0]' />
                         <FormFeedback>{utils.getError(rules.get('margin').get(0))}</FormFeedback>
                     </FormGroup>
@@ -153,7 +153,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                             max={100}
                             value={rules.get('margin').get(1).value}
                             invalid={rules.get('margin').get(1).invalid}
-                            onChange={e => utils.handleChange(e, rules, setRules)}
+                            onChange={utils.handleChange(rules, setRules)}
                             name='margin[1]' />
                         <FormFeedback>{utils.getError(rules.get('margin').get(1))}</FormFeedback>
                     </FormGroup>
@@ -167,7 +167,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                             max={100}
                             value={rules.get('containerPadding').get(0).value}
                             invalid={rules.get('containerPadding').get(0).invalid}
-                            onChange={e => utils.handleChange(e, rules, setRules)}
+                            onChange={utils.handleChange(rules, setRules)}
                             name='containerPadding[0]' />
                         <FormFeedback>{utils.getError(rules.get('containerPadding').get(0))}</FormFeedback>
                     </FormGroup>
@@ -181,7 +181,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                             max={100}
                             value={rules.get('containerPadding').get(1).value}
                             invalid={rules.get('containerPadding').get(1).invalid}
-                            onChange={e => utils.handleChange(e, rules, setRules)}
+                            onChange={utils.handleChange(rules, setRules)}
                             name='containerPadding[1]' />
                         <FormFeedback>{utils.getError(rules.get('containerPadding').get(1))}</FormFeedback>
                     </FormGroup>
@@ -194,7 +194,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                             type='switch'
                             name='isDraggable'
                             label='Is Draggable'
-                            onChange={e => utils.handleToggle(e, rules, setRules)}
+                            onChange={utils.handleToggle(rules, setRules)}
                             checked={rules.get('isDraggable').value}>
                             <FontAwesome
                                 name='question-circle'
@@ -213,7 +213,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                         <CustomInput id='isResizable'
                             type='switch'
                             label='Is Resizable'
-                            onChange={e => utils.handleToggle(e, rules, setRules)}
+                            onChange={utils.handleToggle(rules, setRules)}
                             name='isResizable'
                             checked={rules.get('isResizable').value}>
                             <FontAwesome
@@ -234,7 +234,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                             type='switch'
                             name='isRearrangeable'
                             label='Is Rearrangeable'
-                            onChange={e => utils.handleToggle(e, rules, setRules)}
+                            onChange={utils.handleToggle(rules, setRules)}
                             checked={rules.get('isRearrangeable').value}>
                             <FontAwesome
                                 name='question-circle'

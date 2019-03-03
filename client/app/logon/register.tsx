@@ -58,7 +58,7 @@ export const RegisterPage: React.StatelessComponent<Props> = (props: Props) => {
                     value={rules.get('name').value}
                     invalid={rules.get('name').invalid}
                     placeholder='User Name'
-                    onChange={e => utils.handleChange(e, rules, setRules)} />
+                    onChange={utils.handleChange(rules, setRules)} />
                 <FormFeedback>{utils.getError(rules.get('name'))}</FormFeedback>
             </Col>
         </FormGroup>
@@ -73,7 +73,7 @@ export const RegisterPage: React.StatelessComponent<Props> = (props: Props) => {
                     value={rules.get('email').value}
                     invalid={rules.get('email').invalid}
                     placeholder='Email'
-                    onChange={e => utils.handleChange(e, rules, setRules)} />
+                    onChange={utils.handleChange(rules, setRules)} />
                 <FormFeedback>{utils.getError(rules.get('email'))}</FormFeedback>
             </Col>
         </FormGroup>
@@ -88,7 +88,7 @@ export const RegisterPage: React.StatelessComponent<Props> = (props: Props) => {
                     placeholder='Password'
                     value={rules.get('password').value}
                     invalid={rules.get('password').invalid}
-                    onChange={e => utils.handleChange(e, rules, setRules)} />
+                    onChange={utils.handleChange(rules, setRules)} />
                 <FormFeedback>{utils.getError(rules.get('password'))}</FormFeedback>
             </Col>
         </FormGroup>

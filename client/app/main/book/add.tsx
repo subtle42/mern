@@ -56,7 +56,7 @@ export const CreateBookButton: React.StatelessComponent<Props> = (prop: Props) =
                         type='text'
                         name='title'
                         placeholder='Enter Name'
-                        onChange={e => utils.handleChange(e, rules, setRules)}
+                        onChange={utils.handleChange(rules, setRules)}
                         value={rules.get('title').value}
                         invalid={rules.get('title').invalid} />
                     <FormFeedback>{utils.getError(rules.get('title'))}</FormFeedback>

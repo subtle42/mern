@@ -73,7 +73,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                         <Input
                             type='number'
                             name='margins.top'
-                            onChange={e => utils.handleChange(e, rules, setRules)}
+                            onChange={utils.handleChange(rules, setRules)}
                             value={rules.get('margins').get('top').value}
                             invalid={rules.get('margins').get('top').error} />
                         <FormFeedback>{utils.getError(rules.get('margins').get('top'))}</FormFeedback>
@@ -85,7 +85,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                         <Input
                             type='number'
                             name='margins.bottom'
-                            onChange={e => utils.handleChange(e, rules, setRules)}
+                            onChange={utils.handleChange(rules, setRules)}
                             value={rules.get('margins').get('bottom').value}
                             invalid={rules.get('margins').get('bottom').error} />
                         <FormFeedback>{utils.getError(rules.get('margins').get('bottom'))}</FormFeedback>
@@ -99,7 +99,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                         <Input
                             type='number'
                             name='margins.left'
-                            onChange={e => utils.handleChange(e, rules, setRules)}
+                            onChange={utils.handleChange(rules, setRules)}
                             value={rules.get('margins').get('left').value}
                             invalid={rules.get('margins').get('left').error} />
                         <FormFeedback>{utils.getError(rules.get('margins').get('left'))}</FormFeedback>
@@ -111,7 +111,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                         <Input
                             type='number'
                             name='margins.right'
-                            onChange={e => utils.handleChange(e, rules, setRules)}
+                            onChange={utils.handleChange(rules, setRules)}
                             value={rules.get('margins').get('right').value}
                             invalid={rules.get('margins').get('right').error} />
                         <FormFeedback>{utils.getError(rules.get('margins').get('right'))}</FormFeedback>
