@@ -23,6 +23,14 @@ class NotificationActions {
         })
     }
 
+    success (message: string, duration?: number): void {
+        this.notify('success', message, duration)
+    }
+
+    error (message: string, duration?: number): void {
+        this.notify('danger', message, duration)
+    }
+
     notify (type: NotifColors, message: string, duration?: number): void {
         this.dispatch('add', {
             message,

@@ -18,9 +18,7 @@ import * as Validators from '../../_common/validators'
 import * as utils from '../../_common/utils'
 import Modal from 'reactstrap/lib/Modal'
 
-interface Props {
-    _id?: string
-}
+interface Props {}
 
 export const CreatePageButton: React.StatelessComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
