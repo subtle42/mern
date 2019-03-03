@@ -12,6 +12,7 @@ import CustomInput from 'reactstrap/lib/CustomInput'
 import Input from 'reactstrap/lib/Input'
 import FormFeedback from 'reactstrap/lib/FormFeedback'
 import Form from 'reactstrap/lib/Form'
+import FormGroup from 'reactstrap/lib/FormGroup'
 import * as FontAwesome from 'react-fontawesome'
 
 import PageActions from 'data/pages/actions'
@@ -101,133 +102,151 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
         return <Form>
             <Row>
                 <Col xs={6}>
-                    <Label>Name:</Label>
-                    <Input
-                        type='text'
-                        name='name'
-                        placeholder='Enter Name'
-                        value={rules.get('name').value}
-                        invalid={rules.get('name').invalid}
-                        onChange={e => utils.handleChange(e, rules, setRules)} />
-                    <FormFeedback>{utils.getError(rules.get('name'))}</FormFeedback>
+                    <FormGroup>
+                        <Label>Name:</Label>
+                        <Input
+                            type='text'
+                            name='name'
+                            placeholder='Enter Name'
+                            value={rules.get('name').value}
+                            invalid={rules.get('name').invalid}
+                            onChange={e => utils.handleChange(e, rules, setRules)} />
+                        <FormFeedback>{utils.getError(rules.get('name'))}</FormFeedback>
+                    </FormGroup>
                 </Col>
                 <Col xs={6}>
-                    <Label>Column Count</Label>
-                    <Input
-                        type='number'
-                        min={1}
-                        max={30}
-                        value={rules.get('cols').value}
-                        invalid={rules.get('cols').invalid}
-                        onChange={e => utils.handleChange(e, rules, setRules)}
-                        name='cols' />
-                    <FormFeedback>{utils.getError(rules.get('cols'))}</FormFeedback>
+                    <FormGroup>
+                        <Label>Column Count</Label>
+                        <Input
+                            type='number'
+                            min={1}
+                            max={30}
+                            value={rules.get('cols').value}
+                            invalid={rules.get('cols').invalid}
+                            onChange={e => utils.handleChange(e, rules, setRules)}
+                            name='cols' />
+                        <FormFeedback>{utils.getError(rules.get('cols'))}</FormFeedback>
+                    </FormGroup>
                 </Col>
             </Row>
-            <Row className='row-padding'>
+            <Row>
                 <Col xs={3}>
-                    <Label>Margins</Label>
-                    <Input
-                        type='number'
-                        min={0}
-                        max={100}
-                        value={rules.get('margin').get(0).value}
-                        invalid={rules.get('margin').get(0).invalid}
-                        onChange={e => utils.handleChange(e, rules, setRules)}
-                        name='margin[0]' />
-                    <FormFeedback>{utils.getError(rules.get('margin').get(0))}</FormFeedback>
+                    <FormGroup>
+                        <Label>Margins</Label>
+                        <Input
+                            type='number'
+                            min={0}
+                            max={100}
+                            value={rules.get('margin').get(0).value}
+                            invalid={rules.get('margin').get(0).invalid}
+                            onChange={e => utils.handleChange(e, rules, setRules)}
+                            name='margin[0]' />
+                        <FormFeedback>{utils.getError(rules.get('margin').get(0))}</FormFeedback>
+                    </FormGroup>
                 </Col>
                 <Col xs={3}>
-                    <Label>Margins</Label>
-                    <Input
-                        type='number'
-                        min={0}
-                        max={100}
-                        value={rules.get('margin').get(1).value}
-                        invalid={rules.get('margin').get(1).invalid}
-                        onChange={e => utils.handleChange(e, rules, setRules)}
-                        name='margin[1]' />
-                    <FormFeedback>{utils.getError(rules.get('margin').get(1))}</FormFeedback>
+                    <FormGroup>
+                        <Label>Margins</Label>
+                        <Input
+                            type='number'
+                            min={0}
+                            max={100}
+                            value={rules.get('margin').get(1).value}
+                            invalid={rules.get('margin').get(1).invalid}
+                            onChange={e => utils.handleChange(e, rules, setRules)}
+                            name='margin[1]' />
+                        <FormFeedback>{utils.getError(rules.get('margin').get(1))}</FormFeedback>
+                    </FormGroup>
                 </Col>
                 <Col xs={3}>
-                    <Label>Padding</Label>
-                    <Input
-                        type='number'
-                        min={0}
-                        max={100}
-                        value={rules.get('containerPadding').get(0).value}
-                        invalid={rules.get('containerPadding').get(0).invalid}
-                        onChange={e => utils.handleChange(e, rules, setRules)}
-                        name='containerPadding[0]' />
-                    <FormFeedback>{utils.getError(rules.get('containerPadding').get(0))}</FormFeedback>
+                    <FormGroup>
+                        <Label>Padding</Label>
+                        <Input
+                            type='number'
+                            min={0}
+                            max={100}
+                            value={rules.get('containerPadding').get(0).value}
+                            invalid={rules.get('containerPadding').get(0).invalid}
+                            onChange={e => utils.handleChange(e, rules, setRules)}
+                            name='containerPadding[0]' />
+                        <FormFeedback>{utils.getError(rules.get('containerPadding').get(0))}</FormFeedback>
+                    </FormGroup>
                 </Col>
                 <Col xs={3}>
-                    <Label>Padding</Label>
-                    <Input
-                        type='number'
-                        min={0}
-                        max={100}
-                        value={rules.get('containerPadding').get(1).value}
-                        invalid={rules.get('containerPadding').get(1).invalid}
-                        onChange={e => utils.handleChange(e, rules, setRules)}
-                        name='containerPadding[1]' />
-                    <FormFeedback>{utils.getError(rules.get('containerPadding').get(1))}</FormFeedback>
+                    <FormGroup>
+                        <Label>Padding</Label>
+                        <Input
+                            type='number'
+                            min={0}
+                            max={100}
+                            value={rules.get('containerPadding').get(1).value}
+                            invalid={rules.get('containerPadding').get(1).invalid}
+                            onChange={e => utils.handleChange(e, rules, setRules)}
+                            name='containerPadding[1]' />
+                        <FormFeedback>{utils.getError(rules.get('containerPadding').get(1))}</FormFeedback>
+                    </FormGroup>
                 </Col>
             </Row>
-            <Row className='row-padding' style={{ marginTop: 20 }}>
+            <Row style={{ marginTop: 10 }}>
                 <Col xs={3}>
-                    <CustomInput id='isDraggable'
-                        type='switch'
-                        name='isDraggable'
-                        label='Is Draggable'
-                        onChange={e => utils.handleToggle(e, rules, setRules)}
-                        checked={rules.get('isDraggable').value}>
-                        <FontAwesome
-                            name='question-circle'
-                            id='draggable-tip'
-                            style={{ marginLeft: 10 }}/>
-                        <Tooltip isOpen={tips.draggable}
-                            toggle={() => toggleTooltip('draggable')}
-                            target='draggable-tip'>
-                            If turned off it will disable dragging on all widgets.
-                        </Tooltip>
-                    </CustomInput>
+                   <FormGroup>
+                        <CustomInput id='isDraggable'
+                            type='switch'
+                            name='isDraggable'
+                            label='Is Draggable'
+                            onChange={e => utils.handleToggle(e, rules, setRules)}
+                            checked={rules.get('isDraggable').value}>
+                            <FontAwesome
+                                name='question-circle'
+                                id='draggable-tip'
+                                style={{ marginLeft: 10 }}/>
+                            <Tooltip isOpen={tips.draggable}
+                                toggle={() => toggleTooltip('draggable')}
+                                target='draggable-tip'>
+                                If turned off it will disable dragging on all widgets.
+                            </Tooltip>
+                        </CustomInput>
+                    </FormGroup>
                 </Col>
                 <Col xs={3}>
-                    <CustomInput id='isResizable'
-                        type='switch'
-                        label='Is Resizable'
-                        onChange={e => utils.handleToggle(e, rules, setRules)}
-                        name='isResizable'
-                        checked={rules.get('isResizable').value}>
-                        <FontAwesome
-                            name='question-circle'
-                            id='resizable-tip'
-                            style={{ marginLeft: 10 }}/>
-                        <Tooltip isOpen={tips.resizable}
-                            toggle={() => toggleTooltip('resizable')}
-                            target='resizable-tip'>
-                            If turned off it will resizing dragging on all widgets.
-                        </Tooltip>
-                    </CustomInput>
+                    <FormGroup>
+                        <CustomInput id='isResizable'
+                            type='switch'
+                            label='Is Resizable'
+                            onChange={e => utils.handleToggle(e, rules, setRules)}
+                            name='isResizable'
+                            checked={rules.get('isResizable').value}>
+                            <FontAwesome
+                                name='question-circle'
+                                id='resizable-tip'
+                                style={{ marginLeft: 10 }}/>
+                            <Tooltip isOpen={tips.resizable}
+                                toggle={() => toggleTooltip('resizable')}
+                                target='resizable-tip'>
+                                If turned off it will resizing dragging on all widgets.
+                            </Tooltip>
+                        </CustomInput>
+                    </FormGroup>
                 </Col>
                 <Col xs={6}>
-                    <CustomInput id='isRearrangeable'
-                        type='switch'
-                        name='isRearrangeable'
-                        label='Is Rearrangeable'
-                        onChange={e => utils.handleToggle(e, rules, setRules)}
-                        checked={rules.get('isRearrangeable').value}>
-                        <FontAwesome
-                            name='question-circle'
-                            id='rearrangeable-tip'
-                            style={{ marginLeft: 10 }}/>
-                        <Tooltip isOpen={tips.rearrangeable}
-                            toggle={() => toggleTooltip('rearrangeable')}
-                            target='rearrangeable-tip'>
-                            Enable or disable grid rearrangement when dragging/resizing a widget.
-                        </Tooltip>
-                    </CustomInput>
+                    <FormGroup>
+                        <CustomInput id='isRearrangeable'
+                            type='switch'
+                            name='isRearrangeable'
+                            label='Is Rearrangeable'
+                            onChange={e => utils.handleToggle(e, rules, setRules)}
+                            checked={rules.get('isRearrangeable').value}>
+                            <FontAwesome
+                                name='question-circle'
+                                id='rearrangeable-tip'
+                                style={{ marginLeft: 10 }}/>
+                            <Tooltip isOpen={tips.rearrangeable}
+                                toggle={() => toggleTooltip('rearrangeable')}
+                                target='rearrangeable-tip'>
+                                Enable or disable grid rearrangement when dragging/resizing a widget.
+                            </Tooltip>
+                        </CustomInput>
+                    </FormGroup>
                 </Col>
             </Row>
         </Form>
