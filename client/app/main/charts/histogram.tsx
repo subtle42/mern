@@ -28,6 +28,7 @@ export class Histogram extends React.Component<Props, State> {
         if (!this.config) return
         if (!this.height || !this.width) return
         if (!this.data || this.data.length === 0) return
+        if (!this.data[0][this.config.measures[0].ref]) return
         const mappedData = this.data.map(d => d[this.config.measures[0].ref])
         this.setRanges()
         this.xScale.domain(d3.extent(mappedData) as any)
