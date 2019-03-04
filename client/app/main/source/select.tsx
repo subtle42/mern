@@ -15,7 +15,7 @@ import SourceActions from 'data/sources/actions'
 import NotifActions from 'data/notifications/actions'
 import { store } from 'data/store'
 import { ISource } from 'common/models'
-import Loading from '../../_common/loading'
+import { Loading } from '../../_common/loading'
 
 interface Props {
     selectedId?: string

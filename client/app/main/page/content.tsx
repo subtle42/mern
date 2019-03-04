@@ -7,7 +7,7 @@ import { Widget } from '../widget/widget'
 import PageActions from 'data/pages/actions'
 import widgetActions from 'data/widgets/actions'
 import * as Loadable from 'react-loadable'
-import Loading from '../../_common/loading'
+import { Loading } from '../../_common/loading'
 import { StoreModel } from 'data/store'
 
 interface Props {

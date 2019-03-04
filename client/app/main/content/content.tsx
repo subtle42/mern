@@ -8,7 +8,7 @@ import { PageConfigButton } from '../page/config'
 import { SourceCreateButton } from '../source/modal'
 import { PageContent } from '../page/content'
 import { StoreModel } from 'data/store'
-import Loading from '../../_common/loading'
+import { Loading } from '../../_common/loading'
 
 import * as Loadable from 'react-loadable'
 

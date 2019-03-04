@@ -1,53 +1,51 @@
-import { ModalHeader, ModalBody, ModalFooter, Modal, Button } from 'reactstrap'
 import * as React from 'react'
+import Modal from 'reactstrap/lib/Modal'
+import ModalHeader from 'reactstrap/lib/ModalHeader'
+import ModalBody from 'reactstrap/lib/ModalBody'
+import ModalFooter from 'reactstrap/lib/ModalFooter'
+import Button from 'reactstrap/lib/Button'
 
 interface Props {
     header: string
     message: string
+    children?: React.ReactNode
 }
 
-class State {
-    showModal: boolean = false
-}
-
-export class ConfirmModal extends React.Component<Props, State> {
-    state: State = new State()
-    // Copying children and replacing click event
-    newChildren = React.Children.map(this.props.children, child => {
+export const ConfirmModal: React.StatelessComponent<Props> = (props: Props) => {
+    const [isOpen, setOpen] = React.useState(false)
+    const newChildren = React.Children.map(props.children, child => {
         return React.cloneElement(child as any, {
-            onClick: (event) => this.open(event)
+            onClick: (event) => open(event)
         })
     })
 
-    open = (event) => {
+    const open = (event: React.FormEvent<any>) => {
         if (event) event.stopPropagation()
-        this.setState({ showModal: true })
+        setOpen(true)
     }
 
-    cancel = () => {
-        this.setState(new State())
+    const cancel = () => {
+        setOpen(false)
     }
 
-    close = (event) => {
+    const close = (event: React.FormEvent<any>) => {
         if (event) event.stopPropagation()
-        this.setState(new State())
-        const tmp: any = this.props.children
+        setOpen(false)
+        const tmp: any = props.children
         tmp.props.onClick()
     }
 
-    render () {
-        return (<span>
-            {this.newChildren}
-            <Modal size='sm'
-            isOpen={this.state.showModal}
-            onClosed={this.cancel}>
-                <ModalHeader>{this.props.header}</ModalHeader>
-                <ModalBody>{this.props.message}</ModalBody>
-                <ModalFooter>
-                    <Button onClick={this.cancel} color='secondary'>Cancel</Button>
-                    <Button onClick={this.close} color='primary'>Confirm</Button>
-                </ModalFooter>
-            </Modal>
-        </span>)
-    }
+    return <span>
+        {newChildren}
+        <Modal size='sm'
+        isOpen={isOpen}
+        onClosed={cancel}>
+            <ModalHeader>{props.header}</ModalHeader>
+            <ModalBody>{props.message}</ModalBody>
+            <ModalFooter>
+                <Button onClick={cancel} color='secondary'>Cancel</Button>
+                <Button onClick={close} color='primary'>Confirm</Button>
+            </ModalFooter>
+        </Modal>
+    </span>
 }
