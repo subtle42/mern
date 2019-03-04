@@ -2,6 +2,7 @@ import { store } from '../store'
 import BaseActions from '../baseActions'
 import axios from 'axios'
 import { ISource, IWidget, IQuery } from 'common/models'
+import DataActions from '../data/actions'
 
 class WidgetActions extends BaseActions {
     constructor (store) {
@@ -33,17 +34,7 @@ class WidgetActions extends BaseActions {
         this.sendDispatch('setSize', { id: id, size: { width, height } })
     }
     query (widget: IWidget): Promise<void> {
-        const query: IQuery = {
-            sourceId: widget.sourceId,
-            measures: widget.measures,
-            dimensions: widget.dimensions,
-            filters: []
-        }
-        return axios.post(`/api/sources/query`, query)
-        .then(res => this.sendDispatch('setData', {
-            _id: widget._id,
-            data: res.data
-        }))
+        return DataActions.query(widget)
     }
 }
 

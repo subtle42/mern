@@ -21,7 +21,12 @@ const ContentComponent: React.StatelessComponent<Props> = (props: Props) => {
         onDragStop: (layout: ReactGridLayout.Layout[]) => {
             PageActions.update(Object.assign({}, props.page, { layout }))
         },
-        onResizeStop: (layout: ReactGridLayout.Layout[]) => {
+        onResizeStop: (layout: ReactGridLayout.Layout[],
+            oldItem: ReactGridLayout.Layout,
+            newItem: ReactGridLayout.Layout,
+            placeholder: ReactGridLayout.Layout,
+            event, element) => {
+            widgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight)
             PageActions.update(Object.assign({}, props.page, { layout }))
         },
         onResize: (layout: ReactGridLayout.Layout[],
@@ -29,7 +34,7 @@ const ContentComponent: React.StatelessComponent<Props> = (props: Props) => {
             newItem: ReactGridLayout.Layout,
             placeholder: ReactGridLayout.Layout,
             event, element) => {
-            widgetActions.setSize(oldItem.i, event.path[1].offsetHeight - 100, event.path[1].offsetWidth)
+            widgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 60)
         }
     }
 

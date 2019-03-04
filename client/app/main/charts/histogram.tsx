@@ -11,8 +11,6 @@ class State {
 
 interface Props {
     id: string
-    width: number
-    height: number
 }
 
 export class Histogram extends React.Component<Props, State> {
@@ -23,20 +21,12 @@ export class Histogram extends React.Component<Props, State> {
     unsub: Unsubscribe
     data: any[] = []
     config: IWidget
-
-    componentWillUpdate () {
-        this.updateChart()
-    }
-
-    shouldComponentUpdate (nextProps: Props, nextState: State) {
-        if (!nextProps.height || !nextProps.width) return false
-        if (nextState.chart.length !== this.state.chart.length) return true
-        if (nextProps.height === this.props.height && nextProps.width === this.props.width) return false
-        return true
-    }
+    height: number
+    width: number
 
     updateChart () {
-        if (!this.props.height || !this.props.width) return
+        if (!this.config) return
+        if (!this.height || !this.width) return
         if (!this.data || this.data.length === 0) return
         const mappedData = this.data.map(d => d[this.config.measures[0].ref])
         this.setRanges()
@@ -53,15 +43,27 @@ export class Histogram extends React.Component<Props, State> {
 
     componentDidMount () {
         this.config = store.getState().widgets.list.find(w => w._id === this.props.id)
-        this.setRanges()
+        this.data = store.getState().data.results[this.props.id]
+        this.updateChart()
 
         this.unsub = store.subscribe(() => {
+            if (store.getState().widgets.sizes[this.props.id]) {
+                const { width, height } = store.getState().widgets.sizes[this.props.id]
+
+                if (this.width !== width || this.height !== height) {
+                    this.width = width
+                    this.height = height
+                    this.updateChart()
+                }
+            }
+
             const config = store.getState().widgets.list.find(w => w._id === this.props.id)
             if (this.config !== config) {
                 this.config = config
+                this.updateChart()
             }
 
-            const data = store.getState().widgets.data[this.props.id] || []
+            const data = store.getState().data.results[this.props.id] || []
             if (this.data !== data) {
                 this.data = data
                 this.updateChart()
@@ -71,9 +73,9 @@ export class Histogram extends React.Component<Props, State> {
 
     setRanges () {
         if (!this.config) return
-        if (!this.props.height || !this.props.width) return
-        this.xScale.rangeRound([0, this.props.width - this.config.margins.left - this.config.margins.right])
-        this.yScale.range([this.props.height - this.config.margins.top - this.config.margins.bottom, 0])
+        if (!this.height || !this.width) return
+        this.xScale.rangeRound([0, this.width - this.config.margins.left - this.config.margins.right])
+        this.yScale.range([this.height - this.config.margins.top - this.config.margins.bottom, 0])
     }
 
     componentWillUnmount () {
@@ -93,8 +95,8 @@ export class Histogram extends React.Component<Props, State> {
     render () {
         if (!this.config) return <div />
         return <svg
-            width={this.props.width}
-            height={this.props.height}>
+            width={this.width}
+            height={this.height}>
             <g transform={`translate(${this.config.margins.left}, ${this.config.margins.top})`}>
                 {this.state.chart.map((bin, index) => this.getBarSvg(bin, index))}
             </g>

@@ -1,13 +1,19 @@
 import * as React from 'react'
+import Card from 'reactstrap/lib/Card'
+import CardHeader from 'reactstrap/lib/CardHeader'
+import Button from 'reactstrap/lib/Button'
+import CardTitle from 'reactstrap/lib/CardTitle'
+import CardBody from 'reactstrap/lib/CardBody'
+import * as FontAwesome from 'react-fontawesome'
+
 import { IWidget, ISource, ISourceColumn } from 'common/models'
 import { store } from 'data/store'
 import WidgetActions from 'data/widgets/actions'
+import NotifyActions from 'data/notifications/actions'
+
 import { Histogram } from '../charts/histogram'
 import { MeasureDropdown } from '../charts/chart'
-import * as FontAwesome from 'react-fontawesome'
-import { Card, CardBody, CardTitle, Button, CardHeader } from 'reactstrap'
 import { ConfirmModal } from '../../_common/confirmation'
-import NotifyActions from 'data/notifications/actions'
 import { EditButton } from './edit'
 
 interface Props {
@@ -35,6 +41,7 @@ export class Widget extends React.Component<Props, State> {
             WidgetActions.query(widget)
             .catch(err => console.warn(err))
         }
+
         this.setState({
             widgetConfig: widget,
             source: source
@@ -44,11 +51,9 @@ export class Widget extends React.Component<Props, State> {
     componentDidUpdate () {
         const width = this.myRef.current.offsetWidth
         const height = this.myRef.current.offsetHeight - 60
+        if (!this.state.widgetConfig) return
         if (this.state.width === width && this.state.height === height) return
-        this.setState({
-            width,
-            height
-        })
+        WidgetActions.setSize(this.state.widgetConfig._id, width, height)
     }
 
     componentDidMount () {
@@ -60,8 +65,6 @@ export class Widget extends React.Component<Props, State> {
                 this.setState({
                     widgetConfig: newValue
                 })
-                WidgetActions.query(newValue)
-                .catch(err => console.warn(err))
             }
 
             if (!this.state.widgetConfig) return
@@ -81,7 +84,8 @@ export class Widget extends React.Component<Props, State> {
 
     removeWidget () {
         WidgetActions.delete(this.props._id)
-        .catch(err => NotifyActions.notify('danger', JSON.stringify(err)))
+        .then(() => NotifyActions.success('Widget removed'))
+        .catch(err => NotifyActions.error(err.message))
     }
 
     getDropdown (): JSX.Element {
@@ -99,18 +103,20 @@ export class Widget extends React.Component<Props, State> {
             ref: col.ref
         }
         WidgetActions.update(this.state.widgetConfig)
+        .then(() => WidgetActions.query(this.state.widgetConfig))
     }
 
     render () {
-        return (<Card style={{ height: '100%' }}>
+        return <Card style={{ height: '100%' }}>
             <CardHeader style={{ padding: 0, border: 0 }} color='secondary'>
                 <EditButton id={this.props._id} />
                 <ConfirmModal header='Delete Widget'
                     message='Are you sure you want to delete this widget?'>
-                    <Button onClick={() => this.removeWidget()}
+                    <Button color='secondary'
                         className='pull-right'
-                        color='secondary'
-                        outline size='small'>
+                        size='small'
+                        outline
+                        onClick={() => this.removeWidget()}>
                         <FontAwesome name='times' />
                     </Button>
                 </ConfirmModal>
@@ -120,11 +126,9 @@ export class Widget extends React.Component<Props, State> {
                 <div ref={this.myRef} style={{ height: '100%', width: '100%' }}>
                     {this.getDropdown()}
                     <Histogram
-                        id={this.props._id}
-                        height={this.state.height}
-                        width={this.state.width} />
+                        id={this.props._id}/>
                 </div>
             </CardBody>
-        </Card>)
+        </Card>
     }
 }
