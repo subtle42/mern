@@ -8,7 +8,9 @@ let myFactory = Object.assign({}, factory, {
         return store
     },
     setData: (store: WidgetStore, payload: any): WidgetStore => {
-        store.data = { ...store.data, [payload._id]: payload.data }
+        store = { ...store }
+        store.data = { ...store.data }
+        store.data[payload._id] = payload.data
         return store
     }
 })

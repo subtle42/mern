@@ -9,19 +9,13 @@ interface Props {
     done: (chartType: string) => void
 }
 
-class State {
-    selected: ChartConf
-}
-
 class ChartConf {
     name: string
     type: ChartType
-    requires: ChartConfReq[]
-}
-
-class ChartConfReq {
-    count: number
-    colType: ColumnType
+    requires: {
+        count: number,
+        colType: ColumnType
+    }[]
 }
 
 const chartConfList: ChartConf[] = [{
@@ -53,22 +47,16 @@ const chartConfList: ChartConf[] = [{
     }]
 }]
 
-export class SelectWidget extends React.Component<Props, State> {
-    state = new State()
-    rowSize = 4
+export const SelectWidget: React.StatelessComponent<Props> = (props: Props) => {
+    const [selected, setSelected] = React.useState(undefined as ChartConf)
+    const rowSize = 4
 
-    selectConfig (item: ChartConf) {
-        this.setState({
-            selected: item
-        })
-    }
-
-    buildRows (): JSX.Element[] {
-        const availableCharts = chartConfList.filter(x => true)
+    const buildRows = (): JSX.Element[] => {
+        const availableCharts = chartConfList.filter(x => x)
         let rows: ChartConf[][] = []
         let position = -1
         availableCharts.forEach((item, index) => {
-            if (index % this.rowSize === 0) {
+            if (index % rowSize === 0) {
                 position++
                 rows[position] = []
             }
@@ -76,54 +64,49 @@ export class SelectWidget extends React.Component<Props, State> {
         })
 
         return rows.map((row, rowIndex) => {
-            return (<Row key={rowIndex}>
+            return <Row key={rowIndex}>
             {row.map((col, colIndex) => {
-                return (<Col key={colIndex} xs={12 / this.rowSize}>
+                return <Col key={colIndex} xs={12 / rowSize}>
                     <Button
-                        onClick={() => this.selectConfig(col)}
-                        color={col === this.state.selected ? 'primary' : 'warning'}
+                        onClick={() => setSelected(col)}
+                        color={col === selected ? 'primary' : 'warning'}
                         size='large'>
                         <FontAwesome name='puzzle-piece' size='4x' />
                         <br/>
                         {col.name}
                     </Button>
-                </Col>)
+                </Col>
             })}
-            </Row>)
+            </Row>
         })
     }
 
-    renderFooter (): JSX.Element {
+    const renderFooter = (): JSX.Element => {
         return <ModalFooter style={{ display: 'flex', justifyContent: 'space-between' }}>
             <div>
-                <Button
-                    color='secondary'
-                    onClick={() => this.props.back()}
-                >Back</Button>
+                <Button color='secondary'
+                    onClick={() => props.back()}>
+                    Back
+                </Button>
             </div>
             <div>
-                <Button color='primary' disabled={!this.state.selected}
+                <Button color='primary'
+                    disabled={!selected}
                     style={{ marginRight: 20 }}
-                    onClick={() => this.props.done(this.state.selected.type)}>
+                    onClick={() => props.done(selected.type)}>
                     Create
                 </Button>
                 <Button color='secondary'
-                    onClick={() => this.props.cancel()}>
+                    onClick={() => props.cancel()}>
                     Cancel
                 </Button>
             </div>
         </ModalFooter>
     }
 
-    renderModal (): JSX.Element {
-        return <div>
-            <ModalHeader>Select Chart Type</ModalHeader>
-            <ModalBody>{this.buildRows()}</ModalBody>
-            {this.renderFooter()}
-        </div>
-    }
-
-    render () {
-        return this.renderModal()
-    }
+    return <div>
+        <ModalHeader>Select Chart Type</ModalHeader>
+        <ModalBody>{buildRows()}</ModalBody>
+        {renderFooter()}
+    </div>
 }

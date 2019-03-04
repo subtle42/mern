@@ -47,6 +47,7 @@ export class MeasureDropdown extends React.Component<DropdownProps, DropdownStat
     render () {
         return (
             <ButtonDropdown
+                size='sm'
                 className='column-btn'
                 isOpen={this.state.dropdownOpen}
                 style={{ fontSize: 10 }}
@@ -65,42 +66,6 @@ export class MeasureDropdown extends React.Component<DropdownProps, DropdownStat
                         })}
                 </DropdownMenu>
             </ButtonDropdown>
-        )
-    }
-}
-
-export class Chart extends React.Component<Props, State> {
-    state: State = new State()
-    node: SVGGElement
-    width: number
-    height: number
-
-    componentDidMount () {
-        // setTimeout(() => this.getDimensions(), 0);
-        const mySource = store.getState().sources.list.filter(source => source._id === this.props.sourceId)[0]
-        this.setState({
-            source: mySource
-        })
-    }
-
-    getDimensions () {
-        // let margin = {top:10, right:10, left:10, bottom:10};
-        this.width = this.node.parentElement.offsetWidth - this.props.margins.left - this.props.margins.right,
-        this.height = this.node.parentElement.offsetHeight - this.props.margins.top - this.props.margins.bottom - 22 * 2
-    }
-
-    render () {
-        if (!this.props.measures) {
-            return <div></div>
-        }
-        // this.getDimensions();
-        return (
-            <div>
-                {/* <MeasureDropdown sourceId={this.props.sourceId} colId={this.props.measures[0].ref} colType="number"/> */}
-                <svg ref={node => this.node = node} width={300} height={300}>
-                </svg>
-            </div>
-
         )
     }
 }
