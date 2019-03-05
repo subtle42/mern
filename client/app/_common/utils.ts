@@ -6,7 +6,7 @@ const getSchemaFromEvent = (event, schema: FormCtrlGroup | FormControl | FormCtr
     event.target.name.split('.').forEach(attr => {
         if (attr.indexOf('[') !== -1) {
             const firstPart = attr.split('[')[0]
-            const index: number = parseInt(this.getBracketValue.exec(attr)[1], 10)
+            const index: number = parseInt(attr.match(/\[(.*?)\]/)[1], 10)
             schema = schema.controls[firstPart]
             schema = schema.controls[index]
         } else {

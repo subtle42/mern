@@ -276,8 +276,10 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
         </Modal>
     }
 
-    return <div className='fixed-plugin' onClick={() => open()}>
-        <FontAwesome style={{ paddingTop: 6 }} size='2x' name='cog' />
+    return <div>
+        <div className='fixed-plugin' onClick={() => open()}>
+            <FontAwesome style={{ paddingTop: 6 }} size='2x' name='cog' />
+        </div>
         {getModal()}
     </div>
 }

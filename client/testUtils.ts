@@ -1,4 +1,5 @@
 import { store } from 'data/store'
+import { IPage } from 'common/models'
 
 const addItemToStore = (namespace: string, item) => {
     store.dispatch({
@@ -22,6 +23,12 @@ export const setSelectedBook = (id: string) => {
 
 export const addBookToStore = (item) => {
     addItemToStore('books', item)
+}
+
+export const pages = {
+    upsert: (page: IPage) => addItemToStore('pages', page),
+    remove: (id: string) => console.warn(''),
+    select: (id: string) => console.warn('')
 }
 
 export const waitATick = (wait?: number): Promise<void> => {

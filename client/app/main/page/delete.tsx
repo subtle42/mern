@@ -12,8 +12,8 @@ class Props {
 export const DeletePageButton: React.StatelessComponent<Props> = (props: Props) => {
     const removePage = () => {
         PageActions.delete(props._id)
-        .then(() => NotifActions.notify('success', `Removed page: ${props.pageName}`))
-        .catch(err => NotifActions.notify('danger', err.message))
+        .then(() => NotifActions.success(`Removed page: ${props.pageName}`))
+        .catch(err => NotifActions.error(err.message))
     }
 
     return <ConfirmModal

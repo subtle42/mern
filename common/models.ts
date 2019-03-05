@@ -30,7 +30,7 @@ export interface IFilter {
 
 export interface IQuery {
     sourceId: string
-    measures: [{ref: string}]
+    measures: {ref: string}[]
     dimensions: string[]
     filters: IFilter[]
 }
@@ -60,7 +60,7 @@ export interface IWidget {
         right: number
     },
     type: string
-    measures: [{ref: string}]
+    measures: {ref: string}[]
     dimensions: string[]
     columnCount?: number
     xMin?: number
