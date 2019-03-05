@@ -7,6 +7,7 @@ import { IPage } from 'common/models'
 import { PageConfigButton } from '../page/config'
 import { EditBookButton } from '../book/edit'
 import { SourceCreateButton } from '../source/modal'
+import { EditSourceButton } from '../source/edit'
 import { PageContent } from '../page/content'
 import { StoreModel } from 'data/store'
 import { Loading } from '../../_common/loading'
@@ -48,6 +49,7 @@ const Content: React.StatelessComponent<Props> = (props: Props) => {
     return (
         <div>
         <PageConfigButton _id={props.selected || null} />
+        <EditSourceButton />
         <EditBookButton />
         <SourceCreateButton />
         <Nav tabs>

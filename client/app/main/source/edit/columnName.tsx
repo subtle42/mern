@@ -40,7 +40,9 @@ export const ColumnNameField: React.StatelessComponent<Props> = (props: Props) =
                     Done
                 </Button>
             </InputGroupAddon>
-            <Input value={rules.value}
+            <Input type='text'
+                style={{ width: 250 }}
+                value={rules.value}
                 invalid={rules.invalid}
                 onChange={utils.handleChange(rules, setRules)}/>
             <FormFeedback>{utils.getError(rules)}</FormFeedback>

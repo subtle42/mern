@@ -16,11 +16,11 @@ import NotifActions from 'data/notifications/actions'
 import { store } from 'data/store'
 import { ISource } from 'common/models'
 import { Loading } from '../../_common/loading'
+import { useSources } from '../../_common/hooks'
 
 interface Props {
     selectedId?: string
     done: (source: ISource) => void
-    editSource: (source: ISource) => void
     cancel: () => void
 }
 
@@ -33,7 +33,7 @@ export const SelectSource: React.StatelessComponent<Props> = (props: Props) => {
 
     const [isLoading, setLoading] = React.useState(false)
     const [selected, setSelected] = React.useState(getSelected())
-    const [sources, setSources] = React.useState(store.getState().sources.list)
+    const sources = useSources()
 
     const Dropzone = Loadable({
         loader: () => import('react-dropzone').then(mod => mod.default),
@@ -62,9 +62,13 @@ export const SelectSource: React.StatelessComponent<Props> = (props: Props) => {
         reader.onloadend = (event) => {
             setLoading(true)
             SourceActions.create(acceptedFiles[0])
-            .then(sourceId => props.done(sources.find(s => s._id === sourceId)))
-            .catch(err => NotifActions.error(err.message))
-            .then(() => setLoading(false))
+            .then(sourceId => props.done(store.getState().sources.list
+                .find(x => x._id === sourceId))
+            )
+            .catch(err => {
+                NotifActions.error(err.message)
+                setLoading(false)
+            })
         }
         reader.readAsArrayBuffer(acceptedFiles[0])
     }
@@ -97,9 +101,6 @@ export const SelectSource: React.StatelessComponent<Props> = (props: Props) => {
                     key={source._id}
                     onClick={() => setSelected(source)}>
                     {source.title}
-                    <FontAwesome name='edit'
-                        onClick={() => props.editSource(source)}
-                        style={{ float: 'right', cursor: 'pointer' }}/>
                 </ListGroupItem>)}
             </ListGroup></Col>
             <Col xs={6}>

@@ -43,7 +43,7 @@ export const ColumnTypeDropdown: React.StatelessComponent<Props> = (props: Props
     }
 
     return <Dropdown size='sm'
-        style={{ float: 'right' }}
+        // style={{ float: 'right' }}
         toggle={() => setOpen(!isOpen)}
         isOpen={isOpen}>
         <DropdownToggle outline caret

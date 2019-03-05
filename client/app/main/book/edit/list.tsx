@@ -56,6 +56,7 @@ export const BookList: React.StatelessComponent<Props> = (props: Props) => {
     const getListOfBooks = (): JSX.Element => {
         return <ListGroup>
             {books.map((book, index) => <ListGroupItem
+                action
                 key={index}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     {book.name}
