@@ -101,11 +101,11 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
     }
 
     const getFormTemplate = (): JSX.Element => {
-        return <Form>
+        return <Form style={{ margin: 0 }}>
             <Row>
                 <Col xs={6}>
                     <FormGroup>
-                        <Label>Name:</Label>
+                        <Label>Name</Label>
                         <Input
                             type='text'
                             name='name'
@@ -199,7 +199,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                     </Card>
                 </Col>
             </Row>
-            <Row style={{ marginTop: 10 }}>
+            <Row style={{ marginTop: 20 }}>
                 <Col xs={3}>
                    <FormGroup>
                         <CustomInput id='isDraggable'
@@ -267,7 +267,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
     const getModal = (): JSX.Element => {
         if (!isOpen) return <div />
 
-        return <Modal size='lg'
+        return <Modal size='md'
             isOpen={isOpen}
             onClosed={() => setOpen(false)}>
             <ModalHeader>Page Config</ModalHeader>

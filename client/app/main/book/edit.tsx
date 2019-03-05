@@ -18,23 +18,22 @@ export const EditBookButton: React.StatelessComponent<Props> = (props: Props) =>
 
     const getModal = (): JSX.Element => {
         return <Modal isOpen={isOpen}
-            size='lg'>
-            <ModalHeader>Library</ModalHeader>
-            <ModalBody>
-                {getContent()}
-            </ModalBody>
-            <ModalFooter>
-                <Button color='primary'
-                    onClick={() => setOpen(false)}>
-                    Done
-                </Button>
-            </ModalFooter>
+            size='md'>
+            {getContent()}
         </Modal>
     }
 
     const getContent = (): JSX.Element => {
-        if (!toEdit) return <BookList onEdit={book => setEdit(book)}/>
-        if (toEdit) return <BookEditForm _id={toEdit._id} />
+        if (!toEdit) {
+            return <BookList
+            onEdit={book => setEdit(book)}
+            onDone={() => setOpen(false)} />
+        }
+        if (toEdit) {
+            return <BookEditForm
+            _id={toEdit._id}
+            onDone={() => setEdit(undefined)} />
+        }
     }
 
     return <div>
