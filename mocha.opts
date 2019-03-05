@@ -1,5 +1,6 @@
 -r ts-node/register
 -r tsconfig-paths/register
+-r ignore-styles
 --recursive
 --watch-extensions ts|tsx
 --timeout 2000
