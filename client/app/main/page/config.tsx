@@ -13,6 +13,8 @@ import Input from 'reactstrap/lib/Input'
 import FormFeedback from 'reactstrap/lib/FormFeedback'
 import Form from 'reactstrap/lib/Form'
 import FormGroup from 'reactstrap/lib/FormGroup'
+import Card from 'reactstrap/lib/Card'
+import CardTitle from 'reactstrap/lib/CardTitle'
 import * as FontAwesome from 'react-fontawesome'
 
 import PageActions from 'data/pages/actions'
@@ -130,61 +132,71 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                 </Col>
             </Row>
             <Row>
-                <Col xs={3}>
-                    <FormGroup>
-                        <Label>Margins</Label>
-                        <Input
-                            type='number'
-                            min={0}
-                            max={100}
-                            value={rules.get('margin').get(0).value}
-                            invalid={rules.get('margin').get(0).invalid}
-                            onChange={utils.handleChange(rules, setRules)}
-                            name='margin[0]' />
-                        <FormFeedback>{utils.getError(rules.get('margin').get(0))}</FormFeedback>
-                    </FormGroup>
+                <Col xs={6}>
+                    <Card body style={{ padding: 10 }}>
+                        <CardTitle style={{ display: 'flex', justifyContent: 'center' }}>
+                            Widget Padding
+                        </CardTitle>
+                        <Row>
+                            <Col xs={6}>
+                                <Label>Sides</Label>
+                                <Input
+                                    type='number'
+                                    min={0}
+                                    max={100}
+                                    value={rules.get('margin').get(0).value}
+                                    invalid={rules.get('margin').get(0).invalid}
+                                    onChange={utils.handleChange(rules, setRules)}
+                                    name='margin[0]' />
+                                <FormFeedback>{utils.getError(rules.get('margin').get(0))}</FormFeedback>
+                            </Col>
+                            <Col xs={6}>
+                                <Label>Vertical</Label>
+                                <Input
+                                    type='number'
+                                    min={0}
+                                    max={100}
+                                    value={rules.get('margin').get(1).value}
+                                    invalid={rules.get('margin').get(1).invalid}
+                                    onChange={utils.handleChange(rules, setRules)}
+                                    name='margin[1]' />
+                                <FormFeedback>{utils.getError(rules.get('margin').get(1))}</FormFeedback>
+                            </Col>
+                        </Row>
+                    </Card>
                 </Col>
-                <Col xs={3}>
-                    <FormGroup>
-                        <Label>Margins</Label>
-                        <Input
-                            type='number'
-                            min={0}
-                            max={100}
-                            value={rules.get('margin').get(1).value}
-                            invalid={rules.get('margin').get(1).invalid}
-                            onChange={utils.handleChange(rules, setRules)}
-                            name='margin[1]' />
-                        <FormFeedback>{utils.getError(rules.get('margin').get(1))}</FormFeedback>
-                    </FormGroup>
-                </Col>
-                <Col xs={3}>
-                    <FormGroup>
-                        <Label>Padding</Label>
-                        <Input
-                            type='number'
-                            min={0}
-                            max={100}
-                            value={rules.get('containerPadding').get(0).value}
-                            invalid={rules.get('containerPadding').get(0).invalid}
-                            onChange={utils.handleChange(rules, setRules)}
-                            name='containerPadding[0]' />
-                        <FormFeedback>{utils.getError(rules.get('containerPadding').get(0))}</FormFeedback>
-                    </FormGroup>
-                </Col>
-                <Col xs={3}>
-                    <FormGroup>
-                        <Label>Padding</Label>
-                        <Input
-                            type='number'
-                            min={0}
-                            max={100}
-                            value={rules.get('containerPadding').get(1).value}
-                            invalid={rules.get('containerPadding').get(1).invalid}
-                            onChange={utils.handleChange(rules, setRules)}
-                            name='containerPadding[1]' />
-                        <FormFeedback>{utils.getError(rules.get('containerPadding').get(1))}</FormFeedback>
-                    </FormGroup>
+                <Col xs ={6}>
+                    <Card body style={{ padding: 10 }}>
+                        <CardTitle style={{ display: 'flex', justifyContent: 'center' }}>
+                            Page Margins
+                        </CardTitle>
+                        <Row>
+                            <Col xs={6}>
+                                <Label>Sides</Label>
+                                <Input
+                                    type='number'
+                                    min={0}
+                                    max={100}
+                                    value={rules.get('containerPadding').get(0).value}
+                                    invalid={rules.get('containerPadding').get(0).invalid}
+                                    onChange={utils.handleChange(rules, setRules)}
+                                    name='containerPadding[0]' />
+                                <FormFeedback>{utils.getError(rules.get('containerPadding').get(0))}</FormFeedback>
+                            </Col>
+                            <Col xs={6}>
+                                <Label>Vertical</Label>
+                                <Input
+                                    type='number'
+                                    min={0}
+                                    max={100}
+                                    value={rules.get('containerPadding').get(1).value}
+                                    invalid={rules.get('containerPadding').get(1).invalid}
+                                    onChange={utils.handleChange(rules, setRules)}
+                                    name='containerPadding[1]' />
+                                <FormFeedback>{utils.getError(rules.get('containerPadding').get(1))}</FormFeedback>
+                            </Col>
+                        </Row>
+                    </Card>
                 </Col>
             </Row>
             <Row style={{ marginTop: 10 }}>

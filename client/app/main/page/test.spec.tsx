@@ -502,24 +502,54 @@ describe('Page Conifg component', () => {
                 })
             })
         })
-    })
 
-    describe('on save', () => {
-        it('should send a rest call')
-        it('should send new name')
-        it('should send new columns')
-        it('should send new padding')
-        it('should send new margins')
-        it('should send new isDraggable')
-        it('should send new isResizable')
-        it('should send new isRearrangeable')
+        describe('on save', () => {
+            beforeEach(() => wrapper.find('FontAwesome').simulate('click'))
 
-        describe('on success', () => {
-            it('should close the modal')
-        })
+            xit('should send a rest call', () => {
+                wrapper.find('Button')
+                .findWhere(x => x.props().children === 'Save')
+                .simulate('click')
+                return utils.waitATick()
+                .then(() => {
+                    expect(requests.length).to.equal(1)
+                    expect(requests[0].method).to.equal('POST')
+                    expect(requests[0].url).to.equal('/api/pages')
+                })
+            })
 
-        describe('on error', () => {
-            it('should do nothing')
+            xit('should send new name', () => {
+                const name = 'aweioawv'
+                wrapper.find('Input')
+                .filterWhere(x => x.prop('name') === 'name')
+                .simulate('change', {
+                    target: {
+                        name: 'name',
+                        value: name
+                    }
+                })
+                // wrapper.find('Button')
+                // .filterWhere(x => x.props().children === 'Save')
+                // .simulate('click')
+                // return utils.waitATick()
+                // .then(() => JSON.parse(requests[0].requestBody) as IPage)
+                // .then(page => expect(page.name).to.equal(name))
+
+            })
+            it('should send new columns')
+            it('should send new padding')
+            it('should send new margins')
+            it('should send new isDraggable')
+            it('should send new isResizable')
+            it('should send new isRearrangeable')
+
+            describe('on success', () => {
+                it('should close the modal')
+            })
+
+            describe('on error', () => {
+                it('should do nothing')
+            })
         })
     })
 })
