@@ -3,14 +3,14 @@ import { Modal } from 'reactstrap'
 import widgetActions from 'data/widgets/actions'
 import NotifActions from 'data/notifications/actions'
 import { ISource } from 'common/models'
-import { SelectSource } from './select'
-import { SelectWidget } from '../widget/select'
+import { SelectSource } from './create/selectSource'
+import { SelectChartType } from './create/selectType'
 import * as FontAwesome from 'react-fontawesome'
 import './style.css'
 
 interface Props {}
 
-export const SourceCreateButton: React.StatelessComponent<Props> = (props: Props) => {
+export const WidgetCreateButton: React.StatelessComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
     const [source, setSource] = React.useState(undefined as ISource)
     const [mode, setMode] = React.useState('selectSource')
@@ -43,7 +43,7 @@ export const SourceCreateButton: React.StatelessComponent<Props> = (props: Props
         }
 
         if (mode === 'selectWidget') {
-            return <SelectWidget
+            return <SelectChartType
             back={() => setMode('selectSource')}
             cancel={() => setOpen(false)}
             done={chartType => close(chartType)} />

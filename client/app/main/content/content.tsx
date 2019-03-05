@@ -1,18 +1,19 @@
 import * as React from 'react'
-import { Nav, NavItem, NavLink } from 'reactstrap'
+import NavItem from 'reactstrap/lib/NavItem'
+import NavLink from 'reactstrap/lib/NavLink'
+import Nav from 'reactstrap/lib/Nav'
+
 import { DeletePageButton } from '../page/delete'
 import { connect } from 'react-redux'
 import pageActions from 'data/pages/actions'
 import { IPage } from 'common/models'
 import { PageConfigButton } from '../page/config'
 import { EditBookButton } from '../book/edit'
-import { SourceCreateButton } from '../source/modal'
+import { WidgetCreateButton } from '../widget/create'
 import { EditSourceButton } from '../source/edit'
 import { PageContent } from '../page/content'
+import { CreatePageButton } from '../page/create'
 import { StoreModel } from 'data/store'
-import { Loading } from '../../_common/loading'
-
-import * as Loadable from 'react-loadable'
 
 interface Props {
     pages: IPage[],
@@ -24,13 +25,6 @@ const Content: React.StatelessComponent<Props> = (props: Props) => {
         if (!props.selected) return false
         return props.selected === page._id
     }
-
-    const CreatePageButton = Loadable({
-        loader: () => import('../page/create').then(mod => mod.CreatePageButton),
-        loading () {
-            return <Loading/>
-        }
-    })
 
     const buildTabs = (): JSX.Element[] => {
         if (!props.pages) return []
@@ -46,20 +40,17 @@ const Content: React.StatelessComponent<Props> = (props: Props) => {
         })
     }
 
-    return (
-        <div>
+    return <div>
         <PageConfigButton _id={props.selected || null} />
         <EditSourceButton />
         <EditBookButton />
-        <SourceCreateButton />
+        <WidgetCreateButton />
         <Nav tabs>
             {buildTabs()}
             <CreatePageButton />
         </Nav>
         <PageContent />
-        {/* <Widget  /> */}
-        </div>
-    )
+    </div>
 }
 
 export default connect((store: StoreModel): Props => {

@@ -16,20 +16,24 @@ import NavItem from 'reactstrap/lib/NavItem'
 import NavLink from 'reactstrap/lib/NavLink'
 import TabContent from 'reactstrap/lib/TabContent'
 import TabPane from 'reactstrap/lib/TabPane'
+import Card from 'reactstrap/lib/Card'
+import CardTitle from 'reactstrap/lib/CardTitle'
 import * as FontAwesome from 'react-fontawesome'
-import { IWidget, ISource } from 'common/models'
-import { store } from 'data/store'
+
+import widgetActions from 'data/widgets/actions'
+import notifActions from 'data/notifications/actions'
 import { FormCtrlGroup, FormControl, ValidatorFn } from '../../_common/validation'
 import * as Validators from '../../_common/validators'
 import * as utils from '../../_common/utils'
+import { useWidget, useSource } from '../../_common/hooks'
 
 interface Props {
     id: string
 }
 
 export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
-    let config: IWidget
-    let source: ISource
+    const config = useWidget(props.id)
+    const source = useSource(config.sourceId)
     const marginRules: ValidatorFn[] = [
         Validators.isRequired,
         Validators.min(0),
@@ -42,80 +46,77 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
             left: new FormControl(0, marginRules),
             bottom: new FormControl(0, marginRules),
             right: new FormControl(0)
-        }),
-        type: new FormControl('', [
-            Validators.isRequired
-        ])
+        })
     }))
 
     const [specificRules, setSpecificRules] = React.useState(new FormCtrlGroup({}))
     const [isOpen, setOpen] = React.useState(false)
     const [currentTab, setTab] = React.useState('general')
 
-    const toggleModal = () => {
+    const toggleModal = (event?: React.FormEvent<any>) => {
+        if (event) event.preventDefault()
         if (!isOpen) {
-            config = store.getState().widgets.list
-                .find(w => w._id === props.id)
-            source = store.getState().sources.list
-                .find(s => s._id === config.sourceId)
             rules.value = config
             setRules(rules)
         }
         setOpen(!isOpen)
     }
 
+    const getMarginForm = (): JSX.Element => {
+        return <Card body style={{ padding: 10 }}>
+            <CardTitle style={{ display: 'flex', justifyContent: 'center' }}>
+                Margins
+            </CardTitle>
+            <Row>
+                <Col xs={{ size: 4, offset: 4 }}>
+                    <Input
+                        type='number'
+                        name='margins.top'
+                        onChange={utils.handleChange(rules, setRules)}
+                        value={rules.get('margins').get('top').value}
+                        invalid={rules.get('margins').get('top').error} />
+                    <FormFeedback>{utils.getError(rules.get('margins').get('top'))}</FormFeedback>
+                </Col>
+            </Row>
+            <Row>
+                <Col xs={{ size: 4 }}>
+                    <Input
+                        type='number'
+                        name='margins.left'
+                        onChange={utils.handleChange(rules, setRules)}
+                        value={rules.get('margins').get('left').value}
+                        invalid={rules.get('margins').get('left').error} />
+                    <FormFeedback>{utils.getError(rules.get('margins').get('left'))}</FormFeedback>
+                </Col>
+                <Col xs={{ size: 4, offset: 4 }}>
+                    <Input
+                        type='number'
+                        name='margins.right'
+                        onChange={utils.handleChange(rules, setRules)}
+                        value={rules.get('margins').get('right').value}
+                        invalid={rules.get('margins').get('right').error} />
+                    <FormFeedback>{utils.getError(rules.get('margins').get('right'))}</FormFeedback>
+                </Col>
+            </Row>
+            <Row>
+                <Col xs={{ size: 4, offset: 4 }}>
+                    <Input
+                        type='number'
+                        name='margins.bottom'
+                        onChange={utils.handleChange(rules, setRules)}
+                        value={rules.get('margins').get('bottom').value}
+                        invalid={rules.get('margins').get('bottom').error} />
+                    <FormFeedback>{utils.getError(rules.get('margins').get('bottom'))}</FormFeedback>
+                </Col>
+            </Row>
+        </Card>
+    }
+
     const getFormTemplate = (): JSX.Element => {
         return <Form>
             <Row>
                 <Col>
-                    <FormGroup>
-                        <Label>Top</Label>
-                        <Input
-                            type='number'
-                            name='margins.top'
-                            onChange={utils.handleChange(rules, setRules)}
-                            value={rules.get('margins').get('top').value}
-                            invalid={rules.get('margins').get('top').error} />
-                        <FormFeedback>{utils.getError(rules.get('margins').get('top'))}</FormFeedback>
-                    </FormGroup>
-                </Col>
-                <Col>
-                    <FormGroup>
-                        <Label>Bottom</Label>
-                        <Input
-                            type='number'
-                            name='margins.bottom'
-                            onChange={utils.handleChange(rules, setRules)}
-                            value={rules.get('margins').get('bottom').value}
-                            invalid={rules.get('margins').get('bottom').error} />
-                        <FormFeedback>{utils.getError(rules.get('margins').get('bottom'))}</FormFeedback>
-                    </FormGroup>
-                </Col>
-            </Row>
-            <Row>
-                <Col>
-                    <FormGroup>
-                        <Label>Left</Label>
-                        <Input
-                            type='number'
-                            name='margins.left'
-                            onChange={utils.handleChange(rules, setRules)}
-                            value={rules.get('margins').get('left').value}
-                            invalid={rules.get('margins').get('left').error} />
-                        <FormFeedback>{utils.getError(rules.get('margins').get('left'))}</FormFeedback>
-                    </FormGroup>
-                </Col>
-                <Col>
-                    <FormGroup>
-                        <Label>Right</Label>
-                        <Input
-                            type='number'
-                            name='margins.right'
-                            onChange={utils.handleChange(rules, setRules)}
-                            value={rules.get('margins').get('right').value}
-                            invalid={rules.get('margins').get('right').error} />
-                        <FormFeedback>{utils.getError(rules.get('margins').get('right'))}</FormFeedback>
-                    </FormGroup>
+                    {getMarginForm()}
                 </Col>
             </Row>
         </Form>
@@ -137,7 +138,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                         <NavLink
                             active={currentTab === 'specific'}
                             onClick={() => setTab('specific')}>
-                            {rules.get('type').value}
+                            {config.type}
                         </NavLink>
                     </NavItem>
                 </Nav>
@@ -156,7 +157,10 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                 </TabContent>
             </ModalBody>
             <ModalFooter>
-                <Button color='primary'>Done</Button>
+                <Button color='primary'
+                    onClick={save}>
+                    Done
+                </Button>
                 <Button color='secondary'
                     onClick={cancel}>Cancel</Button>
             </ModalFooter>
@@ -206,12 +210,21 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
         setOpen(false)
     }
 
-    return <Button className='pull-left'
-        color='secondary'
-        outline
-        size='small'
-        onClick={toggleModal}>
-        <FontAwesome name='cog' />
+    const save = () => {
+        widgetActions.update(Object.assign({}, config, rules.value))
+        .then(() => notifActions.success('Updated widget'))
+        .then(() => setOpen(false))
+        .catch(err => notifActions.error(err.message))
+    }
+
+    return <div>
+        <Button className='pull-left'
+            color='secondary'
+            outline
+            size='small'
+            onClick={toggleModal}>
+            <FontAwesome name='cog' />
+        </Button>
         {getModalTemplate()}
-    </Button>
+    </div>
 }

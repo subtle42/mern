@@ -15,8 +15,8 @@ import SourceActions from 'data/sources/actions'
 import NotifActions from 'data/notifications/actions'
 import { store } from 'data/store'
 import { ISource } from 'common/models'
-import { Loading } from '../../_common/loading'
-import { useSources } from '../../_common/hooks'
+import { Loading } from '../../../_common/loading'
+import { useSources } from '../../../_common/hooks'
 
 interface Props {
     selectedId?: string
@@ -96,8 +96,8 @@ export const SelectSource: React.StatelessComponent<Props> = (props: Props) => {
         return <ModalBody><Row>
             <Col xs={6}><ListGroup>
                 {sources.map(source => <ListGroupItem
+                    action
                     className={source === selected && 'active'}
-                    href='#'
                     key={source._id}
                     onClick={() => setSelected(source)}>
                     {source.title}

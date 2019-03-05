@@ -47,7 +47,7 @@ const chartConfList: ChartConf[] = [{
     }]
 }]
 
-export const SelectWidget: React.StatelessComponent<Props> = (props: Props) => {
+export const SelectChartType: React.StatelessComponent<Props> = (props: Props) => {
     const [selected, setSelected] = React.useState(undefined as ChartConf)
     const rowSize = 4
 
