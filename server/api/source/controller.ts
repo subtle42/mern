@@ -27,40 +27,38 @@ class SourceController {
     }
 
     private getColumnTypes (data: Array<Array<string>>): Promise<ColumnType[]> {
-        let calls: Array<Promise<string>> = []
-        const dataSubSet: string[][] = data.slice(0, 100)
-        const dataByCol: string[][] = []
-        dataSubSet[0].forEach((item, index) => dataByCol.push([]))
-        dataSubSet[0].forEach((item, index) => dataByCol[index].push(item))
+        const dataByCol: any[][] = data[0].map(x => [])
+        data.slice(0, 100).forEach(row => {
+            row.forEach((item, index) => {
+                dataByCol[index].push(item)
+            })
+        })
 
-        dataByCol.forEach(column => calls.push(this.getSingleColumnType(column)))
-        return Promise.all(calls) as Promise<ColumnType[]>
+        return Promise.resolve(dataByCol.map(row => this.getSingleColumnType(row)))
     }
 
-    private getSingleColumnType (data: any[]): Promise<ColumnType> {
-        return new Promise((resolve: Function) => {
-            let isNumber = 0
-            let groupCounts = {}
-            let response: ColumnType
+    private getSingleColumnType (data: any[]): ColumnType {
+        let isNumber = 0
+        let groupCounts = {}
+        let response: ColumnType
 
-            data.forEach(entry => {
-                if (!isNaN(entry)) {
-                    isNumber++
-                } else {
-                    groupCounts[entry] = groupCounts[entry] ? groupCounts[entry] + 1 : 1
-                }
-            })
-
-            if (isNumber === data.length) {
-                response = 'number'
-            } else if (Object.keys(groupCounts).length / data.length < 1) {
-                response = 'group'
+        data.forEach(entry => {
+            if (!isNaN(entry)) {
+                isNumber++
             } else {
-                response = 'text'
+                groupCounts[entry] = groupCounts[entry] ? groupCounts[entry] + 1 : 1
             }
-
-            resolve(response)
         })
+
+        if (isNumber === data.length) {
+            response = 'number'
+        } else if (Object.keys(groupCounts).length / data.length < 1) {
+            response = 'group'
+        } else {
+            response = 'text'
+        }
+
+        return response
     }
 
     private importData (rows: Array<any[]>, columnTypes: ColumnType[]): Promise<string> {
