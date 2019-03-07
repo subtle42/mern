@@ -13,6 +13,4 @@ export const CHANNELS = {
     REMOVE: 'removed'
 }
 
-export type ChartType = 'histogram' | 'pie' | 'barSingle'
-
 export type ColumnType = 'number' | 'group' | 'text' | 'datetime'

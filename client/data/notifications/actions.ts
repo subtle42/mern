@@ -28,6 +28,7 @@ class NotificationActions {
     }
 
     error (message: string, duration?: number): void {
+        console.error(message)
         this.notify('danger', message, duration)
     }
 

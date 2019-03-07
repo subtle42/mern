@@ -49,6 +49,11 @@ export interface IPage {
     layout: Layout[]
 }
 
+export interface IMeasure {
+    ref: string
+    formula?: string
+}
+
 export interface IWidget {
     _id: any
     pageId: string
@@ -60,7 +65,7 @@ export interface IWidget {
         right: number
     },
     type: string
-    measures: {ref: string}[]
+    measures: IMeasure[]
     dimensions: string[]
     columnCount?: number
     xMin?: number

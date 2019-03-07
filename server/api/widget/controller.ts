@@ -50,12 +50,13 @@ class WidgetController {
             const dimensions = mySource.columns.filter(col => col.type === 'group')
             const measures = mySource.columns.filter(col => col.type === 'number')
 
-            if (dimensions.length > 0) {
+            if (dimensions.length > 0 && myWidget.type !== 'histogram') {
                 myWidget.dimensions.push(dimensions[Math.floor(Math.random() * dimensions.length)].ref)
             }
             if (measures.length > 0) {
                 myWidget.measures.push({
-                    ref: measures[Math.floor(Math.random() * measures.length)].ref
+                    ref: measures[Math.floor(Math.random() * measures.length)].ref,
+                    formula: myWidget.type !== 'histogram' ? 'sum' : undefined
                 })
             }
             resolve()

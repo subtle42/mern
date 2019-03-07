@@ -12,6 +12,7 @@ import WidgetActions from 'data/widgets/actions'
 import NotifyActions from 'data/notifications/actions'
 
 import { Histogram } from '../charts/histogram'
+import { BarGrouped } from '../charts/barGrouped'
 import { MeasureDropdown } from '../charts/chart'
 import { ConfirmModal } from '../../_common/confirmation'
 import { EditButton } from './edit'
@@ -106,6 +107,16 @@ export class Widget extends React.Component<Props, State> {
         .then(() => WidgetActions.query(this.state.widgetConfig))
     }
 
+    getChart = (widget: IWidget): JSX.Element => {
+        if (!widget) return <div />
+        if (widget.type === 'histogram') {
+            return <Histogram id={this.props._id}/>
+        } else if (widget.type === 'barGroup') {
+            return <BarGrouped id={this.props._id} />
+        }
+        return <div/>
+    }
+
     render () {
         return <Card style={{ height: '100%' }}>
             <CardHeader style={{ padding: 0, border: 0 }} color='secondary'>
@@ -125,8 +136,7 @@ export class Widget extends React.Component<Props, State> {
             <CardBody style={{ height: '100%', padding: 0 }}>
                 <div ref={this.myRef} style={{ height: '100%', width: '100%' }}>
                     {this.getDropdown()}
-                    <Histogram
-                        id={this.props._id}/>
+                    {this.getChart(this.state.widgetConfig)}
                 </div>
             </CardBody>
         </Card>

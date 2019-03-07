@@ -2,7 +2,7 @@ import { Schema, Model } from 'mongoose'
 import { IWidgetModel } from '../../dbModels'
 import { createSchema } from '../utils'
 
-let WidgetSchema = new Schema({
+const WidgetSchema = new Schema({
     pageId: { type: String, required: true },
     sourceId: { type: String, required: true },
     margins: {

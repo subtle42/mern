@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Button, Row, Col, ModalHeader, ModalFooter, ModalBody } from 'reactstrap'
-import { ChartType, ColumnType } from 'common/constants'
+import { ColumnType } from 'common/constants'
 import * as FontAwesome from 'react-fontawesome'
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
 
 class ChartConf {
     name: string
-    type: ChartType
+    type: string
     requires: {
         count: number,
         colType: ColumnType
@@ -25,19 +25,19 @@ const chartConfList: ChartConf[] = [{
         count: 1,
         colType: 'number'
     }]
-}, {
-    name: 'Pie',
-    type: 'pie',
-    requires: [{
-        count: 1,
-        colType: 'number'
-    }, {
-        count: 1,
-        colType: 'group'
-    }]
+// }, {
+//     name: 'Pie',
+//     type: 'pie',
+//     requires: [{
+//         count: 1,
+//         colType: 'number'
+//     }, {
+//         count: 1,
+//         colType: 'group'
+//     }]
 }, {
     name: 'Bar',
-    type: 'barSingle',
+    type: 'barGroup',
     requires: [{
         count: 1,
         colType: 'number'
@@ -92,7 +92,7 @@ export const SelectChartType: React.StatelessComponent<Props> = (props: Props) =
             <div>
                 <Button color='primary'
                     disabled={!selected}
-                    style={{ marginRight: 20 }}
+                    style={{ marginRight: 10 }}
                     onClick={() => props.done(selected.type)}>
                     Create
                 </Button>
