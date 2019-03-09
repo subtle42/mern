@@ -34,7 +34,7 @@ const ContentComponent: React.StatelessComponent<Props> = (props: Props) => {
             newItem: ReactGridLayout.Layout,
             placeholder: ReactGridLayout.Layout,
             event, element) => {
-            widgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 60)
+            widgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 85)
         }
     }
 

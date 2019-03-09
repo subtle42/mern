@@ -221,7 +221,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
         <Button className='pull-left'
             color='secondary'
             outline
-            size='small'
+            size='sm'
             onClick={toggleModal}>
             <FontAwesome name='cog' />
         </Button>

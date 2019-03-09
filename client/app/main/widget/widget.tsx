@@ -13,7 +13,8 @@ import NotifyActions from 'data/notifications/actions'
 
 import { Histogram } from '../charts/histogram'
 import { BarGrouped } from '../charts/barGrouped'
-import { MeasureDropdown } from '../charts/chart'
+// import { MeasureDropdown } from '../charts/chart'
+import { ColumnButton } from './content/columnBtn'
 import { ConfirmModal } from '../../_common/confirmation'
 import { EditButton } from './edit'
 
@@ -51,7 +52,7 @@ export class Widget extends React.Component<Props, State> {
 
     componentDidUpdate () {
         const width = this.myRef.current.offsetWidth
-        const height = this.myRef.current.offsetHeight - 60
+        const height = this.myRef.current.offsetHeight - 85
         if (!this.state.widgetConfig) return
         if (this.state.width === width && this.state.height === height) return
         WidgetActions.setSize(this.state.widgetConfig._id, width, height)
@@ -91,12 +92,36 @@ export class Widget extends React.Component<Props, State> {
 
     getDropdown (): JSX.Element {
         if (!this.state.widgetConfig) return
-        return <MeasureDropdown
-            sourceId={this.state.widgetConfig.sourceId}
-            colId={this.state.widgetConfig.measures[0].ref}
-            onColUpdate={this.onColUpdate}
-            colType='number'
-        />
+        return <div style={{ display: 'flex', justifyContent: 'center' }}>
+            {this.state.widgetConfig.measures.map((measure, index) => {
+                return <ColumnButton
+                    key={index}
+                    colType='number'
+                    sourceId={this.state.widgetConfig.sourceId}
+                    colId={measure.ref}
+                    onColUpdate={this.onColUpdate}/>
+            })}
+        </div>
+    }
+
+    getDimDropdown () {
+        if (!this.state.widgetConfig) return
+        if (this.state.widgetConfig.dimensions.length === 0) return
+        return <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div style={{ fontSize: 10, paddingTop: 7 }}>Grouped by </div>
+            {this.state.widgetConfig.dimensions.map((dim, index) => {
+                return <ColumnButton
+                    key={index}
+                    colType='group'
+                    sourceId={this.state.widgetConfig.sourceId}
+                    colId={dim}
+                    onColUpdate={col => {
+                        this.state.widgetConfig.dimensions[index] = col.ref
+                        WidgetActions.update(this.state.widgetConfig)
+                        .then(() => WidgetActions.query(this.state.widgetConfig))
+                    }}/>
+            })}
+        </div>
     }
 
     onColUpdate = (col: ISourceColumn): void => {
@@ -105,6 +130,7 @@ export class Widget extends React.Component<Props, State> {
         }
         WidgetActions.update(this.state.widgetConfig)
         .then(() => WidgetActions.query(this.state.widgetConfig))
+        .catch(err => NotifyActions.success(err.message))
     }
 
     getChart = (widget: IWidget): JSX.Element => {
@@ -125,18 +151,21 @@ export class Widget extends React.Component<Props, State> {
                     message='Are you sure you want to delete this widget?'>
                     <Button color='secondary'
                         className='pull-right'
-                        size='small'
+                        size='sm'
                         outline
                         onClick={() => this.removeWidget()}>
                         <FontAwesome name='times' />
                     </Button>
                 </ConfirmModal>
-                <CardTitle style={{ margin: 0 }}>{this.state.source ? this.state.source.title : 'Loading..'}</CardTitle>
+                <CardTitle style={{ display: 'flex', justifyContent: 'center', margin: 0 }}>
+                    {this.state.source ? this.state.source.title : 'Loading..'}
+                </CardTitle>
             </CardHeader>
             <CardBody style={{ height: '100%', padding: 0 }}>
                 <div ref={this.myRef} style={{ height: '100%', width: '100%' }}>
                     {this.getDropdown()}
                     {this.getChart(this.state.widgetConfig)}
+                    {this.getDimDropdown()}
                 </div>
             </CardBody>
         </Card>

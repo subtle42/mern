@@ -10,3 +10,8 @@
     text-align: center;
     cursor: pointer;
 }
+
+.extra-small > button{
+    font-size: 10px !important;
+    padding: 2px !important;
+}

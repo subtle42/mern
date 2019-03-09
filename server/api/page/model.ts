@@ -22,7 +22,7 @@ const PageSchema = new Schema({
         validate: [(val: number[]) => {
             return val.length === 2
         }, 'Conatiner padding must be an array of 2.'],
-        default: [0,0],
+        default: [10, 10],
         required: true
     },
     cols: { type: Number, min: 1, max: 12, default: 12, required: true },
