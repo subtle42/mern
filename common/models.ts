@@ -32,7 +32,9 @@ export interface IQuery {
     sourceId: string
     measures: {ref: string}[]
     dimensions: string[]
-    filters: IFilter[]
+    filters: {
+        [key: string]: any[]
+    }
 }
 
 export interface IPage {

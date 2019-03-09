@@ -34,7 +34,30 @@ class WidgetActions extends BaseActions {
         this.sendDispatch('setSize', { id: id, size: { width, height } })
     }
     query (widget: IWidget): Promise<void> {
-        return DataActions.query(widget)
+        return DataActions.query(widget, this.getFilter(widget))
+    }
+
+    private getFilter (widget: IWidget): object {
+        const myFilters = store.getState().sources.filters[widget.sourceId]
+        const toSend = {}
+
+        if (!myFilters) return toSend
+
+        Object.keys(myFilters).forEach(key => {
+            if (widget.dimensions.find(d => d === key)) return
+            toSend[key] = myFilters[key]
+        })
+        return toSend
+    }
+
+    runQueries (sourceId: string) {
+        const calls = store.getState().widgets.list
+        .filter(w => w.sourceId === sourceId)
+        .map(w => this.query(w))
+
+        return Promise.all(calls)
+        .then(() => console.log('done'))
+        .catch(err => console.error(err))
     }
 }
 

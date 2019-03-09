@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { scaleLinear } from 'd3-scale'
 import { extent } from 'd3-array'
-import { BaseChart } from './base'
+import { BaseChart } from './_base'
 
 export class Scatter extends BaseChart {
     radius: number

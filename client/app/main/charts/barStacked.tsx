@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as d3 from 'd3'
-import { BaseChart } from './base'
+import { BaseChart } from './_base'
 
 export class StackedBart extends BaseChart {
     x = d3.scaleBand()

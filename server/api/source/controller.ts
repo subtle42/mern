@@ -203,23 +203,36 @@ class SourceController {
         .catch(utils.handleError(res))
     }
 
+    private FilterFactory = {
+        number: (filter: number[]) => {
+            return { $elemMatch: [{ $gte: filter[0] }, { $lt: filter[1] }] }
+        },
+        group: (filter: string[]) => {
+            return { $in: filter }
+        }
+    }
+
+    private getFilterQuery (dimension: string, filter: any[], source: ISource) {
+        const col = source.columns.find(col => col.ref === dimension)
+        return this.FilterFactory[col.type](filter)
+    }
+
+    private addFiltersToQuery (source: ISource, input: IQuery, output: any[]) {
+        const dimensions = Object.keys(input.filters)
+        if (dimensions.length === 0) return
+
+        output.push({
+            $match: {
+                $and: dimensions.map(dimension => ({
+                    [dimension]: this.getFilterQuery(dimension, input.filters[dimension], source)
+                }))
+            }
+        })
+    }
+
     private buildMongoQuery (source: ISource, input: IQuery): any[] {
         let output = []
-        // if (input.filters.length > 0) {
-        //     output.push({
-        //         $match: {
-        //             $and: input.filters.map(filter => {
-        //                 const sourceColumn = source.columns.filter(col => col.ref === filter.ref)[0]
-        //                 let singleFilter = {}
-        //                 if (sourceColumn.type === 'number') {
-        //                     singleFilter[filter.ref] = { $elemMatch: [{ $gte: filter.range[0] }, { $lt: filter.range[1] }] }
-        //                 } else if (sourceColumn.type === 'group') {
-        //                     singleFilter[filter.ref] = { $in: filter.option }
-        //                 }
-        //             })
-        //         }
-        //     })
-        // }
+        this.addFiltersToQuery(source, input, output)
 
         let groupByObj = {
             _id: input.dimensions.length > 0 ? `$${input.dimensions[0]}` : '$_id',
@@ -228,9 +241,6 @@ class SourceController {
         input.measures.forEach(measure => {
             groupByObj[measure.ref] = { $sum: `$${measure.ref}` }
         })
-        // input.dimensions.forEach(dim => {
-        //     groupByObj[dim] = { $sum: `$${dim}` }
-        // })
 
         output.push({
             $group: groupByObj

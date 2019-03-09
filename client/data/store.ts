@@ -5,10 +5,9 @@ import books from './books/reducer'
 import pages from './pages/reducer'
 import widgets from './widgets/reducer'
 import auth from './auth/reducer'
-import sources from './sources/reducer'
 import booksModel from './books/model'
 import pagesModel from './pages/model'
-import sourcesModel from './sources/model'
+import { SourceReducer, SourceStore } from './sources/reducer'
 import widgetsModel from './widgets/model'
 import authModel from './auth/model'
 import { DataModel, DataReducer } from './data/reducer'
@@ -19,7 +18,7 @@ export interface StoreModel {
     pages: pagesModel,
     widgets: widgetsModel,
     auth: authModel,
-    sources: sourcesModel
+    sources: SourceStore
     notifcations: NotificationStore,
     data: DataModel
 }
@@ -29,7 +28,7 @@ const reducers = combineReducers({
     pages,
     widgets,
     auth,
-    sources,
+    sources: SourceReducer,
     notifications: notifReducer,
     data: DataReducer
 })

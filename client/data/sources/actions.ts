@@ -1,6 +1,8 @@
+import axios from 'axios'
+
 import { store } from '../store'
 import BaseActions from '../baseActions'
-import axios from 'axios'
+import widgetActions from 'data/widgets/actions'
 import { ISource } from 'common/models'
 
 class SourceActions extends BaseActions {
@@ -27,6 +29,15 @@ class SourceActions extends BaseActions {
     update (source: ISource): Promise<void> {
         return axios.put(`/api/sources`, source)
         .then(res => res.data as undefined)
+    }
+
+    addFilter (sourceId: string, dimension: string, filter): Promise<void> {
+        return this.sendDispatch('addFilter', {
+            _id: sourceId,
+            dimension,
+            filter
+        })
+        .then(() => widgetActions.runQueries(sourceId))
     }
 }
 

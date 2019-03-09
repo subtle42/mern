@@ -17,12 +17,12 @@ class DataActions {
         }))
     }
 
-    query (widget: IWidget): Promise<void> {
+    query (widget: IWidget, filter): Promise<void> {
         const query: IQuery = {
             sourceId: widget.sourceId,
             measures: widget.measures,
             dimensions: widget.dimensions,
-            filters: []
+            filters: filter
         }
         const test = JSON.stringify(query)
 

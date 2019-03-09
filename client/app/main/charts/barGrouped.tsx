@@ -1,7 +1,9 @@
 import * as React from 'react'
 import { scaleBand, scaleLinear } from 'd3-scale'
-import { BaseChart } from './base'
-import { extent, max } from 'd3-array'
+import { BaseChart } from './_base'
+import { max } from 'd3-array'
+import sourceActions from 'data/sources/actions'
+import { store } from 'data/store'
 
 export class BarGrouped extends BaseChart {
     x0 = scaleBand()
@@ -49,9 +51,24 @@ export class BarGrouped extends BaseChart {
         })
     }
 
+    updateFilter (key: string) {
+        const mySourceFilter = store.getState().sources.filters[this.config.sourceId]
+        let myFilterDimension = []
+        if (mySourceFilter) {
+            myFilterDimension = mySourceFilter[this.config.dimensions[0]] || []
+        }
+        if (myFilterDimension.find(x => x === key)) {
+            myFilterDimension = myFilterDimension.filter(x => x !== key)
+        } else {
+            myFilterDimension.push(key)
+        }
+        sourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], myFilterDimension)
+    }
+
     renderChart () {
         return <g transform={`translate(${this.config.margins.left}, ${this.config.margins.top})`}>
             {Object.keys(this.state.chart).map((key, i) => <g key={i}
+                onClick={() => this.updateFilter(key)}
                 transform={`translate(${this.x0(key)}, 0)`}>
                 {this.renderBarGroup(key)}
             </g>)}
