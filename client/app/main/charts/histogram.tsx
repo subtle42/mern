@@ -1,24 +1,26 @@
 import * as React from 'react'
-import * as d3 from 'd3'
+import { scaleLinear } from 'd3-scale'
+import { extent, max, histogram } from 'd3-array'
 import { BaseChart } from './_base'
 
 export class Histogram extends BaseChart {
-    x = d3.scaleLinear()
-    y = d3.scaleLinear()
-    bins = d3.histogram()
+    x = scaleLinear()
+    y = scaleLinear()
+    bins = histogram()
 
     updateChart (data) {
         const mappedData = data.map(d => d[this.config.measures[0].ref])
         this.x
-            .domain(d3.extent(mappedData) as any)
-            .rangeRound([0, this.getWidthtWithMargins()])
+            .domain(extent(mappedData) as any)
+            .rangeRound([this.config.margins.left, this.getWidthtWithMargins()])
         this.bins
             .domain(this.x.domain() as any)
             .thresholds(this.x.ticks(20))
         const myData = this.bins(mappedData)
         this.y
-            .domain([0, d3.max(myData, d => d.length)])
+            .domain([0, max(myData, (d: any) => d.length) as any])
             .range([this.getHeightWithMargins(), 0])
+
         return myData
     }
 
@@ -31,6 +33,8 @@ export class Histogram extends BaseChart {
                 height={this.y(0) - this.y(row.length)}
                 width={Math.max(0, this.x(row.x1) - this.x(row.x0) - 1)}>
             </rect>)}
+            {this.getXAxis()}
+            {this.getYAxis()}
         </g>
     }
 }

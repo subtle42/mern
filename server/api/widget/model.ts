@@ -7,8 +7,8 @@ const WidgetSchema = new Schema({
     sourceId: { type: String, required: true },
     margins: {
         top: { type: Number, required: true, default: 10 },
-        bottom: { type: Number, required: true, default: 10 },
-        left: { type: Number, required: true, default: 10 },
+        bottom: { type: Number, required: true, default: 20 },
+        left: { type: Number, required: true, default: 15 },
         right: { type: Number, required: true, default: 10 }
     },
     dimensions: { type: Array, required: true, default: [] },

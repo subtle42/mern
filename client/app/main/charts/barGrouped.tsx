@@ -6,20 +6,20 @@ import sourceActions from 'data/sources/actions'
 import { store } from 'data/store'
 
 export class BarGrouped extends BaseChart {
-    x0 = scaleBand()
+    x = scaleBand()
         .paddingInner(.1)
-    x1 = scaleBand()
+    xInner = scaleBand()
         .padding(0.05)
     y = scaleLinear()
 
     updateChart (data) {
         const options: string[] = data.map(d => d._id)
-        this.x0
+        this.x
             .domain(options)
-            .rangeRound([0, this.getWidthtWithMargins()])
-        this.x1
+            .rangeRound([this.config.margins.left, this.getWidthtWithMargins()])
+        this.xInner
             .domain(this.config.measures.map(m => m.ref))
-            .rangeRound([0, this.x0.bandwidth()])
+            .rangeRound([0, this.x.bandwidth()])
         this.y
             .domain([0, max(data, d => max(this.config.measures, key => d[key.ref])) as any])
             .rangeRound([this.getHeightWithMargins(), 0])
@@ -34,10 +34,10 @@ export class BarGrouped extends BaseChart {
     renderBar (row, measure: string, index: number): JSX.Element {
         return <rect key={index}
             fill='steelblue'
-            x={this.x1(measure)}
+            x={this.xInner(measure)}
             y={this.y(row[measure])}
             height={this.y(0) - this.y(row[measure])}
-            width={this.x1.bandwidth()}>
+            width={this.xInner.bandwidth()}>
         </rect>
     }
 
@@ -51,7 +51,8 @@ export class BarGrouped extends BaseChart {
         })
     }
 
-    updateFilter (key: string) {
+    updateFilter (key: string, e: React.FormEvent<any>) {
+        e.stopPropagation()
         const mySourceFilter = store.getState().sources.filters[this.config.sourceId]
         let myFilterDimension = []
         if (mySourceFilter) {
@@ -68,10 +69,13 @@ export class BarGrouped extends BaseChart {
     renderChart () {
         return <g transform={`translate(${this.config.margins.left}, ${this.config.margins.top})`}>
             {Object.keys(this.state.chart).map((key, i) => <g key={i}
-                onClick={() => this.updateFilter(key)}
-                transform={`translate(${this.x0(key)}, 0)`}>
+                style={{ cursor: 'pointer' }}
+                onClick={(e) => this.updateFilter(key, e)}
+                transform={`translate(${this.x(key)}, 0)`}>
                 {this.renderBarGroup(key)}
             </g>)}
+            {this.getYAxis()}
+            {this.getXAxis()}
         </g>
     }
 }

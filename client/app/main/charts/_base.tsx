@@ -2,6 +2,10 @@ import * as React from 'react'
 import { store } from 'data/store'
 import { Unsubscribe } from 'redux'
 import { IWidget } from 'common/models'
+import sourceActions from 'data/sources/actions'
+import { ScaleLinear, ScaleBand } from 'd3-scale'
+import { axisBottom, axisLeft, Axis } from 'd3-axis'
+import { select } from 'd3-selection'
 
 class State {
     chart: any[] = []
@@ -19,6 +23,10 @@ export abstract class BaseChart extends React.Component<Props, State> {
     config: IWidget
     height: number
     width: number
+    xAxis: Axis<any>
+    yAxis: Axis<any>
+    x: ScaleLinear<number, number> | ScaleBand<string>
+    y: ScaleLinear<number, number>
 
     private _updateChart () {
         if (!this.config) return
@@ -26,9 +34,10 @@ export abstract class BaseChart extends React.Component<Props, State> {
         if (!this.data || this.data.length === 0) return
         if (!this.data[0][this.config.measures[0].ref]) return
 
-        this.setState({
-            chart: this.updateChart(this.data)
-        })
+        const chart = this.updateChart(this.data)
+        this.yAxis = axisLeft(this.y)
+        this.xAxis = axisBottom(this.x as any)
+        this.setState({ chart })
     }
 
     abstract updateChart (data: any[])
@@ -76,9 +85,28 @@ export abstract class BaseChart extends React.Component<Props, State> {
         this.unsub()
     }
 
+    clear () {
+        sourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], [])
+    }
+
+    getXAxis (): JSX.Element {
+        return <g transform={`translate(0, ${this.getHeightWithMargins()})`}
+            className='xAxis'
+            ref={node => select(node).call(this.xAxis)}>
+        </g>
+    }
+
+    getYAxis (): JSX.Element {
+        return <g transform={`translate(${this.config.margins.left}, 0)`}
+            className='xAxis'
+            ref={node => select(node).call(this.yAxis)}>
+        </g>
+    }
+
     render () {
         if (!this.config) return <div />
         return <svg
+            onClick={() => this.clear()}
             width={this.width}
             height={this.height}>
             {this.renderChart()}
