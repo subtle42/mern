@@ -33,7 +33,7 @@ interface Props {
 
 export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
     const config = useWidget(props.id)
-    const source = useSource(config.sourceId)
+    // const source = useSource(config.sourceId)
     const marginRules: ValidatorFn[] = [
         Validators.isRequired,
         Validators.min(0),
@@ -123,6 +123,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
     }
 
     const getModalTemplate = (): JSX.Element => {
+        if (!config) return <div />
         return <Modal isOpen={isOpen}>
             <ModalHeader>Edit Widget</ModalHeader>
             <ModalBody>
@@ -187,10 +188,10 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
         const tmp = {
             histogram: new FormCtrlGroup({
                 xMin: new FormControl('', [
-                    Validators.max(source.columns.find(x => x.ref === config.measures[0].ref).min)
+                    // Validators.max(source.columns.find(x => x.ref === config.measures[0].ref).min)
                 ]),
                 xMax: new FormControl('', [
-                    Validators.min(source.columns.find(x => x.ref === config.measures[0].ref).max)
+                    // Validators.min(source.columns.find(x => x.ref === config.measures[0].ref).max)
                 ]),
                 yMin: new FormControl('', [
                     Validators.min(0)

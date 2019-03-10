@@ -90,6 +90,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
     }
 
     getXAxis (): JSX.Element {
+        if (!this.xAxis) return
         return <g transform={`translate(0, ${this.getHeightWithMargins()})`}
             className='xAxis'
             ref={node => select(node).call(this.xAxis)}>
@@ -97,6 +98,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
     }
 
     getYAxis (): JSX.Element {
+        if (!this.yAxis) return
         return <g transform={`translate(${this.config.margins.left}, 0)`}
             className='xAxis'
             ref={node => select(node).call(this.yAxis)}>

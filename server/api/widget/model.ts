@@ -2,6 +2,13 @@ import { Schema, Model } from 'mongoose'
 import { IWidgetModel } from '../../dbModels'
 import { createSchema } from '../utils'
 
+const AxisSchema = new Schema({
+    isHidden: Boolean,
+    max: Number,
+    min: Number,
+    ticks: Number
+})
+
 const WidgetSchema = new Schema({
     pageId: { type: String, required: true },
     sourceId: { type: String, required: true },
@@ -13,7 +20,9 @@ const WidgetSchema = new Schema({
     },
     dimensions: { type: Array, required: true, default: [] },
     measures: { type: Array, required: true, default: [] },
-    type: { type: String, required: true }
+    type: { type: String, required: true },
+    xAxis: AxisSchema,
+    yAxis: AxisSchema
 })
 
 export const Widget: Model<IWidgetModel> = createSchema('Widget', WidgetSchema)

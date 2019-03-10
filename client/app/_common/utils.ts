@@ -3,7 +3,21 @@ import { FormCtrlGroup, FormControl, FormCtrlArray } from './validation'
 const getSchemaFromEvent = (event, schema: FormCtrlGroup | FormControl | FormCtrlArray): FormControl => {
     if (event.target.name === '') return schema as FormControl
 
-    event.target.name.split('.').forEach(attr => {
+    // event.target.name.split('.').forEach(attr => {
+    //     if (attr.indexOf('[') !== -1) {
+    //         const firstPart = attr.split('[')[0]
+    //         const index: number = parseInt(attr.match(/\[(.*?)\]/)[1], 10)
+    //         schema = schema.controls[firstPart]
+    //         schema = schema.controls[index]
+    //     } else {
+    //         schema = schema.controls[attr]
+    //     }
+    // })
+    return getSchema(event.target.name, schema)
+}
+
+export const getSchema = (path: string, schema: FormCtrlGroup | FormControl | FormCtrlArray): FormControl => {
+    path.split('.').forEach(attr => {
         if (attr.indexOf('[') !== -1) {
             const firstPart = attr.split('[')[0]
             const index: number = parseInt(attr.match(/\[(.*?)\]/)[1], 10)

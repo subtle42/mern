@@ -70,10 +70,18 @@ export interface IWidget {
     measures: IMeasure[]
     dimensions: string[]
     columnCount?: number
-    xMin?: number
-    xMax?: number
-    yMin?: number
-    yMax?: number
+    xAxis?: {
+        isHidden?: boolean,
+        min?: number,
+        max?: number,
+        ticks?: number
+    },
+    yAxis?: {
+        isHidden?: boolean,
+        min?: number,
+        max?: number,
+        ticks?: number
+    }
 }
 
 export interface ISource extends IShared {
