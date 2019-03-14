@@ -17,7 +17,7 @@ interface Props {
 const ContentComponent: React.StatelessComponent<Props> = (props: Props) => {
     // Not using the onLayoutChange due to it trigger on layout load
     const defaultLayoutConfig = {
-        draggableHandle: '.card-header',
+        draggableHandle: '.card-title',
         onDragStop: (layout: ReactGridLayout.Layout[]) => {
             PageActions.update(Object.assign({}, props.page, { layout }))
         },

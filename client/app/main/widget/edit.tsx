@@ -1,11 +1,8 @@
 import * as React from 'react'
-import Form from 'reactstrap/lib/Form'
 import Row from 'reactstrap/lib/Row'
 import Col from 'reactstrap/lib/Col'
 import Input from 'reactstrap/lib/Input'
 import FormFeedback from 'reactstrap/lib/FormFeedback'
-import FormGroup from 'reactstrap/lib/FormGroup'
-import Label from 'reactstrap/lib/Label'
 import Modal from 'reactstrap/lib/Modal'
 import ModalHeader from 'reactstrap/lib/ModalHeader'
 import ModalBody from 'reactstrap/lib/ModalBody'
@@ -25,9 +22,11 @@ import notifActions from 'data/notifications/actions'
 import { FormCtrlGroup, FormControl, ValidatorFn } from '../../_common/validation'
 import * as Validators from '../../_common/validators'
 import * as utils from '../../_common/utils'
-import { useWidget, useSource } from '../../_common/hooks'
+import { useWidget } from '../../_common/hooks'
 import CustomInput from 'reactstrap/lib/CustomInput'
-import { buildInput } from '../../_common/forms';
+import { buildInput } from '../../_common/forms'
+import Collapse from 'reactstrap/lib/Collapse'
+import { chartFormStrategy } from './edit/chartFormStrategy'
 
 interface Props {
     id: string
@@ -66,10 +65,14 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                 Validators.min(1),
                 Validators.max(20)
             ])
-        })
+        }),
+        ticks: new FormControl('', [
+            Validators.min(1),
+            Validators.max(50)
+        ]),
+        showLegend: new FormControl(false)
     }))
 
-    const [specificRules, setSpecificRules] = React.useState(new FormCtrlGroup({}))
     const [isOpen, setOpen] = React.useState(false)
     const [currentTab, setTab] = React.useState('general')
 
@@ -78,6 +81,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
         if (!isOpen) {
             rules.value = config
             setRules(rules)
+            setTab('general')
         }
         setOpen(!isOpen)
     }
@@ -132,51 +136,6 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
         </Card>
     }
 
-    const getFormTemplate = (): JSX.Element => {
-        return <Form>
-            <Row>
-                <Col>
-                    <FormGroup>
-                        {getMarginForm()}
-                    </FormGroup>
-                </Col>
-            </Row>
-        </Form>
-    }
-
-    const getAxisTemplate = (axis: string): JSX.Element => {
-        return <Card body style={{ padding: 10 }}>
-            <Row>
-                <Col>
-                    <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <Label style={{ paddingRight: 15 }}>{axis}</Label>
-                        <CustomInput id={`${axis}.isHidden`}
-                            label='Hide'
-                            name={`${axis}.isHidden`}
-                            type='switch'
-                            checked={rules.get(axis).get('isHidden').value}
-                            onChange={utils.handleToggle(rules, setRules)}>
-                        </CustomInput>
-                    </div>
-                </Col>
-            </Row>
-            <Row hidden={rules.get(axis).get('isHidden').value}>
-                <Col>
-                    {buildInput(`${axis}.min`, 'number', rules, setRules, 'Min')}
-                </Col>
-                <Col>
-                    {buildInput(`${axis}.max`, 'number', rules, setRules, 'Max')}
-                </Col>
-                <Col>
-                    {buildInput(`${axis}.ticks`, 'number', rules, setRules, 'Ticks', {
-                        min: 1,
-                        max: 20
-                    })}
-                </Col>
-            </Row>
-        </Card>
-    }
-
     const getModalTemplate = (): JSX.Element => {
         if (!config) return <div />
         return <Modal isOpen={isOpen}>
@@ -194,7 +153,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                         <NavLink
                             active={currentTab === 'specific'}
                             onClick={() => setTab('specific')}>
-                            {config.type}
+                            Chart
                         </NavLink>
                     </NavItem>
                 </Nav>
@@ -207,25 +166,10 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                         borderBottomRightRadius: '.25rem'
                     }}>
                     <TabPane tabId='general' style={{ padding: 10 }}>
-                        {getFormTemplate()}
+                        {getMarginForm()}
                     </TabPane>
-                    <TabPane tabId='specific'>
-                        <Form>
-                            <Row>
-                                <Col>
-                                    <FormGroup>
-                                        {getAxisTemplate('xAxis')}
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col>
-                                    <FormGroup>
-                                        {getAxisTemplate('yAxis')}
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-                        </Form>
+                    <TabPane tabId='specific' style={{ padding: 10 }}>
+                        {chartFormStrategy[config.type](rules, setRules)}
                     </TabPane>
                 </TabContent>
             </ModalBody>
@@ -238,45 +182,6 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                     onClick={cancel}>Cancel</Button>
             </ModalFooter>
         </Modal>
-    }
-
-    const histogram = (): JSX.Element => {
-        return <Form>
-            <Row>
-                <Col>
-                    <FormGroup>
-                        <Label>X Min</Label>
-                        <Input type='number'
-                            value={specificRules.get('xMin').value}
-                            invalid={specificRules.get('xMin').error}/>
-                        <FormFeedback>{specificRules.get('xMin').error.msg}</FormFeedback>
-                    </FormGroup>
-                </Col>
-            </Row>
-        </Form>
-    }
-
-    const getSpecificRules = () => {
-        const tmp = {
-            histogram: new FormCtrlGroup({
-                xMin: new FormControl('', [
-                    // Validators.max(source.columns.find(x => x.ref === config.measures[0].ref).min)
-                ]),
-                xMax: new FormControl('', [
-                    // Validators.min(source.columns.find(x => x.ref === config.measures[0].ref).max)
-                ]),
-                yMin: new FormControl('', [
-                    Validators.min(0)
-                ]),
-                yMax: new FormControl('', []),
-                columnCount: new FormControl('', [
-                    Validators.min(3),
-                    Validators.max(100)
-                ])
-            })
-        }
-
-        setSpecificRules(tmp[config.type])
     }
 
     const cancel = () => {
