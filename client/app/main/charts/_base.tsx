@@ -5,6 +5,7 @@ import { IWidget } from 'common/models'
 import sourceActions from 'data/sources/actions'
 import { ScaleLinear, ScaleBand } from 'd3-scale'
 import { axisBottom, axisLeft, Axis } from 'd3-axis'
+import { format } from 'd3-format'
 import { select } from 'd3-selection'
 
 class State {
@@ -101,7 +102,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
         if (!this.yAxis) return
         return <g transform={`translate(${this.config.margins.left}, 0)`}
             className='xAxis'
-            ref={node => select(node).call(this.yAxis)}>
+            ref={node => select(node).call(this.yAxis.tickFormat(format('~s')))}>
         </g>
     }
 

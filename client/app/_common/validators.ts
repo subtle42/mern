@@ -41,6 +41,7 @@ export const minLength = (expected: number): ValidatorFn => {
 export const min = (expected: number): ValidatorFn => {
     return (ctrl: FormControl) => {
         const actual = ctrl.value
+        if (actual === '') return undefined
         if (actual < expected) {
             return {
                 message: `Expected number to be greater than ${expected}.`,

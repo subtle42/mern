@@ -26,6 +26,8 @@ import { FormCtrlGroup, FormControl, ValidatorFn } from '../../_common/validatio
 import * as Validators from '../../_common/validators'
 import * as utils from '../../_common/utils'
 import { useWidget, useSource } from '../../_common/hooks'
+import CustomInput from 'reactstrap/lib/CustomInput'
+import { buildInput } from '../../_common/forms';
 
 interface Props {
     id: string
@@ -46,6 +48,24 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
             left: new FormControl(0, marginRules),
             bottom: new FormControl(0, marginRules),
             right: new FormControl(0)
+        }),
+        xAxis: new FormCtrlGroup({
+            isHidden: new FormControl(false),
+            max: new FormControl(''),
+            min: new FormControl(''),
+            ticks: new FormControl('', [
+                Validators.min(1),
+                Validators.max(20)
+            ])
+        }),
+        yAxis: new FormCtrlGroup({
+            isHidden: new FormControl(false),
+            max: new FormControl(''),
+            min: new FormControl(''),
+            ticks: new FormControl('', [
+                Validators.min(1),
+                Validators.max(20)
+            ])
         })
     }))
 
@@ -116,10 +136,45 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
         return <Form>
             <Row>
                 <Col>
-                    {getMarginForm()}
+                    <FormGroup>
+                        {getMarginForm()}
+                    </FormGroup>
                 </Col>
             </Row>
         </Form>
+    }
+
+    const getAxisTemplate = (axis: string): JSX.Element => {
+        return <Card body style={{ padding: 10 }}>
+            <Row>
+                <Col>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <Label style={{ paddingRight: 15 }}>{axis}</Label>
+                        <CustomInput id={`${axis}.isHidden`}
+                            label='Hide'
+                            name={`${axis}.isHidden`}
+                            type='switch'
+                            checked={rules.get(axis).get('isHidden').value}
+                            onChange={utils.handleToggle(rules, setRules)}>
+                        </CustomInput>
+                    </div>
+                </Col>
+            </Row>
+            <Row hidden={rules.get(axis).get('isHidden').value}>
+                <Col>
+                    {buildInput(`${axis}.min`, 'number', rules, setRules, 'Min')}
+                </Col>
+                <Col>
+                    {buildInput(`${axis}.max`, 'number', rules, setRules, 'Max')}
+                </Col>
+                <Col>
+                    {buildInput(`${axis}.ticks`, 'number', rules, setRules, 'Ticks', {
+                        min: 1,
+                        max: 20
+                    })}
+                </Col>
+            </Row>
+        </Card>
     }
 
     const getModalTemplate = (): JSX.Element => {
@@ -154,7 +209,24 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                     <TabPane tabId='general' style={{ padding: 10 }}>
                         {getFormTemplate()}
                     </TabPane>
-                    <TabPane tabId='specific'></TabPane>
+                    <TabPane tabId='specific'>
+                        <Form>
+                            <Row>
+                                <Col>
+                                    <FormGroup>
+                                        {getAxisTemplate('xAxis')}
+                                    </FormGroup>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col>
+                                    <FormGroup>
+                                        {getAxisTemplate('yAxis')}
+                                    </FormGroup>
+                                </Col>
+                            </Row>
+                        </Form>
+                    </TabPane>
                 </TabContent>
             </ModalBody>
             <ModalFooter>

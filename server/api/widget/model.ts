@@ -21,8 +21,8 @@ const WidgetSchema = new Schema({
     dimensions: { type: Array, required: true, default: [] },
     measures: { type: Array, required: true, default: [] },
     type: { type: String, required: true },
-    xAxis: AxisSchema,
-    yAxis: AxisSchema
+    xAxis: { type: AxisSchema, default: {} },
+    yAxis: { type: AxisSchema, default: {} }
 })
 
 export const Widget: Model<IWidgetModel> = createSchema('Widget', WidgetSchema)

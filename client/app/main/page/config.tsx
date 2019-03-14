@@ -200,12 +200,12 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                 </Col>
             </Row>
             <Row style={{ marginTop: 20 }}>
-                <Col xs={3}>
+                <Col xs={4}>
                    <FormGroup>
                         <CustomInput id='isDraggable'
                             type='switch'
                             name='isDraggable'
-                            label='Is Draggable'
+                            label='Draggable'
                             onChange={utils.handleToggle(rules, setRules)}
                             checked={rules.get('isDraggable').value}>
                             <FontAwesome
@@ -220,11 +220,11 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                         </CustomInput>
                     </FormGroup>
                 </Col>
-                <Col xs={3}>
+                <Col xs={4}>
                     <FormGroup>
                         <CustomInput id='isResizable'
                             type='switch'
-                            label='Is Resizable'
+                            label='Resizable'
                             onChange={utils.handleToggle(rules, setRules)}
                             name='isResizable'
                             checked={rules.get('isResizable').value}>
@@ -240,12 +240,12 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                         </CustomInput>
                     </FormGroup>
                 </Col>
-                <Col xs={6}>
+                <Col xs={4}>
                     <FormGroup>
                         <CustomInput id='isRearrangeable'
                             type='switch'
                             name='isRearrangeable'
-                            label='Is Rearrangeable'
+                            label='Rearrangeable'
                             onChange={utils.handleToggle(rules, setRules)}
                             checked={rules.get('isRearrangeable').value}>
                             <FontAwesome
