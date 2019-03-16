@@ -16,13 +16,13 @@ export const barGroupForm = (rules, setRules): JSX.Element => {
                 </FormGroup>
             </Col>
         </Row>
-        <Row>
+        {/* <Row>
             <Col>
                 <FormGroup>
                     {buildAxisTemplate('xAxis', rules, setRules)}
                 </FormGroup>
             </Col>
-        </Row>
+        </Row> */}
         <Row>
             <Col>
                 <FormGroup>

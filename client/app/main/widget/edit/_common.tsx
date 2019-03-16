@@ -13,11 +13,11 @@ export const buildLegendTemplate = (rules, setRules): JSX.Element => {
     return <Row>
         <Col>
             <FormGroup>
-                <CustomInput id='showLegend'
+                <CustomInput id='other.showLegend'
                     label='Show Legend'
-                    name='showLegend'
+                    name='other.showLegend'
                     type='switch'
-                    checked={rules.get('showLegend').value}
+                    checked={rules.get('other').get('showLegend').value}
                     onChange={utils.handleToggle(rules, setRules)}>
                 </CustomInput>
             </FormGroup>
@@ -30,17 +30,17 @@ export const buildAxisTemplate = (axis: string, rules, setRules): JSX.Element =>
         <Row>
             <Col>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <CustomInput id={`${axis}.isHidden`}
+                    <CustomInput id={`${axis}.show`}
                         label={axis}
-                        name={`${axis}.isHidden`}
+                        name={`${axis}.show`}
                         type='switch'
-                        checked={rules.get(axis).get('isHidden').value}
+                        checked={rules.get(axis).get('show').value}
                         onChange={utils.handleToggle(rules, setRules)}>
                     </CustomInput>
                 </div>
             </Col>
         </Row>
-        <Collapse isOpen={rules.get(axis).get('isHidden').value}>
+        <Collapse isOpen={rules.get(axis).get('show').value}>
             <Row>
                 <Col>
                     {buildInput(`${axis}.min`, 'number', rules, setRules, 'Min')}

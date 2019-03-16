@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { store } from 'data/store'
 import { Unsubscribe } from 'redux'
-import { IWidget } from 'common/models'
+import { IWidget, AxisConfig } from 'common/models'
 import sourceActions from 'data/sources/actions'
 import { ScaleLinear, ScaleBand } from 'd3-scale'
 import { axisBottom, axisLeft, Axis } from 'd3-axis'
@@ -86,23 +86,41 @@ export abstract class BaseChart extends React.Component<Props, State> {
         this.unsub()
     }
 
+    adjustDomain (domain: any[], axis: AxisConfig): [number, number] {
+        if (axis.min) {
+            domain[0] = domain[0] < axis.min ? domain[0] : axis.min
+        }
+        if (axis.max) {
+            domain[1] = domain[1] > axis.max ? domain[1] : axis.max
+        }
+
+        return domain as [number, number]
+    }
+
     clear () {
         sourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], [])
     }
 
     getXAxis (): JSX.Element {
-        if (!this.xAxis) return
+        if (!this.xAxis || !this.config.xAxis.show) return
         return <g transform={`translate(0, ${this.getHeightWithMargins()})`}
             className='xAxis'
-            ref={node => select(node).call(this.xAxis)}>
+            ref={node => select(node).call(
+                this.xAxis
+                .ticks(this.config.xAxis.ticks || 10)
+            )}>
         </g>
     }
 
     getYAxis (): JSX.Element {
-        if (!this.yAxis) return
+        if (!this.yAxis || !this.config.yAxis.show) return
         return <g transform={`translate(${this.config.margins.left}, 0)`}
             className='xAxis'
-            ref={node => select(node).call(this.yAxis.tickFormat(format('~s')))}>
+            ref={node => select(node).call(
+                this.yAxis
+                .ticks(this.config.yAxis.ticks || 10)
+                .tickFormat(format('~s'))
+            )}>
         </g>
     }
 

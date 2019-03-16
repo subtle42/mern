@@ -12,7 +12,7 @@ export const histogramForm = (rules, setRules): JSX.Element => {
         <Row>
             <Col>
                 <FormGroup>
-                    {buildInput('ticks', 'number', rules, setRules, undefined, {
+                    {buildInput('other.ticks', 'number', rules, setRules, 'Ticks', {
                         min: 1,
                         max: 50
                     })}

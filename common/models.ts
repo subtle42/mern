@@ -56,6 +56,13 @@ export interface IMeasure {
     formula?: string
 }
 
+export interface AxisConfig {
+    show: boolean,
+    min?: number,
+    max?: number,
+    ticks?: number
+}
+
 export interface IWidget {
     _id: any
     pageId: string
@@ -70,18 +77,9 @@ export interface IWidget {
     measures: IMeasure[]
     dimensions: string[]
     columnCount?: number
-    xAxis?: {
-        isHidden?: boolean,
-        min?: number,
-        max?: number,
-        ticks?: number
-    },
-    yAxis?: {
-        isHidden?: boolean,
-        min?: number,
-        max?: number,
-        ticks?: number
-    }
+    xAxis: AxisConfig,
+    yAxis: AxisConfig,
+    other: {[key: string]: any}
 }
 
 export interface ISource extends IShared {

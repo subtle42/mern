@@ -10,15 +10,19 @@ export class Histogram extends BaseChart {
 
     updateChart (data) {
         const mappedData = data.map(d => d[this.config.measures[0].ref])
+
         this.x
-            .domain(extent(mappedData) as any)
+            .domain(this.adjustDomain(extent(mappedData), this.config.yAxis))
             .rangeRound([this.config.margins.left, this.getWidthtWithMargins()])
         this.bins
             .domain(this.x.domain() as any)
-            .thresholds(this.x.ticks(20))
+            .thresholds(this.x.ticks(this.config.other.ticks || 20))
         const myData = this.bins(mappedData)
+
+        const yDomain = [0, max(myData, (d: any) => d.length)] as [number, number]
+
         this.y
-            .domain([0, max(myData, (d: any) => d.length) as any])
+            .domain(this.adjustDomain(yDomain, this.config.yAxis))
             .range([this.getHeightWithMargins(), 0])
 
         return myData

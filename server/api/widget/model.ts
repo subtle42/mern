@@ -3,10 +3,15 @@ import { IWidgetModel } from '../../dbModels'
 import { createSchema } from '../utils'
 
 const AxisSchema = new Schema({
-    isHidden: Boolean,
+    show: { type: Boolean, default: true },
     max: Number,
     min: Number,
     ticks: Number
+})
+
+const OtherSchema = new Schema({
+    ticks: Number,
+    showLegend: Boolean
 })
 
 const WidgetSchema = new Schema({
@@ -22,7 +27,8 @@ const WidgetSchema = new Schema({
     measures: { type: Array, required: true, default: [] },
     type: { type: String, required: true },
     xAxis: { type: AxisSchema, default: {} },
-    yAxis: { type: AxisSchema, default: {} }
+    yAxis: { type: AxisSchema, default: {} },
+    other: { type: OtherSchema, default: {} }
 })
 
 export const Widget: Model<IWidgetModel> = createSchema('Widget', WidgetSchema)

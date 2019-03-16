@@ -20,8 +20,9 @@ export class BarGrouped extends BaseChart {
         this.xInner
             .domain(this.config.measures.map(m => m.ref))
             .rangeRound([0, this.x.bandwidth()])
+        const yDomain = [0, max(data, d => max(this.config.measures, key => d[key.ref])) as any]
         this.y
-            .domain([0, max(data, d => max(this.config.measures, key => d[key.ref])) as any])
+            .domain(this.adjustDomain(yDomain, this.config.yAxis))
             .rangeRound([this.getHeightWithMargins(), 0])
 
         const mappedData = {}

@@ -23,9 +23,6 @@ import { FormCtrlGroup, FormControl, ValidatorFn } from '../../_common/validatio
 import * as Validators from '../../_common/validators'
 import * as utils from '../../_common/utils'
 import { useWidget } from '../../_common/hooks'
-import CustomInput from 'reactstrap/lib/CustomInput'
-import { buildInput } from '../../_common/forms'
-import Collapse from 'reactstrap/lib/Collapse'
 import { chartFormStrategy } from './edit/chartFormStrategy'
 
 interface Props {
@@ -46,10 +43,10 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
             top: new FormControl(0, marginRules),
             left: new FormControl(0, marginRules),
             bottom: new FormControl(0, marginRules),
-            right: new FormControl(0)
+            right: new FormControl(0, marginRules)
         }),
         xAxis: new FormCtrlGroup({
-            isHidden: new FormControl(false),
+            show: new FormControl(false),
             max: new FormControl(''),
             min: new FormControl(''),
             ticks: new FormControl('', [
@@ -58,7 +55,7 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
             ])
         }),
         yAxis: new FormCtrlGroup({
-            isHidden: new FormControl(false),
+            show: new FormControl(false),
             max: new FormControl(''),
             min: new FormControl(''),
             ticks: new FormControl('', [
@@ -66,11 +63,13 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
                 Validators.max(20)
             ])
         }),
-        ticks: new FormControl('', [
-            Validators.min(1),
-            Validators.max(50)
-        ]),
-        showLegend: new FormControl(false)
+        other: new FormCtrlGroup({
+            ticks: new FormControl('', [
+                Validators.min(1),
+                Validators.max(50)
+            ]),
+            showLegend: new FormControl(false)
+        })
     }))
 
     const [isOpen, setOpen] = React.useState(false)
