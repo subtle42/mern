@@ -358,8 +358,8 @@ describe('Page Conifg component', () => {
                 it('should be disabled if any part of form is invalid')
                 it('should be enabled if entire form is valid', () => {
                     expect(wrapper.find('Button')
-                        .filterWhere(x => x.props().children === 'Save')
-                        .prop('disabled'))
+                    .filterWhere(x => x.props().children === 'Save')
+                    .prop('disabled'))
                     .to.equal(false)
                 })
             })
@@ -410,8 +410,8 @@ describe('Page Conifg component', () => {
                         }
                     })
                     expect(wrapper.find('Input')
-                        .filterWhere(x => x.prop('name') === 'cols')
-                        .prop('invalid'))
+                    .filterWhere(x => x.prop('name') === 'cols')
+                    .prop('invalid'))
                     .to.equal(true)
                 })
 
@@ -426,14 +426,84 @@ describe('Page Conifg component', () => {
                         }
                     })
                     expect(wrapper.find('Input')
-                        .filterWhere(x => x.prop('name') === 'cols')
-                        .prop('invalid'))
+                    .filterWhere(x => x.prop('name') === 'cols')
+                    .prop('invalid'))
                     .to.equal(true)
                 })
             })
 
+            describe('padding', () => {
+                describe('sides field', () => {
+                    it('should be invalid if input is less than 0', () => {
+                        const input = wrapper.find('Input')
+                        .filterWhere(x => x.prop('name') === 'containerPadding[0]')
+                        expect(input.prop('invalid')).to.equal(false)
+                        input.simulate('change', {
+                            target:  {
+                                name: 'containerPadding[0]',
+                                value: -1
+                            }
+                        })
+                        expect(wrapper.find('Input')
+                        .filterWhere(x => x.prop('name') === 'containerPadding[0]')
+                        .prop('invalid'))
+                        .to.equal(true)
+                    })
+
+                    it('should be invalid if input is greater than 100', () => {
+                        const input = wrapper.find('Input')
+                        .filterWhere(x => x.prop('name') === 'containerPadding[0]')
+                        expect(input.prop('invalid')).to.equal(false)
+                        input.simulate('change', {
+                            target:  {
+                                name: 'containerPadding[0]',
+                                value: 101
+                            }
+                        })
+                        expect(wrapper.find('Input')
+                        .filterWhere(x => x.prop('name') === 'containerPadding[0]')
+                        .prop('invalid'))
+                        .to.equal(true)
+                    })
+                })
+
+                describe('vertical field', () => {
+                    it('should be invalid if input is less than 0', () => {
+                        const input = wrapper.find('Input')
+                        .filterWhere(x => x.prop('name') === 'containerPadding[1]')
+                        expect(input.prop('invalid')).to.equal(false)
+                        input.simulate('change', {
+                            target:  {
+                                name: 'containerPadding[1]',
+                                value: -1
+                            }
+                        })
+                        expect(wrapper.find('Input')
+                        .filterWhere(x => x.prop('name') === 'containerPadding[1]')
+                        .prop('invalid'))
+                        .to.equal(true)
+                    })
+
+                    it('should be invalid if input is greater than 100', () => {
+                        const input = wrapper.find('Input')
+                        .filterWhere(x => x.prop('name') === 'containerPadding[1]')
+                        expect(input.prop('invalid')).to.equal(false)
+                        input.simulate('change', {
+                            target:  {
+                                name: 'containerPadding[1]',
+                                value: 101
+                            }
+                        })
+                        expect(wrapper.find('Input')
+                        .filterWhere(x => x.prop('name') === 'containerPadding[1]')
+                        .prop('invalid'))
+                        .to.equal(true)
+                    })
+                })
+            })
+
             describe('margins', () => {
-                describe('horizontal field', () => {
+                describe('sides field', () => {
                     it('should be invalid if input is less than 0', () => {
                         const input = wrapper.find('Input')
                         .filterWhere(x => x.prop('name') === 'margin[0]')
@@ -445,8 +515,8 @@ describe('Page Conifg component', () => {
                             }
                         })
                         expect(wrapper.find('Input')
-                            .filterWhere(x => x.prop('name') === 'margin[0]')
-                            .prop('invalid'))
+                        .filterWhere(x => x.prop('name') === 'margin[0]')
+                        .prop('invalid'))
                         .to.equal(true)
                     })
 
@@ -461,8 +531,8 @@ describe('Page Conifg component', () => {
                             }
                         })
                         expect(wrapper.find('Input')
-                            .filterWhere(x => x.prop('name') === 'margin[0]')
-                            .prop('invalid'))
+                        .filterWhere(x => x.prop('name') === 'margin[0]')
+                        .prop('invalid'))
                         .to.equal(true)
                     })
                 })
@@ -479,8 +549,8 @@ describe('Page Conifg component', () => {
                             }
                         })
                         expect(wrapper.find('Input')
-                            .filterWhere(x => x.prop('name') === 'margin[1]')
-                            .prop('invalid'))
+                        .filterWhere(x => x.prop('name') === 'margin[1]')
+                        .prop('invalid'))
                         .to.equal(true)
                     })
 
@@ -495,8 +565,8 @@ describe('Page Conifg component', () => {
                             }
                         })
                         expect(wrapper.find('Input')
-                            .filterWhere(x => x.prop('name') === 'margin[1]')
-                            .prop('invalid'))
+                        .filterWhere(x => x.prop('name') === 'margin[1]')
+                        .prop('invalid'))
                         .to.equal(true)
                     })
                 })
@@ -504,21 +574,24 @@ describe('Page Conifg component', () => {
         })
 
         describe('on save', () => {
-            beforeEach(() => wrapper.find('FontAwesome').simulate('click'))
+            let saveBtn: ReactWrapper
+            beforeEach(() => {
+                wrapper.find('FontAwesome').simulate('click')
+                saveBtn = wrapper.find('Button')
+                    .findWhere(x => x.props().children === 'Save' && x.props().tag === 'button')
+            })
 
-            xit('should send a rest call', () => {
-                wrapper.find('Button')
-                .findWhere(x => x.props().children === 'Save')
-                .simulate('click')
+            it('should send a rest call', () => {
+                saveBtn.simulate('click')
                 return utils.waitATick()
                 .then(() => {
                     expect(requests.length).to.equal(1)
-                    expect(requests[0].method).to.equal('POST')
+                    expect(requests[0].method).to.equal('PUT')
                     expect(requests[0].url).to.equal('/api/pages')
                 })
             })
 
-            xit('should send new name', () => {
+            it('should send new name', () => {
                 const name = 'aweioawv'
                 wrapper.find('Input')
                 .filterWhere(x => x.prop('name') === 'name')
@@ -528,16 +601,33 @@ describe('Page Conifg component', () => {
                         value: name
                     }
                 })
-                // wrapper.find('Button')
-                // .filterWhere(x => x.props().children === 'Save')
-                // .simulate('click')
-                // return utils.waitATick()
-                // .then(() => JSON.parse(requests[0].requestBody) as IPage)
-                // .then(page => expect(page.name).to.equal(name))
+                saveBtn.simulate('click')
+                return utils.waitATick()
+                .then(() => JSON.parse(requests[0].requestBody) as IPage)
+                .then(page => expect(page.name).to.equal(name))
 
             })
-            it('should send new columns')
-            it('should send new padding')
+
+            it('should send new columns', () => {
+                const cols = 11
+                wrapper.find('Input')
+                .filterWhere(x => x.prop('name') === 'cols')
+                .simulate('change', {
+                    target: {
+                        name: 'cols',
+                        value: cols
+                    }
+                })
+                saveBtn.simulate('click')
+                return utils.waitATick()
+                .then(() => JSON.parse(requests[0].requestBody) as IPage)
+                .then(page => expect(page.cols).to.equal(cols))
+            })
+
+            describe('padding', () => {
+                it('should send new side padding')
+                it('should send new vertical padding')
+            })
             it('should send new margins')
             it('should send new isDraggable')
             it('should send new isResizable')
