@@ -4,6 +4,7 @@ import { factory } from '../baseReducer'
 
 let myFactory = Object.assign({}, factory, {
     setSize: (store: WidgetStore, payload: any): WidgetStore => {
+        store.sizes = { ...store.sizes }
         store.sizes[payload.id] = payload.size
         return store
     },

@@ -2,17 +2,13 @@ import * as React from 'react'
 import * as FontAwesome from 'react-fontawesome'
 import './style.css'
 import Modal from 'reactstrap/lib/Modal'
-import ModalHeader from 'reactstrap/lib/ModalHeader'
-import ModalBody from 'reactstrap/lib/ModalBody'
-import ModalFooter from 'reactstrap/lib/ModalFooter'
-import Button from 'reactstrap/lib/Button'
 import { IBook } from 'common/models'
 import { BookList } from './edit/list'
 import { BookEditForm } from './edit/form'
 
 interface Props {}
 
-export const EditBookButton: React.StatelessComponent<Props> = (props: Props) => {
+export const EditBookButton: React.FunctionComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
     const [toEdit, setEdit] = React.useState(undefined as IBook)
 

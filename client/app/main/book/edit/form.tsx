@@ -10,20 +10,20 @@ import ModalBody from 'reactstrap/lib/ModalBody'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
 import Button from 'reactstrap/lib/Button'
 
-import { FormControl, FormCtrlGroup, FormCtrlArray } from '../../../_common/validation'
+import { FormControl, FormCtrlGroup } from '../../../_common/validation'
 import * as Validators from '../../../_common/validators'
 import * as utils from '../../../_common/utils'
 import { useBook } from '../../../_common/hooks'
 import BookActions from 'data/books/actions'
 import NotifActions from 'data/notifications/actions'
-import CustomInput from 'reactstrap/lib/CustomInput';
+import CustomInput from 'reactstrap/lib/CustomInput'
 
 interface Props {
     _id: string
     onDone: () => void
 }
 
-export const BookEditForm: React.StatelessComponent<Props> = (props: Props) => {
+export const BookEditForm: React.FunctionComponent<Props> = (props: Props) => {
     const book = useBook(props._id)
     const newRules = new FormCtrlGroup({
         // _id: new FormControl('', [Validators.isRequired]),
@@ -64,7 +64,7 @@ export const BookEditForm: React.StatelessComponent<Props> = (props: Props) => {
                     </FormGroup>
                 </Col>
                 <Col xs={6}>
-                    <FormGroup style={{paddingTop: 38}}>
+                    <FormGroup style={{ paddingTop: 38 }}>
                         <CustomInput
                             id='isPublic'
                             label='Is Public'

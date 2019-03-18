@@ -11,7 +11,8 @@ class SourceActions extends BaseActions {
     }
 
     select (id: string) {
-        return Promise.reject('This is not implemented')
+        console.warn(`Source select is not implemented`)
+        return Promise.resolve()
     }
 
     create (file: File): Promise<string> {
