@@ -53,10 +53,10 @@ class WidgetController {
                 myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
                 myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
             } else {
-                myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
+                myWidget.dimensions.push(this.getDefaultColumn('group', mySource))
                 myWidget.measures.push({
                     formula: 'sum',
-                    ref: this.getDefaultColumn('group', mySource)
+                    ref: this.getDefaultColumn('number', mySource)
                 })
             }
 
