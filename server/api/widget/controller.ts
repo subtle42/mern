@@ -47,20 +47,23 @@ class WidgetController {
 
     private addDefaultsToWidget (myWidget: IWidget, mySource: ISource): Promise<void> {
         return new Promise(resolve => {
-            const dimensions = mySource.columns.filter(col => col.type === 'group')
-            const measures = mySource.columns.filter(col => col.type === 'number')
-
-            if (dimensions.length > 0 && myWidget.type !== 'histogram') {
-                myWidget.dimensions.push(dimensions[Math.floor(Math.random() * dimensions.length)].ref)
-            }
-            if (measures.length > 0) {
+            if (myWidget.type === 'histogram') {
+                myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
+            } else {
+                myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
                 myWidget.measures.push({
-                    ref: measures[Math.floor(Math.random() * measures.length)].ref,
-                    formula: myWidget.type !== 'histogram' ? 'sum' : undefined
+                    formula: 'sum',
+                    ref: this.getDefaultColumn('group', mySource)
                 })
             }
+
             resolve()
         })
+    }
+
+    getDefaultColumn (type: string, source: ISource): string {
+        const cols = source.columns.filter(col => col.type === type)
+        return cols[Math.floor(Math.random() * cols.length)].ref
     }
 
     remove (req: Request, res: Response) {

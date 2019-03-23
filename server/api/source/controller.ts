@@ -235,9 +235,16 @@ class SourceController {
         this.addFiltersToQuery(source, input, output)
 
         let groupByObj = {
-            _id: input.dimensions.length > 0 ? `$${input.dimensions[0]}` : '$_id',
+            _id: input.measures.length > 0 ? `$${input.dimensions[0]}` : '$_id',
             count: { $sum: 1 }
         }
+
+        if (input.measures.length === 0) {
+            input.dimensions.forEach(dim => {
+                groupByObj[dim] = { $sum: `$${dim}` }
+            })
+        }
+
         input.measures.forEach(measure => {
             groupByObj[measure.ref] = { $sum: `$${measure.ref}` }
         })

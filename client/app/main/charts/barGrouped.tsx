@@ -16,7 +16,7 @@ export class BarGrouped extends BaseChart {
         const options: string[] = data.map(d => d._id)
         this.x
             .domain(options)
-            .rangeRound([this.config.margins.left, this.getWidthtWithMargins()])
+            .rangeRound([0, this.getWidthtWithMargins()])
         this.xInner
             .domain(this.config.measures.map(m => m.ref))
             .rangeRound([0, this.x.bandwidth()])

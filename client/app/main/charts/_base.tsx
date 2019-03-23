@@ -37,14 +37,13 @@ export abstract class BaseChart extends React.Component<Props, State> {
     })
 
     private updateRangeFilter (range: number[]) {
-        sourceActions.addFilter(this.config.sourceId, this.config.measures[0].ref, range)
+        sourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], range)
     }
 
     private _updateChart () {
         if (!this.config) return
         if (!this.height || !this.width) return
         if (!this.data || this.data.length === 0) return
-        if (!this.data[0][this.config.measures[0].ref]) return
 
         const chart = this.updateChart(this.data)
         this.yAxis = axisLeft(this.y)

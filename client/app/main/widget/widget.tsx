@@ -92,7 +92,7 @@ export class Widget extends React.Component<Props, State> {
 
     getDropdown (): JSX.Element {
         if (!this.state.widgetConfig) return
-        return <div style={{ display: 'flex', justifyContent: 'center' }}>
+        return <div style={{ display: 'flex', justifyContent: 'center', height: 29 }}>
             {this.state.widgetConfig.measures.map((measure, index) => {
                 return <ColumnButton
                     key={index}
@@ -112,7 +112,7 @@ export class Widget extends React.Component<Props, State> {
             {this.state.widgetConfig.dimensions.map((dim, index) => {
                 return <ColumnButton
                     key={index}
-                    colType='group'
+                    colType={this.state.widgetConfig.type === 'histogram' ? 'number' : 'group'}
                     sourceId={this.state.widgetConfig.sourceId}
                     colId={dim}
                     onColUpdate={col => {

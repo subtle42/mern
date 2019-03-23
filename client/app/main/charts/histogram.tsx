@@ -12,7 +12,7 @@ export class Histogram extends BaseChart {
     bins = histogram()
 
     updateChart (data) {
-        const mappedData = data.map(d => d[this.config.measures[0].ref])
+        const mappedData = data.map(d => d[this.config.dimensions[0]])
 
         this.x
             .domain(this.adjustDomain(extent(mappedData), this.config.yAxis))
