@@ -25,16 +25,6 @@ const chartConfList: ChartConf[] = [{
         count: 1,
         colType: 'number'
     }]
-// }, {
-//     name: 'Pie',
-//     type: 'pie',
-//     requires: [{
-//         count: 1,
-//         colType: 'number'
-//     }, {
-//         count: 1,
-//         colType: 'group'
-//     }]
 }, {
     name: 'Bar',
     type: 'barGroup',
@@ -45,9 +35,16 @@ const chartConfList: ChartConf[] = [{
         count: 1,
         colType: 'group'
     }]
+}, {
+    name: 'Scatter',
+    type: 'scatter',
+    requires: [{
+        count: 2,
+        colType: 'number'
+    }]
 }]
 
-export const SelectChartType: React.StatelessComponent<Props> = (props: Props) => {
+export const SelectChartType: React.FunctionComponent<Props> = (props: Props) => {
     const [selected, setSelected] = React.useState(undefined as ChartConf)
     const rowSize = 4
 

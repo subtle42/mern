@@ -8,24 +8,28 @@ export class Scatter extends BaseChart {
     x = scaleLinear()
     y = scaleLinear()
 
-    updateChart (data) {
+    updateChart (data: any[]) {
+        const myData = data.slice(0, 1000)
         this.radius = 3.5
         this.x
             .range([0, this.getWidthtWithMargins()])
-            .domain(extent(data, d => d[this.config.measures[0].ref]) as any)
+            .domain(extent(myData, d => d[this.config.dimensions[0]]) as any)
         this.y
             .range([this.getHeightWithMargins(), 0])
-            .domain(extent(data, d => d[this.config.measures[1].ref]) as any)
+            .domain(extent(myData, d => d[this.config.dimensions[1]]) as any)
+        return myData
     }
 
     renderChart () {
-        return <g transform={`tanslate(${this.config.margins.left}, ${this.config.margins.top}`}>
-            {this.chart.map((row, index) => <circle key={index}
+        return <g transform={`translate(${this.config.margins.left}, ${this.config.margins.top})`}>
+            {this.state.chart.map((row, index) => <circle key={index}
                 r={this.radius}
-                cx={this.x(row[this.config.measures[0].ref])}
-                cy={this.y(row[this.config.measures[1].ref])}
-                style={{ fill: 'blue' }}>
+                cx={this.x(row[this.config.dimensions[0]])}
+                cy={this.y(row[this.config.dimensions[1]])}
+                style={{ fill: 'steelblue' }}>
             </circle>)}
+            {this.getYAxis()}
+            {this.getXAxis()}
         </g>
     }
 }

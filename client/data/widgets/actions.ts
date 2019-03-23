@@ -56,7 +56,7 @@ class WidgetActions extends BaseActions {
         .map(w => this.query(w))
 
         return Promise.all(calls)
-        .then(() => console.log('done'))
+        .then(() => undefined)
         .catch(err => console.error(err))
     }
 }

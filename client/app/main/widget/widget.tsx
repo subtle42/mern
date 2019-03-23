@@ -17,6 +17,7 @@ import { BarGrouped } from '../charts/barGrouped'
 import { ColumnButton } from './content/columnBtn'
 import { ConfirmModal } from '../../_common/confirmation'
 import { EditButton } from './edit'
+import { Scatter } from '../charts/scatter';
 
 interface Props {
     _id?: any
@@ -92,6 +93,20 @@ export class Widget extends React.Component<Props, State> {
 
     getDropdown (): JSX.Element {
         if (!this.state.widgetConfig) return
+        if (this.state.widgetConfig.type === 'scatter') {
+            return <div style={{ display: 'flex', justifyContent: 'center', height: 29 }}>
+                <ColumnButton
+                    colType='number'
+                    sourceId={this.state.widgetConfig.sourceId}
+                    colId={this.state.widgetConfig.dimensions[1]}
+                    onColUpdate={col => {
+                        this.state.widgetConfig.dimensions[1] = col.ref
+                        WidgetActions.update(this.state.widgetConfig)
+                        .then(() => WidgetActions.query(this.state.widgetConfig))
+                    }}/>
+            </div>
+        }
+
         return <div style={{ display: 'flex', justifyContent: 'center', height: 29 }}>
             {this.state.widgetConfig.measures.map((measure, index) => {
                 return <ColumnButton
@@ -106,7 +121,21 @@ export class Widget extends React.Component<Props, State> {
 
     getDimDropdown () {
         if (!this.state.widgetConfig) return
-        if (this.state.widgetConfig.dimensions.length === 0) return
+        if (this.state.widgetConfig.type === 'scatter') {
+            return <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <ColumnButton
+                    colType='number'
+                    sourceId={this.state.widgetConfig.sourceId}
+                    colId={this.state.widgetConfig.dimensions[0]}
+                    onColUpdate={col => {
+                        this.state.widgetConfig.dimensions[0] = col.ref
+                        WidgetActions.update(this.state.widgetConfig)
+                        .then(() => WidgetActions.query(this.state.widgetConfig))
+                    }}/>
+            </div>
+        }
+
+
         return <div style={{ display: 'flex', justifyContent: 'center' }}>
             <div style={{ fontSize: 10, paddingTop: 7 }}>Grouped by </div>
             {this.state.widgetConfig.dimensions.map((dim, index) => {
@@ -139,6 +168,8 @@ export class Widget extends React.Component<Props, State> {
             return <Histogram id={this.props._id}/>
         } else if (widget.type === 'barGroup') {
             return <BarGrouped id={this.props._id} />
+        } else if (widget.type === 'scatter') {
+            return <Scatter id={this.props._id} />
         }
         return <div/>
     }

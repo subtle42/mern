@@ -49,6 +49,9 @@ class WidgetController {
         return new Promise(resolve => {
             if (myWidget.type === 'histogram') {
                 myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
+            } else if (myWidget.type === 'scatter') {
+                myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
+                myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
             } else {
                 myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
                 myWidget.measures.push({
