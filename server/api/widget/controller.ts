@@ -52,6 +52,12 @@ class WidgetController {
             } else if (myWidget.type === 'scatter') {
                 myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
                 myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
+            } else if (myWidget.type === 'line') {
+                myWidget.dimensions.push(this.getDefaultColumn('datetime', mySource))
+                myWidget.measures.push({
+                    formula: 'sum',
+                    ref: this.getDefaultColumn('number', mySource)
+                })
             } else {
                 myWidget.dimensions.push(this.getDefaultColumn('group', mySource))
                 myWidget.measures.push({

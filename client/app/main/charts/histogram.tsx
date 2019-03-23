@@ -28,14 +28,8 @@ export class Histogram extends BaseChart {
             .domain(this.adjustDomain(yDomain, this.config.yAxis))
             .range([this.getHeightWithMargins(), 0])
 
-        const var1: [number, number] = [0, 0]
-        const var2: [number, number] = [this.getWidthtWithMargins(), this.getHeightWithMargins()]
-        this.brush.extent([var1, var2])
-
         return myData
     }
-
-
 
     renderChart () {
         return <g transform={`translate(${this.config.margins.left}, ${this.config.margins.top})`}>

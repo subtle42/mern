@@ -86,6 +86,8 @@ class SourceController {
                         if (columnTypes[index] === 'number') {
                             row[index] = entry.replace('$', '')
                             item[index] = parseInt(entry, 10)
+                        } else if (columnTypes[index] === 'datetime') {
+                            item[index] = new Date(entry)
                         } else {
                             item[index] = entry
                         }
@@ -215,10 +217,16 @@ class SourceController {
 
     private FilterFactory = {
         number: (filter: number[]) => {
-            return { $gt: filter[0], $lt: filter[1] }
+            return { $gte: filter[0], $lte: filter[1] }
         },
         group: (filter: string[]) => {
             return { $in: filter }
+        },
+        datetime: (filter: string[]) => {
+            return {
+                $gte: new Date(filter[0]),
+                $lt: new Date(filter[1])
+            }
         }
     }
 
@@ -263,11 +271,16 @@ class SourceController {
             $group: groupByObj
         })
 
+        if (source.columns.find(col => col.ref === input.dimensions[0]).type === 'datetime') {
+            output.push({
+                $sort: { _id: -1 }
+            })
+        }
+
         return output
     }
 
     private runMongoQuery (source: ISource, query: any[]): Promise<any[]> {
-        console.log(query)
         return new Promise((resolve, reject) => {
             MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
             .then(client => {

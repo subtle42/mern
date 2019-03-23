@@ -3,7 +3,7 @@ import { store } from 'data/store'
 import { Unsubscribe } from 'redux'
 import { IWidget, AxisConfig } from 'common/models'
 import sourceActions from 'data/sources/actions'
-import { ScaleLinear, ScaleBand } from 'd3-scale'
+import { ScaleLinear, ScaleBand, ScaleTime } from 'd3-scale'
 import { axisBottom, axisLeft, Axis } from 'd3-axis'
 import { format } from 'd3-format'
 import { select, event } from 'd3-selection'
@@ -27,7 +27,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
     width: number
     xAxis: Axis<any>
     yAxis: Axis<any>
-    x: ScaleLinear<number, number> | ScaleBand<string>
+    x: ScaleLinear<number, number> | ScaleBand<string> | ScaleTime<number, number>
     y: ScaleLinear<number, number>
     brush = brushX()
     .on('end', () => {
@@ -135,7 +135,9 @@ export abstract class BaseChart extends React.Component<Props, State> {
     }
 
     getBrush (): JSX.Element {
-        if (this.config.type !== 'histogram') return
+        const var1: [number, number] = [0, 0]
+        const var2: [number, number] = [this.getWidthtWithMargins(), this.getHeightWithMargins()]
+        this.brush.extent([var1, var2])
         return <g
             ref={node => select(node).call(this.brush) }>
         </g>

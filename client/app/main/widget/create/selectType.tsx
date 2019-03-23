@@ -42,6 +42,16 @@ const chartConfList: ChartConf[] = [{
         count: 2,
         colType: 'number'
     }]
+}, {
+    name: 'Line',
+    type: 'line',
+    requires: [{
+        count: 1,
+        colType: 'datetime'
+    }, {
+        count: 1,
+        colType: 'number'
+    }]
 }]
 
 export const SelectChartType: React.FunctionComponent<Props> = (props: Props) => {

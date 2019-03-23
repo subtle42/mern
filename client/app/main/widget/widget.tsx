@@ -18,6 +18,7 @@ import { ColumnButton } from './content/columnBtn'
 import { ConfirmModal } from '../../_common/confirmation'
 import { EditButton } from './edit'
 import { Scatter } from '../charts/scatter';
+import { Line } from '../charts/line';
 
 interface Props {
     _id?: any
@@ -170,6 +171,8 @@ export class Widget extends React.Component<Props, State> {
             return <BarGrouped id={this.props._id} />
         } else if (widget.type === 'scatter') {
             return <Scatter id={this.props._id} />
+        } else if (widget.type === 'line') {
+            return <Line id={this.props._id} />
         }
         return <div/>
     }
