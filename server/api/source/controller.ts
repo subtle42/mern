@@ -205,7 +205,7 @@ class SourceController {
 
     private FilterFactory = {
         number: (filter: number[]) => {
-            return { $elemMatch: [{ $gte: filter[0] }, { $lt: filter[1] }] }
+            return { $gt: filter[0], $lt: filter[1] }
         },
         group: (filter: string[]) => {
             return { $in: filter }
@@ -250,6 +250,7 @@ class SourceController {
     }
 
     private runMongoQuery (source: ISource, query: any[]): Promise<any[]> {
+        console.log(query)
         return new Promise((resolve, reject) => {
             MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
             .then(client => {

@@ -1,5 +1,5 @@
 import { store } from 'data/store'
-import { IPage } from 'common/models'
+import { IPage, IBook } from 'common/models'
 
 const addItemToStore = (namespace: string, item) => {
     store.dispatch({
@@ -23,6 +23,14 @@ export const setSelectedBook = (id: string) => {
 
 export const addBookToStore = (item) => {
     addItemToStore('books', item)
+}
+
+export const setUser = (item) => {
+    store.dispatch({
+        type: 'set_user',
+        payload: item,
+        namespace: 'auth'
+    })
 }
 
 export const pages = {

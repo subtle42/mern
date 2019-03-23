@@ -1,7 +1,10 @@
 import * as React from 'react'
 import { scaleLinear } from 'd3-scale'
 import { extent, max, histogram } from 'd3-array'
+import { brushX } from 'd3-brush'
+import { event } from 'd3-selection'
 import { BaseChart } from './_base'
+import { select } from 'd3'
 
 export class Histogram extends BaseChart {
     x = scaleLinear()
@@ -13,7 +16,7 @@ export class Histogram extends BaseChart {
 
         this.x
             .domain(this.adjustDomain(extent(mappedData), this.config.yAxis))
-            .rangeRound([this.config.margins.left, this.getWidthtWithMargins()])
+            .range([0, this.getWidthtWithMargins()])
         this.bins
             .domain(this.x.domain() as any)
             .thresholds(this.x.ticks(this.config.other.ticks || 20))
@@ -25,8 +28,14 @@ export class Histogram extends BaseChart {
             .domain(this.adjustDomain(yDomain, this.config.yAxis))
             .range([this.getHeightWithMargins(), 0])
 
+        const var1: [number, number] = [0, 0]
+        const var2: [number, number] = [this.getWidthtWithMargins(), this.getHeightWithMargins()]
+        this.brush.extent([var1, var2])
+
         return myData
     }
+
+
 
     renderChart () {
         return <g transform={`translate(${this.config.margins.left}, ${this.config.margins.top})`}>
@@ -39,6 +48,7 @@ export class Histogram extends BaseChart {
             </rect>)}
             {this.getXAxis()}
             {this.getYAxis()}
+            {this.getBrush()}
         </g>
     }
 }

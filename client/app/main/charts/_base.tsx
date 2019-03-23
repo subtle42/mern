@@ -6,7 +6,8 @@ import sourceActions from 'data/sources/actions'
 import { ScaleLinear, ScaleBand } from 'd3-scale'
 import { axisBottom, axisLeft, Axis } from 'd3-axis'
 import { format } from 'd3-format'
-import { select } from 'd3-selection'
+import { select, event } from 'd3-selection'
+import { brushX } from 'd3-brush'
 
 class State {
     chart: any[] = []
@@ -28,6 +29,16 @@ export abstract class BaseChart extends React.Component<Props, State> {
     yAxis: Axis<any>
     x: ScaleLinear<number, number> | ScaleBand<string>
     y: ScaleLinear<number, number>
+    brush = brushX()
+    .on('end', () => {
+        const x: any = this.x
+        const myEvent = event.selection || []
+        this.updateRangeFilter(myEvent.map(d => x.invert(d)))
+    })
+
+    private updateRangeFilter (range: number[]) {
+        sourceActions.addFilter(this.config.sourceId, this.config.measures[0].ref, range)
+    }
 
     private _updateChart () {
         if (!this.config) return
@@ -114,13 +125,20 @@ export abstract class BaseChart extends React.Component<Props, State> {
 
     getYAxis (): JSX.Element {
         if (!this.yAxis || !this.config.yAxis.show) return
-        return <g transform={`translate(${this.config.margins.left}, 0)`}
+        return <g transform={`translate(${0}, 0)`}
             className='xAxis'
             ref={node => select(node).call(
                 this.yAxis
                 .ticks(this.config.yAxis.ticks || 10)
                 .tickFormat(format('~s'))
             )}>
+        </g>
+    }
+
+    getBrush (): JSX.Element {
+        if (this.config.type !== 'histogram') return
+        return <g
+            ref={node => select(node).call(this.brush) }>
         </g>
     }
 
