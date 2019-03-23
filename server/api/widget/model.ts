@@ -18,7 +18,7 @@ const WidgetSchema = new Schema({
     pageId: { type: String, required: true },
     sourceId: { type: String, required: true },
     margins: {
-        top: { type: Number, required: true, default: 0 },
+        top: { type: Number, required: true, default: 5 },
         bottom: { type: Number, required: true, default: 20 },
         left: { type: Number, required: true, default: 35 },
         right: { type: Number, required: true, default: 10 }

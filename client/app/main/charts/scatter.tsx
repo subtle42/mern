@@ -13,10 +13,14 @@ export class Scatter extends BaseChart {
         this.radius = 3.5
         this.x
             .range([0, this.getWidthtWithMargins()])
-            .domain(extent(myData, d => d[this.config.dimensions[0]]) as any)
+            .domain(this.adjustDomain(
+                extent(myData, d => d[this.config.dimensions[0]]) as any, this.config.xAxis)
+            )
         this.y
             .range([this.getHeightWithMargins(), 0])
-            .domain(extent(myData, d => d[this.config.dimensions[1]]) as any)
+            .domain(this.adjustDomain(
+                extent(myData, d => d[this.config.dimensions[1]]) as any, this.config.yAxis)
+            )
         return myData
     }
 
