@@ -19,6 +19,9 @@ const dropDownOptions: DropOption[] = [{
 }, {
     label: 'Text',
     value: 'text'
+}, {
+    label: 'Datetime',
+    value: 'datetime'
 }]
 
 interface Props {
@@ -26,7 +29,7 @@ interface Props {
     selectType: (type: ColumnType) => void
 }
 
-export const ColumnTypeDropdown: React.StatelessComponent<Props> = (props: Props) => {
+export const ColumnTypeDropdown: React.FunctionComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
 
     const getColor = (): string => {
@@ -34,6 +37,8 @@ export const ColumnTypeDropdown: React.StatelessComponent<Props> = (props: Props
             return 'info'
         } else if (props.type === 'group') {
             return 'success'
+        } else if (props.type === 'datetime') {
+            return 'warning'
         }
         return 'secondary'
     }

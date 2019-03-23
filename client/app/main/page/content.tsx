@@ -14,7 +14,7 @@ interface Props {
     page: IPage
 }
 
-const ContentComponent: React.StatelessComponent<Props> = (props: Props) => {
+const ContentComponent: React.FunctionComponent<Props> = (props: Props) => {
     // Not using the onLayoutChange due to it trigger on layout load
     const defaultLayoutConfig = {
         draggableHandle: '.card-title',
@@ -26,7 +26,7 @@ const ContentComponent: React.StatelessComponent<Props> = (props: Props) => {
             newItem: ReactGridLayout.Layout,
             placeholder: ReactGridLayout.Layout,
             event, element) => {
-            widgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight)
+            widgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 85)
             PageActions.update(Object.assign({}, props.page, { layout }))
         },
         onResize: (layout: ReactGridLayout.Layout[],

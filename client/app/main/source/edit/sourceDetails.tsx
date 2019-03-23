@@ -59,6 +59,8 @@ export const SourceDetails: React.StatelessComponent<Props> = (props: Props) => 
             return 'info'
         } else if (type === 'group') {
             return 'success'
+        } else if (type === 'datetime') {
+            return 'warning'
         }
         return ''
     }

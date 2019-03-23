@@ -38,24 +38,34 @@ class SourceController {
     }
 
     private getSingleColumnType (data: any[]): ColumnType {
+        let isText = 0
         let isNumber = 0
+        let isDate = 0
         let groupCounts = {}
-        let response: ColumnType
+        let response: ColumnType = 'text'
 
         data.forEach(entry => {
+            if (entry === '') return
             if (!isNaN(entry)) {
                 isNumber++
+            } else if (entry.length > 50) {
+                isText++
+            } else if (!isNaN(Date.parse(entry))) {
+                isDate++
             } else {
                 groupCounts[entry] = groupCounts[entry] ? groupCounts[entry] + 1 : 1
             }
         })
 
+        const keys = Object.keys(groupCounts).filter(key => groupCounts[key] > 1)
         if (isNumber === data.length) {
             response = 'number'
-        } else if (Object.keys(groupCounts).length / data.length < 1) {
-            response = 'group'
-        } else {
+        } else if (isDate === data.length) {
+            response = 'datetime'
+        } else if (isText > 0) {
             response = 'text'
+        } else if (keys.length > 0 && keys.length < 20) {
+            response = 'group'
         }
 
         return response
