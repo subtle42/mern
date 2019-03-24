@@ -16,7 +16,7 @@ export class Histogram extends BaseChart {
 
         this.x
             .domain(this.adjustDomain(extent(mappedData), this.config.yAxis))
-            .range([0, this.getWidthtWithMargins()])
+            .rangeRound([0, this.getWidthtWithMargins()])
         this.bins
             .domain(this.x.domain() as any)
             .thresholds(this.x.ticks(this.config.other.ticks || 20))
@@ -26,7 +26,7 @@ export class Histogram extends BaseChart {
 
         this.y
             .domain(this.adjustDomain(yDomain, this.config.yAxis))
-            .range([this.getHeightWithMargins(), 0])
+            .rangeRound([this.getHeightWithMargins(), 0])
 
         return myData
     }

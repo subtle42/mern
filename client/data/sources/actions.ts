@@ -40,6 +40,13 @@ class SourceActions extends BaseActions {
         })
         .then(() => widgetActions.runQueries(sourceId))
     }
+
+    addMultipleFilters (sourceId: string, filters: {dimension: string, filter: number[]}[]): Promise<void> {
+        return Promise.all(filters.map(filter => {
+            return this.sendDispatch('addFilter', { ...filter, _id: sourceId })
+        }))
+        .then(() => widgetActions.runQueries(sourceId))
+    }
 }
 
 const sourceActions = new SourceActions(store)
