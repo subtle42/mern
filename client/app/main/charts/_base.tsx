@@ -18,7 +18,7 @@ interface Props {
 }
 
 export abstract class BaseChart extends React.Component<Props, State> {
-    private data: any[]
+    private data: any[] = []
     private unsub: Unsubscribe
     state = new State()
     chart: any[] = []
@@ -43,7 +43,6 @@ export abstract class BaseChart extends React.Component<Props, State> {
     private _updateChart () {
         if (!this.config) return
         if (!this.height || !this.width) return
-        if (!this.data || this.data.length === 0) return
 
         const chart = this.updateChart(this.data)
         this.yAxis = axisLeft(this.y)
@@ -56,7 +55,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
 
     componentDidMount () {
         this.config = store.getState().widgets.list.find(w => w._id === this.props.id)
-        this.data = store.getState().data.results[this.props.id]
+        this.data = store.getState().data.results[this.props.id] || []
         this._updateChart()
 
         this.unsub = store.subscribe(() => {
