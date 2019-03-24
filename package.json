@@ -5,7 +5,7 @@
   "scripts": {
     "start": "run-p dev:*",
     "dev:client": "webpack --watch --mode=development",
-    "dev:server": "nodemon ./server/app.ts",
+    "dev:server": "nodemon --inspect=5858 -r ts-node/register ./server/app.ts",
     "test": "run-p 'test:* -- --watch'",
     "test:client": "mocha --opts ./mocha.opts 'client/**/*.spec.*'",
     "test:server": "mocha --opts ./mocha.opts 'server/**/*.spec.*'",
@@ -128,8 +128,7 @@
       "./integration",
       "./client"
     ],
-    "ext": "ts",
-    "exec": "./node_modules/.bin/ts-node"
+    "ext": "ts"
   },
   "nyc": {
     "include": [
