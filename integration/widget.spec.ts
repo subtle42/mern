@@ -35,7 +35,7 @@ describe('Widget API', () => {
             .send({
                 pageId,
                 sourceId,
-                type: 'chart'
+                type: 'histogram'
             })
             .then(res => expect(res.status).to.equal(401))
         })
@@ -47,7 +47,7 @@ describe('Widget API', () => {
             .send({
                 pageId,
                 sourceId,
-                type: 'chart'
+                type: 'histogram'
             })
             .then(res => expect(res.status).not.to.equal(200))
         })
@@ -59,7 +59,7 @@ describe('Widget API', () => {
             .send({
                 pageId,
                 sourceId,
-                type: 'chart'
+                type: 'histogram'
             })
             .then(res => expect(res.status).to.equal(200))
         })
@@ -76,7 +76,7 @@ describe('Widget API', () => {
             .send({
                 pageId,
                 sourceId,
-                type: 'chart'
+                type: 'histogram'
             }))
             .then(res => expect(res.status).to.equal(200))
         })
@@ -87,7 +87,7 @@ describe('Widget API', () => {
         let widget: IWidget
 
         before(() => {
-            return utils.createWidget(tokens[0], pageId, sourceId, 'chart')
+            return utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
             .then(id => widgetId = id)
         })
 
@@ -168,7 +168,7 @@ describe('Widget API', () => {
             expect(book.owner).not.to.equal(userIds[2])
             expect(book.editors.indexOf(userIds[2])).to.equal(-1)
 
-            return utils.createWidget(tokens[0], pageId, sourceId, 'chart')
+            return utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
             .then(id => widgetId = id)
             .then(() => chai.request(server)
             .del(`/api/widgets/${widgetId}`)
@@ -182,7 +182,7 @@ describe('Widget API', () => {
             let widgetId: string
             expect(book.owner).to.equal(userIds[0])
 
-            return utils.createWidget(tokens[0], pageId, sourceId, 'chart')
+            return utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
             .then(id => widgetId = id)
             .then(() => chai.request(server)
             .del(`/api/widgets/${widgetId}`)
@@ -196,7 +196,7 @@ describe('Widget API', () => {
             let widgetId: string
             expect(book.editors.indexOf(userIds[1])).not.to.equal(-1)
 
-            return utils.createWidget(tokens[0], pageId, sourceId, 'chart')
+            return utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
             .then(id => widgetId = id)
             .then(() => chai.request(server)
             .del(`/api/widgets/${widgetId}`)
@@ -332,8 +332,8 @@ describe('Widget Channel', () => {
 
         before(() => {
             return Promise.all([
-                utils.createWidget(tokens[0], pageId, sourceId, 'chart'),
-                utils.createWidget(tokens[0], pageId, sourceId, 'chart')
+                utils.createWidget(tokens[0], pageId, sourceId, 'histogram'),
+                utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
             ])
             .then(ids => widgetIds = ids)
         })
@@ -352,7 +352,7 @@ describe('Widget Channel', () => {
 
         it('should return a record when a widget is added', done => {
             let first: boolean = true
-            let type: string = 'kfjwawjecpawe'
+            let type: string = 'histogram'
             let socket: SocketIOClient.Socket = utils.websocketConnect('widgets', tokens[0])
 
             socket.on('addedOrChanged', (data: IWidget[]) => {
@@ -371,7 +371,7 @@ describe('Widget Channel', () => {
 
         it('should return a record when a widget is updated', done => {
             let first: boolean = true
-            let type: string = 'aaaaaawcewaef'
+            let type: string = 'histogram'
             let socket: SocketIOClient.Socket = utils.websocketConnect('widgets', tokens[0])
 
             socket.on('addedOrChanged', (data: IWidget[]) => {
@@ -404,7 +404,7 @@ describe('Widget Channel', () => {
             })
             socket.emit('join', pageId)
 
-            utils.createWidget(tokens[0], pageId, sourceId, 'chart')
+            utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
             .then(id => widgetId = id)
             .then(() => utils.deleteWidget(tokens[0], widgetId))
         })

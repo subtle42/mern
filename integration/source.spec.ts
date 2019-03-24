@@ -195,7 +195,7 @@ describe('Source API', () => {
             .then(res => expect(res.status).not.to.equal(200))
         })
 
-        it('should return records', () => {
+        xit('should return records', () => {
             return chai.request(server)
             .post('/api/sources')
             .set('Authorization', tokens[0])
