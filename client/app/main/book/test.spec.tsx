@@ -4,7 +4,7 @@ import { shallow, ShallowWrapper, configure } from 'enzyme'
 import * as Adapter from 'enzyme-adapter-react-16'
 import * as React from 'react'
 
-import { createSandbox, SinonSandbox, SinonFakeXMLHttpRequest } from 'sinon'
+import { createSandbox, SinonSandbox, SinonFakeXMLHttpRequest, SinonFakeXMLHttpRequestStatic } from 'sinon'
 import { CreateBookButton } from './add'
 import * as utils from '../../../testUtils'
 import BookActions from 'data/books/actions'
@@ -15,7 +15,7 @@ describe('Book Add component', () => {
     })
     let wrapper: ShallowWrapper<any, any>
     const sandbox: SinonSandbox = createSandbox({})
-    let xhr: SinonFakeXMLHttpRequest
+    let xhr: SinonFakeXMLHttpRequestStatic
     let reqs: SinonFakeXMLHttpRequest[]
 
     beforeEach(() => {
@@ -121,7 +121,9 @@ describe('Book Add component', () => {
 
         it('should close the modal', () => {
             wrapper.find('DropdownItem').simulate('click')
-            cancelBtn.simulate('click')
+            wrapper.find('Button')
+                .filterWhere(btn => btn.props().children === 'Cancel')
+                .simulate('click')
             expect(wrapper.find('Modal').prop('isOpen')).to.equal(false)
         })
 

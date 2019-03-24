@@ -8,8 +8,8 @@ import Col from 'reactstrap/lib/Col'
 import ListGroupItem from 'reactstrap/lib/ListGroupItem'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
 import * as Loadable from 'react-loadable'
-import { ImageFile } from 'react-dropzone'
 import * as FontAwesome from 'react-fontawesome'
+import { useDropzone } from 'react-dropzone'
 
 import SourceActions from 'data/sources/actions'
 import NotifActions from 'data/notifications/actions'
@@ -24,7 +24,7 @@ interface Props {
     cancel: () => void
 }
 
-export const SelectSource: React.StatelessComponent<Props> = (props: Props) => {
+export const SelectSource: React.StatelessComponent<Props> = (props: Props) => {    
     const getSelected = (): ISource => {
         return props.selectedId ?
             store.getState().sources.list.find(s => s._id === props.selectedId)
@@ -35,12 +35,12 @@ export const SelectSource: React.StatelessComponent<Props> = (props: Props) => {
     const [selected, setSelected] = React.useState(getSelected())
     const sources = useSources()
 
-    const Dropzone = Loadable({
-        loader: () => import('react-dropzone').then(mod => mod.default),
-        loading () {
-            return <Loading/>
-        }
-    })
+    // const Dropzone = Loadable({
+    //     loader: () => import('react-dropzone').then(mod => mod.default),
+    //     loading () {
+    //         return <Loading/>
+    //     }
+    // })
 
     const sourceDetails = (): JSX.Element => {
         if (!selected) return <div/>
@@ -53,11 +53,7 @@ export const SelectSource: React.StatelessComponent<Props> = (props: Props) => {
         </div>
     }
 
-    const onFileDrop = (acceptedFiles: ImageFile[], rejectedFiles: ImageFile[]) => {
-        // Needed to make sure there is no memory leak
-        acceptedFiles.forEach(file => window.URL.revokeObjectURL(file.preview))
-        rejectedFiles.forEach(file => window.URL.revokeObjectURL(file.preview))
-
+    const onFileDrop = (acceptedFiles: File[]) => {
         const reader = new FileReader()
         reader.onloadend = (event) => {
             setLoading(true)
@@ -73,16 +69,19 @@ export const SelectSource: React.StatelessComponent<Props> = (props: Props) => {
         reader.readAsArrayBuffer(acceptedFiles[0])
     }
 
+    const {getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: onFileDrop })
+
+
     const renderHeader = (): JSX.Element => {
         return <div className='modal-header'>
             <h5>Sources</h5>
-            <Dropzone disabled={isLoading}
-                onDrop={onFileDrop}
-                style={{ width: 'max-content' }}>
-                <Button color='general' id='TooltipExample'>
+            <div {...getRootProps()} hidden={isLoading}>
+                <input {...getInputProps()} />
+                <Button color='general'
+                    id='TooltipExample'>
                     <FontAwesome name='file' />
                 </Button>
-            </Dropzone>
+            </div>
         </div>
     }
 

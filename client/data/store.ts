@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware, combineReducers, Store } from 'redux'
-import * as promiseMiddleware from 'redux-promise'
+import promiseMiddleware from 'redux-promise'
 
 import books from './books/reducer'
 import pages from './pages/reducer'
@@ -22,6 +22,8 @@ export interface StoreModel {
     notifcations: NotificationStore,
     data: DataModel
 }
+
+
 
 const reducers = combineReducers({
     books,

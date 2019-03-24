@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import { shallow, ShallowWrapper, configure, mount, ReactWrapper } from 'enzyme'
 import * as Adapter from 'enzyme-adapter-react-16'
 import * as React from 'react'
-import { createSandbox, SinonSandbox, SinonFakeXMLHttpRequest, SinonSpy } from 'sinon'
+import { createSandbox, SinonSandbox, SinonFakeXMLHttpRequest, SinonSpy, SinonFakeXMLHttpRequestStatic } from 'sinon'
 
 import { BookList } from './list'
 import { addBookToStore, setUser } from '../../../../testUtils'
@@ -15,7 +15,7 @@ describe('Edit book list component', () => {
     })
     let wrapper: ReactWrapper
     const sandbox: SinonSandbox = createSandbox({})
-    let xhr: SinonFakeXMLHttpRequest
+    let xhr: SinonFakeXMLHttpRequestStatic
     let reqs: SinonFakeXMLHttpRequest[]
     let onDone: SinonSpy
     let onEdit: SinonSpy

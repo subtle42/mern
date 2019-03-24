@@ -2,7 +2,7 @@ import 'jsdom-global/register'
 import { expect } from 'chai'
 import { mount, ReactWrapper } from 'enzyme'
 import * as React from 'react'
-import { createSandbox, SinonSandbox, SinonFakeXMLHttpRequest, SinonStub } from 'sinon'
+import { createSandbox, SinonSandbox, SinonFakeXMLHttpRequestStatic, SinonStub, SinonFakeXMLHttpRequest } from 'sinon'
 import { LoginPage } from './login'
 import { RegisterPage } from './register'
 import * as utils from '../../testUtils'
@@ -12,7 +12,7 @@ import AuthActions from 'data/auth/actions'
 describe('Login component', () => {
     const sandbox: SinonSandbox = createSandbox({})
     let wrapper: ReactWrapper<any, any>
-    let xhr: SinonFakeXMLHttpRequest
+    let xhr: SinonFakeXMLHttpRequestStatic
     let requests: SinonFakeXMLHttpRequest[]
     let redirectStub: SinonStub
 
@@ -106,7 +106,7 @@ describe('Login component', () => {
 describe('Register component', () => {
     const sandbox: SinonSandbox = createSandbox({})
     let wrapper: ReactWrapper<any, any>
-    let xhr: SinonFakeXMLHttpRequest
+    let xhr: SinonFakeXMLHttpRequestStatic
     let requests: SinonFakeXMLHttpRequest[]
     let redirectStub: SinonStub
 

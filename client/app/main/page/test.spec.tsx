@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { ReactWrapper, mount } from 'enzyme'
 import * as React from 'react'
-import { createSandbox, SinonSandbox, SinonFakeXMLHttpRequest } from 'sinon'
+import { createSandbox, SinonSandbox, SinonFakeXMLHttpRequest, SinonFakeXMLHttpRequestStatic } from 'sinon'
 import { IPage } from 'common/models'
 import PageActions from 'data/pages/actions'
 import NotifActions from 'data/notifications/actions'
@@ -13,7 +13,7 @@ import { PageConfigButton } from './config'
 describe('Page Add component', () => {
     const sandbox: SinonSandbox = createSandbox({})
     let wrapper: ReactWrapper<any, any>
-    let xhr: SinonFakeXMLHttpRequest
+    let xhr: SinonFakeXMLHttpRequestStatic
     let requests: SinonFakeXMLHttpRequest[]
 
     beforeEach(() => {
@@ -122,7 +122,7 @@ describe('Page Delete component', () => {
     const testId = '893huw9b34n'
     const sandbox: SinonSandbox = createSandbox({})
     let wrapper: ReactWrapper<any, any>
-    let xhr: SinonFakeXMLHttpRequest
+    let xhr: SinonFakeXMLHttpRequestStatic
     let requests: SinonFakeXMLHttpRequest[]
 
     beforeEach(() => {
@@ -213,7 +213,7 @@ describe('Page Conifg component', () => {
     const testId = '2o38f923h'
     const sandbox: SinonSandbox = createSandbox({})
     let wrapper: ReactWrapper<any, any>
-    let xhr: SinonFakeXMLHttpRequest
+    let xhr: SinonFakeXMLHttpRequestStatic
     let requests: SinonFakeXMLHttpRequest[]
 
     beforeEach(() => {

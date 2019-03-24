@@ -39,7 +39,7 @@ describe('AclSocket Base class', () => {
     let tmpSocket: AclSocket
 
     beforeEach(() => {
-        verify = stub(jwt, 'verify').callsFake((token, secret, cb) => {
+        verify = stub(jwt, 'verify').callsFake((token, secret, cb: any) => {
             cb(undefined, {
                 _id: 'daniel'
             })
