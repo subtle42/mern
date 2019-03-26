@@ -17,8 +17,8 @@ import { BarGrouped } from '../charts/barGrouped'
 import { ColumnButton } from './content/columnBtn'
 import { ConfirmModal } from '../../_common/confirmation'
 import { EditButton } from './edit'
-import { Scatter } from '../charts/scatter';
-import { Line } from '../charts/line';
+import { Scatter } from '../charts/scatter'
+import { Line } from '../charts/line'
 
 interface Props {
     _id?: any
@@ -94,7 +94,10 @@ export class Widget extends React.Component<Props, State> {
 
     getDropdown (): JSX.Element {
         if (!this.state.widgetConfig) return
-        if (this.state.widgetConfig.type === 'scatter') {
+
+        const dimCount = this.state.widgetConfig.dimensions.length
+
+        if (dimCount > 1) {
             return <div style={{ display: 'flex', justifyContent: 'center', height: 29 }}>
                 <ColumnButton
                     colType='number'
@@ -122,35 +125,21 @@ export class Widget extends React.Component<Props, State> {
 
     getDimDropdown () {
         if (!this.state.widgetConfig) return
-        if (this.state.widgetConfig.type === 'scatter') {
-            return <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <ColumnButton
-                    colType='number'
-                    sourceId={this.state.widgetConfig.sourceId}
-                    colId={this.state.widgetConfig.dimensions[0]}
-                    onColUpdate={col => {
-                        this.state.widgetConfig.dimensions[0] = col.ref
-                        WidgetActions.update(this.state.widgetConfig)
-                        .then(() => WidgetActions.query(this.state.widgetConfig))
-                    }}/>
-            </div>
-        }
 
+        const column = this.state.source.columns
+            .find(col => col.ref === this.state.widgetConfig.dimensions[0])
 
         return <div style={{ display: 'flex', justifyContent: 'center' }}>
             <div style={{ fontSize: 10, paddingTop: 7 }}>Grouped by </div>
-            {this.state.widgetConfig.dimensions.map((dim, index) => {
-                return <ColumnButton
-                    key={index}
-                    colType={this.state.widgetConfig.type === 'histogram' ? 'number' : 'group'}
-                    sourceId={this.state.widgetConfig.sourceId}
-                    colId={dim}
-                    onColUpdate={col => {
-                        this.state.widgetConfig.dimensions[index] = col.ref
-                        WidgetActions.update(this.state.widgetConfig)
-                        .then(() => WidgetActions.query(this.state.widgetConfig))
-                    }}/>
-            })}
+            <ColumnButton
+                colType={column.type}
+                sourceId={this.state.widgetConfig.sourceId}
+                colId={this.state.widgetConfig.dimensions[0]}
+                onColUpdate={col => {
+                    this.state.widgetConfig.dimensions[0] = col.ref
+                    WidgetActions.update(this.state.widgetConfig)
+                    .then(() => WidgetActions.query(this.state.widgetConfig))
+                }}/>
         </div>
     }
 
@@ -192,7 +181,7 @@ export class Widget extends React.Component<Props, State> {
                     </Button>
                 </ConfirmModal>
                 <CardTitle style={{ display: 'flex', justifyContent: 'center', margin: 0 }}>
-                    {this.state.source ? this.state.source.title : 'Loading..'}
+                    {this.state.source ? this.state.source.title : 'Loading...'}
                 </CardTitle>
             </CardHeader>
             <CardBody style={{ height: '100%', padding: 0 }}>

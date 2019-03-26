@@ -7,7 +7,7 @@ import ListGroup from 'reactstrap/lib/ListGroup'
 import Col from 'reactstrap/lib/Col'
 import ListGroupItem from 'reactstrap/lib/ListGroupItem'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
-import * as Loadable from 'react-loadable'
+// import * as Loadable from 'react-loadable'
 import * as FontAwesome from 'react-fontawesome'
 import { useDropzone } from 'react-dropzone'
 
@@ -24,7 +24,7 @@ interface Props {
     cancel: () => void
 }
 
-export const SelectSource: React.StatelessComponent<Props> = (props: Props) => {    
+export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {    
     const getSelected = (): ISource => {
         return props.selectedId ?
             store.getState().sources.list.find(s => s._id === props.selectedId)
@@ -69,8 +69,7 @@ export const SelectSource: React.StatelessComponent<Props> = (props: Props) => {
         reader.readAsArrayBuffer(acceptedFiles[0])
     }
 
-    const {getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: onFileDrop })
-
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: onFileDrop })
 
     const renderHeader = (): JSX.Element => {
         return <div className='modal-header'>
@@ -79,10 +78,32 @@ export const SelectSource: React.StatelessComponent<Props> = (props: Props) => {
                 <input {...getInputProps()} />
                 <Button color='general'
                     id='TooltipExample'>
-                    <FontAwesome name='file' />
+                    <FontAwesome name='file'/> Click to upload
                 </Button>
             </div>
         </div>
+    }
+
+    const largeFileDragAndDrop = (): JSX.Element => {
+        return <ModalBody>
+            <Row>
+                <Col xs={{ size: 6, offset: 3 }}>
+                    <div {...getRootProps()}>
+                    <ListGroup >
+                        <input {...getInputProps()} />
+                        <ListGroupItem color={isDragActive ? 'primary' : ''}>
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                <h4>Drag and drop file here</h4>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                <FontAwesome name='file' size='5x' />
+                            </div>
+                        </ListGroupItem>
+                    </ListGroup>
+                    </div>
+                </Col>
+            </Row>
+        </ModalBody>
     }
 
     const renderBody = (): JSX.Element => {
@@ -90,6 +111,10 @@ export const SelectSource: React.StatelessComponent<Props> = (props: Props) => {
             return <ModalBody>
                 <Progress animated color='info' value={100}></Progress>
             </ModalBody>
+        }
+
+        if (sources.length === 0) {
+            return largeFileDragAndDrop()
         }
 
         return <ModalBody><Row>

@@ -35,7 +35,7 @@ class WidgetController {
             return Page.findById(widget.pageId)
             .then(page => {
                 page.layout.push(Object.assign({}, widgetLayout, { i: widget._id }))
-                return page.update(page).exec()
+                return page.updateOne(page).exec()
                 .then(() => widgetSocket.onAddOrChange(widget))
                 .then(() => pageSocket.onAddOrChange(page))
             })
@@ -86,7 +86,7 @@ class WidgetController {
                 .then(book => auth.hasEditAccess(req.user._id, book))
                 .then(() => {
                     page.layout = page.layout.filter(item => item.i !== id)
-                    return page.update(page).exec()
+                    return page.updateOne(page).exec()
                     .then(() => pageSocket.onAddOrChange(page))
                 })
             })
