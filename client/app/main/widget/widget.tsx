@@ -126,7 +126,8 @@ export class Widget extends React.Component<Props, State> {
     getDimDropdown () {
         if (!this.state.widgetConfig) return
 
-        const column = this.state.source.columns
+        const source = store.getState().sources.list.find(s => s._id === this.state.widgetConfig.sourceId)
+        const column = source.columns
             .find(col => col.ref === this.state.widgetConfig.dimensions[0])
 
         return <div style={{ display: 'flex', justifyContent: 'center' }}>

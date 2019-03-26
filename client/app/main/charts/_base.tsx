@@ -144,6 +144,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
 
     render () {
         if (!this.config) return <div />
+        if (!this.width || !this.height) return <div />
         return <svg
             onClick={() => this.clear()}
             width={this.width}

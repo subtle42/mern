@@ -61,7 +61,7 @@ const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {
             <Nav >
                 <NavItem key={1}>
                     <NavLink>
-                        <Link to='/home'>Home</Link>
+                        <Link to='/main'>Main</Link>
                     </NavLink>
                 </NavItem>
                     { !props.user
@@ -71,7 +71,7 @@ const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {
                 <NavItem key={3}>
                     <NavLink>
                     { props.user
-                        ? <Link onClick={() => authActions.logout()} to='/home'>Logout</Link>
+                        ? <Link onClick={() => authActions.logout()} to='/about'>Logout</Link>
                         : <Link to='/login'>Login</Link>
                     }
                     </NavLink>
