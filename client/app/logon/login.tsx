@@ -36,7 +36,7 @@ export const LoginPage: React.StatelessComponent<Props> = (props: Props) => {
     }
 
     if (loginSuccess) {
-        return (<Redirect to='home' />)
+        return (<Redirect to='main' />)
     }
 
     return <Form>
