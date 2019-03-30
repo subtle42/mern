@@ -1,7 +1,6 @@
 import * as crypto from 'crypto'
 import * as mongoose from 'mongoose'
 import { IUserModel } from '../../dbModels'
-import * as Promise from 'bluebird'
 import { createSchema } from '../utils'
 
 const authTypes = ['github', 'twitter', 'facebook', 'google']

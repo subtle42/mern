@@ -31,7 +31,6 @@ global.myIO = {
 }
 
 import { AclSocket } from './aclSocket'
-import { Promise } from 'bluebird'
 import * as jwt from 'jsonwebtoken'
 
 describe('AclSocket Base class', () => {
