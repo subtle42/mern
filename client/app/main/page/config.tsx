@@ -31,7 +31,7 @@ interface Props {
     _id?: string
 }
 
-export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) => {
+export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
     const [tips, setTips] = React.useState({
         draggable: false,
@@ -46,7 +46,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
         ]),
         isDraggable: new FormControl(false),
         isResizable: new FormControl(false),
-        isRearrangeable: new FormControl(false),
+        preventCollision: new FormControl(false),
         margin: new FormCtrlArray([
             new FormControl(0, [
                 Validators.isRequired,
@@ -240,14 +240,14 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                         </CustomInput>
                     </FormGroup>
                 </Col>
-                <Col xs={4}>
+                <Col xs={4} style={{ paddingLeft: 0 }}>
                     <FormGroup>
                         <CustomInput id='isRearrangeable'
                             type='switch'
-                            name='isRearrangeable'
-                            label='Rearrangeable'
+                            name='preventCollision'
+                            label='No Collision'
                             onChange={utils.handleToggle(rules, setRules)}
-                            checked={rules.get('isRearrangeable').value}>
+                            checked={rules.get('preventCollision').value}>
                             <FontAwesome
                                 name='question-circle'
                                 id='rearrangeable-tip'
@@ -255,7 +255,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                             <Tooltip isOpen={tips.rearrangeable}
                                 toggle={() => toggleTooltip('rearrangeable')}
                                 target='rearrangeable-tip'>
-                                Enable or disable grid rearrangement when dragging/resizing a widget.
+                                Grid items won't change position when being dragged over.
                             </Tooltip>
                         </CustomInput>
                     </FormGroup>

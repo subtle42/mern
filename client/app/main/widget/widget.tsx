@@ -10,15 +10,10 @@ import { IWidget, ISource, ISourceColumn } from 'common/models'
 import { store } from 'data/store'
 import WidgetActions from 'data/widgets/actions'
 import NotifyActions from 'data/notifications/actions'
-
-import { Histogram } from '../charts/histogram'
-import { BarGrouped } from '../charts/barGrouped'
-// import { MeasureDropdown } from '../charts/chart'
 import { ColumnButton } from './content/columnBtn'
 import { ConfirmModal } from '../../_common/confirmation'
 import { EditButton } from './edit'
-import { Scatter } from '../charts/scatter'
-import { Line } from '../charts/line'
+import * as Loadable from 'react-loadable'
 
 interface Props {
     _id?: any
@@ -30,6 +25,38 @@ class State {
     width: number = 0
     height: number = 0
 }
+
+const Line = Loadable({
+    loader: () => import('../charts/line')
+        .then(mod => mod.Line),
+    loading () {
+        return <div />
+    }
+})
+
+const Scatter = Loadable({
+    loader: () => import('../charts/scatter')
+        .then(mod => mod.Scatter),
+    loading () {
+        return <div />
+    }
+})
+
+const Histogram = Loadable({
+    loader: () => import('../charts/histogram')
+        .then(mod => mod.Histogram),
+    loading () {
+        return <div />
+    }
+})
+
+const BarGrouped = Loadable({
+    loader: () => import('../charts/barGrouped')
+        .then(mod => mod.BarGrouped),
+    loading () {
+        return <div />
+    }
+})
 
 export class Widget extends React.Component<Props, State> {
     state = new State()

@@ -7,7 +7,6 @@ const PageSchema = new Schema({
     name: { type: String, required: true },
     isDraggable: { type: Boolean, required: true, default: true },
     isResizable: { type: Boolean, required: true, default: true },
-    isRearrangeable: { type: Boolean, required: true, default: true },
     preventCollision: { type: Boolean, required: true, default: false },
     margin: {
         type: [{ type: Number }],
