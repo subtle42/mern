@@ -23,15 +23,13 @@ export interface StoreModel {
     data: DataModel
 }
 
-
-
 const reducers = combineReducers({
     books,
     pages,
     widgets,
     auth,
     sources: SourceReducer,
-    notifications: notifReducer,
+    notifcations: notifReducer,
     data: DataReducer
 })
 
