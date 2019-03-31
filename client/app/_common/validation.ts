@@ -19,7 +19,6 @@ export class FormControl {
     data
     controls: FormCtrlGroup | FormCtrlArray
     private default
-    parent: FormCtrlGroup | FormCtrlArray
     error?: ValidationErrors
     private validators: ValidatorFn[] = []
     dirty: boolean
@@ -48,7 +47,6 @@ export class FormControl {
         this.dirty = true
         this.data = value
         this.runValidation()
-        this.parent && this.parent.digest()
     }
 
     private runValidation () {
@@ -96,20 +94,15 @@ export class FormCtrlArray {
     pristine: boolean = true
     valid: boolean
     invalid: boolean
-    parent: FormCtrlArray | FormCtrlGroup
 
     constructor (
         public controls: Array<FormControl | FormCtrlArray | FormCtrlGroup>
-    ) {
-        this.controls
-        .forEach(ctrl => ctrl.parent = this)
-    }
+    ) {}
 
     digest (): void {
         const keys = this.controls.map((item, index) => index)
         this.isDirty(keys)
         this.isValid(keys)
-        if (this.parent) this.parent.digest()
     }
 
     get (index: number | string): FormControl | FormCtrlArray | FormCtrlGroup {
@@ -137,31 +130,27 @@ export class FormCtrlArray {
 
     set value (input: any[]) {
         this.controls.forEach((ctrl, index) => ctrl.value = input[index])
+        this.digest()
     }
 }
 
 export class FormCtrlGroup {
     error
     dirty: boolean
-    pristine: boolean
+    pristine: boolean = true
     valid: boolean
     invalid: boolean
-    parent: FormCtrlArray | FormCtrlGroup
 
     constructor (
         public controls: {
             [key: string]: FormControl | FormCtrlArray | FormCtrlGroup
         }
-    ) {
-        Object.keys(this.controls)
-        .forEach(key => this.controls[key].parent = this)
-    }
+    ) {}
 
     digest (): void {
         const keys = Object.keys(this.controls)
         this.isDirty(keys)
         this.isValid(keys)
-        if (this.parent) this.parent.digest()
     }
 
     private isDirty (keys: string[]) {
@@ -196,5 +185,6 @@ export class FormCtrlGroup {
             if (!input[key]) return
             this.controls[key].value = input[key]
         })
+        this.digest()
     }
 }

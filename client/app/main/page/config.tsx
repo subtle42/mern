@@ -82,7 +82,6 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
         rules.value = store.getState().pages.list
             .find(page => page._id === props._id)
         setOpen(true)
-        setRules(Object.create(rules))
     }
 
     const close = () => {

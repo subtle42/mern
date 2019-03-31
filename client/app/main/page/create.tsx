@@ -20,19 +20,15 @@ import Modal from 'reactstrap/lib/Modal'
 
 interface Props {}
 
-const createForm = (): FormCtrlGroup => {
-    return new FormCtrlGroup({
+export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) => {
+    const [isOpen, setOpen] = React.useState(false)
+    const [rules, setRules] = React.useState(new FormCtrlGroup({
         title: new FormControl('', [
             Validators.isRequired,
             Validators.minLength(3),
             Validators.maxLength(15)
         ])
-    })
-}
-
-export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) => {
-    const [isOpen, setOpen] = React.useState(false)
-    const [rules, setRules] = React.useState(createForm())
+    }))
 
     const cancel = (event: React.FormEvent<any>) => {
         if (event) event.stopPropagation()
@@ -41,8 +37,8 @@ export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) =
 
     const open = (event: React.FormEvent<any>) => {
         if (event) event.stopPropagation()
+        rules.reset()
         setOpen(true)
-        setRules(createForm())
     }
 
     const close = (event: React.FormEvent<any>) => {
