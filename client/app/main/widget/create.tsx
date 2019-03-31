@@ -15,11 +15,16 @@ export const WidgetCreateButton: React.StatelessComponent<Props> = (props: Props
     const [source, setSource] = React.useState(undefined as ISource)
     const [mode, setMode] = React.useState('selectSource')
 
-    const close = (chartType: string) => {
-        widgetActions.create({
-            source: source,
-            type: chartType
-        })
+    const close = (chartTypes: string[]) => {
+        // Promise.all(chartTypes.map(type => widgetActions.create({
+        //     source: source,
+        //     type: type
+        // })))
+        widgetActions.createMultiple(source._id, chartTypes)
+        // widgetActions.create({
+        //     source: source,
+        //     type: chartType
+        // })
         .then(() => NotifActions.success('Created widget'))
         .then(() => setOpen(false))
         .catch(err => NotifActions.error(err.message))
@@ -47,7 +52,7 @@ export const WidgetCreateButton: React.StatelessComponent<Props> = (props: Props
             sourceId={source._id}
             back={() => setMode('selectSource')}
             cancel={() => setOpen(false)}
-            done={chartType => close(chartType)} />
+            done={chartTypes => close(chartTypes)} />
         }
 
         return <div/>

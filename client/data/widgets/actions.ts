@@ -14,6 +14,14 @@ class WidgetActions extends BaseActions {
         return null
     }
 
+    createMultiple (sourceId: string, types: string[]) {
+        return axios.post('/api/widgets/multiple', {
+            pageId: store.getState().pages.selected,
+            sourceId,
+            types
+        })
+    }
+
     create (config: {source: ISource, type: string}): Promise<void> {
         return axios.post(`/api/widgets`, {
             pageId: store.getState().pages.selected,

@@ -3,12 +3,13 @@ import { Button, Row, Col, ModalHeader, ModalFooter, ModalBody } from 'reactstra
 import { ColumnType } from 'common/constants'
 import * as FontAwesome from 'react-fontawesome'
 import { useSource } from '../../../_common/hooks'
+import Badge from 'reactstrap/lib/Badge';
 
 interface Props {
     sourceId: string
     back: () => void
     cancel: () => void
-    done: (chartType: string) => void
+    done: (chartType: string[]) => void
 }
 
 class ChartConf {
@@ -57,7 +58,7 @@ const chartConfList: ChartConf[] = [{
 }]
 
 export const SelectChartType: React.FunctionComponent<Props> = (props: Props) => {
-    const [selected, setSelected] = React.useState(undefined as ChartConf)
+    const [selected, setSelected] = React.useState([] as ChartConf[])
     const source = useSource(props.sourceId)
     const rowSize = 4
 
@@ -71,6 +72,15 @@ export const SelectChartType: React.FunctionComponent<Props> = (props: Props) =>
             })
             return shouldPass
         })
+    }
+
+    const getCountBadge = (col: ChartConf): JSX.Element => {
+        const count = selected.filter(x => x.type === col.type).length
+        if (count === 0) return
+        return <Badge color='light'
+            style={{ position: 'absolute', top: 5, right: 21 }}>
+            {count}
+        </Badge>
     }
 
     const buildRows = (): JSX.Element[] => {
@@ -89,9 +99,23 @@ export const SelectChartType: React.FunctionComponent<Props> = (props: Props) =>
             {row.map((col, colIndex) => {
                 return <Col key={colIndex} xs={12 / rowSize}>
                     <Button
-                        onClick={() => setSelected(col)}
-                        color={col === selected ? 'primary' : 'warning'}
+                        style={{ width: '100%' }}
+                        onContextMenu={e => {
+                            e.preventDefault()
+                            const index = selected.findIndex(x => x.type === col.type)
+                            if (index === -1) return
+                            const tmp = [...selected]
+                            tmp.splice(index, 1)
+                            setSelected(tmp)
+                        }}
+                        onClick={() => {
+                            const temp = [...selected]
+                            temp.push(col)
+                            setSelected(temp)
+                        }}
+                        color={selected.find(x => x.type === col.type) ? 'primary' : 'warning'}
                         size='large'>
+                        {getCountBadge(col)}
                         <FontAwesome name='puzzle-piece' size='4x' />
                         <br/>
                         {col.name}
@@ -114,7 +138,7 @@ export const SelectChartType: React.FunctionComponent<Props> = (props: Props) =>
                 <Button color='primary'
                     disabled={!selected}
                     style={{ marginRight: 10 }}
-                    onClick={() => props.done(selected.type)}>
+                    onClick={() => props.done(selected.map(x => x.type))}>
                     Create
                 </Button>
                 <Button color='secondary'

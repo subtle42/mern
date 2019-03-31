@@ -9,9 +9,10 @@ import { widgetSocket } from './socket'
 import { Layout } from 'react-grid-layout'
 import { IWidget, ISource } from 'common/models'
 import * as auth from '../../auth/auth.service'
+import { IWidgetModel } from 'server/dbModels';
 
 const widgetLayout: Layout = {
-    x: 1, y: 1, w: 1, h: 1
+    x: 0, y: 0, w: 1, h: 1
 }
 
 class WidgetController {
@@ -45,29 +46,63 @@ class WidgetController {
         .catch(utils.handleError(res))
     }
 
-    private addDefaultsToWidget (myWidget: IWidget, mySource: ISource): Promise<void> {
-        return new Promise(resolve => {
-            if (myWidget.type === 'histogram') {
-                myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
-            } else if (myWidget.type === 'scatter') {
-                myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
-                myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
-            } else if (myWidget.type === 'line') {
-                myWidget.dimensions.push(this.getDefaultColumn('datetime', mySource))
-                myWidget.measures.push({
-                    formula: 'sum',
-                    ref: this.getDefaultColumn('number', mySource)
-                })
-            } else {
-                myWidget.dimensions.push(this.getDefaultColumn('group', mySource))
-                myWidget.measures.push({
-                    formula: 'sum',
-                    ref: this.getDefaultColumn('number', mySource)
-                })
-            }
+    private canUserEdit (pageId: string, userId: string): Promise<void> {
+        return Page.findById(pageId).exec()
+        .then(page => Book.findById(page.bookId).exec())
+        .then(book => auth.hasEditAccess(userId, book))
+    }
 
-            resolve()
+    createMultiple (req: Request, res: Response) {
+        const pageId: string = req.body.pageId
+        const sourceId: string = req.body.sourceId
+        const types: string[] = req.body.types
+
+        const myWidgets: IWidgetModel[] = types.map(type => new Widget({
+            pageId,
+            sourceId,
+            type
+        }))
+
+        this.canUserEdit(pageId, req.user._id)
+        .then(() => Source.findById(sourceId).exec())
+        .then(mySource => myWidgets.forEach(myWidget => this.addDefaultsToWidget(myWidget, mySource)))
+        .then(() => Promise.all(myWidgets.map(w => w.validate())))
+        .then(() => Promise.all(myWidgets.map(w => Widget.create(w))))
+        .then(createdList => {
+            return Page.findById(pageId)
+            .then(page => {
+                createdList.forEach(newWidget => {
+                    page.layout.push(Object.assign({}, widgetLayout, { i: newWidget._id }))
+                })
+                return page.updateOne(page).exec()
+                .then(() => widgetSocket.onManyAdd(createdList))
+                .then(() => pageSocket.onAddOrChange(page))
+            })
+            .then(() => createdList.map(w => w._id))
         })
+        .then(utils.handleResponse(res))
+        .catch(utils.handleError(res))
+    }
+
+    private addDefaultsToWidget (myWidget: IWidget, mySource: ISource) {
+        if (myWidget.type === 'histogram') {
+            myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
+        } else if (myWidget.type === 'scatter') {
+            myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
+            myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
+        } else if (myWidget.type === 'line') {
+            myWidget.dimensions.push(this.getDefaultColumn('datetime', mySource))
+            myWidget.measures.push({
+                formula: 'sum',
+                ref: this.getDefaultColumn('number', mySource)
+            })
+        } else {
+            myWidget.dimensions.push(this.getDefaultColumn('group', mySource))
+            myWidget.measures.push({
+                formula: 'sum',
+                ref: this.getDefaultColumn('number', mySource)
+            })
+        }
     }
 
     getDefaultColumn (type: string, source: ISource): string {
