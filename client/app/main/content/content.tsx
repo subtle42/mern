@@ -27,6 +27,12 @@ const Content: React.FunctionComponent<Props> = (props: Props) => {
         return <Redirect to='/about'/>
     }
 
+    // Select first page if selected page does NOT exist
+    if (props.pages.length > 0
+        && !props.pages.find(page => page._id === props.selected)) {
+        pageActions.select(props.pages[0]._id)
+    }
+
     const isSelected = (page: IPage): boolean => {
         if (!props.selected) return false
         return props.selected === page._id
