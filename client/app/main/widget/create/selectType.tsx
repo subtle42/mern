@@ -2,8 +2,10 @@ import * as React from 'react'
 import { Button, Row, Col, ModalHeader, ModalFooter, ModalBody } from 'reactstrap'
 import { ColumnType } from 'common/constants'
 import * as FontAwesome from 'react-fontawesome'
+import { useSource } from '../../../_common/hooks'
 
 interface Props {
+    sourceId: string
     back: () => void
     cancel: () => void
     done: (chartType: string) => void
@@ -56,13 +58,25 @@ const chartConfList: ChartConf[] = [{
 
 export const SelectChartType: React.FunctionComponent<Props> = (props: Props) => {
     const [selected, setSelected] = React.useState(undefined as ChartConf)
+    const source = useSource(props.sourceId)
     const rowSize = 4
 
+    const getAvailableChartTypes = (): ChartConf[] => {
+        return chartConfList.filter(config => {
+            let shouldPass = true
+            config.requires.forEach(req => {
+                if (source.columns.filter(col => col.type === req.colType).length < req.count) {
+                    shouldPass = false
+                }
+            })
+            return shouldPass
+        })
+    }
+
     const buildRows = (): JSX.Element[] => {
-        const availableCharts = chartConfList.filter(x => x)
-        let rows: ChartConf[][] = []
+        const rows: ChartConf[][] = []
         let position = -1
-        availableCharts.forEach((item, index) => {
+        getAvailableChartTypes().forEach((item, index) => {
             if (index % rowSize === 0) {
                 position++
                 rows[position] = []

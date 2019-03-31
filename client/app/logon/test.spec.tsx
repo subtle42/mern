@@ -77,7 +77,7 @@ describe('Login component', () => {
             })))
         })
 
-        it('should redirect to home upon login success', () => {
+        it('should redirect to main upon login success', () => {
             const loginStub = sandbox.stub(AuthActions, 'login').returns(Promise.resolve())
 
             emailInput.simulate('change', {
@@ -98,7 +98,7 @@ describe('Login component', () => {
             wrapper.find('Button').simulate('click')
             return utils.waitATick()
             .then(() => expect(redirectStub.called).to.equal(true))
-            .then(() => expect(redirectStub.getCall(0).args[0].to).to.equal('home'))
+            .then(() => expect(redirectStub.getCall(0).args[0].to).to.equal('main'))
         })
     })
 })

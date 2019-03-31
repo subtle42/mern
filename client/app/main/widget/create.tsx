@@ -44,6 +44,7 @@ export const WidgetCreateButton: React.StatelessComponent<Props> = (props: Props
 
         if (mode === 'selectWidget') {
             return <SelectChartType
+            sourceId={source._id}
             back={() => setMode('selectSource')}
             cancel={() => setOpen(false)}
             done={chartType => close(chartType)} />
