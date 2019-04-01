@@ -7,16 +7,20 @@ import CardBody from 'reactstrap/lib/CardBody'
 import * as FontAwesome from 'react-fontawesome'
 
 import { IWidget, ISource, ISourceColumn } from 'common/models'
+import { ConfirmModal } from '../../_common/confirmation'
+import { useSource, useWidget } from '../../_common/hooks'
 import { store } from 'data/store'
 import WidgetActions from 'data/widgets/actions'
 import NotifyActions from 'data/notifications/actions'
 import { ColumnButton } from './content/columnBtn'
-import { ConfirmModal } from '../../_common/confirmation'
 import { EditButton } from './edit'
-import * as Loadable from 'react-loadable'
+import { Histogram } from '../charts/histogram'
+import { BarGrouped } from '../charts/barGrouped'
+import { Scatter } from '../charts/scatter'
+import { Line } from '../charts/line'
 
 interface Props {
-    _id?: any
+    _id: string
 }
 
 class State {
@@ -25,38 +29,6 @@ class State {
     width: number = 0
     height: number = 0
 }
-
-const Line = Loadable({
-    loader: () => import('../charts/line')
-        .then(mod => mod.Line),
-    loading () {
-        return <div />
-    }
-})
-
-const Scatter = Loadable({
-    loader: () => import('../charts/scatter')
-        .then(mod => mod.Scatter),
-    loading () {
-        return <div />
-    }
-})
-
-const Histogram = Loadable({
-    loader: () => import('../charts/histogram')
-        .then(mod => mod.Histogram),
-    loading () {
-        return <div />
-    }
-})
-
-const BarGrouped = Loadable({
-    loader: () => import('../charts/barGrouped')
-        .then(mod => mod.BarGrouped),
-    loading () {
-        return <div />
-    }
-})
 
 export class Widget extends React.Component<Props, State> {
     state = new State()
@@ -221,4 +193,133 @@ export class Widget extends React.Component<Props, State> {
             </CardBody>
         </Card>
     }
+}
+
+// This function component works but always shows a flicker due to re-render
+export const unUsedWidget: React.FunctionComponent<Props> = (props: Props) => {
+    const config = useWidget(props._id)
+    const source = useSource(config ? config.sourceId : undefined)
+
+    const measuredRef = React.useCallback(node => {
+        if (!node || !config) return
+        setTimeout(() => {
+            const rect = node.getBoundingClientRect()
+            const newWidth = rect.width
+            const newHeight = rect.height - 85
+            const sizes = store.getState().widgets.sizes[config._id] || {}
+            if (newHeight === sizes.height && newWidth === sizes.width) return
+            WidgetActions.setSize(config._id, newWidth, newHeight)
+        })
+    }, [props._id])
+
+    if (config) {
+        WidgetActions.query(config)
+        .catch(err => NotifyActions.error(err.message))
+    }
+
+    const removeWidget = () => {
+        WidgetActions.delete(props._id)
+        .then(() => NotifyActions.success('Widget removed'))
+        .catch(err => NotifyActions.error(err.message))
+    }
+
+    const getChart = (): JSX.Element => {
+        if (!config) return <div />
+        if (config.type === 'histogram') {
+            return <Histogram id={props._id}/>
+        } else if (config.type === 'barGroup') {
+            return <BarGrouped id={props._id} />
+        } else if (config.type === 'scatter') {
+            return <Scatter id={props._id} />
+        } else if (config.type === 'line') {
+            return <Line id={props._id} />
+        }
+        return <div/>
+    }
+
+    const getDropdown = (): JSX.Element => {
+        if (!config) return
+
+        const dimCount = config.dimensions.length
+
+        if (dimCount > 1) {
+            return <div style={{ display: 'flex', justifyContent: 'center', height: 29 }}>
+                <ColumnButton
+                    colType='number'
+                    sourceId={config.sourceId}
+                    colId={config.dimensions[1]}
+                    onColUpdate={col => {
+                        config.dimensions[1] = col.ref
+                        WidgetActions.update(config)
+                        .then(() => WidgetActions.query(config))
+                    }}/>
+            </div>
+        }
+
+        return <div style={{ display: 'flex', justifyContent: 'center', height: 29 }}>
+            {config.measures.map((measure, index) => {
+                return <ColumnButton
+                    key={index}
+                    colType='number'
+                    sourceId={config.sourceId}
+                    colId={measure.ref}
+                    onColUpdate={onColUpdate}/>
+            })}
+        </div>
+    }
+
+    const onColUpdate = (col: ISourceColumn): void => {
+        config.measures[0] = {
+            ref: col.ref
+        }
+        WidgetActions.update(config)
+        .then(() => WidgetActions.query(config))
+        .catch(err => NotifyActions.success(err.message))
+    }
+
+    const getDimDropdown = (): JSX.Element => {
+        if (!config || !source) return
+
+        const column = source.columns
+            .find(col => col.ref === config.dimensions[0])
+
+        return <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div style={{ fontSize: 10, paddingTop: 7 }}>Grouped by </div>
+            <ColumnButton
+                colType={column.type}
+                sourceId={config.sourceId}
+                colId={config.dimensions[0]}
+                onColUpdate={col => {
+                    config.dimensions[0] = col.ref
+                    WidgetActions.update(config)
+                    .then(() => WidgetActions.query(config))
+                }}/>
+        </div>
+    }
+
+    return <Card style={{ height: '100%' }}>
+        <CardHeader style={{ padding: 0, border: 0 }} color='secondary'>
+            <EditButton id={props._id} />
+            <ConfirmModal header='Delete Widget'
+                message='Are you sure you want to delete this widget?'>
+                <Button color='secondary'
+                    className='pull-right'
+                    size='sm'
+                    outline
+                    onClick={() => removeWidget()}>
+                    <FontAwesome name='times' />
+                </Button>
+            </ConfirmModal>
+            <CardTitle style={{ display: 'flex', justifyContent: 'center', margin: 0 }}>
+                {source && source.title}
+            </CardTitle>
+        </CardHeader>
+        <CardBody style={{ height: '100%', padding: 0 }}>
+            <div ref={measuredRef} style={{ height: '100%', width: '100%' }}>
+                {getDropdown()}
+                {getChart()}
+                {getDimDropdown()}
+            </div>
+        </CardBody>
+    </Card>
 }
