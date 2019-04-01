@@ -30,7 +30,7 @@ interface Props {
     onDone: () => void
 }
 
-export const SourceDetails: React.StatelessComponent<Props> = (props: Props) => {
+export const SourceDetails: React.FunctionComponent<Props> = (props: Props) => {
     const [rules, setRules] = React.useState(new FormCtrlGroup({
         title: new FormControl(props.source.title, [
             Validators.isRequired,

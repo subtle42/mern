@@ -9,7 +9,7 @@ class Props {
     _id: string
 }
 
-export const DeletePageButton: React.StatelessComponent<Props> = (props: Props) => {
+export const DeletePageButton: React.FunctionComponent<Props> = (props: Props) => {
     const removePage = () => {
         PageActions.delete(props._id)
         .then(() => NotifActions.success(`Removed page: ${props.pageName}`))

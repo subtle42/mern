@@ -12,7 +12,6 @@ class PageActions extends BaseActions {
     select (id: string) {
         return this._select(id)
         .then(() => WidgetActions.joinRoom(id))
-        // WidgetActions.joinRoom(page._id);
     }
 
     create (input: string): Promise<string> {

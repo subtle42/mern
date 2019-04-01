@@ -18,7 +18,7 @@ import * as utils from '../../_common/utils'
 
 interface Props {}
 
-export const CreateBookButton: React.StatelessComponent<Props> = (prop: Props) => {
+export const CreateBookButton: React.FunctionComponent<Props> = (prop: Props) => {
     const [isOpen, setOpen] = React.useState(false)
     const [rules, setRules] = React.useState(new FormCtrlGroup({
         title: new FormControl('', [

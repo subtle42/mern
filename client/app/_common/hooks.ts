@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { store } from 'data/store'
 import { IBook, ISource, IPage, IWidget } from 'common/models'
-import { NotificationModel } from 'data/notifications/reducer';
+import { NotificationModel } from 'data/notifications/reducer'
 
 const _useList = (namespace: string) => {
     const [data, setData] = React.useState(

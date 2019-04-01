@@ -9,7 +9,7 @@ import { widgetSocket } from './socket'
 import { Layout } from 'react-grid-layout'
 import { IWidget, ISource } from 'common/models'
 import * as auth from '../../auth/auth.service'
-import { IWidgetModel } from 'server/dbModels';
+import { IWidgetModel } from 'server/dbModels'
 
 const widgetLayout: Layout = {
     x: 0, y: 0, w: 1, h: 1

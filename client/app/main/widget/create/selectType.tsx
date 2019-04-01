@@ -3,7 +3,7 @@ import { Button, Row, Col, ModalHeader, ModalFooter, ModalBody } from 'reactstra
 import { ColumnType } from 'common/constants'
 import * as FontAwesome from 'react-fontawesome'
 import { useSource } from '../../../_common/hooks'
-import Badge from 'reactstrap/lib/Badge';
+import Badge from 'reactstrap/lib/Badge'
 
 interface Props {
     sourceId: string

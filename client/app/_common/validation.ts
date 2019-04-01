@@ -8,7 +8,7 @@ export class FormError {
 }
 
 type ValidationErrors = {
-    [key: string]: any;
+    [key: string]: any
 }
 
 export interface ValidatorFn {

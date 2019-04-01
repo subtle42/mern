@@ -29,7 +29,7 @@ interface Props {
     id: string
 }
 
-export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
+export const EditButton: React.FunctionComponent<Props> = (props: Props) => {
     const config = useWidget(props.id)
     // const source = useSource(config.sourceId)
     const marginRules: ValidatorFn[] = [
