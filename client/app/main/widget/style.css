@@ -15,7 +15,3 @@
     font-size: 10px !important;
     padding: 2px !important;
 }
-
-.react-grid-item {
-    z-index: -1 !important;
-}
