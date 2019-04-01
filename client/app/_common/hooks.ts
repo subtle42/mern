@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { store } from 'data/store'
-import { IBook, ISource, IPage, IWidget } from 'common/models'
+import { IBook, ISource, IPage, IWidget, IUser } from 'common/models'
 import { NotificationModel } from 'data/notifications/reducer'
 
 const _useList = (namespace: string) => {
@@ -68,6 +68,23 @@ export const useSources = (): ISource[] => {
 
 export const useSource = (id: string): ISource => {
     return _useItem('sources', id)
+}
+
+export const useUser = (): IUser => {
+    const [user, setUser] = React.useState(
+        store.getState().auth.me
+    )
+
+    React.useEffect(() => {
+        const unsubscribe = store.subscribe(() => {
+            const newUser = store.getState().auth.me
+            if (newUser === user) return
+            setUser(newUser)
+        })
+        return () => unsubscribe()
+    })
+
+    return user
 }
 
 export const useAlerts = (): NotificationModel[] => {

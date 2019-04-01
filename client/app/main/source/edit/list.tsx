@@ -8,9 +8,8 @@ import Button from 'reactstrap/lib/Button'
 import ListGroup from 'reactstrap/lib/ListGroup'
 
 import { ISource } from 'common/models'
-import { useSources } from '../../../_common/hooks'
+import { useSources, useUser } from '../../../_common/hooks'
 import { ConfirmModal } from '../../../_common/confirmation'
-import { store } from 'data/store'
 import SourceActions from 'data/sources/actions'
 import NotifActions from 'data/notifications/actions'
 
@@ -21,6 +20,7 @@ interface Props {
 
 export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
     const sources = useSources()
+    const user = useUser()
 
     const remove = (source: ISource) => {
         SourceActions.delete(source._id)
@@ -29,10 +29,11 @@ export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
     }
 
     const getDeleteButton = (source: ISource): JSX.Element => {
-        if (source.owner !== store.getState().auth.me._id) return <div/>
+        const isDisabled = source.owner !== user._id
         return <ConfirmModal header='Delete Source'
             message={`Are you sure you want to delete: ${source.title}?`}>
             <Button outline
+                disabled={isDisabled}
                 onClick={() => remove(source)}
                 color='danger'
                 size='sm'>
@@ -42,9 +43,10 @@ export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
     }
 
     const getEditButton = (source: ISource): JSX.Element => {
-        const userId = store.getState().auth.me._id
-        if (source.owner !== userId || source.editors.indexOf(userId) !== -1) return <div />
+        const userId = user._id
+        const isDisabled = source.owner !== userId || source.editors.indexOf(userId) !== -1
         return <Button outline
+            disabled={isDisabled}
             style={{ marginRight: 15 }}
             onClick={() => props.onEdit(source)}
             color='secondary'

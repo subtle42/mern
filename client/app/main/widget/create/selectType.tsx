@@ -131,7 +131,7 @@ export const SelectChartType: React.FunctionComponent<Props> = (props: Props) =>
             <div>
                 <Button color='secondary'
                     onClick={() => props.back()}>
-                    Back
+                    <FontAwesome name='chevron-left' /> Back
                 </Button>
             </div>
             <div>

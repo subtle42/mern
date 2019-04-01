@@ -7,7 +7,6 @@ import ListGroup from 'reactstrap/lib/ListGroup'
 import Col from 'reactstrap/lib/Col'
 import ListGroupItem from 'reactstrap/lib/ListGroupItem'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
-// import * as Loadable from 'react-loadable'
 import * as FontAwesome from 'react-fontawesome'
 import { useDropzone } from 'react-dropzone'
 
@@ -15,7 +14,6 @@ import SourceActions from 'data/sources/actions'
 import NotifActions from 'data/notifications/actions'
 import { store } from 'data/store'
 import { ISource } from 'common/models'
-import { Loading } from '../../../_common/loading'
 import { useSources } from '../../../_common/hooks'
 
 interface Props {
@@ -138,7 +136,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
             <Button color='primary'
                 disabled={!selected || isLoading}
                 onClick={() => props.done(selected)}>
-                Next
+                Next <FontAwesome name='chevron-right' />
             </Button>
             <Button color='secondary'
                 disabled={isLoading}
