@@ -12,6 +12,10 @@ import { useSources, useUser } from '../../../_common/hooks'
 import { ConfirmModal } from '../../../_common/confirmation'
 import SourceActions from 'data/sources/actions'
 import NotifActions from 'data/notifications/actions'
+import Row from 'reactstrap/lib/Row'
+import Col from 'reactstrap/lib/Col'
+import Input from 'reactstrap/lib/Input'
+import FormGroup from 'reactstrap/lib/FormGroup'
 
 interface Props {
     onDone: () => void
@@ -21,6 +25,8 @@ interface Props {
 export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
     const sources = useSources()
     const user = useUser()
+    const [listedSources, setListedSources] = React.useState(sources)
+    const [searchName, setSearchName] = React.useState('')
 
     const remove = (source: ISource) => {
         SourceActions.delete(source._id)
@@ -56,8 +62,8 @@ export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
     }
 
     const getList = (): JSX.Element => {
-        return <ListGroup>
-            {sources.map((source, index) => <ListGroupItem key={index} action>
+        return <ListGroup style={{ maxHeight: 500, overflowY: 'auto' }}>
+            {listedSources.map((source, index) => <ListGroupItem key={index} action>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     {source.title}
                     <div>
@@ -69,10 +75,35 @@ export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
         </ListGroup>
     }
 
+    const runSourceFilter = (event) => {
+        const value: string = event.target.value
+        setSearchName(value)
+        const tmp = sources.filter(source => {
+            return source.title.toLowerCase()
+                .indexOf(value.toLocaleLowerCase()) !== -1
+        })
+        setListedSources(tmp)
+    }
+
     return <div>
         <ModalHeader>Sources</ModalHeader>
         <ModalBody>
-            {getList()}
+            <Row>
+                <Col>
+                    <FormGroup>
+                        <Input placeholder='Search...'
+                            value={searchName}
+                            onChange={runSourceFilter}></Input>
+                    </FormGroup>
+                </Col>
+            </Row>
+            <Row>
+                <Col>
+                    <FormGroup>
+                        {getList()}
+                    </FormGroup>
+                </Col>
+            </Row>
         </ModalBody>
         <ModalFooter>
             <Button color='primary'

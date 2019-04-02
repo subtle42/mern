@@ -65,6 +65,8 @@ export class Widget extends React.Component<Props, State> {
         this.unsubscribe = store.subscribe(() => {
             let newValue = store.getState().widgets.list.filter(w => w._id === this.props._id)[0]
             if (this.state.widgetConfig !== newValue) {
+                WidgetActions.query(newValue)
+                .catch(err => console.warn(err))
                 this.setState({
                     widgetConfig: newValue
                 })

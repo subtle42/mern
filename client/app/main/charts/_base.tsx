@@ -8,6 +8,7 @@ import { axisBottom, axisLeft, Axis } from 'd3-axis'
 import { format } from 'd3-format'
 import { select, event } from 'd3-selection'
 import { brushX } from 'd3-brush'
+import './style.css'
 
 class State {
     chart: any[] = []
