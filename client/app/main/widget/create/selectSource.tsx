@@ -15,8 +15,7 @@ import NotifActions from 'data/notifications/actions'
 import { store } from 'data/store'
 import { ISource } from 'common/models'
 import { useSources } from '../../../_common/hooks'
-import FormGroup from 'reactstrap/lib/FormGroup';
-import Input from 'reactstrap/lib/Input';
+import Input from 'reactstrap/lib/Input'
 
 interface Props {
     selectedId?: string
@@ -119,7 +118,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
         }
 
         return <ModalBody><Row>
-                <Col xs={6}>
+            <Col xs={6}>
                 <Input placeholder='Search...'
                     value={searchName}
                     onChange={event => setSearchName(event.target.value)}
@@ -133,7 +132,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
                     onClick={() => setSelected(source)}>
                     {source.title}
                 </ListGroupItem>)}
-                </ListGroup></Col>
+            </ListGroup></Col>
             <Col xs={6}>
                 {sourceDetails()}
             </Col>

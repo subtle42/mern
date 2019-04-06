@@ -38,6 +38,11 @@ const Content: React.FunctionComponent<Props> = (props: Props) => {
         return props.selected === page._id
     }
 
+    const getRemoveButton = (page: IPage): JSX.Element => {
+        if (props.pages.length === 1) return
+        return <DeletePageButton pageName={page.name} _id={page._id} />
+    }
+
     const buildTabs = (): JSX.Element[] => {
         if (!props.pages) return []
 
@@ -46,7 +51,7 @@ const Content: React.FunctionComponent<Props> = (props: Props) => {
                 onClick={() => pageActions.select(page._id) }>
                 <NavLink active={isSelected(page)}>
                     {page.name}
-                    <DeletePageButton pageName={page.name} _id={page._id} />
+                    {getRemoveButton(page)}
                 </NavLink>
             </NavItem>
         })
