@@ -117,7 +117,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
             className='xAxis'
             ref={node => select(node).call(
                 this.xAxis
-                .ticks(this.config.xAxis.ticks || 10)
+                .ticks(this.config.xAxis.ticks || 5)
             )}>
         </g>
     }
@@ -128,7 +128,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
             className='xAxis'
             ref={node => select(node).call(
                 this.yAxis
-                .ticks(this.config.yAxis.ticks || 10)
+                .ticks(this.config.yAxis.ticks || 5)
                 .tickFormat(format('~s'))
             )}>
         </g>

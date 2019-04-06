@@ -40,18 +40,20 @@ export const FilterBadge: React.FunctionComponent<Props> = (props: Props) => {
         <Tooltip isOpen={isOpen}
             toggle={() => setOpen(!isOpen)}
             placement='right'
-            style={{ fontSize: 10, maxWidth: 'none' }}
+            style={{ textAlign: 'left', fontSize: 10, maxWidth: 500 }}
             target={`filterTooltip_${props.widgetId}`}>
-            {keys.map(key => {
+            {keys.map((key, index) => {
                 const myCol = source.columns.find(col => col.ref === key)
                 const data = filters[key].map(item => {
-                    if (!isNaN(item)) {
+                    if (myCol.type === 'number') {
                         return Math.round(item)
+                    } else if (myCol.type === 'datetime') {
+                        return (new Date(item)).toDateString()
                     }
                     return item
                 })
                 .join(', ')
-                return <div>{`${myCol.name}: ${data}`}</div>
+                return <div key={index}>{`${myCol.name}: ${data}`}</div>
             })}
         </Tooltip>
         <Badge id={`filterTooltip_${props.widgetId}`}

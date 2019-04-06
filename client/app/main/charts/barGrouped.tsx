@@ -84,10 +84,34 @@ export class BarGrouped extends BaseChart {
         sourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], [])
     }
 
+    reverseFilter (key: string, event) {
+        event.preventDefault()
+        event.stopPropagation()
+        const mySourceFilter = store.getState().sources.filters[this.config.sourceId]
+        let myFilterDimension = []
+        if (mySourceFilter) {
+            myFilterDimension = mySourceFilter[this.config.dimensions[0]] || []
+        }
+        if (myFilterDimension.length === 0) {
+            myFilterDimension = this.x.domain()
+        }
+        myFilterDimension = myFilterDimension.filter(dim => dim !== key)
+
+        select(this.myRef.current as any)
+            .selectAll('rect')
+            .classed('notSelected', (d, index) => {
+                if (myFilterDimension.length === 0) return false
+                const category = Object.keys(this.state.chart)[index]
+                return !myFilterDimension.find(x => x === category)
+            })
+        sourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], myFilterDimension)
+    }
+
     renderChart () {
         return <g ref={this.myRef as any} transform={`translate(${this.config.margins.left}, ${this.config.margins.top})`}>
             {Object.keys(this.state.chart).map((key, i) => <g key={i}
                 style={{ cursor: 'pointer' }}
+                onContextMenu={e => this.reverseFilter(key, e)}
                 onClick={(e) => this.updateFilter(key, e)}
                 transform={`translate(${this.x(key)}, 0)`}>
                 {this.renderBarGroup(key)}
