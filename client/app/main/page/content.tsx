@@ -8,6 +8,7 @@ import * as Loadable from 'react-loadable'
 import { Loading } from '../../_common/loading'
 import { store } from 'data/store'
 import { usePage } from '../../_common/hooks'
+import { select } from 'd3';
 
 interface Props {}
 

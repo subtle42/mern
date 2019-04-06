@@ -18,6 +18,7 @@ import { Histogram } from '../charts/histogram'
 import { BarGrouped } from '../charts/barGrouped'
 import { Scatter } from '../charts/scatter'
 import { Line } from '../charts/line'
+import { FilterBadge } from './filterBadge';
 
 interface Props {
     _id: string
@@ -28,6 +29,7 @@ class State {
     source: ISource = undefined
     width: number = 0
     height: number = 0
+    showTooltip: boolean = false
 }
 
 export class Widget extends React.Component<Props, State> {
@@ -182,12 +184,13 @@ export class Widget extends React.Component<Props, State> {
                         <FontAwesome name='times' />
                     </Button>
                 </ConfirmModal>
-                <CardTitle style={{ display: 'flex', justifyContent: 'center', margin: 0 }}>
+                <CardTitle style={{ cursor: 'default', display: 'flex', justifyContent: 'center', margin: 0 }}>
                     {this.state.source ? this.state.source.title : 'Loading...'}
                 </CardTitle>
             </CardHeader>
             <CardBody style={{ height: '100%', padding: 0 }}>
                 <div ref={this.myRef} style={{ height: '100%', width: '100%' }}>
+                    <FilterBadge widgetId={this.props._id} />
                     {this.getDropdown()}
                     {this.getChart(this.state.widgetConfig)}
                     {this.getDimDropdown()}
