@@ -25,7 +25,7 @@ interface Props {
 export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
     const sources = useSources()
     const user = useUser()
-    const [listedSources, setListedSources] = React.useState(sources)
+    // const [listedSources, setListedSources] = React.useState(sources)
     const [searchName, setSearchName] = React.useState('')
 
     const remove = (source: ISource) => {
@@ -63,7 +63,8 @@ export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
 
     const getList = (): JSX.Element => {
         return <ListGroup style={{ maxHeight: 500, overflowY: 'auto' }}>
-            {listedSources.map((source, index) => <ListGroupItem key={index} action>
+            {sources.filter(runSourceFilter)
+                .map((source, index) => <ListGroupItem key={index} action>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     {source.title}
                     <div>
@@ -75,14 +76,9 @@ export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
         </ListGroup>
     }
 
-    const runSourceFilter = (event) => {
-        const value: string = event.target.value
-        setSearchName(value)
-        const tmp = sources.filter(source => {
-            return source.title.toLowerCase()
-                .indexOf(value.toLocaleLowerCase()) !== -1
-        })
-        setListedSources(tmp)
+    const runSourceFilter = (source: ISource): boolean => {
+        return source.title.toLowerCase()
+            .indexOf(searchName.toLocaleLowerCase()) !== -1
     }
 
     return <div>
@@ -93,7 +89,7 @@ export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
                     <FormGroup>
                         <Input placeholder='Search...'
                             value={searchName}
-                            onChange={runSourceFilter}></Input>
+                            onChange={event => setSearchName(event.target.value)}></Input>
                     </FormGroup>
                 </Col>
             </Row>

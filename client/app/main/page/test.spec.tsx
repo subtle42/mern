@@ -26,6 +26,7 @@ describe('Page Add component', () => {
     afterEach(() => {
         xhr.restore()
         sandbox.restore()
+        wrapper.unmount()
     })
 
     it('should have the modal hidden', () => {
@@ -67,13 +68,14 @@ describe('Page Add component', () => {
             expect(createBtn.prop('disabled')).to.equal(true)
         })
 
-        xit('should enable the create button if input is greater than 3', () => {
+        it('should enable the create button if input is greater than 3', () => {
             pageNameInput.simulate('change', {
                 target: {
                     value: 'aaaa',
                     name: 'title'
                 }
             })
+            createBtn = wrapper.find('Button').filterWhere(el => el.text() === 'Create')
             expect(createBtn.prop('disabled')).to.equal(false)
         })
 
@@ -110,7 +112,7 @@ describe('Page Add component', () => {
 
                 return utils.waitATick()
                 .then(() => requests[0].respond(200, {}, newPageId))
-                .then(() => utils.waitATick())
+                .then(() => utils.waitATick(10))
                 .then(() => expect(wrapper.find('Modal').prop('isOpen')).to.equal(false))
             })
         })
@@ -135,6 +137,7 @@ describe('Page Delete component', () => {
     afterEach(() => {
         xhr.restore()
         sandbox.restore()
+        wrapper.unmount()
     })
 
     it('should prompt a confirm dialog on click', () => {
@@ -227,6 +230,7 @@ describe('Page Conifg component', () => {
         xhr.restore()
         sandbox.restore()
         utils.resetStore()
+        wrapper.unmount()
     })
 
     describe('on open', () => {
@@ -236,7 +240,6 @@ describe('Page Conifg component', () => {
             bookId: 'bookId',
             isDraggable: false,
             isResizable: true,
-            isRearrangeable: false,
             preventCollision: true,
             margin: [0, 1],
             containerPadding: [2, 3],
@@ -321,12 +324,12 @@ describe('Page Conifg component', () => {
                 .to.equal(testPage.isResizable)
             })
 
-            it('should populate isRearrangeable', () => {
+            it('should populate preventCollision', () => {
                 expect(wrapper.find('CustomInput')
-                    .filterWhere(x => x.prop('name') === 'isRearrangeable')
+                    .filterWhere(x => x.prop('name') === 'preventCollision')
                     .prop('checked')
                 )
-                .to.equal(testPage.isRearrangeable)
+                .to.equal(testPage.preventCollision)
             })
         })
 

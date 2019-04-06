@@ -15,6 +15,8 @@ import NotifActions from 'data/notifications/actions'
 import { store } from 'data/store'
 import { ISource } from 'common/models'
 import { useSources } from '../../../_common/hooks'
+import FormGroup from 'reactstrap/lib/FormGroup';
+import Input from 'reactstrap/lib/Input';
 
 interface Props {
     selectedId?: string
@@ -32,6 +34,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
     const [isLoading, setLoading] = React.useState(false)
     const [selected, setSelected] = React.useState(getSelected())
     const sources = useSources()
+    const [searchName, setSearchName] = React.useState('')
 
     // const Dropzone = Loadable({
     //     loader: () => import('react-dropzone').then(mod => mod.default),
@@ -116,19 +119,30 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
         }
 
         return <ModalBody><Row>
-            <Col xs={6}><ListGroup>
-                {sources.map(source => <ListGroupItem
+                <Col xs={6}>
+                <Input placeholder='Search...'
+                    value={searchName}
+                    onChange={event => setSearchName(event.target.value)}
+                    style={{ marginBottom: 16 }}/>
+                <ListGroup style={{ maxHeight: 500, overflowY: 'auto' }}>
+                {sources.filter(runSourceFilter)
+                    .map(source => <ListGroupItem
                     action
                     className={source === selected && 'active'}
                     key={source._id}
                     onClick={() => setSelected(source)}>
                     {source.title}
                 </ListGroupItem>)}
-            </ListGroup></Col>
+                </ListGroup></Col>
             <Col xs={6}>
                 {sourceDetails()}
             </Col>
         </Row></ModalBody>
+    }
+
+    const runSourceFilter = (source: ISource): boolean => {
+        return source.title.toLowerCase()
+            .indexOf(searchName.toLocaleLowerCase()) !== -1
     }
 
     const renderFooter = (): JSX.Element => {
