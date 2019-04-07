@@ -8,7 +8,6 @@ import * as Loadable from 'react-loadable'
 import { Loading } from '../../_common/loading'
 import { store } from 'data/store'
 import { usePage } from '../../_common/hooks'
-import { select } from 'd3';
 
 interface Props {}
 
@@ -67,7 +66,9 @@ export const PageContent: React.FunctionComponent<Props> = (props: Props) => {
             width={width}
             {...asdf}>
             {page.layout.map((layoutItem) => {
-                return <div key={layoutItem.i} >
+                return <div
+                    style={{ zIndex: 100 - layoutItem.y }}
+                    key={layoutItem.i} >
                     <Widget _id={layoutItem.i} />
                 </div>
             })}
