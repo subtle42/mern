@@ -1,29 +1,31 @@
-import * as chai from 'chai'
-// import { default as chaiWebdriver } from 'chai-webdriverio'
-// const chaiWebdriver = require('chai-webdriverio').default
-// import 'chai-webdriverio'
-
+import { expect } from 'chai'
 import * as utils from '../integration/utils'
-// chai.use(chaiWebdriver(browser))
 
 describe('Basic User Authentication', () => {
     beforeEach(() => {
-        // browser.url('./')
+        browser.url('/')
     })
 
     before(() => {
-        return utils.cleanDb()
+        // return utils.cleanDb()
     })
 
     after(() => {
-        return utils.cleanDb()
+        // return utils.cleanDb()
     })
 
     it('should be able to open the page', () => {
-        // chai.expect(browser.getTitle()).to.equal('Testing')
+        browser.url('/')
+        const title = browser.getTitle()
+        expect(title).to.be.equal('Testing')
+
     })
 
-    it('should register a user', () => {
+    xit('should pass', () => {
+        console.log('hi')
+    })
+
+    xit('should register a user', () => {
         // $('a=Register').click()
         // .then(ele => ele.click())
         // .then(() => $(`input[name='userName']`))

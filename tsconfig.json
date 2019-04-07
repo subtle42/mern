@@ -15,7 +15,8 @@
             "data/*": ["./client/data/*"],
             "common/*": ["./common/*"]
         },
-        "outDir": "./.out"
+        "outDir": "./.out",
+        "types": ["@wdio/sync", "@wdio/mocha-framework"]
     },
     "include": [
         "./server/**/*.ts",
