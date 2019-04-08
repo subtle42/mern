@@ -65,6 +65,10 @@ export class FormControl {
         this.invalid = !!this.error
     }
 
+    digest () {
+        this.value = this.value
+    }
+
     get value () {
         return this.data
     }
