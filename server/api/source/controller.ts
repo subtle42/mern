@@ -263,7 +263,9 @@ class SourceController {
             })
         }
 
-        input.measures.forEach(measure => {
+        input.measures
+        .filter(measure => measure.ref !== 'count')
+        .forEach(measure => {
             groupByObj[measure.ref] = { $sum: `$${measure.ref}` }
         })
 

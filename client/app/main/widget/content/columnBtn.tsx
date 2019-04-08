@@ -13,13 +13,22 @@ interface DropdownProps {
     sourceId: any
     colId: any
     colType: ColumnType
+    hasCount?: boolean
     onColUpdate: (col: ISourceColumn) => void
 }
 
 export const ColumnButton: React.FunctionComponent<DropdownProps> = (props: DropdownProps) => {
     const source = useSource(props.sourceId)
     const [isOpen, setOpen] = React.useState(false)
-    const currentColumn = source.columns.find(col => col.ref === props.colId)
+    const optionList: ISourceColumn[] = [...source.columns]
+    if (props.hasCount) {
+        optionList.push({
+            name: 'Count(*)',
+            ref: 'count',
+            type: 'number'
+        })
+    }
+    const currentColumn = optionList.find(col => col.ref === props.colId)
 
     return <ButtonDropdown
         size='sm'
@@ -31,7 +40,7 @@ export const ColumnButton: React.FunctionComponent<DropdownProps> = (props: Drop
             {currentColumn ? currentColumn.name : 'Not Found'}
         </DropdownToggle>
         <DropdownMenu>
-            {source.columns
+            {optionList
                 .filter(col => col.type === props.colType)
                 .filter(col => col.ref !== props.colId)
                 .map(col => <DropdownItem key={col.ref}

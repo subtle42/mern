@@ -32,7 +32,7 @@ const chartConfList: ChartConf[] = [{
     name: 'Bar',
     type: 'barGroup',
     requires: [{
-        count: 1,
+        count: 0,
         colType: 'number'
     }, {
         count: 1,
@@ -52,7 +52,7 @@ const chartConfList: ChartConf[] = [{
         count: 1,
         colType: 'datetime'
     }, {
-        count: 1,
+        count: 0,
         colType: 'number'
     }]
 }]

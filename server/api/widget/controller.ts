@@ -7,7 +7,7 @@ import { Source } from '../source/model'
 import { pageSocket } from '../page/socket'
 import { widgetSocket } from './socket'
 import { Layout } from 'react-grid-layout'
-import { IWidget, ISource } from 'common/models'
+import { IWidget, ISource, ISourceColumn } from 'common/models'
 import * as auth from '../../auth/auth.service'
 import { IWidgetModel } from 'server/dbModels'
 
@@ -94,19 +94,26 @@ class WidgetController {
             myWidget.dimensions.push(this.getDefaultColumn('datetime', mySource))
             myWidget.measures.push({
                 formula: 'sum',
-                ref: this.getDefaultColumn('number', mySource)
+                ref: this.getDefaultColumn('number', mySource, true)
             })
         } else {
             myWidget.dimensions.push(this.getDefaultColumn('group', mySource))
             myWidget.measures.push({
                 formula: 'sum',
-                ref: this.getDefaultColumn('number', mySource)
+                ref: this.getDefaultColumn('number', mySource, true)
             })
         }
     }
 
-    getDefaultColumn (type: string, source: ISource): string {
+    getDefaultColumn (type: string, source: ISource, includeCount?: boolean): string {
         const cols = source.columns.filter(col => col.type === type)
+        if (includeCount) {
+            cols.push({
+                ref: 'count',
+                name: 'Count(*)',
+                type: 'number'
+            })
+        }
         return cols[Math.floor(Math.random() * cols.length)].ref
     }
 

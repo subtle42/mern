@@ -117,6 +117,7 @@ export class Widget extends React.Component<Props, State> {
         return <div style={{ display: 'flex', justifyContent: 'center', height: 29 }}>
             {this.state.widgetConfig.measures.map((measure, index) => {
                 return <ColumnButton
+                    hasCount={true}
                     key={index}
                     colType='number'
                     sourceId={this.state.widgetConfig.sourceId}

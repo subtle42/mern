@@ -57,7 +57,7 @@ export const FilterBadge: React.FunctionComponent<Props> = (props: Props) => {
             })}
         </Tooltip>
         <Badge id={`filterTooltip_${props.widgetId}`}
-            color='light'
+            color='info'
             style={{ position: 'absolute', margin: 4 }}>
             <FontAwesome name='filter' />
         </Badge>
