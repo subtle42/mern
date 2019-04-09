@@ -38,7 +38,7 @@ export const PageContent: React.FunctionComponent<Props> = (props: Props) => {
             newItem: ReactGridLayout.Layout,
             placeholder: ReactGridLayout.Layout,
             event, element) => {
-            widgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 85)
+            widgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 81)
             PageActions.update(Object.assign({}, page, { layout }))
         },
         onResize: (layout: ReactGridLayout.Layout[],
@@ -46,7 +46,7 @@ export const PageContent: React.FunctionComponent<Props> = (props: Props) => {
             newItem: ReactGridLayout.Layout,
             placeholder: ReactGridLayout.Layout,
             event, element) => {
-            widgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 85)
+            widgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 81)
         }
     }
 

@@ -53,7 +53,7 @@ export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
         const isDisabled = source.owner !== userId || source.editors.indexOf(userId) !== -1
         return <Button outline
             disabled={isDisabled}
-            style={{ marginRight: 15 }}
+            style={{ marginRight: 10 }}
             onClick={() => props.onEdit(source)}
             color='secondary'
             size='sm'>

@@ -51,11 +51,7 @@ const myComponent: React.FunctionComponent<NavProps> = (props: NavProps) => {
         </Nav>
     }
 
-    const navigateTo = (loc: string) => {
-        
-    }
-
-    return <Navbar color='light' light expand='md'>
+    return <Navbar style={{ padding: '0 16' }} color='light' light expand='md'>
         <NavbarBrand> WhIM </NavbarBrand>
         <Collapse navbar style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
         {getBookDropDown()}

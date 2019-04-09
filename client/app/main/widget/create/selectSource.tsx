@@ -126,10 +126,11 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
                 <ListGroup style={{ maxHeight: 500, overflowY: 'auto' }}>
                 {sources.filter(runSourceFilter)
                     .map(source => <ListGroupItem
-                    action
-                    className={source === selected && 'active'}
-                    key={source._id}
-                    onClick={() => setSelected(source)}>
+                        action
+                        style={{ cursor: 'pointer' }}
+                        className={source === selected && 'active'}
+                        key={source._id}
+                        onClick={() => setSelected(source)}>
                     {source.title}
                 </ListGroupItem>)}
             </ListGroup></Col>

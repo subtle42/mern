@@ -77,8 +77,8 @@ export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) =
         </Modal>
     }
 
-    return <NavItem onClick={open}>
-        <NavLink style={{ height: 42 }}>
+    return <NavItem onClick={open} style={{ cursor: 'pointer' }}>
+        <NavLink style={{ height: 42, paddingTop: 11 }}>
             <FontAwesome name='plus' />
         </NavLink>
         {getModalTemplate()}

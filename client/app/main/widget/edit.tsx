@@ -196,7 +196,8 @@ export const EditButton: React.FunctionComponent<Props> = (props: Props) => {
 
     return <div>
         <Button className='pull-left'
-            color='secondary'
+            style={{ padding: '2 4 2 4' }}
+            color='link'
             outline
             size='sm'
             onClick={toggleModal}>

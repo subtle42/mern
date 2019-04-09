@@ -48,8 +48,10 @@ const Content: React.FunctionComponent<Props> = (props: Props) => {
 
         return props.pages.map((page, index) => {
             return <NavItem key={index}
+                style={{ cursor: 'pointer' }}
                 onClick={() => pageActions.select(page._id) }>
-                <NavLink active={isSelected(page)}>
+                <NavLink active={isSelected(page)}
+                    style={{ padding: 8 }}>
                     {page.name}
                     {getRemoveButton(page)}
                 </NavLink>

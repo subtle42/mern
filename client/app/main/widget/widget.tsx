@@ -55,7 +55,7 @@ export class Widget extends React.Component<Props, State> {
 
     componentDidUpdate () {
         const width = this.myRef.current.offsetWidth
-        const height = this.myRef.current.offsetHeight - 60
+        const height = this.myRef.current.offsetHeight - 58
         if (!this.state.widgetConfig) return
         if (this.state.width === width && this.state.height === height) return
         WidgetActions.setSize(this.state.widgetConfig._id, width, height)
@@ -133,9 +133,10 @@ export class Widget extends React.Component<Props, State> {
         const source = store.getState().sources.list.find(s => s._id === this.state.widgetConfig.sourceId)
         const column = source.columns
             .find(col => col.ref === this.state.widgetConfig.dimensions[0])
+        const helpText: string = column.type !== 'number' ? 'Grouped by ' : ''
 
         return <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div style={{ fontSize: 10, paddingTop: 7 }}>Grouped by </div>
+            <div style={{ fontSize: 10, paddingTop: 7 }}>{helpText}</div>
             <ColumnButton
                 colType={column.type}
                 sourceId={this.state.widgetConfig.sourceId}
@@ -173,11 +174,12 @@ export class Widget extends React.Component<Props, State> {
 
     render () {
         return <Card style={{ height: '100%' }}>
-            <CardHeader style={{ padding: 0, border: 0 }} color='secondary'>
+            <CardHeader style={{ padding: 0, border: 0 }}>
                 <EditButton id={this.props._id} />
                 <ConfirmModal header='Delete Widget'
                     message='Are you sure you want to delete this widget?'>
-                    <Button color='secondary'
+                    <Button color='link'
+                        style={{ padding: '2 4 2 4' }}
                         className='pull-right'
                         size='sm'
                         outline
@@ -185,7 +187,11 @@ export class Widget extends React.Component<Props, State> {
                         <FontAwesome name='times' />
                     </Button>
                 </ConfirmModal>
-                <CardTitle style={{ cursor: 'default', display: 'flex', justifyContent: 'center', margin: 0 }}>
+                <CardTitle style={{ cursor: 'default',
+                    fontSize: 14,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    margin: 0 }}>
                     {this.state.source ? this.state.source.title : 'Loading...'}
                 </CardTitle>
             </CardHeader>
