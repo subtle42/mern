@@ -65,10 +65,10 @@ export default abstract class BaseActions {
 
         nsp.on('message', (msg) => console.log(msg))
         .on('addedOrChanged', (items: any[]) => {
-            if (this.isNewList && items.length > 0) {
+            if (this.isNewList) {
                 this.isNewList = false
                 this.addedOrChanged(items)
-                .then(() => this.select(items[0]._id))
+                .then(() => this.select(items[0] ? items[0]._id : ''))
             } else {
                 this.addedOrChanged(items)
             }
@@ -85,7 +85,7 @@ export default abstract class BaseActions {
      */
     joinRoom (room: string): Promise<void> {
         if (!this.store.getState()[this.nameSpace].socket) {
-            return new Promise((resolve, reject) => reject(`Cannot join room in ${this.nameSpace} channel. No socket connection`))
+            return Promise.reject(`Cannot join room in ${this.nameSpace} channel. No socket connection`)
         }
 
         this.isNewList = true
