@@ -25,6 +25,7 @@ import { IPage } from 'common/models'
 import { FormCtrlGroup, FormControl, FormCtrlArray } from '../../_common/validation'
 import * as utils from '../../_common/utils'
 import * as Validators from '../../_common/validators'
+import { usePages } from '../../_common/hooks'
 import './page.css'
 
 interface Props {
@@ -77,6 +78,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
             Validators.max(30)
         ])
     }))
+    const pages = usePages()
 
     const open = () => {
         rules.value = store.getState().pages.list
@@ -287,7 +289,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
         </Modal>
     }
 
-    return <div>
+    return <div hidden={pages.length === 0}>
         <div className='fixed-plugin' onClick={() => open()}>
             <FontAwesome style={{ paddingTop: 6 }} size='2x' name='cog' />
         </div>

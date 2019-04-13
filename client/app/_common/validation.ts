@@ -65,9 +65,7 @@ export class FormControl {
         this.invalid = !!this.error
     }
 
-    digest () {
-        this.value = this.value
-    }
+    digest () {}
 
     get value () {
         return this.data
@@ -105,6 +103,7 @@ export class FormCtrlArray {
 
     digest (): void {
         const keys = this.controls.map((item, index) => index)
+        this.controls.forEach(ctrl => ctrl.digest())
         this.isDirty(keys)
         this.isValid(keys)
     }
@@ -153,6 +152,7 @@ export class FormCtrlGroup {
 
     digest (): void {
         const keys = Object.keys(this.controls)
+        keys.forEach(key => this.controls[key].digest())
         this.isDirty(keys)
         this.isValid(keys)
     }

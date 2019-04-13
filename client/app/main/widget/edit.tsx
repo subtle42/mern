@@ -141,14 +141,14 @@ export const EditButton: React.FunctionComponent<Props> = (props: Props) => {
             <ModalHeader>Edit Widget</ModalHeader>
             <ModalBody>
                 <Nav tabs fill={true}>
-                    <NavItem>
+                    <NavItem style={{ cursor: 'pointer' }}>
                         <NavLink
                             active={currentTab === 'general'}
                             onClick={() => setTab('general')}>
                             General
                         </NavLink>
                     </NavItem>
-                    <NavItem>
+                    <NavItem style={{ cursor: 'pointer' }}>
                         <NavLink
                             active={currentTab === 'specific'}
                             onClick={() => setTab('specific')}>
@@ -174,8 +174,9 @@ export const EditButton: React.FunctionComponent<Props> = (props: Props) => {
             </ModalBody>
             <ModalFooter>
                 <Button color='primary'
+                    disabled={rules.invalid}
                     onClick={save}>
-                    Done
+                    Save
                 </Button>
                 <Button color='secondary'
                     onClick={cancel}>Cancel</Button>

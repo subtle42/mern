@@ -7,9 +7,8 @@ import { Source } from '../source/model'
 import { pageSocket } from '../page/socket'
 import { widgetSocket } from './socket'
 import { Layout } from 'react-grid-layout'
-import { IWidget, ISource, ISourceColumn } from 'common/models'
 import * as auth from '../../auth/auth.service'
-import { IWidgetModel } from 'server/dbModels'
+import { IWidgetModel, ISourceModel } from 'server/dbModels'
 
 const widgetLayout: Layout = {
     x: 0, y: 0, w: 1, h: 1
@@ -84,7 +83,7 @@ class WidgetController {
         .catch(utils.handleError(res))
     }
 
-    private addDefaultsToWidget (myWidget: IWidget, mySource: ISource) {
+    private addDefaultsToWidget (myWidget: IWidgetModel, mySource: ISourceModel) {
         if (myWidget.type === 'histogram') {
             myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
         } else if (myWidget.type === 'scatter') {
@@ -105,7 +104,7 @@ class WidgetController {
         }
     }
 
-    getDefaultColumn (type: string, source: ISource, includeCount?: boolean): string {
+    getDefaultColumn (type: string, source: ISourceModel, includeCount?: boolean): string {
         const cols = source.columns.filter(col => col.type === type)
         if (includeCount) {
             cols.push({
@@ -118,23 +117,21 @@ class WidgetController {
     }
 
     remove (req: Request, res: Response) {
-        const id = req.params.id
+        const { id, pageId, bookId } = req.params
 
-        Widget.findById(id).exec()
-        .then(widget => {
-            return Page.findById(widget.pageId)
-            .then(page => {
-                return Book.findById(page.bookId).exec()
-                .then(book => auth.hasEditAccess(req.user._id, book))
-                .then(() => {
-                    page.layout = page.layout.filter(item => item.i !== id)
-                    return page.updateOne(page).exec()
-                    .then(() => pageSocket.onAddOrChange(page))
-                })
-            })
-            .then(() => Widget.findByIdAndRemove(id).exec())
-            .then(() => widgetSocket.onDelete(widget))
+        Book.findById(bookId).exec()
+        .then(book => auth.hasEditAccess(req.user._id, book))
+        .then(() => Page.findById(pageId).exec())
+        .then(page => {
+            page.layout = page.layout.filter(item => item.i !== id)
+            return page.updateOne(page).exec()
+            .then(() => pageSocket.onAddOrChange(page))
         })
+        .then(() => Widget.findByIdAndRemove(id).exec())
+        .then(() => widgetSocket.onDelete({
+            _id: id,
+            pageId
+        } as IWidgetModel))
         .then(utils.handleResponseNoData(res))
         .catch(utils.handleError(res))
     }
