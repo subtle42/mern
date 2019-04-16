@@ -1,6 +1,6 @@
 import { Source } from './model'
 import { SourceSocket } from './socket'
-import { MongoClient, AggregationCursor } from 'mongodb'
+import { MongoClient } from 'mongodb'
 import { Request, Response } from 'express'
 import { createReadStream, unlink } from 'fs'
 import { ISourceColumn, ColumnType, IQuery, ISource } from 'common/models'
@@ -8,6 +8,7 @@ import { ISourceModel } from '../../dbModels'
 import * as auth from '../../auth/auth.service'
 import config from '../../config/environment'
 import * as utils from '../utils'
+import { columnInsertEtlFactory, columnInspectFactory } from './factories'
 const csv = require('fast-csv')
 
 class SourceController {
@@ -74,44 +75,34 @@ class SourceController {
     private importData (rows: Array<any[]>, columnTypes: ColumnType[]): Promise<string> {
         let name = 'mern_' + new Date().getTime()
 
+        const toInsert = rows.map(row => {
+            let item = {}
+            row.forEach((entry, index) => {
+                item[index] = columnInsertEtlFactory[columnTypes[index]](entry)
+            })
+            return item
+        })
+
         return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
         .then(client => {
             const db = client.db(config.db.mongoose.data.dbname)
             return db.createCollection(name)
             .then(collect => {
                 const batch = collect.initializeUnorderedBulkOp()
-                rows.forEach(row => {
-                    let item = {}
-                    row.forEach((entry, index) => {
-                        if (columnTypes[index] === 'number') {
-                            row[index] = entry.replace('$', '')
-                            item[index] = parseInt(entry, 10)
-                        } else if (columnTypes[index] === 'datetime') {
-                            item[index] = new Date(entry)
-                        } else {
-                            item[index] = entry
-                        }
-                    })
-                    batch.insert(item)
-                })
+                toInsert.forEach(row => batch.insert(row))
                 return batch.execute()
             })
             .then(bulkResult => {
-                client.close()
                 if (bulkResult.nInserted !== rows.length) {
                     throw new Error(`Only ${bulkResult.nInserted} out of ${rows.length} in collection ${name}`)
                 }
                 return name
             })
-            .catch(err => {
-                client.close()
-                throw err
-            })
+            .finally(() => client.close())
         })
     }
 
     private buildSourceObject (req: Request, headers: string[], columnTypes: ColumnType[], location: string, rowCount: number): Promise<ISourceModel> {
-        // return new Promise((resolve, reject) => {
         let myColumns: ISourceColumn[] = []
 
         columnTypes.forEach((type, index) => {
@@ -132,10 +123,7 @@ class SourceController {
         })
 
         return mySource.validate()
-            .then(() => mySource)
-            // .then(pass => resolve(mySource))
-            // .catch(err => reject(err));
-        // });
+        .then(() => mySource)
     }
 
     update (req: Request, res: Response): void {
@@ -148,8 +136,8 @@ class SourceController {
         .then(source => {
             return auth.hasEditAccess(req.user._id, source)
             .then(() => {
-                if (source.owner !== mySource.owner && source.owner !== req.user._id) {
-                    return Promise.reject(`Only the owner of source: ${source._id}, can the owner field`)
+                if (source.owner !== mySource.owner) {
+                    return auth.hasOwnerAccess(req.user._id, source)
                 }
             })
             .then(() => Source.findByIdAndUpdate(id, req.body).exec())
@@ -188,19 +176,29 @@ class SourceController {
             return this.importData(fileData, colTypes)
         })
         .then(collectionName => this.buildSourceObject(req, headers, columnTypes, collectionName, fileData.length))
+        .then(mySource => {
+            return Promise.all(
+                mySource.columns.map(col => columnInspectFactory[col.type](mySource.location, col.ref))
+            )
+            .then(metaData => {
+                mySource.columns = mySource.columns.map((col, index) => {
+                    if (metaData[index].types && metaData[index].types.length > 20) {
+                        return Object.assign(col, { type: 'text' })
+                    }
+                    return Object.assign(col, metaData[index])
+                })
+                return mySource
+            })
+        })
         .then(mySource => Source.create(mySource))
         .then(newSource => {
             SourceSocket.onAddOrChange(newSource)
-            unlink('./' + req.file.path, () => {
-                res.json(newSource._id)
-            })
+            res.json(newSource._id)
         })
-        .catch(err => {
-            unlink('./' + req.file.path, () => {
-                console.error(err)
-                res.status(500).json(err)
-            })
-        })
+        .catch(utils.handleError(res))
+        .finally(() => unlink(`./${req.file.path}`, () => {
+            utils.logger.info(`Removed file: ${req.file.path}`)
+        }))
     }
 
     query (req: Request, res: Response): void {
@@ -209,7 +207,13 @@ class SourceController {
 
         Source.findById(myQuery.sourceId)
         .then(source => mySource = source)
-        .then(() => this.buildMongoQuery(mySource, myQuery))
+        .then(() => {
+            if (this.isHistoQuery(mySource, myQuery)) {
+                return this.buildHistogramQuery(mySource, myQuery)
+            } else {
+                return this.buildMongoQuery(mySource, myQuery)
+            }
+        })
         .then(query => this.runMongoQuery(mySource, query))
         .then(utils.handleResponse(res))
         .catch(utils.handleError(res))
@@ -248,9 +252,69 @@ class SourceController {
         })
     }
 
+    private buildHistogramQuery (source: ISource, input: IQuery): Promise<any> {
+        const colRef = input.dimensions[0]
+        const output = []
+        this.addFiltersToQuery(source, input, output)
+        output.push({
+            $group: {
+                _id: {},
+                min: { $min: `$${colRef}` },
+                max: { $max: `$${colRef}` }
+            }
+        })
+
+        return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
+        .then(client => {
+            const db = client.db(config.db.mongoose.data.dbname)
+            return db.collection(source.location).aggregate(output)
+            .toArray()
+            .then(data => data[0])
+            .finally(() => client.close())
+        })
+        .then(metaData => {
+            const { min, max } = metaData
+            const step = Math.round((max - min) / 20)
+            const boundaries = [min]
+            let index = 1
+            while (boundaries[boundaries.length - 1] <= max) {
+                boundaries.push(min + step * index)
+                index++
+            }
+            const toReturn = []
+            this.addFiltersToQuery(source, input, output)
+            toReturn.push({
+                $bucket: {
+                    groupBy: `$${colRef}`,
+                    boundaries,
+                    default: 'Other',
+                    output: {
+                        // entries : { $push: `$${colRef}` },
+                        count: { $sum: 1 }
+                    }
+                }
+            })
+            return toReturn
+        })
+    }
+
+    private isHistoQuery (source: ISource, input: IQuery): boolean {
+        return input.dimensions.length === 1
+            && input.measures.length === 0
+            && source.columns.find(col => col.ref === input.dimensions[0]).type === 'number'
+    }
+
     private buildMongoQuery (source: ISource, input: IQuery): any[] {
         let output = []
         this.addFiltersToQuery(source, input, output)
+
+        // if (input.dimensions.length === 1
+        //     && input.measures.length === 0
+        //     && source.columns.find(col => col.ref === input.dimensions[0]).type === 'number'
+        // ) {
+        //     output.push(this.buildHistogramQuery(source, input))
+        //     return output
+        // }
 
         let groupByObj = {
             _id: input.measures.length > 0 ? `$${input.dimensions[0]}` : '$_id',
@@ -283,20 +347,12 @@ class SourceController {
     }
 
     private runMongoQuery (source: ISource, query: any[]): Promise<any[]> {
-        return new Promise((resolve, reject) => {
-            MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
-            .then(client => {
-                const db = client.db(config.db.mongoose.data.dbname)
-                db.collection(source.location).aggregate(query,{}, (err, data: any) => {
-                    if (err) return reject(err)
-                    const cursor: AggregationCursor = data
-                    cursor.toArray().then(results => {
-                        client.close()
-                        resolve(results)
-                    })
-                })
-            })
-            .catch(err => reject(err))
+        return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
+        .then(client => {
+            const db = client.db(config.db.mongoose.data.dbname)
+            return db.collection(source.location).aggregate(query)
+            .toArray()
+            .finally(() => client.close())
         })
     }
 

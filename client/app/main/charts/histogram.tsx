@@ -6,36 +6,46 @@ import { BaseChart } from './_base'
 export class Histogram extends BaseChart {
     x = scaleLinear()
     y = scaleLinear()
-    bins = histogram()
+    step = 0
+    // bins = histogram()
 
     updateChart (data: any[]) {
-        const mappedData = data.map(d => d[this.config.dimensions[0]])
+        data = data.filter(d => d._id !== 'Other')
+        let myDomain = [0, 0]
+        if (data.length > 0) {
+            myDomain = [
+                data[0]._id,
+                data[data.length - 1]._id
+            ]
+            this.step = (myDomain[1] - myDomain[0]) / (this.config.other.ticks || 20)
+            myDomain[1] = myDomain[1] + this.step
+        }
 
         this.x
-            .domain(this.adjustDomain(extent(mappedData), this.config.yAxis))
+            .domain(this.adjustDomain(myDomain, this.config.xAxis))
             .rangeRound([0, this.getWidthtWithMargins()])
-        this.bins
-            .domain(this.x.domain() as any)
-            .thresholds(this.x.ticks(this.config.other.ticks || 20))
-        const myData = data.length !== 0 ? this.bins(mappedData) : []
+        // this.bins
+        //     .domain(this.x.domain() as any)
+        //     .thresholds(this.x.ticks(this.config.other.ticks || 20))
+        // const myData = data.length !== 0 ? this.bins(mappedData) : []
 
-        const yDomain = [0, max(myData, (d: any) => d.length)] as [number, number]
+        const yDomain = [0, max(data, d => d.count)] as [number, number]
 
         this.y
             .domain(this.adjustDomain(yDomain, this.config.yAxis))
             .rangeRound([this.getHeightWithMargins(), 0])
 
-        return myData
+        return data
     }
 
     renderChart () {
         return <g transform={`translate(${this.config.margins.left}, ${this.config.margins.top})`}>
             {this.state.chart.map((row, index) => <rect key={index}
                 fill='steelblue'
-                x={this.x(row.x0) + 1}
-                y={this.y(row.length)}
-                height={this.y(0) - this.y(row.length)}
-                width={Math.max(0, this.x(row.x1) - this.x(row.x0) - 1)}>
+                x={this.x(row._id) + 1}
+                y={this.y(row.count)}
+                height={this.y(0) - this.y(row.count)}
+                width={Math.max(0, this.x(row._id + this.step) - this.x(row._id) - 1)}>
             </rect>)}
             {this.getXAxis()}
             {this.getYAxis()}
