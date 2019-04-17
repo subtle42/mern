@@ -269,19 +269,27 @@ class SourceController {
             const db = client.db(config.db.mongoose.data.dbname)
             return db.collection(source.location).aggregate(output)
             .toArray()
-            .then(data => data[0])
+            .then(data => data[0] || {
+                min: 0,
+                max: 0
+            })
             .finally(() => client.close())
         })
         .then(metaData => {
             const { min, max } = metaData
-            const step = Math.round((max - min) / 20)
+            const step = Math.floor((max - min) / 20)
             const boundaries = [min]
             let index = 1
-            while (boundaries[boundaries.length - 1] <= max) {
+            while (boundaries[boundaries.length - 1] < max) {
                 boundaries.push(min + step * index)
                 index++
             }
+            if (boundaries[boundaries.length - 1] === max) {
+                boundaries.push(min + step * index)
+            }
+
             const toReturn = []
+            if (max === min) return []
             this.addFiltersToQuery(source, input, output)
             toReturn.push({
                 $bucket: {
@@ -307,14 +315,6 @@ class SourceController {
     private buildMongoQuery (source: ISource, input: IQuery): any[] {
         let output = []
         this.addFiltersToQuery(source, input, output)
-
-        // if (input.dimensions.length === 1
-        //     && input.measures.length === 0
-        //     && source.columns.find(col => col.ref === input.dimensions[0]).type === 'number'
-        // ) {
-        //     output.push(this.buildHistogramQuery(source, input))
-        //     return output
-        // }
 
         let groupByObj = {
             _id: input.measures.length > 0 ? `$${input.dimensions[0]}` : '$_id',
@@ -347,10 +347,12 @@ class SourceController {
     }
 
     private runMongoQuery (source: ISource, query: any[]): Promise<any[]> {
+        if (query.length === 0) return Promise.resolve([])
         return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
         .then(client => {
             const db = client.db(config.db.mongoose.data.dbname)
             return db.collection(source.location).aggregate(query)
+            // .limit(500)
             .toArray()
             .finally(() => client.close())
         })
