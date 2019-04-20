@@ -67,7 +67,7 @@ export const PageContent: React.FunctionComponent<Props> = (props: Props) => {
             {...asdf}>
             {page.layout.map((layoutItem) => {
                 return <div
-                    style={{ zIndex: 100 - layoutItem.y }}
+                    style={{ zIndex: 100 - layoutItem.y - layoutItem.x }}
                     key={layoutItem.i} >
                     <Widget _id={layoutItem.i} />
                 </div>

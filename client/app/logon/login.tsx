@@ -32,7 +32,7 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
         const { email, password } = rules.value
         AuthActions.login(email, password)
         .then(() => setLoginSuccess(true))
-        .catch(err => NotifActions.notify('danger', err))
+        .catch(err => NotifActions.notify('danger', err.response.data.message))
     }
 
     if (loginSuccess) {

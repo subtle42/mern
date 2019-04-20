@@ -152,13 +152,13 @@ describe('Widget API', () => {
 
         it('should return an error if user is NOT logged in', () => {
             return chai.request(server)
-            .del(`/api/widgets/asdf`)
+            .del(`/api/widgets/asdf/${pageId}/${bookId}`)
             .then(res => expect(res.status).to.equal(401))
         })
 
         it('should return an error if widget does NOT exist', () => {
             return chai.request(server)
-            .del(`/api/widgets/asdf`)
+            .del(`/api/widgets/asdf/${pageId}/${bookId}`)
             .set('authorization', tokens[0])
             .then(res => expect(res.status).not.to.equal(200))
         })
@@ -171,7 +171,7 @@ describe('Widget API', () => {
             return utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
             .then(id => widgetId = id)
             .then(() => chai.request(server)
-            .del(`/api/widgets/${widgetId}`)
+            .del(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
             .set('authorization', tokens[2]))
             .then(res => expect(res.status).not.to.equal(200))
             .then(() => utils.getWidget(tokens[0], widgetId))
@@ -185,7 +185,7 @@ describe('Widget API', () => {
             return utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
             .then(id => widgetId = id)
             .then(() => chai.request(server)
-            .del(`/api/widgets/${widgetId}`)
+            .del(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
             .set('authorization', tokens[0]))
             .then(res => expect(res.status).to.equal(200))
             .then(() => utils.getWidget(tokens[0], widgetId))
@@ -199,7 +199,7 @@ describe('Widget API', () => {
             return utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
             .then(id => widgetId = id)
             .then(() => chai.request(server)
-            .del(`/api/widgets/${widgetId}`)
+            .del(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
             .set('authorization', tokens[1]))
             .then(res => expect(res.status).to.equal(200))
             .then(() => utils.getWidget(tokens[0], widgetId))
@@ -406,7 +406,7 @@ describe('Widget Channel', () => {
 
             utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
             .then(id => widgetId = id)
-            .then(() => utils.deleteWidget(tokens[0], widgetId))
+            .then(() => utils.deleteWidget(tokens[0], widgetId, pageId, bookId))
         })
     })
 })

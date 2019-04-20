@@ -32,8 +32,15 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
 
     const [isLoading, setLoading] = React.useState(false)
     const [selected, setSelected] = React.useState(getSelected())
+    const [newSourceId, setNewSourceId] = React.useState(undefined)
     const sources = useSources()
     const [searchName, setSearchName] = React.useState('')
+
+    // in case REST call returns before source update
+    if (newSourceId) {
+        const created = sources.find(x => x._id === newSourceId)
+        if (created) props.done(created)
+    }
 
     // const Dropzone = Loadable({
     //     loader: () => import('react-dropzone').then(mod => mod.default),
@@ -58,9 +65,15 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
         reader.onloadend = (event) => {
             setLoading(true)
             SourceActions.create(acceptedFiles[0])
-            .then(sourceId => props.done(store.getState().sources.list
-                .find(x => x._id === sourceId))
-            )
+            .then(sourceId => {
+                const newSource = sources.find(x => x._id === sourceId)
+                // in case REST call returns before source update
+                if (!newSource) {
+                    setNewSourceId(sourceId)
+                } else {
+                    props.done(newSource)
+                }
+            })
             .catch(err => {
                 NotifActions.error(err.message)
                 setLoading(false)
