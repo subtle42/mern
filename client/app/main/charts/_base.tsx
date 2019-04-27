@@ -139,6 +139,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
         const var2: [number, number] = [this.getWidthtWithMargins(), this.getHeightWithMargins()]
         this.brush.extent([var1, var2])
         return <g
+            className='brushArea'
             ref={node => select(node).call(this.brush) }>
         </g>
     }

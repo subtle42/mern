@@ -33,6 +33,7 @@ export const BookList: React.FunctionComponent<Props> = (props: Props) => {
         return <ConfirmModal header='Delete Source'
             message={`Are you sure you want to delete: ${book.name}?`}>
             <Button outline
+                disabled={books.filter(b => b.owner).length === 1}
                 onClick={() => remove(book)}
                 color='danger'
                 size='sm'>

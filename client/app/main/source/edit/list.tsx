@@ -25,13 +25,12 @@ interface Props {
 export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
     const sources = useSources()
     const user = useUser()
-    // const [listedSources, setListedSources] = React.useState(sources)
     const [searchName, setSearchName] = React.useState('')
 
     const remove = (source: ISource) => {
         SourceActions.delete(source._id)
         .then(() => NotifActions.success(`Removed source: ${source.title}`))
-        .catch(err => NotifActions.error(err.message))
+        .catch(err => NotifActions.error(err.response.data))
     }
 
     const getDeleteButton = (source: ISource): JSX.Element => {

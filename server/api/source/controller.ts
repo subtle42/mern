@@ -9,6 +9,7 @@ import * as auth from '../../auth/auth.service'
 import config from '../../config/environment'
 import * as utils from '../utils'
 import { columnInsertEtlFactory, columnInspectFactory } from './factories'
+import { Widget } from '../widget/model';
 const csv = require('fast-csv')
 
 class SourceController {
@@ -151,6 +152,12 @@ class SourceController {
         Source.findById(req.params.id).exec()
         .then(source => {
             return auth.hasOwnerAccess(req.user._id, source)
+            .then(() => Widget.find({ sourceId: req.params.id }).exec())
+            .then(widgets => {
+                if (widgets.length > 0) {
+                    return Promise.reject(`There are ${widgets.length} widgets that use this source.`)
+                }
+            })
             .then(() => source.remove())
             .then(() => SourceSocket.onDelete(source))
         })

@@ -14,7 +14,7 @@ const MyAlert: React.FunctionComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(true)
 
     React.useEffect(() => {
-        const myTimeout = setTimeout(() => close(), props.duration || 2000)
+        const myTimeout = setTimeout(() => close(), props.duration || 3000)
         return () => clearTimeout(myTimeout)
     }, [props.index])
 
@@ -37,7 +37,7 @@ export const AlertComponent: React.FunctionComponent<any> = () => {
         minWidth: 500,
         marginLeft: -250,
         position: 'fixed',
-        zIndex: 1,
+        zIndex: 10000000,
         left: '50%',
         top: 30}}>
         {alerts.map((alert, index) => {

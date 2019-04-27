@@ -7,29 +7,20 @@ export class Histogram extends BaseChart {
     x = scaleLinear()
     y = scaleLinear()
     step = 0
-    // bins = histogram()
 
     updateChart (data: any[]) {
         data = data.filter(d => d._id !== 'Other')
-        let myDomain = [0, 0]
-        if (data.length > 0) {
-            myDomain = [
-                data[0]._id,
-                data[data.length - 1]._id
-            ]
-            this.step = (myDomain[1] - myDomain[0]) / (this.config.other.ticks || 20)
-            myDomain[1] = myDomain[1] + this.step
-        }
+        let xDomain = [0, 0]
+        xDomain = extent(data, d => d._id)
 
-        this.x
-            .domain(this.adjustDomain(myDomain, this.config.xAxis))
-            .rangeRound([0, this.getWidthtWithMargins()])
-        // this.bins
-        //     .domain(this.x.domain() as any)
-        //     .thresholds(this.x.ticks(this.config.other.ticks || 20))
-        // const myData = data.length !== 0 ? this.bins(mappedData) : []
+        this.step = (xDomain[1] - xDomain[0]) / (this.config.other.ticks || 20)
+        xDomain[1] = xDomain[1] + this.step
 
         const yDomain = [0, max(data, d => d.count)] as [number, number]
+
+        this.x
+            .domain(this.adjustDomain(xDomain, this.config.xAxis))
+            .rangeRound([0, this.getWidthtWithMargins()])
 
         this.y
             .domain(this.adjustDomain(yDomain, this.config.yAxis))
