@@ -15,6 +15,7 @@ import NotifActions from 'data/notifications/actions'
 import { FormControl, FormCtrlGroup } from '../../_common/validation'
 import * as Validators from '../../_common/validators'
 import * as utils from '../../_common/utils'
+import { OnEnter } from '../../_common/onEnter'
 
 interface Props {}
 
@@ -47,11 +48,12 @@ export const CreateBookButton: React.FunctionComponent<Props> = (prop: Props) =>
 
     return <DropdownItem onClick={toggle}>
         Add Book
-        <Modal size='sm' isOpen={isOpen}>
+        <Modal size='sm' isOpen={isOpen} autoFocus={true}>
             <ModalHeader>Create Book</ModalHeader>
             <ModalBody>
                 <FormGroup>
                     <Label>Name:</Label>
+                    <OnEnter callback={save}>
                     <Input
                         type='text'
                         name='title'
@@ -59,6 +61,7 @@ export const CreateBookButton: React.FunctionComponent<Props> = (prop: Props) =>
                         onChange={utils.handleChange(rules, setRules)}
                         value={rules.get('title').value}
                         invalid={rules.get('title').invalid} />
+                    </OnEnter>
                     <FormFeedback>{utils.getError(rules.get('title'))}</FormFeedback>
                 </FormGroup>
             </ModalBody>

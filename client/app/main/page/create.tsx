@@ -17,6 +17,7 @@ import { FormCtrlGroup, FormControl } from '../../_common/validation'
 import * as Validators from '../../_common/validators'
 import * as utils from '../../_common/utils'
 import Modal from 'reactstrap/lib/Modal'
+import { OnEnter } from '../../_common/onEnter'
 
 interface Props {}
 
@@ -57,6 +58,7 @@ export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) =
             <ModalBody>
                 <FormGroup>
                     <Label>Name:</Label>
+                    <OnEnter callback={close}>
                     <Input
                         type='text'
                         name='title'
@@ -64,6 +66,7 @@ export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) =
                         onChange={utils.handleChange(rules, setRules)}
                         value={rules.get('title').value}
                         invalid={rules.get('title').invalid}/>
+                    </OnEnter>
                     <FormFeedback>{utils.getError(rules.get('title'))}</FormFeedback>
                 </FormGroup>
             </ModalBody>
