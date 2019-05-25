@@ -16,7 +16,7 @@ interface DropdownProps {
     onColUpdate: (col: ISourceColumn) => void
 }
 
-export const ColumnButton: React.FunctionComponentComponent<DropdownProps> = (props: DropdownProps) => {
+export const ColumnButton: React.FunctionComponent<DropdownProps> = (props: DropdownProps) => {
     const source = useSource(props.sourceId)
     const [isOpen, setOpen] = React.useState(false)
     const currentColumn = source.columns.find(col => col.ref === props.colId)

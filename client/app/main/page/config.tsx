@@ -31,7 +31,7 @@ interface Props {
     _id?: string
 }
 
-export const PageConfigButton: React.FunctionComponentComponent<Props> = (props: Props) => {
+export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
     const [tips, setTips] = React.useState({
         draggable: false,

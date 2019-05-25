@@ -15,7 +15,7 @@ interface Props {
     update: (name: string) => void
 }
 
-export const ColumnNameField: React.FunctionComponentComponent<Props> = (props: Props) => {
+export const ColumnNameField: React.FunctionComponent<Props> = (props: Props) => {
     const [isEditMode, setEditMode] = React.useState(false)
     const [rules, setRules] = React.useState(new FormControl(props.name, [
         Validators.isRequired,

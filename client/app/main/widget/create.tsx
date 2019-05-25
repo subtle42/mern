@@ -10,7 +10,7 @@ import './style.css'
 
 interface Props {}
 
-export const WidgetCreateButton: React.FunctionComponentComponent<Props> = (props: Props) => {
+export const WidgetCreateButton: React.FunctionComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
     const [source, setSource] = React.useState(undefined as ISource)
     const [mode, setMode] = React.useState('selectSource')

@@ -19,7 +19,7 @@ interface Props {
     onEdit: (source: ISource) => void
 }
 
-export const SourceList: React.FunctionComponentComponent<Props> = (props: Props) => {
+export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
     const sources = useSources()
 
     const remove = (source: ISource) => {
