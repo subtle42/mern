@@ -7,7 +7,7 @@ import { SourceDetails } from './edit/sourceDetails'
 
 interface Props {}
 
-export const EditSourceButton: React.StatelessComponent<Props> = (props: Props) => {
+export const EditSourceButton: React.FunctionComponentComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
     const [source, setSource] = React.useState(undefined as ISource)
 

@@ -23,8 +23,6 @@ export interface StoreModel {
     data: DataModel
 }
 
-
-
 const reducers = combineReducers({
     books,
     pages,

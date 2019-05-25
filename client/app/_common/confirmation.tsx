@@ -11,7 +11,7 @@ interface Props {
     children?: React.ReactNode
 }
 
-export const ConfirmModal: React.StatelessComponent<Props> = (props: Props) => {
+export const ConfirmModal: React.FunctionComponentComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
     const newChildren = React.Children.map(props.children, child => {
         return React.cloneElement(child as any, {

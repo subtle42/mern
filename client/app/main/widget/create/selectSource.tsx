@@ -24,7 +24,7 @@ interface Props {
     cancel: () => void
 }
 
-export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {    
+export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
     const getSelected = (): ISource => {
         return props.selectedId ?
             store.getState().sources.list.find(s => s._id === props.selectedId)

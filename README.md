@@ -32,7 +32,7 @@ npm start
 The frontend is built using React, Redux, and Bootstrap. The app folder contains all the React templates while the data folder contains all of Redux. To maintain organization all data logic is handled via Action classes.
 
 ## Client/App
-This is holds all the application specific templates. Most of the React templates are dumb, only handling rendering. Any React template directly connected to Redux must be stateless. There should be as little logic in templates as possible. 
+This is holds all the application specific templates. Most of the React templates are dumb, only handling rendering. Any React template directly connected to Redux must be FunctionComponent. There should be as little logic in templates as possible. 
 
 ## Client/Data
 Modules in data have three files:

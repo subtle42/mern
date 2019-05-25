@@ -14,7 +14,7 @@ import { EditSourceButton } from '../source/edit'
 import { PageContent } from '../page/content'
 import { CreatePageButton } from '../page/create'
 import { StoreModel } from 'data/store'
-import { Redirect } from 'react-router';
+import { Redirect } from 'react-router'
 
 interface Props {
     pages: IPage[],

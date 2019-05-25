@@ -46,7 +46,7 @@ class MyAlert extends React.Component<AlertProps, AlertState> {
     }
 }
 
-const MyComponent: React.StatelessComponent<Props> = (props: Props) => {
+const MyComponent: React.FunctionComponent<Props> = (props: Props) => {
     return (<div style={{
         minWidth: 500,
         marginLeft: -250,

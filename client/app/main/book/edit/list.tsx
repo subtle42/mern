@@ -19,7 +19,7 @@ interface Props {
     onDone: () => void
 }
 
-export const BookList: React.StatelessComponent<Props> = (props: Props) => {
+export const BookList: React.FunctionComponentComponent<Props> = (props: Props) => {
     const books = useBooks()
 
     const remove = (book: IBook) => {

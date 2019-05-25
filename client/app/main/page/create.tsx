@@ -20,7 +20,7 @@ import Modal from 'reactstrap/lib/Modal'
 
 interface Props {}
 
-export const CreatePageButton: React.StatelessComponent<Props> = (props: Props) => {
+export const CreatePageButton: React.FunctionComponentComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
     const [rules, setRules] = React.useState(new FormCtrlGroup({
         title: new FormControl('', [

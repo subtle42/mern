@@ -7,7 +7,7 @@ import { createSandbox, SinonSandbox, SinonFakeXMLHttpRequest, SinonSpy, SinonFa
 
 import { BookList } from './list'
 import { addBookToStore, setUser } from '../../../../testUtils'
-import { store } from 'data/store';
+import { store } from 'data/store'
 
 describe('Edit book list component', () => {
     configure({

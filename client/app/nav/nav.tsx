@@ -25,7 +25,7 @@ interface NavProps {
     selectedBook: string
 }
 
-const myComponent: React.StatelessComponent<NavProps> = (props: NavProps) => {
+const myComponent: React.FunctionComponentComponent<NavProps> = (props: NavProps) => {
     const getBookName = (): string => {
         const myBook: IBook = props.books.filter(book => book._id === props.selectedBook)[0]
         return myBook ? myBook.name : 'No Book Selected'
