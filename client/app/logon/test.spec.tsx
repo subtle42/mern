@@ -27,6 +27,7 @@ describe('Login component', () => {
     afterEach(() => {
         xhr.restore()
         sandbox.restore()
+        wrapper.unmount()
     })
 
     it('should have two input fields', () => {

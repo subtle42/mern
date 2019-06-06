@@ -14,6 +14,14 @@ class WidgetActions extends BaseActions {
         return null
     }
 
+    createMultiple (sourceId: string, types: string[]) {
+        return axios.post('/api/widgets/multiple', {
+            pageId: store.getState().pages.selected,
+            sourceId,
+            types
+        })
+    }
+
     create (config: {source: ISource, type: string}): Promise<void> {
         return axios.post(`/api/widgets`, {
             pageId: store.getState().pages.selected,
@@ -23,7 +31,9 @@ class WidgetActions extends BaseActions {
         .then(res => undefined)
     }
     delete (id: string): Promise<void> {
-        return axios.delete(`/api/widgets/${id}`)
+        const pageId = store.getState().pages.selected
+        const bookId = store.getState().books.selected
+        return axios.delete(`/api/widgets/${id}/${pageId}/${bookId}`)
         .then(res => res.data as undefined)
     }
     update (widget: IWidget): Promise<void> {

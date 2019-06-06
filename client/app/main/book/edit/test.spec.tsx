@@ -7,7 +7,7 @@ import { createSandbox, SinonSandbox, SinonFakeXMLHttpRequest, SinonSpy, SinonFa
 
 import { BookList } from './list'
 import { addBookToStore, setUser } from '../../../../testUtils'
-import { store } from 'data/store';
+import { store } from 'data/store'
 
 describe('Edit book list component', () => {
     configure({
@@ -32,12 +32,12 @@ describe('Edit book list component', () => {
         addBookToStore({
             _id: 1,
             owner: 'a',
-            editors: []
+            editors: ['c', 'd']
         })
         addBookToStore({
             _id: 2,
             owner: 'b',
-            editors: []
+            editors: ['e']
         })
         setUser({
             _id: 'asdf'
@@ -55,6 +55,7 @@ describe('Edit book list component', () => {
         store.dispatch({
             type: 'RESET'
         })
+        wrapper.unmount()
     })
 
     describe('list', () => {
@@ -63,7 +64,13 @@ describe('Edit book list component', () => {
             expect(count).to.equal(2)
         })
 
-        it('should show edit button if user has edit rights')
+        it('should show edit button if user has edit rights', () => {
+
+        })
+
+        it('should disable the edit button if user does NOT have edit rights')
+
+        it('should disable the delete button if user does NOT have edit rights')
 
         it('should show delete button if user has owner rights')
     })

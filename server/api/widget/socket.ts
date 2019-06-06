@@ -24,6 +24,10 @@ class WidgetSocket extends BaseSocket {
         .then(page => Book.findById(page.bookId).exec())
     }
 
+    onManyAdd (models: IWidgetModel[]) {
+        this._onAddOrChange(this.getParentId(models[0]), models)
+    }
+
     onAddOrChange (model: IWidgetModel) {
         this._onAddOrChange(this.getParentId(model), [model])
     }

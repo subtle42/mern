@@ -1,6 +1,5 @@
 import * as React from 'react'
 import * as FontAwesome from 'react-fontawesome'
-import './style.css'
 import Modal from 'reactstrap/lib/Modal'
 import { IBook } from 'common/models'
 import { BookList } from './edit/list'
@@ -33,7 +32,9 @@ export const EditBookButton: React.FunctionComponent<Props> = (props: Props) => 
     }
 
     return <div>
-        <div className='book-button' onClick={() => setOpen(true)}>
+        <div className='fixed-plugin'
+            style={{ top: 190 }}
+            onClick={() => setOpen(true)}>
             <FontAwesome style={{ paddingTop: 6 }} size='2x' name='book' />
         </div>
         {getModal()}

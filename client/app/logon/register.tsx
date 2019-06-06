@@ -14,7 +14,7 @@ import * as utils from '../_common/utils'
 
 interface Props {}
 
-export const RegisterPage: React.StatelessComponent<Props> = (props: Props) => {
+export const RegisterPage: React.FunctionComponent<Props> = (props: Props) => {
     const [registerSuccess, setRegisterSuccess] = React.useState(false)
     const [rules, setRules] = React.useState(new FormCtrlGroup({
         email: new FormControl('', [

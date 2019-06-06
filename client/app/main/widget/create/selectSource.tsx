@@ -7,7 +7,6 @@ import ListGroup from 'reactstrap/lib/ListGroup'
 import Col from 'reactstrap/lib/Col'
 import ListGroupItem from 'reactstrap/lib/ListGroupItem'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
-// import * as Loadable from 'react-loadable'
 import * as FontAwesome from 'react-fontawesome'
 import { useDropzone } from 'react-dropzone'
 
@@ -15,8 +14,8 @@ import SourceActions from 'data/sources/actions'
 import NotifActions from 'data/notifications/actions'
 import { store } from 'data/store'
 import { ISource } from 'common/models'
-import { Loading } from '../../../_common/loading'
 import { useSources } from '../../../_common/hooks'
+import Input from 'reactstrap/lib/Input'
 
 interface Props {
     selectedId?: string
@@ -24,7 +23,7 @@ interface Props {
     cancel: () => void
 }
 
-export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {    
+export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
     const getSelected = (): ISource => {
         return props.selectedId ?
             store.getState().sources.list.find(s => s._id === props.selectedId)
@@ -33,7 +32,15 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
 
     const [isLoading, setLoading] = React.useState(false)
     const [selected, setSelected] = React.useState(getSelected())
+    const [newSourceId, setNewSourceId] = React.useState(undefined)
     const sources = useSources()
+    const [searchName, setSearchName] = React.useState('')
+
+    // in case REST call returns before source update
+    if (newSourceId) {
+        const created = sources.find(x => x._id === newSourceId)
+        if (created) props.done(created)
+    }
 
     // const Dropzone = Loadable({
     //     loader: () => import('react-dropzone').then(mod => mod.default),
@@ -58,9 +65,15 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
         reader.onloadend = (event) => {
             setLoading(true)
             SourceActions.create(acceptedFiles[0])
-            .then(sourceId => props.done(store.getState().sources.list
-                .find(x => x._id === sourceId))
-            )
+            .then(sourceId => {
+                const newSource = sources.find(x => x._id === sourceId)
+                // in case REST call returns before source update
+                if (!newSource) {
+                    setNewSourceId(sourceId)
+                } else {
+                    props.done(newSource)
+                }
+            })
             .catch(err => {
                 NotifActions.error(err.message)
                 setLoading(false)
@@ -118,12 +131,19 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
         }
 
         return <ModalBody><Row>
-            <Col xs={6}><ListGroup>
-                {sources.map(source => <ListGroupItem
-                    action
-                    className={source === selected && 'active'}
-                    key={source._id}
-                    onClick={() => setSelected(source)}>
+            <Col xs={6}>
+                <Input placeholder='Search...'
+                    value={searchName}
+                    onChange={event => setSearchName(event.target.value)}
+                    style={{ marginBottom: 16 }}/>
+                <ListGroup style={{ maxHeight: 500, overflowY: 'auto' }}>
+                {sources.filter(runSourceFilter)
+                    .map(source => <ListGroupItem
+                        action
+                        style={{ cursor: 'pointer' }}
+                        className={source === selected && 'active'}
+                        key={source._id}
+                        onClick={() => setSelected(source)}>
                     {source.title}
                 </ListGroupItem>)}
             </ListGroup></Col>
@@ -133,12 +153,17 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
         </Row></ModalBody>
     }
 
+    const runSourceFilter = (source: ISource): boolean => {
+        return source.title.toLowerCase()
+            .indexOf(searchName.toLocaleLowerCase()) !== -1
+    }
+
     const renderFooter = (): JSX.Element => {
         return <ModalFooter style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Button color='primary'
                 disabled={!selected || isLoading}
                 onClick={() => props.done(selected)}>
-                Next
+                Next <FontAwesome name='chevron-right' />
             </Button>
             <Button color='secondary'
                 disabled={isLoading}

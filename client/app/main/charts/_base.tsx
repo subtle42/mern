@@ -8,6 +8,7 @@ import { axisBottom, axisLeft, Axis } from 'd3-axis'
 import { format } from 'd3-format'
 import { select, event } from 'd3-selection'
 import { brushX } from 'd3-brush'
+import './style.css'
 
 class State {
     chart: any[] = []
@@ -116,7 +117,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
             className='xAxis'
             ref={node => select(node).call(
                 this.xAxis
-                .ticks(this.config.xAxis.ticks || 10)
+                .ticks(this.config.xAxis.ticks || 5)
             )}>
         </g>
     }
@@ -127,7 +128,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
             className='xAxis'
             ref={node => select(node).call(
                 this.yAxis
-                .ticks(this.config.yAxis.ticks || 10)
+                .ticks(this.config.yAxis.ticks || 5)
                 .tickFormat(format('~s'))
             )}>
         </g>
@@ -138,6 +139,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
         const var2: [number, number] = [this.getWidthtWithMargins(), this.getHeightWithMargins()]
         this.brush.extent([var1, var2])
         return <g
+            className='brushArea'
             ref={node => select(node).call(this.brush) }>
         </g>
     }

@@ -43,7 +43,6 @@ export interface IPage {
     name: string
     isDraggable: boolean
     isResizable: boolean
-    isRearrangeable: boolean
     preventCollision: boolean
     margin: [number, number]
     containerPadding: [number, number]

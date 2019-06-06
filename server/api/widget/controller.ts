@@ -7,11 +7,11 @@ import { Source } from '../source/model'
 import { pageSocket } from '../page/socket'
 import { widgetSocket } from './socket'
 import { Layout } from 'react-grid-layout'
-import { IWidget, ISource } from 'common/models'
 import * as auth from '../../auth/auth.service'
+import { IWidgetModel, ISourceModel } from 'server/dbModels'
 
 const widgetLayout: Layout = {
-    x: 1, y: 1, w: 1, h: 1
+    x: 0, y: 0, w: 1, h: 1
 }
 
 class WidgetController {
@@ -45,54 +45,93 @@ class WidgetController {
         .catch(utils.handleError(res))
     }
 
-    private addDefaultsToWidget (myWidget: IWidget, mySource: ISource): Promise<void> {
-        return new Promise(resolve => {
-            if (myWidget.type === 'histogram') {
-                myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
-            } else if (myWidget.type === 'scatter') {
-                myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
-                myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
-            } else if (myWidget.type === 'line') {
-                myWidget.dimensions.push(this.getDefaultColumn('datetime', mySource))
-                myWidget.measures.push({
-                    formula: 'sum',
-                    ref: this.getDefaultColumn('number', mySource)
-                })
-            } else {
-                myWidget.dimensions.push(this.getDefaultColumn('group', mySource))
-                myWidget.measures.push({
-                    formula: 'sum',
-                    ref: this.getDefaultColumn('number', mySource)
-                })
-            }
-
-            resolve()
-        })
+    private canUserEdit (pageId: string, userId: string): Promise<void> {
+        return Page.findById(pageId).exec()
+        .then(page => Book.findById(page.bookId).exec())
+        .then(book => auth.hasEditAccess(userId, book))
     }
 
-    getDefaultColumn (type: string, source: ISource): string {
+    createMultiple (req: Request, res: Response) {
+        const pageId: string = req.body.pageId
+        const sourceId: string = req.body.sourceId
+        const types: string[] = req.body.types
+
+        const myWidgets: IWidgetModel[] = types.map(type => new Widget({
+            pageId,
+            sourceId,
+            type
+        }))
+
+        this.canUserEdit(pageId, req.user._id)
+        .then(() => Source.findById(sourceId).exec())
+        .then(mySource => myWidgets.forEach(myWidget => this.addDefaultsToWidget(myWidget, mySource)))
+        .then(() => Promise.all(myWidgets.map(w => w.validate())))
+        .then(() => Promise.all(myWidgets.map(w => Widget.create(w))))
+        .then(createdList => {
+            return Page.findById(pageId)
+            .then(page => {
+                createdList.forEach(newWidget => {
+                    page.layout.push(Object.assign({}, widgetLayout, { i: newWidget._id }))
+                })
+                return page.updateOne(page).exec()
+                .then(() => widgetSocket.onManyAdd(createdList))
+                .then(() => pageSocket.onAddOrChange(page))
+            })
+            .then(() => createdList.map(w => w._id))
+        })
+        .then(utils.handleResponse(res))
+        .catch(utils.handleError(res))
+    }
+
+    private addDefaultsToWidget (myWidget: IWidgetModel, mySource: ISourceModel) {
+        if (myWidget.type === 'histogram') {
+            myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
+        } else if (myWidget.type === 'scatter') {
+            myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
+            myWidget.dimensions.push(this.getDefaultColumn('number', mySource))
+        } else if (myWidget.type === 'line') {
+            myWidget.dimensions.push(this.getDefaultColumn('datetime', mySource))
+            myWidget.measures.push({
+                formula: 'sum',
+                ref: this.getDefaultColumn('number', mySource, true)
+            })
+        } else {
+            myWidget.dimensions.push(this.getDefaultColumn('group', mySource))
+            myWidget.measures.push({
+                formula: 'sum',
+                ref: this.getDefaultColumn('number', mySource, true)
+            })
+        }
+    }
+
+    getDefaultColumn (type: string, source: ISourceModel, includeCount?: boolean): string {
         const cols = source.columns.filter(col => col.type === type)
+        if (includeCount) {
+            cols.push({
+                ref: 'count',
+                name: 'Count(*)',
+                type: 'number'
+            })
+        }
         return cols[Math.floor(Math.random() * cols.length)].ref
     }
 
     remove (req: Request, res: Response) {
-        const id = req.params.id
+        const { id, pageId, bookId } = req.params
 
-        Widget.findById(id).exec()
-        .then(widget => {
-            return Page.findById(widget.pageId)
-            .then(page => {
-                return Book.findById(page.bookId).exec()
-                .then(book => auth.hasEditAccess(req.user._id, book))
-                .then(() => {
-                    page.layout = page.layout.filter(item => item.i !== id)
-                    return page.updateOne(page).exec()
-                    .then(() => pageSocket.onAddOrChange(page))
-                })
-            })
-            .then(() => Widget.findByIdAndRemove(id).exec())
-            .then(() => widgetSocket.onDelete(widget))
+        Book.findById(bookId).exec()
+        .then(book => auth.hasEditAccess(req.user._id, book))
+        .then(() => Page.findById(pageId).exec())
+        .then(page => {
+            page.layout = page.layout.filter(item => item.i !== id)
+            return page.updateOne(page).exec()
+            .then(() => pageSocket.onAddOrChange(page))
         })
+        .then(() => Widget.findByIdAndRemove(id).exec())
+        .then(() => widgetSocket.onDelete({
+            _id: id,
+            pageId
+        } as IWidgetModel))
         .then(utils.handleResponseNoData(res))
         .catch(utils.handleError(res))
     }

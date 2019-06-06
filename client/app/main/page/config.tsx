@@ -25,13 +25,14 @@ import { IPage } from 'common/models'
 import { FormCtrlGroup, FormControl, FormCtrlArray } from '../../_common/validation'
 import * as utils from '../../_common/utils'
 import * as Validators from '../../_common/validators'
+import { usePages } from '../../_common/hooks'
 import './page.css'
 
 interface Props {
     _id?: string
 }
 
-export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) => {
+export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
     const [tips, setTips] = React.useState({
         draggable: false,
@@ -46,7 +47,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
         ]),
         isDraggable: new FormControl(false),
         isResizable: new FormControl(false),
-        isRearrangeable: new FormControl(false),
+        preventCollision: new FormControl(false),
         margin: new FormCtrlArray([
             new FormControl(0, [
                 Validators.isRequired,
@@ -77,12 +78,12 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
             Validators.max(30)
         ])
     }))
+    const pages = usePages()
 
     const open = () => {
         rules.value = store.getState().pages.list
             .find(page => page._id === props._id)
         setOpen(true)
-        setRules(Object.create(rules))
     }
 
     const close = () => {
@@ -240,14 +241,14 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                         </CustomInput>
                     </FormGroup>
                 </Col>
-                <Col xs={4}>
+                <Col xs={4} style={{ paddingLeft: 0 }}>
                     <FormGroup>
                         <CustomInput id='isRearrangeable'
                             type='switch'
-                            name='isRearrangeable'
-                            label='Rearrangeable'
+                            name='preventCollision'
+                            label='No Collision'
                             onChange={utils.handleToggle(rules, setRules)}
-                            checked={rules.get('isRearrangeable').value}>
+                            checked={rules.get('preventCollision').value}>
                             <FontAwesome
                                 name='question-circle'
                                 id='rearrangeable-tip'
@@ -255,7 +256,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
                             <Tooltip isOpen={tips.rearrangeable}
                                 toggle={() => toggleTooltip('rearrangeable')}
                                 target='rearrangeable-tip'>
-                                Enable or disable grid rearrangement when dragging/resizing a widget.
+                                Grid items won't change position when being dragged over.
                             </Tooltip>
                         </CustomInput>
                     </FormGroup>
@@ -288,7 +289,7 @@ export const PageConfigButton: React.StatelessComponent<Props> = (props: Props) 
         </Modal>
     }
 
-    return <div>
+    return <div hidden={pages.length === 0}>
         <div className='fixed-plugin' onClick={() => open()}>
             <FontAwesome style={{ paddingTop: 6 }} size='2x' name='cog' />
         </div>

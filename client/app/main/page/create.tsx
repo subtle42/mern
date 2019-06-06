@@ -17,10 +17,11 @@ import { FormCtrlGroup, FormControl } from '../../_common/validation'
 import * as Validators from '../../_common/validators'
 import * as utils from '../../_common/utils'
 import Modal from 'reactstrap/lib/Modal'
+import { OnEnter } from '../../_common/onEnter'
 
 interface Props {}
 
-export const CreatePageButton: React.StatelessComponent<Props> = (props: Props) => {
+export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
     const [rules, setRules] = React.useState(new FormCtrlGroup({
         title: new FormControl('', [
@@ -37,9 +38,8 @@ export const CreatePageButton: React.StatelessComponent<Props> = (props: Props) 
 
     const open = (event: React.FormEvent<any>) => {
         if (event) event.stopPropagation()
-        setOpen(true)
         rules.reset()
-        setRules(rules)
+        setOpen(true)
     }
 
     const close = (event: React.FormEvent<any>) => {
@@ -58,6 +58,7 @@ export const CreatePageButton: React.StatelessComponent<Props> = (props: Props) 
             <ModalBody>
                 <FormGroup>
                     <Label>Name:</Label>
+                    <OnEnter callback={close}>
                     <Input
                         type='text'
                         name='title'
@@ -65,6 +66,7 @@ export const CreatePageButton: React.StatelessComponent<Props> = (props: Props) 
                         onChange={utils.handleChange(rules, setRules)}
                         value={rules.get('title').value}
                         invalid={rules.get('title').invalid}/>
+                    </OnEnter>
                     <FormFeedback>{utils.getError(rules.get('title'))}</FormFeedback>
                 </FormGroup>
             </ModalBody>
@@ -78,8 +80,8 @@ export const CreatePageButton: React.StatelessComponent<Props> = (props: Props) 
         </Modal>
     }
 
-    return <NavItem onClick={open}>
-        <NavLink style={{ height: 42 }}>
+    return <NavItem onClick={open} style={{ cursor: 'pointer' }}>
+        <NavLink style={{ height: 42, paddingTop: 11 }}>
             <FontAwesome name='plus' />
         </NavLink>
         {getModalTemplate()}

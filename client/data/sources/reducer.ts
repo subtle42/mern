@@ -27,6 +27,9 @@ const myFactory = Object.assign({}, factory, {
             store.filters[payload._id][payload.dimension] = payload.filter
         }
         return store
+    },
+    disconnect: (state: GenericStore, payload: undefined): GenericStore => {
+        return new SourceStore()
     }
 })
 

@@ -5,7 +5,7 @@
         "noImplicitAny": false,
         "removeComments": false,
         "preserveConstEnums": true,
-        "lib": ["es6", "dom"],
+        "lib": ["es6", "dom", "es2018.promise"],
         "sourceMap": true,
         "jsx": "react",
         "target": "es6",
@@ -15,7 +15,8 @@
             "data/*": ["./client/data/*"],
             "common/*": ["./common/*"]
         },
-        "outDir": "./.out"
+        "outDir": "./.out",
+        "types": ["@wdio/sync", "@wdio/mocha-framework"]
     },
     "include": [
         "./server/**/*.ts",

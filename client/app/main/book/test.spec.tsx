@@ -30,23 +30,20 @@ describe('Book Add component', () => {
     afterEach(() => {
         xhr.restore()
         sandbox.restore()
+        wrapper.unmount()
     })
 
-    xit('should open a modal if the item is clicked', () => {
+    it('should open a modal if the item is clicked', () => {
         expect(wrapper.find('Modal').prop('isOpen')).to.equal(false)
-        console.log(wrapper.find('DropdownItem').props())
         wrapper.find('DropdownItem').simulate('click')
-        return utils.waitATick(10)
-        .then(() => console.log(wrapper.find('Modal').props()))
+        return utils.waitATick()
         .then(() => expect(wrapper.find('Modal').prop('isOpen')).to.equal(true))
     })
 
     describe('on save', () => {
         const myName = 'testing'
         beforeEach(() => {
-            // Opens the modal
             wrapper.find('DropdownItem').simulate('click')
-            // Sets the input
             wrapper.find('Input')
             .simulate('change', {
                 target: {
@@ -72,13 +69,13 @@ describe('Book Add component', () => {
             })
         })
 
-        xit('should close the modal after REST call is finished', () => {
+        it('should close the modal after REST call is finished', () => {
             const myId = 'welvovweviherpovj'
             sandbox.stub(BookActions, 'select').returns(Promise.resolve())
             utils.addBookToStore({
                 _id: myId
             })
-            expect(wrapper.find('Modal').prop('isOpen')).to.equal(true)
+            // expect(wrapper.find('Modal').prop('isOpen')).to.equal(true)
             wrapper.find('Button')
                 .filterWhere(btn => btn.props().children === 'Create')
                 .simulate('click')

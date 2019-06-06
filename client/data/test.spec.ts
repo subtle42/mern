@@ -176,15 +176,6 @@ describe('Base Actions for Redux', () => {
                     })
                 })
             })
-
-            it('should NOT call select function if input length is zero', done => {
-                const input = []
-                onFnMap['addedOrChanged'](input)
-                setTimeout(() => {
-                    expect(selectSpy.callCount).to.equal(0)
-                    done()
-                })
-            })
         })
     })
 

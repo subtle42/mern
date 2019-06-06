@@ -29,7 +29,7 @@ interface Props {
     id: string
 }
 
-export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
+export const EditButton: React.FunctionComponent<Props> = (props: Props) => {
     const config = useWidget(props.id)
     // const source = useSource(config.sourceId)
     const marginRules: ValidatorFn[] = [
@@ -141,14 +141,14 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
             <ModalHeader>Edit Widget</ModalHeader>
             <ModalBody>
                 <Nav tabs fill={true}>
-                    <NavItem>
+                    <NavItem style={{ cursor: 'pointer' }}>
                         <NavLink
                             active={currentTab === 'general'}
                             onClick={() => setTab('general')}>
                             General
                         </NavLink>
                     </NavItem>
-                    <NavItem>
+                    <NavItem style={{ cursor: 'pointer' }}>
                         <NavLink
                             active={currentTab === 'specific'}
                             onClick={() => setTab('specific')}>
@@ -174,8 +174,9 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
             </ModalBody>
             <ModalFooter>
                 <Button color='primary'
+                    disabled={rules.invalid}
                     onClick={save}>
-                    Done
+                    Save
                 </Button>
                 <Button color='secondary'
                     onClick={cancel}>Cancel</Button>
@@ -196,7 +197,8 @@ export const EditButton: React.StatelessComponent<Props> = (props: Props) => {
 
     return <div>
         <Button className='pull-left'
-            color='secondary'
+            style={{ padding: '2 4 2 4' }}
+            color='link'
             outline
             size='sm'
             onClick={toggleModal}>

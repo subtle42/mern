@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { store } from 'data/store'
-import { IBook, ISource, IPage, IWidget } from 'common/models'
+import { IBook, ISource, IPage, IWidget, IUser } from 'common/models'
+import { NotificationModel } from 'data/notifications/reducer'
 
 const _useList = (namespace: string) => {
     const [data, setData] = React.useState(
@@ -14,7 +15,7 @@ const _useList = (namespace: string) => {
             setData(newData)
         })
         return () => unsubscribe()
-    })
+    }, [namespace])
 
     return data
 }
@@ -32,7 +33,7 @@ const _useItem = (namespace: string, id: string) => {
             setData(newData)
         })
         return () => unsubscribe()
-    })
+    }, [namespace, id])
 
     return data
 }
@@ -67,4 +68,38 @@ export const useSources = (): ISource[] => {
 
 export const useSource = (id: string): ISource => {
     return _useItem('sources', id)
+}
+
+export const useUser = (): IUser => {
+    const [user, setUser] = React.useState(
+        store.getState().auth.me
+    )
+
+    React.useEffect(() => {
+        const unsubscribe = store.subscribe(() => {
+            const newUser = store.getState().auth.me
+            if (newUser === user) return
+            setUser(newUser)
+        })
+        return () => unsubscribe()
+    })
+
+    return user
+}
+
+export const useAlerts = (): NotificationModel[] => {
+    const [alerts, setAlerts] = React.useState(
+        store.getState().notifcations.list || []
+    )
+
+    React.useEffect(() => {
+        const unsubscribe = store.subscribe(() => {
+            const newData = store.getState().notifcations.list
+            if (alerts === newData) return
+            setAlerts(newData)
+        })
+        return () => unsubscribe()
+    })
+
+    return alerts
 }

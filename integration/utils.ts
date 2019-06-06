@@ -200,7 +200,7 @@ export const updateWidget = (token: string, widget: IWidget): Promise<void> => {
     .then(res => res.data as undefined)
 }
 
-export const deleteWidget = (token: string, widgetId: string): Promise<void> => {
-    return axios.delete(`${getBaseUrl()}/api/widgets/${widgetId}`, setHeader(token))
+export const deleteWidget = (token: string, widgetId: string, pageId: string, bookId: string): Promise<void> => {
+    return axios.delete(`${getBaseUrl()}/api/widgets/${widgetId}/${pageId}/${bookId}`, setHeader(token))
     .then(res => res.data as undefined)
 }

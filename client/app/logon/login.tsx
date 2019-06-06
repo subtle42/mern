@@ -12,10 +12,11 @@ import NotifActions from 'data/notifications/actions'
 import { FormCtrlGroup, FormControl } from '../_common/validation'
 import * as Validators from '../_common/validators'
 import * as utils from '../_common/utils'
+import { OnEnter } from '../_common/onEnter';
 
 interface Props {}
 
-export const LoginPage: React.StatelessComponent<Props> = (props: Props) => {
+export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
     const [loginSuccess, setLoginSuccess] = React.useState(false)
     const [rules, setRules] = React.useState(new FormCtrlGroup({
         email: new FormControl('', [
@@ -32,7 +33,7 @@ export const LoginPage: React.StatelessComponent<Props> = (props: Props) => {
         const { email, password } = rules.value
         AuthActions.login(email, password)
         .then(() => setLoginSuccess(true))
-        .catch(err => NotifActions.notify('danger', err))
+        .catch(err => NotifActions.notify('danger', err.response.data.message))
     }
 
     if (loginSuccess) {
@@ -46,6 +47,7 @@ export const LoginPage: React.StatelessComponent<Props> = (props: Props) => {
                 Email
             </Col>
             <Col sm={10}>
+                <OnEnter callback={() => tryLogin()}>
                 <Input
                     type='email'
                     name='email'
@@ -53,6 +55,7 @@ export const LoginPage: React.StatelessComponent<Props> = (props: Props) => {
                     invalid={rules.get('email').invalid}
                     placeholder='Email'
                     onChange={utils.handleChange(rules, setRules)} />
+                </OnEnter>
                 <FormFeedback>{utils.getError(rules.get('email'))}</FormFeedback>
             </Col>
         </FormGroup>
@@ -61,6 +64,7 @@ export const LoginPage: React.StatelessComponent<Props> = (props: Props) => {
                 Password
             </Col>
             <Col sm={10}>
+                <OnEnter callback={() => tryLogin()}>
                 <Input
                     type='text'
                     value={rules.get('password').value}
@@ -68,6 +72,7 @@ export const LoginPage: React.StatelessComponent<Props> = (props: Props) => {
                     name='password'
                     placeholder='Password'
                     onChange={utils.handleChange(rules, setRules)} />
+                </OnEnter>
                 <FormFeedback>{utils.getError(rules.get('password'))}</FormFeedback>
             </Col>
         </FormGroup>
