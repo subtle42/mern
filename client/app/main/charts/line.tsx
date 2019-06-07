@@ -11,6 +11,11 @@ export class Line extends BaseChart {
     x = scaleTime()
     y = scaleLinear()
 
+    resize () {
+        this.x.range([0, this.getWidthtWithMargins()])
+        this.y.range([this.getHeightWithMargins(), 0])
+    }
+
     updateChart (data: any[]) {
         data = data.map(row => {
             row = { ...row }
@@ -18,16 +23,14 @@ export class Line extends BaseChart {
             return row
         })
 
-        this.x
-            .range([0, this.getWidthtWithMargins()])
-            .domain(this.adjustDomain(
-                extent(data, d => d._id) as any, this.config.xAxis)
-            )
-        this.y
-            .range([this.getHeightWithMargins(), 0])
-            .domain(this.adjustDomain(
-                extent(data, d => d[this.config.measures[0].ref]) as any, this.config.yAxis)
-            )
+        this.x.domain(this.adjustDomain(
+            extent(data, d => d._id) as any, this.config.xAxis)
+        )
+        this.y.domain(this.adjustDomain(
+            extent(data, d => d[this.config.measures[0].ref]) as any, this.config.yAxis)
+        )
+        this.resize()
+
         this.line
             .x(d => this.x(d['_id']))
             .y(d => this.y(d[this.config.measures[0].ref]))

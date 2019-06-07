@@ -10,17 +10,20 @@ export class StackedBart extends BaseChart {
     stack = d3.stack()
     color = d3.scaleOrdinal(d3.schemeCategory10)
 
+    resize () {
+        this.x.range([0, this.getWidthtWithMargins()])
+        this.y.range([this.getHeightWithMargins(), 0])
+    }
+
     updateChart (data: any[]) {
         data = data.map(d => {
             d.total = this.config.measures.reduce(m => d[m.ref])
             return d
         })
-        this.x
-            .range([0, this.getWidthtWithMargins()])
-            .domain(data.map(d => d[this.config.dimensions[0]]))
-        this.y
-            .range([this.getHeightWithMargins(), 0])
-            .domain([0, d3.max(data, d => d.total)])
+        this.x.domain(data.map(d => d[this.config.dimensions[0]]))
+        this.y.domain([0, d3.max(data, d => d.total)])
+        this.resize()
+
         const keys = this.config.measures.map(m => m.ref)
         this.color.domain(keys)
         this.stack.keys(keys)

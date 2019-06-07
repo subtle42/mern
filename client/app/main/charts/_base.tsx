@@ -12,6 +12,8 @@ import './style.css'
 
 class State {
     chart: any[] = []
+    height: number = 0
+    width: number = 0
 }
 
 interface Props {
@@ -24,8 +26,8 @@ export abstract class BaseChart extends React.Component<Props, State> {
     state = new State()
     chart: any[] = []
     config: IWidget
-    height: number
-    width: number
+    // height: number
+    // width: number
     xAxis: Axis<any>
     yAxis: Axis<any>
     x: ScaleLinear<number, number> | ScaleBand<string> | ScaleTime<number, number>
@@ -43,7 +45,6 @@ export abstract class BaseChart extends React.Component<Props, State> {
 
     private _updateChart () {
         if (!this.config) return
-        if (!this.height || !this.width) return
 
         const chart = this.updateChart(this.data)
         this.yAxis = axisLeft(this.y)
@@ -52,6 +53,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
     }
 
     abstract updateChart (data: any[])
+    abstract resize ()
     abstract renderChart (): JSX.Element
 
     componentDidMount () {
@@ -63,10 +65,8 @@ export abstract class BaseChart extends React.Component<Props, State> {
             if (store.getState().widgets.sizes[this.props.id]) {
                 const { width, height } = store.getState().widgets.sizes[this.props.id]
 
-                if (this.width !== width || this.height !== height) {
-                    this.width = width
-                    this.height = height
-                    this._updateChart()
+                if (this.state.width !== width || this.state.height !== height) {
+                    this.setState({ height, width })
                 }
             }
 
@@ -85,11 +85,11 @@ export abstract class BaseChart extends React.Component<Props, State> {
     }
 
     getWidthtWithMargins (): number {
-        return this.width - this.config.margins.left - this.config.margins.right
+        return this.state.width - this.config.margins.left - this.config.margins.right
     }
 
     getHeightWithMargins (): number {
-        return this.height - this.config.margins.top - this.config.margins.bottom
+        return this.state.height - this.config.margins.top - this.config.margins.bottom
     }
 
     componentWillUnmount () {
@@ -146,11 +146,11 @@ export abstract class BaseChart extends React.Component<Props, State> {
 
     render () {
         if (!this.config) return <div />
-        if (!this.width || !this.height) return <div />
+        this.resize()
         return <svg
             onClick={() => this.clear()}
-            width={this.width}
-            height={this.height}>
+            width={this.state.width}
+            height={this.state.height}>
             {this.renderChart()}
         </svg>
     }

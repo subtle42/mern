@@ -8,6 +8,11 @@ export class Histogram extends BaseChart {
     y = scaleLinear()
     step = 0
 
+    resize () {
+        this.x.rangeRound([0, this.getWidthtWithMargins()])
+        this.y.rangeRound([this.getHeightWithMargins(), 0])
+    }
+
     updateChart (data: any[]) {
         data = data.filter(d => d._id !== 'Other')
         let xDomain = [0, 0]

@@ -66,7 +66,7 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
             <Col sm={10}>
                 <OnEnter callback={() => tryLogin()}>
                 <Input
-                    type='text'
+                    type='password'
                     value={rules.get('password').value}
                     invalid={rules.get('password').invalid}
                     name='password'
