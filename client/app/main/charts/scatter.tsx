@@ -95,7 +95,6 @@ export class Scatter extends BaseChart {
         this.y.domain(this.adjustDomain(
             extent(myData, d => d[this.config.dimensions[1]]) as any, this.config.yAxis)
         )
-        this.resize()
 
         return myData
     }

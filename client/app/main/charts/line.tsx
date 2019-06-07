@@ -29,7 +29,6 @@ export class Line extends BaseChart {
         this.y.domain(this.adjustDomain(
             extent(data, d => d[this.config.measures[0].ref]) as any, this.config.yAxis)
         )
-        this.resize()
 
         this.line
             .x(d => this.x(d['_id']))

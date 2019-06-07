@@ -26,7 +26,6 @@ export class BarGrouped extends BaseChart {
         this.xInner.domain(this.config.measures.map(m => m.ref))
         const yDomain = [0, max(data, d => max(this.config.measures, key => d[key.ref])) as any]
         this.y.domain(this.adjustDomain(yDomain, this.config.yAxis))
-        this.resize()
 
         const mappedData = {}
         options.forEach(key => {

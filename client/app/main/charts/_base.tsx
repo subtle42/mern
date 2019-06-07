@@ -12,8 +12,8 @@ import './style.css'
 
 class State {
     chart: any[] = []
-    height: number = 0
-    width: number = 0
+    height: number
+    width: number
 }
 
 interface Props {
@@ -26,8 +26,6 @@ export abstract class BaseChart extends React.Component<Props, State> {
     state = new State()
     chart: any[] = []
     config: IWidget
-    // height: number
-    // width: number
     xAxis: Axis<any>
     yAxis: Axis<any>
     x: ScaleLinear<number, number> | ScaleBand<string> | ScaleTime<number, number>
@@ -145,6 +143,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
     }
 
     render () {
+        if (!this.state.width || !this.state.height) return <div />
         if (!this.config) return <div />
         this.resize()
         return <svg

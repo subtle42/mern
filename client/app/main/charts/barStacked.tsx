@@ -22,7 +22,6 @@ export class StackedBart extends BaseChart {
         })
         this.x.domain(data.map(d => d[this.config.dimensions[0]]))
         this.y.domain([0, d3.max(data, d => d.total)])
-        this.resize()
 
         const keys = this.config.measures.map(m => m.ref)
         this.color.domain(keys)
