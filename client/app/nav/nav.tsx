@@ -32,6 +32,7 @@ const myComponent: React.FunctionComponent<NavProps> = (props: NavProps) => {
     }
 
     const getBookDropDown = (): JSX.Element => {
+        if (!props.user) return <div />
         return <Nav>
             <UncontrolledDropdown nav inNavbar>
                 <DropdownToggle nav caret>{getBookName()}</DropdownToggle>

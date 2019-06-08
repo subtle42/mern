@@ -1,5 +1,3 @@
-import * as io from 'socket.io-client'
-
 export default abstract class BaseActions {
     private isNewList: boolean = true
 
@@ -57,26 +55,26 @@ export default abstract class BaseActions {
             return Promise.reject(`Already connected to ${this.nameSpace}`)
         }
 
-        let nsp = io.connect(`/${this.nameSpace}`, {
+        return import('socket.io-client')
+        .then(io => io.connect(`/${this.nameSpace}`, {
             query: {
                 token: auth
             }
-        })
-
-        nsp.on('message', (msg) => console.log(msg))
-        .on('addedOrChanged', (items: any[]) => {
-            if (this.isNewList) {
-                this.isNewList = false
-                this.addedOrChanged(items)
-                .then(() => this.select(items[0] ? items[0]._id : ''))
-            } else {
-                this.addedOrChanged(items)
-            }
-        })
-        .on('removed', (items) => this.remove(items))
-        .on('error', (err) => console.error(err))
-
-        return this.storeSocket(nsp)
+        }))
+        .then(nsp => nsp.on('message', (msg) => console.log(msg))
+            .on('addedOrChanged', (items: any[]) => {
+                if (this.isNewList) {
+                    this.isNewList = false
+                    return this.addedOrChanged(items)
+                    .then(() => this.select(items[0] ? items[0]._id : ''))
+                } else {
+                    return this.addedOrChanged(items)
+                }
+            })
+            .on('removed', (items) => this.remove(items))
+            .on('error', (err) => console.error(err))
+        )
+        .then(nsp => this.storeSocket(nsp))
     }
 
     /**

@@ -42,13 +42,6 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
         if (created) props.done(created)
     }
 
-    // const Dropzone = Loadable({
-    //     loader: () => import('react-dropzone').then(mod => mod.default),
-    //     loading () {
-    //         return <Loading/>
-    //     }
-    // })
-
     const sourceDetails = (): JSX.Element => {
         if (!selected) return <div/>
 
