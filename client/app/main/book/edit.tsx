@@ -1,6 +1,7 @@
 import * as React from 'react'
 import * as FontAwesome from 'react-fontawesome'
 import Modal from 'reactstrap/lib/Modal'
+import SwipeableViews from 'react-swipeable-views'
 import { IBook } from 'common/models'
 import { BookList } from './edit/list'
 import { BookEditForm } from './edit/form'
@@ -18,17 +19,22 @@ export const EditBookButton: React.FunctionComponent<Props> = (props: Props) => 
         </Modal>
     }
 
-    const getContent = (): JSX.Element => {
-        if (!toEdit) {
-            return <BookList
-            onEdit={book => setEdit(book)}
-            onDone={() => setOpen(false)} />
-        }
-        if (toEdit) {
-            return <BookEditForm
+    const getBookEditForm = (): JSX.Element => {
+        if (!toEdit) return <div />
+        return <BookEditForm
             _id={toEdit._id}
             onDone={() => setEdit(undefined)} />
-        }
+    }
+
+    const getContent = (): JSX.Element => {
+        const index = !toEdit ? 0 : 1
+
+        return <SwipeableViews index={index}>
+            <BookList
+                onEdit={book => setEdit(book)}
+                onDone={() => setOpen(false)} />
+            {getBookEditForm()}
+        </SwipeableViews>
     }
 
     return <div>

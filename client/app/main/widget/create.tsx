@@ -7,6 +7,7 @@ import { usePages } from '../../_common/hooks'
 import { SelectSource } from './create/selectSource'
 import { SelectChartType } from './create/selectType'
 import * as FontAwesome from 'react-fontawesome'
+import SwipeableViews from 'react-swipeable-views'
 import './style.css'
 
 interface Props {}
@@ -30,26 +31,32 @@ export const WidgetCreateButton: React.FunctionComponent<Props> = (props: Props)
         setMode('selectSource')
     }
 
-    const getModalTemplate = (): JSX.Element => {
-        if (mode === 'selectSource') {
-            return <SelectSource
-            selectedId={source && source._id}
-            done={confirmed => {
-                setSource(confirmed)
-                setMode('selectWidget')
-            }}
-            cancel={() => setOpen(false)} />
-        }
+    const getIndex = (): number => {
+        if (mode === 'selectSource') return 0
+        if (mode === 'selectWidget') return 1
+        return 0
+    }
 
-        if (mode === 'selectWidget') {
-            return <SelectChartType
+    const getSelectChartType = (): JSX.Element => {
+        if (!source) return <div />
+        return <SelectChartType
             sourceId={source._id}
             back={() => setMode('selectSource')}
             cancel={() => setOpen(false)}
             done={chartTypes => close(chartTypes)} />
-        }
+    }
 
-        return <div/>
+    const getModalTemplate = (): JSX.Element => {
+        return <SwipeableViews index={getIndex()}>
+            <SelectSource
+                selectedId={source && source._id}
+                done={confirmed => {
+                    setSource(confirmed)
+                    setMode('selectWidget')
+                }}
+                cancel={() => setOpen(false)} />
+            {getSelectChartType()}
+        </SwipeableViews>
     }
 
     return <div>

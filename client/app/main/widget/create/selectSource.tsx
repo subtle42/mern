@@ -79,10 +79,11 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
 
     const renderHeader = (): JSX.Element => {
         return <div className='modal-header'>
-            <h5>Sources</h5>
+            <h5 className='modal-title'>Sources</h5>
             <div {...getRootProps()} hidden={isLoading}>
                 <input {...getInputProps()} />
                 <Button color='general'
+                    style={{ padding: 0 }}
                     id='TooltipExample'>
                     <FontAwesome name='file'/> Click to upload
                 </Button>
