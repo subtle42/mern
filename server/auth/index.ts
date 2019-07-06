@@ -1,17 +1,17 @@
-import * as express from 'express'
-import { User } from '../api/user/model'
-import local from './local/passport'
+import './passport'
+import { Router } from 'express'
 import * as passport from 'passport'
-import * as GoogleAuth from './google/passport'
+import { signRequest } from './auth.service'
 
-local.setup(User)
-const router = express.Router()
+const router = Router()
 
-router.post('/local', local.authenticate)
+router.post('/local', passport.authenticate('local'), signRequest)
 router.get('/google', passport.authenticate('google', {
     scope: ['profile', 'email']
-}))
-router.get('/google/redirect', GoogleAuth.login)
+}), signRequest)
+router.get('/google/redirect', passport.authenticate('google', {
+    scope: ['profile', 'email']
+}), signRequest)
 router.get('/logout', (req, res) => {
     req.logOut()
     res.send()

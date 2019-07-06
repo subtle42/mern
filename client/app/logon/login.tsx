@@ -33,7 +33,7 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
         const { email, password } = rules.value
         AuthActions.login(email, password)
         .then(() => setLoginSuccess(true))
-        .catch(err => NotifActions.error(err.response.data.message))
+        .catch(err => NotifActions.error(err.response.data))
     }
 
     const tryGoogleLogin = () => {

@@ -1,9 +1,16 @@
 import * as passport from 'passport'
+import { Strategy as LocalStrategy } from 'passport-local'
+import { User } from '../api/user/model'
 import { Strategy } from 'passport-google-oauth20'
-import { NextFunction, Request, Response } from 'express'
-import { User } from '../../api/user/model'
-import { signToken } from '../auth.service'
-import * as fs from 'fs'
+import { readFileSync } from 'fs'
+
+passport.serializeUser((user, cb) => {
+    cb(null, user)
+})
+
+passport.deserializeUser((obj, cb) => {
+    cb(null, obj)
+})
 
 interface GoogleConfig {
     web: {
@@ -17,7 +24,7 @@ interface GoogleConfig {
     }
 }
 
-const googleConfig: GoogleConfig = JSON.parse(fs.readFileSync('./server/config/google.json') as any)
+const googleConfig: GoogleConfig = JSON.parse(readFileSync('./server/config/google.json') as any)
 
 passport.use(new Strategy({
     clientID: googleConfig.web.client_id,
@@ -39,17 +46,17 @@ passport.use(new Strategy({
     .catch(err => done(err, undefined))
 }))
 
-export const login = (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate('google', (err, user) => {
-        if (err) {
-            return res.status(401).json(err)
-        }
-        if (!user) {
-            return res.status(404).json({
-                message: 'Something went wrong, please try again.'
-            })
-        }
-        let token = signToken(user._id, user.role)
-        res.json({ token })
-    })(req, res, next)
-}
+passport.use(new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password'
+}, (email, password, done) => {
+    User.findOne({
+        email: email.toLocaleLowerCase()
+    })
+    .then(user => {
+        if (!user) return Promise.reject({ message: 'This email is not registered' })
+        return user.authenticate(password)
+    })
+    .then(user => done(null, user))
+    .catch(err => done(err, false, { message: err }))
+}))
