@@ -12,7 +12,7 @@ import NotifActions from 'data/notifications/actions'
 import { FormCtrlGroup, FormControl } from '../_common/validation'
 import * as Validators from '../_common/validators'
 import * as utils from '../_common/utils'
-import { OnEnter } from '../_common/onEnter';
+import { OnEnter } from '../_common/onEnter'
 
 interface Props {}
 
@@ -33,7 +33,13 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
         const { email, password } = rules.value
         AuthActions.login(email, password)
         .then(() => setLoginSuccess(true))
-        .catch(err => NotifActions.notify('danger', err.response.data.message))
+        .catch(err => NotifActions.error(err.response.data.message))
+    }
+
+    const tryGoogleLogin = () => {
+        AuthActions.googleLogin()
+        .then(() => setLoginSuccess(true))
+        .catch(err => NotifActions.error(JSON.stringify(err)))
     }
 
     if (loginSuccess) {
@@ -83,6 +89,10 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
                 type='button'
                 onClick={() => tryLogin()}>
                 Sign in
+            </Button>
+            <Button color='secondary'
+                onClick={() => tryGoogleLogin()}>
+                Google
             </Button>
         </Col>
         </FormGroup>

@@ -67,15 +67,24 @@ class AuthActions {
     }
 
     login (email: string, password: string): Promise<void> {
-        return axios.post('/api/auth/local', {
+        return axios.post('/auth/local', {
             email,
             password
         })
         .then(res => this.loadConnections(res.data.token))
     }
 
+    googleLogin (): Promise<void> {
+        return axios.get('/auth/google', {
+            headers: {
+                'Access-Control-Allow-Origin': '*'
+            }
+        })
+        .then(res => this.loadConnections(res.data.token))
+    }
+
     logout (): Promise<void> {
-        return axios.get('/api/auth/logout')
+        return axios.get('/auth/logout')
         .then(() => this._logout())
         .then(() => Promise.all([
             bookActions.disconnect()
