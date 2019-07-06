@@ -2,7 +2,7 @@ import * as path from 'path'
 import * as express from 'express'
 
 export default (app: express.Application) => {
-    app.use('/api/auth', require('./auth'))
+    app.use('/auth', require('./auth'))
     app.use('/api/user', require('./api/user'))
     app.use('/api/books', require('./api/book'))
     app.use('/api/pages', require('./api/page'))
