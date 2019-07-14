@@ -37,7 +37,7 @@ UserSchema
 .virtual('profile')
 .get(() => {
     return {
-        name: this.name,
+        name: (this as any).name,
         role: this.role
     }
 })

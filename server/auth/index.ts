@@ -8,10 +8,12 @@ const router = Router()
 router.post('/local', passport.authenticate('local'), signRequest)
 router.get('/google', passport.authenticate('google', {
     scope: ['profile', 'email']
-}), signRequest)
+}))
 router.get('/google/redirect', passport.authenticate('google', {
     scope: ['profile', 'email']
-}), signRequest)
+}), (req, res) => {
+    res.send('you reached the redirect URI')
+})
 router.get('/logout', (req, res) => {
     req.logOut()
     res.send()

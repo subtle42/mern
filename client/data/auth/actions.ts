@@ -74,15 +74,6 @@ class AuthActions {
         .then(res => this.loadConnections(res.data.token))
     }
 
-    googleLogin (): Promise<void> {
-        return axios.get('/auth/google', {
-            headers: {
-                'Access-Control-Allow-Origin': '*'
-            }
-        })
-        .then(res => this.loadConnections(res.data.token))
-    }
-
     logout (): Promise<void> {
         return axios.get('/auth/logout')
         .then(() => this._logout())

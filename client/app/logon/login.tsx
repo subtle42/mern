@@ -36,14 +36,8 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
         .catch(err => NotifActions.error(err.response.data))
     }
 
-    const tryGoogleLogin = () => {
-        AuthActions.googleLogin()
-        .then(() => setLoginSuccess(true))
-        .catch(err => NotifActions.error(JSON.stringify(err)))
-    }
-
     if (loginSuccess) {
-        return (<Redirect to='main' />)
+        return <Redirect to='main'/>
     }
 
     return <Form>
@@ -90,10 +84,9 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
                 onClick={() => tryLogin()}>
                 Sign in
             </Button>
-            <Button color='secondary'
-                onClick={() => tryGoogleLogin()}>
-                Google
-            </Button>
+            <a href='/auth/google'>
+                Google+
+            </a>
         </Col>
         </FormGroup>
         </Col></FormGroup>
