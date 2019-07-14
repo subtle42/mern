@@ -36,6 +36,25 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
         .catch(err => NotifActions.error(err.response.data))
     }
 
+    const openPopup = () => {
+        const width = 600
+        const height = 600
+        const left = (window.innerWidth / 2) - (width / 2)
+        const top = (window.innerHeight / 2) - (height / 2)
+
+        let popup: Window
+        AuthActions.waitFor3rdPartyAuth(() => {
+            popup.close()
+            setLoginSuccess(true)
+        })
+        .then(socketId => popup = window.open(`/auth/google?socketId=${socketId}`, '',
+            `toolbar=no, location=no, directories=no, status=no, menubar=no,
+            scrollbars=no, resizable=no, copyhistory=no, width=${width},
+            height=${height}, top=${top}, left=${left}`
+        ))
+        .catch(err => NotifActions.error(err))
+    }
+
     if (loginSuccess) {
         return <Redirect to='main'/>
     }
@@ -84,7 +103,7 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
                 onClick={() => tryLogin()}>
                 Sign in
             </Button>
-            <a href='/auth/google'>
+            <a onClick={() => openPopup()}>
                 Google+
             </a>
         </Col>

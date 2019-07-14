@@ -87,10 +87,10 @@ export function isAdmin (req: MyRequest, res: Response, next: NextFunction) {
     }
 }
 
-export function signRequest (req, res) {
+export function signRequest (req: Request): string {
     const tmp = { _id: req.user.id, role: req.user.role }
     const token = jwt.sign(tmp, config.shared.secret, {
         expiresIn: 60 * 60 * 5
     })
-    res.json({ token })
+    return token
 }
