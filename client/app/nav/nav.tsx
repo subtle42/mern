@@ -58,7 +58,7 @@ export const MainNavBar: React.FunctionComponent<NavProps> = (props: NavProps) =
                     <Link to='/main'>Main</Link>
                 </div>
             </NavItem>
-                { user && <NavItem key={2}>
+                { !user && <NavItem key={2}>
                     <div className='nav-link'>
                         <Link to='/register'>Register</Link>
                     </div>
