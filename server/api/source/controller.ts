@@ -284,7 +284,13 @@ class SourceController {
         })
         .then(metaData => {
             const { min, max } = metaData
-            const step = Math.floor((max - min) / 20)
+            let step = Math.floor((max - min) / 20)
+
+            if ((max - min) / 20 < 1) {
+                step = (max - min) / 20
+            }
+            if (step === 0) return []
+
             const boundaries = [min]
             let index = 1
             while (boundaries[boundaries.length - 1] < max) {
