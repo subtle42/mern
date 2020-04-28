@@ -10,16 +10,20 @@ export class Pie extends BaseChart {
     color = d3.scaleOrdinal(d3.schemeCategory10)
     radius: number
 
+    resize () {
+        this.radius = Math.min(this.getHeightWithMargins(), this.getWidthtWithMargins()) / 2
+        this.arc.innerRadius(this.radius)
+    }
+
     updateChart (data) {
         this.radius = Math.min(this.getHeightWithMargins(), this.getWidthtWithMargins()) / 2
         this.pie.value(d => d[this.config.measures[0].ref])
         this.arc.innerRadius(this.radius)
-        console.log(this.pie(data))
         return this.pie(data)
     }
 
     renderChart () {
-        return <g transform={`tanslate(${this.getHeightWithMargins() / 2},
+        return <g transform={`translate(${this.getHeightWithMargins() / 2},
             ${this.getWidthtWithMargins() / 2})`}>
             {this.chart.map((row, index) => <path
                 fill={this.color(`${index}`)}

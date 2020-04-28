@@ -266,8 +266,6 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
     }
 
     const getModal = (): JSX.Element => {
-        if (!isOpen) return <div />
-
         return <Modal size='md'
             isOpen={isOpen}
             onClosed={() => setOpen(false)}>

@@ -252,7 +252,7 @@ describe('Page Conifg component', () => {
         })
 
         it('should show the modal', () => {
-            expect(wrapper.find('Modal').length).to.equal(0)
+            expect(wrapper.find('Modal').prop('isOpen')).to.equal(false)
             wrapper.find('FontAwesome').simulate('click')
             expect(wrapper.find('Modal').prop('isOpen')).to.equal(true)
         })
@@ -344,7 +344,7 @@ describe('Page Conifg component', () => {
             it('should close then modal', () => {
                 expect(wrapper.find('Modal').prop('isOpen')).to.equal(true)
                 cancelBtn.simulate('click')
-                expect(wrapper.find('Modal').length).to.equal(0)
+                expect(wrapper.find('Modal').prop('isOpen')).to.equal(false)
             })
 
             it('should NOT send a REST call', () => {

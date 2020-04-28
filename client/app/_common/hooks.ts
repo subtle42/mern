@@ -38,6 +38,22 @@ const _useItem = (namespace: string, id: string) => {
     return data
 }
 
+export const useSelected = (namespace: string): string => {
+    const [data, setData] = React.useState(
+        store.getState()[namespace].selected
+    )
+    React.useEffect(() => {
+        const unsubscribe = store.subscribe(() => {
+            const newData = store.getState()[namespace].selected
+            if (newData === data) return
+            setData(newData)
+        })
+        return () => unsubscribe()
+    }, [namespace])
+
+    return data
+}
+
 export const useBook = (id: string): IBook => {
     return _useItem('books', id)
 }

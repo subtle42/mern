@@ -52,7 +52,7 @@ export const columnInsertEtlFactory = {
     },
     number: entry => {
         const tmp = entry.replace('$', '')
-        return parseInt(tmp, 10)
+        return parseFloat(tmp)
     },
     group: entry => entry,
     text: entry => entry

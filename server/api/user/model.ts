@@ -21,8 +21,8 @@ let UserSchema = new mongoose.Schema({
             return false
         }
     }},
-    role: { type: String, default: 'user' },
-    provider: String,
+    role: { type: String, default: 'user', required: true },
+    provider: { type: String, required: true },
     salt: String,
     facebook: {},
     google: {}
@@ -37,7 +37,7 @@ UserSchema
 .virtual('profile')
 .get(() => {
     return {
-        name: this.name,
+        name: (this as any).name,
         role: this.role
     }
 })

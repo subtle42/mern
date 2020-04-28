@@ -14,18 +14,18 @@ export class BarGrouped extends BaseChart {
     y = scaleLinear()
     myRef = React.createRef()
 
+    resize () {
+        this.x.rangeRound([0, this.getWidthtWithMargins()])
+        this.y.rangeRound([this.getHeightWithMargins(), 0])
+        this.xInner.rangeRound([0, this.x.bandwidth()])
+    }
+
     updateChart (data) {
         const options: string[] = data.map(d => d._id)
-        this.x
-            .domain(options)
-            .rangeRound([0, this.getWidthtWithMargins()])
-        this.xInner
-            .domain(this.config.measures.map(m => m.ref))
-            .rangeRound([0, this.x.bandwidth()])
+        this.x.domain(options)
+        this.xInner.domain(this.config.measures.map(m => m.ref))
         const yDomain = [0, max(data, d => max(this.config.measures, key => d[key.ref])) as any]
-        this.y
-            .domain(this.adjustDomain(yDomain, this.config.yAxis))
-            .rangeRound([this.getHeightWithMargins(), 0])
+        this.y.domain(this.adjustDomain(yDomain, this.config.yAxis))
 
         const mappedData = {}
         options.forEach(key => {

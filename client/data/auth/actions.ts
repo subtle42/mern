@@ -67,15 +67,40 @@ class AuthActions {
     }
 
     login (email: string, password: string): Promise<void> {
-        return axios.post('/api/auth/local', {
+        return axios.post('/auth/local', {
             email,
             password
         })
         .then(res => this.loadConnections(res.data.token))
     }
 
+    waitFor3rdPartyAuth (callback: Function): Promise<string> {
+        const mySocket = store.getState().auth.socket
+        if (mySocket) return Promise.resolve(mySocket.id)
+
+        return new Promise((resolve, reject) => {
+            import('socket.io-client')
+            .then(io => io.connect())
+            .then(socket => {
+                return this.setSocket(socket)
+                .then(() => socket)
+            })
+            .then(socket => {
+                socket.on('message', msg => resolve(msg))
+                .on('auth', msg => {
+                    socket.disconnect()
+                    this.setAuths(msg)
+                    this.setSocket(undefined)
+                    .then(() => this.loadConnections(msg))
+                    .then(() => callback())
+                })
+            })
+            .catch(err => reject(err))
+        })
+    }
+
     logout (): Promise<void> {
-        return axios.get('/api/auth/logout')
+        return axios.get('/auth/logout')
         .then(() => this._logout())
         .then(() => Promise.all([
             bookActions.disconnect()
@@ -110,6 +135,10 @@ class AuthActions {
     private setToken (token: string): Promise<void> {
         this.setAuths(token)
         return this.sendDispatch('set_token', token)
+    }
+
+    private setSocket (socket: SocketIOClient.Socket): Promise<void> {
+        return this.sendDispatch('set_socket', socket)
     }
 
     private me (): Promise<void> {

@@ -72,6 +72,11 @@ export class Scatter extends BaseChart {
         }
     }
 
+    resize () {
+        this.x.rangeRound([0, this.getWidthtWithMargins()])
+        this.y.rangeRound([this.getHeightWithMargins(), 0])
+    }
+
     updateChart (data: any[]) {
         select(this.myRef.current as any)
         .selectAll('circle')
@@ -84,16 +89,12 @@ export class Scatter extends BaseChart {
 
         const myData = data.slice(0, 1000)
         this.radius = 3.5
-        this.x
-            .rangeRound([0, this.getWidthtWithMargins()])
-            .domain(this.adjustDomain(
-                extent(myData, d => d[this.config.dimensions[0]]) as any, this.config.xAxis)
-            )
-        this.y
-            .rangeRound([this.getHeightWithMargins(), 0])
-            .domain(this.adjustDomain(
-                extent(myData, d => d[this.config.dimensions[1]]) as any, this.config.yAxis)
-            )
+        this.x.domain(this.adjustDomain(
+            extent(myData, d => d[this.config.dimensions[0]]) as any, this.config.xAxis)
+        )
+        this.y.domain(this.adjustDomain(
+            extent(myData, d => d[this.config.dimensions[1]]) as any, this.config.yAxis)
+        )
 
         return myData
     }

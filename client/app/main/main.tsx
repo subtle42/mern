@@ -4,7 +4,7 @@ import AuthActions from '../../data/auth/actions'
 import MainPage from './content/content'
 import { LoginPage } from '../logon/login'
 import { RegisterPage } from '../logon/register'
-import MainNavBar from '../nav/nav'
+import { MainNavBar } from '../nav/nav'
 import { AlertComponent } from '../_common/alert'
 import { AboutPage } from './about'
 

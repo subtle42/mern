@@ -12,7 +12,7 @@ import NotifActions from 'data/notifications/actions'
 import { FormCtrlGroup, FormControl } from '../_common/validation'
 import * as Validators from '../_common/validators'
 import * as utils from '../_common/utils'
-import { OnEnter } from '../_common/onEnter';
+import { OnEnter } from '../_common/onEnter'
 
 interface Props {}
 
@@ -33,11 +33,30 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
         const { email, password } = rules.value
         AuthActions.login(email, password)
         .then(() => setLoginSuccess(true))
-        .catch(err => NotifActions.notify('danger', err.response.data.message))
+        .catch(err => NotifActions.error(err.response.data))
+    }
+
+    const openPopup = () => {
+        const width = 600
+        const height = 600
+        const left = (window.innerWidth / 2) - (width / 2)
+        const top = (window.innerHeight / 2) - (height / 2)
+
+        let popup: Window
+        AuthActions.waitFor3rdPartyAuth(() => {
+            popup.close()
+            setLoginSuccess(true)
+        })
+        .then(socketId => popup = window.open(`/auth/google?socketId=${socketId}`, '',
+            `toolbar=no, location=no, directories=no, status=no, menubar=no,
+            scrollbars=no, resizable=no, copyhistory=no, width=${width},
+            height=${height}, top=${top}, left=${left}`
+        ))
+        .catch(err => NotifActions.error(err))
     }
 
     if (loginSuccess) {
-        return (<Redirect to='main' />)
+        return <Redirect to='main'/>
     }
 
     return <Form>
@@ -66,7 +85,7 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
             <Col sm={10}>
                 <OnEnter callback={() => tryLogin()}>
                 <Input
-                    type='text'
+                    type='password'
                     value={rules.get('password').value}
                     invalid={rules.get('password').invalid}
                     name='password'
@@ -84,6 +103,9 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
                 onClick={() => tryLogin()}>
                 Sign in
             </Button>
+            <a onClick={() => openPopup()}>
+                Google+
+            </a>
         </Col>
         </FormGroup>
         </Col></FormGroup>

@@ -9,6 +9,9 @@ const strategy = {
     set_user: (state: AuthStore, payload: IUser): AuthStore => {
         return { ...state, me: payload }
     },
+    set_socket: (state: AuthStore, payload: SocketIOClient.Socket): AuthStore => {
+        return { ...state, socket: payload }
+    },
     logout: (state: AuthStore, payload: string): AuthStore => {
         return { me: undefined, token: undefined }
     }

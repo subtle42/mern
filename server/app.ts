@@ -4,8 +4,9 @@ import * as http from 'http'
 import * as io from 'socket.io'
 import * as mongoose from 'mongoose'
 import * as passport from 'passport'
+import * as session from 'express-session'
+
 import * as utils from './api/utils'
-// import { socketAuth } from './auth/socket/auth'
 declare var global: any
 
 let MONGO_URI = 'mongodb://localhost/merntest';
@@ -26,7 +27,7 @@ let myIO = io(server, {})
 global.myIO = myIO
 
 myIO.on('connection', socket => {
-    socket.emit('message', 'connected')
+    socket.emit('message', socket.id)
 })
 // socketAuth(myIO);
 
@@ -46,6 +47,11 @@ const test = () => {
 
 app.use(body.json())
 app.use(passport.initialize())
+app.use(session({
+    secret: 'KeyboardKittens',
+    resave: true,
+    saveUninitialized: true
+}))
 app.use(test())
 require('./routes').default(app)
 

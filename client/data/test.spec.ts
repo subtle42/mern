@@ -1,9 +1,17 @@
 
-import BaseActions from './baseActions'
-import { expect } from 'chai'
-import { spy, SinonSpy, stub, SinonStub } from 'sinon'
-import * as io from 'socket.io-client'
+import { expect, assert } from 'chai'
+import { SinonSpy, SinonStub, SinonSandbox, createSandbox } from 'sinon'
+import { Store, createStore, combineReducers, applyMiddleware } from 'redux'
+import promiseMiddleware from 'redux-promise'
+
 import { factory } from './baseReducer'
+import BaseActions from './baseActions'
+
+const namespace: string = 'testing'
+const myReducer = (state = { list: [] }, action) => {
+    if (Object.keys(factory).indexOf(action.type) === -1) return state
+    return factory[action.type](state, action.payload)
+}
 
 class TestBaseActions extends BaseActions {
     constructor (store, nameSpace) {
@@ -28,218 +36,178 @@ class TestBaseActions extends BaseActions {
 }
 
 describe('Base Actions for Redux', () => {
-    let store
     let service: BaseActions
-    let dispatchResolve: SinonStub
-    let namespace: string = 'testing'
-    let ioConnect: SinonStub
-    let ioConnectResponse
+    let sandbox: SinonSandbox
     let onFnMap = {}
+    let store: Store
+    let connectStub: SinonStub
 
     beforeEach(() => {
-        dispatchResolve = stub().returns(new Promise(resolve => resolve()))
-        store = {
-            dispatch: (params) => {
-                return params.then(a => {
-                    // console.log("data", a)
-                    dispatchResolve(a)
-                })
-            },
-            getState: () => undefined
-        }
+        store = createStore(combineReducers({
+            [namespace]: myReducer
+        }), applyMiddleware(promiseMiddleware))
 
-        ioConnectResponse = {
+        sandbox = createSandbox({})
+        service = new TestBaseActions(store, namespace)
+
+        return import('socket.io-client')
+        .then(io => connectStub = sandbox.stub(io, 'connect').returns({
             on: function (channel, fn) {
                 onFnMap[channel] = fn
                 return this
-            }
-        }
-
-        ioConnect = stub(io, 'connect').returns(ioConnectResponse)
-        service = new TestBaseActions(store, namespace)
+            },
+            emit: sandbox.spy(),
+            disconnect: sandbox.spy()
+        } as any))
     })
 
     afterEach(() => {
-        ioConnect.restore()
+        sandbox.restore()
     })
 
     describe('connection function', () => {
+        const token: string = 'akfwovjeoije'
         beforeEach(() => {
-            store.getState = stub().returns({
-                testing: {}
-            })
+            return service.connect(token)
         })
 
         it('should connect to its namespace', () => {
-            expect(ioConnect.callCount).to.equal(0)
-            service.connect('')
-            expect(ioConnect.calledWith(`/${namespace}`)).to.equal(true)
+            assert(connectStub.calledWith(`/${namespace}`))
         })
 
-        it('should send the input as an auth token to io.connect', done => {
-            expect(ioConnect.callCount).to.equal(0)
-            const token = 'akfwovjeoije'
-            service.connect(token)
-            .then(() => {
-                expect(ioConnect.calledWith(`/${namespace}`, {
-                    query: { token }
-                })).to.equal(true)
-                done()
-            })
+        it('should send the input as an auth token to io.connect', () => {
+            assert(connectStub.calledWith(`/${namespace}`, {
+                query: { token }
+            }))
         })
 
-        it('should store the connected socket', done => {
-            expect(dispatchResolve.callCount).to.equal(0)
-            service.connect('')
-            .then(() => {
-                expect(dispatchResolve.calledWith({
-                    type: 'storeSocket',
-                    payload: ioConnectResponse,
-                    namespace
-                })).to.equal(true)
-                done()
-            })
+        it('should store the connected socket', () => {
+            expect(store.getState()[namespace].socket).not.to.equal(undefined)
         })
 
-        it('should return an error if there is already a socket connection', done => {
-            store.getState = stub().returns({
-                testing: {
-                    socket: {}
-                }
-            })
-
-            service.connect('')
-            .catch(err => expect(err).not.to.be.undefined)
-            .then(() => done())
+        it('should return an error if there is already a socket connection', () => {
+            return service.connect('')
+            .catch(err => err)
+            .then(err => expect(err).not.to.be.undefined)
         })
 
         describe('on removed function', () => {
-            it("should send a dispatch of 'removed'", done => {
+            it("should send a dispatch of 'removed'", () => {
                 const input = 'awlkejawf'
-                service.connect('')
-                .then(() => dispatchResolve.resetHistory())
-                .then(() => onFnMap['removed'](input))
-                .then(() => {
-                    expect(dispatchResolve.callCount).to.equal(1)
-                    expect(dispatchResolve.calledWith({
-                        type: 'removed',
-                        payload: input,
-                        namespace
-                    })).to.equal(true)
-                    done()
-                })
+                const mySpy = sandbox.spy()
+                sandbox.stub(store, 'dispatch')
+                .callsFake((input => input.then(data => {
+                    mySpy(data)
+                    return data
+                })) as any)
+
+                return onFnMap['removed'](input)
+                .then(() => expect(mySpy.callCount).to.equal(1))
+                .then(() => assert(mySpy.calledWith({
+                    type: 'removed',
+                    payload: input,
+                    namespace
+                })))
             })
         })
 
         describe('on addedOrChanged function', () => {
             let selectSpy: SinonSpy
+            const input = [1,2,3]
             beforeEach(() => {
-                selectSpy = spy(service, 'select')
-                return service.connect('')
-                .then(() => dispatchResolve.resetHistory())
+                selectSpy = sandbox.spy(service, 'select')
             })
 
-            it("should send a dispatch of 'addedOrChanged'", done => {
-                const input = [1,2,3]
+            it("should send a dispatch of 'addedOrChanged'", () => {
+                const mySpy = sandbox.spy()
+                sandbox.stub(store, 'dispatch')
+                .callsFake((input => input.then(data => {
+                    mySpy(data)
+                    return data
+                })) as any)
 
-                onFnMap['addedOrChanged'](input)
-                setTimeout(() => {
-                    expect(dispatchResolve.calledWith({
-                        type: 'addedOrChanged',
-                        payload: input,
-                        namespace
-                    })).to.equal(true)
-                    done()
-                })
+                return onFnMap['addedOrChanged'](input)
+                .then(() => assert(mySpy.calledWith({
+                    type: 'addedOrChanged',
+                    payload: input,
+                    namespace
+                })))
             })
 
-            it('should call select function with the first item from the input if is newList', done => {
-                const input = [1,2,3]
+            it('should call select function with the first item from the input if is newList', () => {
                 expect(selectSpy.callCount).to.equal(0)
-                onFnMap['addedOrChanged'](input)
-                setTimeout(() => {
-                    expect(selectSpy.callCount).to.equal(1)
-                    done()
-                })
+                return onFnMap['addedOrChanged'](input)
+                .then(() => expect(selectSpy.callCount).to.equal(1))
             })
 
-            it('should NOT call select function if NOT newList', done => {
-                const input = [1,2,3]
-                onFnMap['addedOrChanged'](input)
-
-                setTimeout(() => {
-                    selectSpy.resetHistory()
-                    onFnMap['addedOrChanged'](input)
-                    setTimeout(() => {
-                        expect(selectSpy.callCount).to.equal(0)
-                        done()
-                    })
-                })
+            it('should NOT call select function if NOT newList', () => {
+                return onFnMap['addedOrChanged'](input)
+                .then(() => onFnMap['addedOrChanged'](input))
+                .then(() => expect(selectSpy.callCount).to.equal(1))
             })
         })
     })
 
     describe('joinRoom function', () => {
-        let emitSpy: SinonSpy
         const room = 'awkjaweawef'
+        let mySpy: SinonSpy
         beforeEach(() => {
-            emitSpy = spy()
-            let state = {}
-            state[namespace] = {
-                socket: {
-                    emit: emitSpy
-                }
-            }
+            mySpy = sandbox.spy()
 
-            stub(store, 'getState').returns(state)
+            return service.connect('')
+            .then(() => sandbox.stub(store, 'dispatch')
+            .callsFake((input => input.then(data => {
+                mySpy(data)
+                return data
+            })) as any))
         })
 
-        it("should send a dispatch of 'joinRoom'", done => {
-            expect(dispatchResolve.callCount).to.equal(0)
-            service.joinRoom(room)
-            .then(() => {
-                expect(dispatchResolve.calledWith({
-                    type: 'joinRoom',
-                    payload: room,
-                    namespace
-                })).to.equal(true)
-                done()
-            })
+        afterEach(() => {
+            mySpy.resetHistory()
         })
 
-        it("should get a connection and emit the input on channel 'join'", done => {
-            expect(emitSpy.callCount).to.equal(0)
-            service.joinRoom(room)
-            .then(() => {
-                expect(emitSpy.callCount).to.equal(1)
-                expect(emitSpy.calledWith('join', room)).to.equal(true)
-                done()
+        it("should send a dispatch of 'joinRoom'", () => {
+            return service.joinRoom(room)
+            .then(() => assert(mySpy.calledWith({
+                type: 'joinRoom',
+                payload: room,
+                namespace
+            })))
+        })
+
+        it("should get a connection and emit the input on channel 'join'", () => {
+            return service.joinRoom(room)
+            .then(() => store.getState()[namespace].socket)
+            .then(socket => {
+                expect(socket.emit.callCount).to.equal(1)
+                assert(socket.emit.calledWith('join', room))
             })
         })
     })
 
     describe('disconnect function', () => {
-        it('should send a disconnect dispatch', done => {
-            let socketSpy = spy()
-            stub(store, 'getState').returns({
-                'testing': {
-                    socket: {
-                        disconnect: socketSpy
-                    }
-                }
-            })
+        let mySpy: SinonSpy
+        beforeEach(() => {
+            mySpy = sandbox.spy()
 
-            expect(dispatchResolve.callCount).to.equal(0)
+            return service.connect('')
+            .then(() => sandbox.stub(store, 'dispatch')
+            .callsFake((input => input.then(data => {
+                mySpy(data)
+                return data
+            })) as any))
+        })
 
-            service.disconnect()
-            .then(() => {
-                expect(socketSpy.callCount).to.equal(1)
-                expect(dispatchResolve.calledWith({
+        it('should send a disconnect dispatch', () => {
+            return service.disconnect()
+            .then(() => store.getState()[namespace].socket)
+            .then(socket => {
+                expect(socket.disconnect.callCount).to.equal(1)
+                assert(mySpy.calledWith({
                     type: 'disconnect',
                     payload: undefined,
                     namespace
-                })).to.equal(true)
-                done()
+                }))
             })
         })
     })
