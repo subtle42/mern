@@ -6,8 +6,8 @@ import * as mongoose from 'mongoose'
 import * as passport from 'passport'
 import * as session from 'express-session'
 
-import * as utils from './api/utils'
-declare var global: any
+// import * as utils from './api/utils'
+declare const global: any
 
 let MONGO_URI = 'mongodb://localhost/merntest';
 
@@ -31,19 +31,19 @@ myIO.on('connection', socket => {
 })
 // socketAuth(myIO);
 
-const test = () => {
-    return (req, res, next) => {
-        req.reqId = (new Date()).getTime()
-        utils.logger.info({
-            method: req.method,
-            url: req.url,
-            id: req.reqId,
-            headers: req.headers,
-            body: req.body
-        })
-        next()
-    }
-}
+// const test = () => {
+//     return (req, res, next) => {
+//         req.reqId = (new Date()).getTime()
+//         utils.logger.info({
+//             method: req.method,
+//             url: req.url,
+//             id: req.reqId,
+//             headers: req.headers,
+//             body: req.body
+//         })
+//         next()
+//     }
+// }
 
 app.use(body.json())
 app.use(passport.initialize())
@@ -52,7 +52,7 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }))
-app.use(test())
+// app.use(test())
 require('./routes').default(app)
 
 // Used for integration testing, to not start server multiple times

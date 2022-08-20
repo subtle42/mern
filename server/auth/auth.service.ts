@@ -19,9 +19,10 @@ interface MyRequest extends Request {
 export function isAuthenticated (req: MyRequest, res: Response, next: NextFunction): void {
     let token = req.body.token || req.query.token || req.headers['authorization']
     if (!token) {
-        return res.status(401).send({
+        res.status(401).send({
             message: 'No token provided'
         }).end()
+        return
     }
     jwt.verify(token, config.shared.secret, (err, decoded) => {
         if (err) return res.status(401).send('Failed to authenticate token')
@@ -88,7 +89,8 @@ export function isAdmin (req: MyRequest, res: Response, next: NextFunction) {
 }
 
 export function signRequest (req: Request): string {
-    const tmp = { _id: req.user.id, role: req.user.role }
+    const user: any = req.user
+    const tmp = { _id: user.id, role: user.role }
     const token = jwt.sign(tmp, config.shared.secret, {
         expiresIn: 60 * 60 * 5
     })

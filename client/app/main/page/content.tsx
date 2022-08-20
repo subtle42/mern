@@ -62,7 +62,7 @@ export const PageContent: React.FunctionComponent<Props> = (props: Props) => {
         loading () {
             return <Loading />
         }
-    })
+    }) as any
 
     const asdf = Object.assign({}, defaultLayoutConfig, page)
 

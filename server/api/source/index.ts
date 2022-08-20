@@ -7,9 +7,9 @@ let router = Router()
 
 router.get('/:id', isAuthenticated, controller.getSource)
 router.get('/', isAuthenticated, controller.getMySources)
-router.post('/', isAuthenticated, multer({ dest: './.uploads' }).single('file'), (req, res) => controller.create(req, res))
+router.post('/', isAuthenticated, multer({ dest: './.uploads' }).single('file'), controller.create)
 router.put('/', isAuthenticated, controller.update)
 router.delete('/:id', isAuthenticated, controller.remove)
-router.post('/query', isAuthenticated, (res, req) => controller.query(res, req))
+router.post('/query', isAuthenticated, controller.query)
 
 module.exports = router

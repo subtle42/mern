@@ -3,6 +3,7 @@
         "watch": false,
         "module": "commonjs",
         "noImplicitAny": false,
+        "skipLibCheck": true,
         "removeComments": false,
         "preserveConstEnums": true,
         "lib": ["es6", "dom", "es2018.promise"],

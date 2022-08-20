@@ -4,7 +4,7 @@ import { MongoClient } from 'mongodb'
 import { Request, Response } from 'express'
 import { createReadStream, unlink } from 'fs'
 import { ISourceColumn, ColumnType, IQuery, ISource } from 'common/models'
-import { ISourceModel } from '../../dbModels'
+import { ISourceModel, MyRequest } from '../../dbModels'
 import * as auth from '../../auth/auth.service'
 import config from '../../config/environment'
 import * as utils from '../utils'
@@ -13,7 +13,7 @@ import { Widget } from '../widget/model';
 const csv = require('fast-csv')
 
 class SourceController {
-    private parseCSV (req: Request): Promise<string[][]> {
+    private parseCSV (req: MyRequest): Promise<string[][]> {
         return new Promise(resolve => {
             let response = []
             let stream = createReadStream(req.file.path)
@@ -103,7 +103,7 @@ class SourceController {
         })
     }
 
-    private buildSourceObject (req: Request, headers: string[], columnTypes: ColumnType[], location: string, rowCount: number): Promise<ISourceModel> {
+    private buildSourceObject (req: MyRequest, headers: string[], columnTypes: ColumnType[], location: string, rowCount: number): Promise<ISourceModel> {
         let myColumns: ISourceColumn[] = []
 
         columnTypes.forEach((type, index) => {
@@ -127,7 +127,7 @@ class SourceController {
         .then(() => mySource)
     }
 
-    update (req: Request, res: Response): void {
+    update (req: MyRequest, res: Response): void {
         const id = req.body._id
         let mySource = new Source(req.body)
         delete req.body._id
@@ -148,7 +148,7 @@ class SourceController {
         .catch(utils.handleError(res))
     }
 
-    remove (req: Request, res: Response): void {
+    remove (req: MyRequest, res: Response): void {
         Source.findById(req.params.id).exec()
         .then(source => {
             return auth.hasOwnerAccess(req.user._id, source)
@@ -165,7 +165,7 @@ class SourceController {
         .catch(utils.handleError(res))
     }
 
-    create (req: Request, res: Response): void {
+    create (req: MyRequest, res: Response): void {
         let fileData: string[][] = []
         let headers: string[] = []
         let columnTypes: ColumnType[] = []
@@ -208,12 +208,12 @@ class SourceController {
         }))
     }
 
-    query (req: Request, res: Response): void {
+    query (req: MyRequest, res: Response): void {
         const myQuery: IQuery = req.body
         let mySource: ISource
 
         Source.findById(myQuery.sourceId)
-        .then(source => mySource = source)
+        .then(source => mySource = source as any)
         .then(() => {
             if (this.isHistoQuery(mySource, myQuery)) {
                 return this.buildHistogramQuery(mySource, myQuery)
@@ -371,7 +371,7 @@ class SourceController {
         })
     }
 
-    getMySources (req: Request, res: Response): void {
+    getMySources (req: MyRequest, res: Response): void {
         const userId = req.user._id
         Source.find({
             $or: [{
@@ -388,7 +388,7 @@ class SourceController {
         .catch(utils.handleError(res))
     }
 
-    getSource (req: Request, res: Response): void {
+    getSource (req: MyRequest, res: Response): void {
         Source.findById(req.params.id).exec()
         .then(source => {
             return auth.hasViewerAccess(req.user._id, source)

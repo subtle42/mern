@@ -38,7 +38,7 @@ UserSchema
 .get(() => {
     return {
         name: (this as any).name,
-        role: this.role
+        role: (this as any).role
     }
 })
 // Non-sensitive info we'll be putting in the token
@@ -46,8 +46,8 @@ UserSchema
 .virtual('token')
 .get(() => {
     return {
-        _id: this._id,
-        role: this.role
+        _id: (this as any)._id,
+        role: (this as any).role
     }
 })
 
@@ -59,7 +59,7 @@ UserSchema
 UserSchema
 .path('email')
 .validate((email: string) => {
-    if (authTypes.indexOf(this.provider) !== -1) {
+    if (authTypes.indexOf((this as any).provider) !== -1) {
         return true
     }
     return email.length
@@ -85,7 +85,7 @@ UserSchema
 UserSchema
 .path('password')
 .validate((password: string) => {
-    if (authTypes.indexOf(this.provider) !== -1) {
+    if (authTypes.indexOf((this as any).provider) !== -1) {
         return true
     }
     return password.length
@@ -94,10 +94,10 @@ UserSchema
 UserSchema.methods = {
     authenticate (password: string): Promise<string> {
         return new Promise((resolve, reject) => {
-            this.encryptPassword(password)
+            (this as any).encryptPassword(password)
             .then(pwdGen => {
-                if (this.password === pwdGen) {
-                    resolve(this)
+                if ((this as any).password === pwdGen) {
+                    resolve((this as any))
                 } else {
                     reject('Incorrect password.')
                 }
@@ -116,13 +116,13 @@ UserSchema.methods = {
     },
     encryptPassword (password: string): Promise<string> {
         return new Promise((resolve, reject) => {
-            if (!password || !this.salt) {
+            if (!password || !(this as any).salt) {
                 return reject('Missing password or salt')
             }
 
             const defaultIterations = 10000
             const defaultKeyLength = 64
-            const salt = new Buffer(this.salt, 'base64')
+            const salt = new Buffer((this as any).salt, 'base64')
             const digest = 'sha512'
 
             crypto.pbkdf2(password, salt, defaultIterations, defaultKeyLength, digest, (err, key) => {

@@ -5,6 +5,7 @@ import * as utils from '../utils'
 import { pageSocket } from './socket'
 import * as auth from '../../auth/auth.service'
 import { Widget } from '../widget/model'
+import { MyRequest } from 'server/dbModels'
 
 export default class PageController {
     /**
@@ -12,7 +13,7 @@ export default class PageController {
      * @param req
      * @param res
      */
-    public static create (req: Request, res: Response): void {
+    public static create (req: MyRequest, res: Response): void {
         let myPage = new Page({
             name: req.body.name,
             bookId: req.body.bookId
@@ -35,7 +36,7 @@ export default class PageController {
      * @param req
      * @param res
      */
-    public static update (req: Request, res: Response): void {
+    public static update (req: MyRequest, res: Response): void {
         let myId: string = req.body._id
         let myPage = new Page(req.body)
         delete req.body._id
@@ -57,7 +58,7 @@ export default class PageController {
      * @param req
      * @param res
      */
-    public static remove (req: Request, res: Response): void {
+    public static remove (req: MyRequest, res: Response): void {
         let myId: string = req.params.id
 
         Page.findById(myId)
@@ -74,7 +75,7 @@ export default class PageController {
         .catch(utils.handleError(res))
     }
 
-    public static getPages (req: Request, res: Response): void {
+    public static getPages (req: MyRequest, res: Response): void {
         const bookId: string = req.params.id
         Book.findById(bookId).exec()
         .then(book => auth.hasViewerAccess(req.user._id, book))

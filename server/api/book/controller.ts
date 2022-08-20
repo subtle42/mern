@@ -5,6 +5,7 @@ import { BookSocket } from './socket'
 import { Request, Response } from 'express'
 import * as utils from '../utils'
 import * as auth from '../../auth/auth.service'
+import { MyRequest } from 'server/dbModels'
 
 export default class BookController {
     /**
@@ -12,7 +13,7 @@ export default class BookController {
      * @param req
      * @param res
      */
-    public static create (req: Request, res: Response): void {
+    public static create (req: MyRequest, res: Response): void {
         let myBook = new Book({
             name: req.body.name,
             owner: req.user._id
@@ -35,7 +36,7 @@ export default class BookController {
      * @param req
      * @param res
      */
-    public static update (req: Request, res: Response): void {
+    public static update (req: MyRequest, res: Response): void {
         let myId: string = req.body._id
         let myBook = new Book(req.body)
         delete req.body._id
@@ -61,7 +62,7 @@ export default class BookController {
      * @param req
      * @param res
      */
-    public static remove (req: Request, res: Response): void {
+    public static remove (req: MyRequest, res: Response): void {
         let myId: string = req.params.id
 
         Book.findById(myId).exec()
@@ -82,7 +83,7 @@ export default class BookController {
      * @param req
      * @param res
      */
-    public static getMyBooks (req: Request, res: Response): void {
+    public static getMyBooks (req: MyRequest, res: Response): void {
         let userId: string = req.user._id
         Book.find({
             $or: [{
@@ -104,7 +105,7 @@ export default class BookController {
      * @param req
      * @param res
      */
-    public static getBook (req: Request, res: Response): void {
+    public static getBook (req: MyRequest, res: Response): void {
         const bookId: string = req.params.id
         Book.findById(bookId).exec()
         .then(book => {

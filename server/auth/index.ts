@@ -26,8 +26,9 @@ router.get('/google/redirect', passport.authenticate('google', {
     res.end()
 })
 router.get('/logout', (req, res) => {
-    req.logOut()
-    res.send()
+    req.logOut(err => {
+        res.send()
+    })
 })
 
 module.exports = router

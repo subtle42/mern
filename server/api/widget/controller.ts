@@ -8,14 +8,14 @@ import { pageSocket } from '../page/socket'
 import { widgetSocket } from './socket'
 import { Layout } from 'react-grid-layout'
 import * as auth from '../../auth/auth.service'
-import { IWidgetModel, ISourceModel } from 'server/dbModels'
+import { IWidgetModel, ISourceModel, MyRequest } from 'server/dbModels'
 
 const widgetLayout: Layout = {
     x: 0, y: 0, w: 1, h: 1
 }
 
 class WidgetController {
-    create (req: Request, res: Response) {
+    create (req: MyRequest, res: Response) {
         const { pageId, sourceId, type } = req.body
 
         let myWidget = new Widget({
@@ -51,7 +51,7 @@ class WidgetController {
         .then(book => auth.hasEditAccess(userId, book))
     }
 
-    createMultiple (req: Request, res: Response) {
+    createMultiple (req: MyRequest, res: Response) {
         const pageId: string = req.body.pageId
         const sourceId: string = req.body.sourceId
         const types: string[] = req.body.types
@@ -116,7 +116,7 @@ class WidgetController {
         return cols[Math.floor(Math.random() * cols.length)].ref
     }
 
-    remove (req: Request, res: Response) {
+    remove (req: MyRequest, res: Response) {
         const { id, pageId, bookId } = req.params
 
         Book.findById(bookId).exec()
@@ -136,7 +136,7 @@ class WidgetController {
         .catch(utils.handleError(res))
     }
 
-    update (req: Request, res: Response) {
+    update (req: MyRequest, res: Response) {
         let myWidget = new Widget(req.body)
         const myId: string = req.body._id
         delete req.body._id
@@ -151,7 +151,7 @@ class WidgetController {
         .catch(utils.handleError(res))
     }
 
-    get (req: Request, res: Response) {
+    get (req: MyRequest, res: Response) {
         const myId: string = req.params.id
 
         Widget.findById(myId)
