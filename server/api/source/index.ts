@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import * as multer from 'multer'
-import { controller } from './controller'
+import * as controller from './controller'
 import { isAuthenticated } from '../../auth/auth.service'
 
 let router = Router()
