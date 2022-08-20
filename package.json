@@ -24,7 +24,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/cheerio": "^0.22.31",
-    "axios": "^0.18.1",
+    "axios": "^0.21.2",
     "bootstrap": "^4.3.1",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
