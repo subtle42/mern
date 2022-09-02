@@ -3,12 +3,13 @@ import { ISharedModel } from '../dbModels'
 import * as jwt from 'jsonwebtoken'
 import config from '../config/environment'
 import { logger } from '../api/utils'
+import { Server, Namespace, Socket } from 'socket.io'
 
 declare var global: any
-let myIO: SocketIO.Server = global.myIO
+let myIO: Server = global.myIO
 
 export class AclSocket {
-    private namespace: SocketIO.Namespace
+    private namespace: Namespace
 
     constructor (
         private name: string,
@@ -20,8 +21,8 @@ export class AclSocket {
     }
 
     private setupSockEvents () {
-        this.namespace.on('connection', (socket: SocketIO.Socket) => {
-            this.veryifyToken(socket.handshake.query.token)
+        this.namespace.on('connection', (socket: Socket) => {
+            this.veryifyToken(socket.handshake.query.token as string)
             .then(decoded => {
                 socket.join(decoded._id)
                 return this.getInitialState(decoded._id)

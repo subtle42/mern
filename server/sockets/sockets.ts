@@ -4,12 +4,13 @@ import * as jwt from 'jsonwebtoken'
 import config from '../config/environment'
 import * as auth from '../auth/auth.service'
 import { logger } from '../api/utils'
+import { Namespace, Server, Socket } from 'socket.io'
 
 declare var global: any
-let myIO: SocketIO.Server = global.myIO
+let myIO: Server = global.myIO
 
 export default abstract class BaseSocket {
-    protected namespace: SocketIO.Namespace
+    protected namespace: Namespace
 
     constructor (
         protected name: string
@@ -37,12 +38,13 @@ export default abstract class BaseSocket {
      */
     abstract getSharedModel (id: string): Promise<ISharedModel>
 
-    private onJoin (socket: SocketIO.Socket) {
+    private onJoin (socket: Socket) {
         socket.on('join', (room: string) => {
-            this.veryifyToken(socket.handshake.query.token)
+            this.veryifyToken(socket.handshake.query.token as string)
             .then(decoded => this.hasViewAccess(decoded, room))
             .then(() => {
-                socket.leaveAll()
+                // Leave all rooms
+                socket.rooms.forEach(room => socket.leave(room))
                 socket.join(room)
                 socket.emit('message', `${this.name.toUpperCase()}, joined room: ${room}`)
                 return this.getInitialState(room)

@@ -1,7 +1,7 @@
 import * as express from 'express'
 import * as body from 'body-parser'
 import * as http from 'http'
-import * as io from 'socket.io'
+import { Server } from 'socket.io'
 import * as mongoose from 'mongoose'
 import * as passport from 'passport'
 import * as session from 'express-session'
@@ -23,7 +23,7 @@ mongoose.connection.on('error', () => {
 const app = express()
 let server = http.createServer(app)
 
-let myIO = io(server, {})
+let myIO = new Server(server, {})
 global.myIO = myIO
 
 myIO.on('connection', socket => {
