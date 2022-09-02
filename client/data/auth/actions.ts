@@ -5,6 +5,7 @@ import pageActions from '../pages/actions'
 import widgetActions from '../widgets/actions'
 import sourceActions from '../sources/actions'
 import { IUser } from 'common/models'
+import { Socket } from 'socket.io-client'
 
 class AuthActions {
     private nameSpace = 'auth'
@@ -137,7 +138,7 @@ class AuthActions {
         return this.sendDispatch('set_token', token)
     }
 
-    private setSocket (socket: SocketIOClient.Socket): Promise<void> {
+    private setSocket (socket: Socket): Promise<void> {
         return this.sendDispatch('set_socket', socket)
     }
 

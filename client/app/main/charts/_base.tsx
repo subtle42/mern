@@ -6,7 +6,7 @@ import sourceActions from 'data/sources/actions'
 import { ScaleLinear, ScaleBand, ScaleTime } from 'd3-scale'
 import { axisBottom, axisLeft, Axis } from 'd3-axis'
 import { format } from 'd3-format'
-import { select, event } from 'd3-selection'
+import { select } from 'd3-selection'
 import { brushX } from 'd3-brush'
 import './style.css'
 
@@ -31,7 +31,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
     x: ScaleLinear<number, number> | ScaleBand<string> | ScaleTime<number, number>
     y: ScaleLinear<number, number>
     brush = brushX()
-    .on('end', () => {
+    .on('end', (event) => {
         const x: any = this.x
         const myEvent = event.selection || []
         this.updateRangeFilter(myEvent.map(d => x.invert(d)))

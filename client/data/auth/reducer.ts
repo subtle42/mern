@@ -1,6 +1,7 @@
 import { AnyAction } from 'redux'
 import { IUser } from 'common/models'
 import AuthStore from './model'
+import { Socket } from 'socket.io-client'
 
 const strategy = {
     set_token: (state: AuthStore, payload: string): AuthStore => {
@@ -9,7 +10,7 @@ const strategy = {
     set_user: (state: AuthStore, payload: IUser): AuthStore => {
         return { ...state, me: payload }
     },
-    set_socket: (state: AuthStore, payload: SocketIOClient.Socket): AuthStore => {
+    set_socket: (state: AuthStore, payload: Socket): AuthStore => {
         return { ...state, socket: payload }
     },
     logout: (state: AuthStore, payload: string): AuthStore => {

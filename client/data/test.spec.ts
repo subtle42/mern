@@ -19,7 +19,7 @@ class TestBaseActions extends BaseActions {
     }
 
     select (item) {
-        return new Promise(resolve => resolve()) as any
+        return new Promise(resolve => resolve(undefined)) as any
     }
 
     create (input) {
@@ -27,11 +27,11 @@ class TestBaseActions extends BaseActions {
     }
 
     delete (item): Promise<void> {
-        return new Promise(resolve => resolve()) as any
+        return new Promise(resolve => resolve(undefined)) as any
     }
 
     update (item): Promise<void> {
-        return new Promise(resolve => resolve()) as any
+        return new Promise(resolve => resolve(undefined)) as any
     }
 }
 

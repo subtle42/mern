@@ -1,3 +1,5 @@
+import { Socket } from 'socket.io-client'
+
 export default abstract class BaseActions {
     private isNewList: boolean = true
 
@@ -29,7 +31,7 @@ export default abstract class BaseActions {
     }
 
     disconnect (): Promise<void> {
-        let mySocket: SocketIOClient.Socket = this.store.getState()[this.nameSpace].socket
+        let mySocket: Socket = this.store.getState()[this.nameSpace].socket
         if (mySocket) {
             mySocket.disconnect()
         }
@@ -90,7 +92,7 @@ export default abstract class BaseActions {
         return this.sendDispatch('joinRoom', room)
         .then(() => {
             let myState = this.store.getState()
-            let mySocket: SocketIOClient.Socket = myState[this.nameSpace].socket
+            let mySocket: Socket = myState[this.nameSpace].socket
             mySocket.emit('join', room)
         })
     }

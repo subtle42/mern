@@ -1,6 +1,8 @@
+import { Socket } from "socket.io-client"
+
 export class GenericStore {
     list: any[] = []
-    socket?: SocketIOClient.Socket
+    socket?: Socket
     selected?: any
 }
 
@@ -32,7 +34,7 @@ export const factory = {
         state.list = state.list.filter(item => payload.indexOf(item._id) === -1)
         return state
     },
-    storeSocket: (state: GenericStore, payload: SocketIOClient.Socket): GenericStore => {
+    storeSocket: (state: GenericStore, payload: Socket): GenericStore => {
         return { ...state, socket: payload }
     },
     disconnect: (state: GenericStore, payload: undefined): GenericStore => {

@@ -2,7 +2,7 @@ import * as React from 'react'
 import { scaleLinear } from 'd3-scale'
 import { extent } from 'd3-array'
 import { brush } from 'd3-brush'
-import { select, event } from 'd3-selection'
+import { select, } from 'd3-selection'
 import { BaseChart } from './_base'
 import sourceActions from 'data/sources/actions'
 
@@ -21,10 +21,10 @@ export class Scatter extends BaseChart {
     myBounds: BrushBounds
 
     brush = brush()
-        .on('brush', () => {
+        .on('brush', (event) => {
             if (!event.selection) return
-            const { x,y,x1,y1 } = this.getBrushBounds()
-            this.myBounds = this.getBrushBounds()
+            const { x,y,x1,y1 } = this.getBrushBounds(event)
+            this.myBounds = this.getBrushBounds(event)
             select(this.myRef.current as any)
             .selectAll('circle')
                 .classed('notSelected', (d, index) => {
@@ -35,7 +35,7 @@ export class Scatter extends BaseChart {
                     )
                 })
         })
-        .on('end', () => {
+        .on('end', (event) => {
             if (!event.selection) {
                 // this.myBounds = undefined
                 select(this.myRef.current as any)
@@ -48,7 +48,7 @@ export class Scatter extends BaseChart {
                     }
                 }))
             }
-            const { x,y,x1,y1 } = this.getBrushBounds()
+            const { x,y,x1,y1 } = this.getBrushBounds(event)
 
             let response = []
             response.push([x, x1])
@@ -62,7 +62,7 @@ export class Scatter extends BaseChart {
             }))
         })
 
-    getBrushBounds (): BrushBounds {
+    getBrushBounds (event): BrushBounds {
         const box: number[][] = [...event.selection]
         return {
             x: this.x.invert(box[0][0]),
@@ -84,7 +84,7 @@ export class Scatter extends BaseChart {
         if (this.myBounds) {
             select(this.myRef.current as any)
                 .selectAll('.brushArea')
-                .call(this.brush.move, null)
+                .call(this.brush.move as any, null)
         }
 
         const myData = data.slice(0, 1000)
