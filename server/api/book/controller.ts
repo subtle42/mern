@@ -2,116 +2,92 @@ import { Book } from './model'
 import { Page } from '../page/model'
 import { Widget } from '../widget/model'
 import { BookSocket } from './socket'
-import { Request, Response } from 'express'
 import * as utils from '../utils'
+import { handleApiCall } from '../utils'
 import * as auth from '../../auth/auth.service'
 
-export default class BookController {
-    /**
-     * Creates a book and sets the current user as owner
-     * @param req
-     * @param res
-     */
-    public static create (req: Request, res: Response): void {
-        let myBook = new Book({
-            name: req.body.name,
-            owner: req.user._id
-        })
 
-        myBook.validate()
-        .then(() => Book.create(myBook))
-        .then(data => {
-            BookSocket.onAddOrChange(myBook)
-            return myBook
-        })
-        .then(utils.handleNoResult(res))
-        .then(data => data._id)
-        .then(utils.handleResponse(res))
-        .catch(utils.handleError(res))
+
+
+/**
+ * Creates a book and sets the current user as owner
+ */
+export const create = handleApiCall(async(req, res) => {
+    const myBook = new Book({
+        name: req.body.name,
+        owner: req.user._id
+    })
+
+    await myBook.validate()
+    const data = await Book.create(myBook)
+    BookSocket.onAddOrChange(data.toJSON())
+    utils.handleNoResult(res)()
+})
+
+/**
+ * Updates a book, only the owner or editors can make updates
+ */
+export const update = handleApiCall(async(req, res) => {
+    const myId: string = req.body._id
+    const myBook = new Book(req.body)
+    delete req.body._id
+
+    await myBook.validate()
+    const oldBook = await Book.findById(myId).exec()
+    await auth.hasEditAccess(req.user._id, oldBook)
+
+    if (oldBook.owner !== myBook.owner && oldBook.owner !== req.user._id) {
+        throw Error(`Only the owner of the book: ${oldBook._id}, can edit the owner field.`)
     }
 
-    /**
-     * Updates a book, only the owner or editors can make updates
-     * @param req
-     * @param res
-     */
-    public static update (req: Request, res: Response): void {
-        let myId: string = req.body._id
-        let myBook = new Book(req.body)
-        delete req.body._id
+    await Book.findByIdAndUpdate(myId, req.body).exec()
+    BookSocket.onAddOrChange(myBook, oldBook)
+    utils.handleResponseNoData(res)()
+})
 
-        myBook.validate()
-        .then(pass => Book.findById(myId).exec())
-        .then(oldBook => {
-            return auth.hasEditAccess(req.user._id, oldBook)
-            .then(() => {
-                if (oldBook.owner !== myBook.owner && oldBook.owner !== req.user._id) {
-                    return Promise.reject(`Only the owner of the book: ${oldBook._id}, can edit the owner field.`)
-                }
-            })
-            .then(() => Book.findByIdAndUpdate(myId, req.body).exec())
-            .then(data => BookSocket.onAddOrChange(myBook, oldBook))
-        })
-        .then(utils.handleResponseNoData(res))
-        .catch(utils.handleError(res))
-    }
+/**
+ * Deletes a book, only the owner can do this action
+ */
+export const remove = handleApiCall(async(req, res) => {
+    const myId: string = req.params.id
 
-    /**
-     * Deletes a book, only the owner can do this action
-     * @param req
-     * @param res
-     */
-    public static remove (req: Request, res: Response): void {
-        let myId: string = req.params.id
+    const myBook = await Book.findById(myId).exec()
+    await auth.hasOwnerAccess(req.user._id, myBook)
+    // Delete all pages
+    const pages = await Page.find({ bookId: myId }).exec()
+    await Promise.all(pages.map(p => Widget.deleteMany({ pageId: p._id }).exec()))
+    await Page.deleteMany({ bookId: myId }).exec()
+    // Delete book
+    await myBook.deleteOne()
+    BookSocket.onDelete(myBook)
+    utils.handleResponseNoData(res)()
+})
 
-        Book.findById(myId).exec()
-        .then(book => {
-            return auth.hasOwnerAccess(req.user._id, book)
-            .then(() => Page.find({ bookId: myId }).exec())
-            .then(pages => Promise.all(pages.map(p => Widget.deleteMany({ pageId: p._id }).exec())))
-            .then(() => Page.deleteMany({ bookId: myId }).exec())
-            .then(() => book.deleteOne())
-            .then(() => BookSocket.onDelete(book))
-        })
-        .then(utils.handleResponseNoData(res))
-        .catch(utils.handleError(res))
-    }
+/**
+ * Returns all the books the user can access
+ */
+export const getMyBooks = handleApiCall(async(req, res) => {
+    const userId: string = req.user._id
+    const books = await Book.find({
+        $or: [{
+            owner: userId
+        }, {
+            editors: userId
+        }, {
+            viewers: userId
+        }, {
+            isPublic: true
+        }]
+    }).exec()
+    utils.handleResponse(res)(books.map(x => x.toJSON()))
+})
 
-    /**
-     * Returns all the books the user can access
-     * @param req
-     * @param res
-     */
-    public static getMyBooks (req: Request, res: Response): void {
-        let userId: string = req.user._id
-        Book.find({
-            $or: [{
-                owner: userId
-            }, {
-                editors: userId
-            }, {
-                viewers: userId
-            }, {
-                isPublic: true
-            }]
-        }).exec()
-        .then(utils.handleResponse(res))
-        .catch(utils.handleError(res))
-    }
-
-    /**
-     * Get book if user has at least read access
-     * @param req
-     * @param res
-     */
-    public static getBook (req: Request, res: Response): void {
-        const bookId: string = req.params.id
-        Book.findById(bookId).exec()
-        .then(book => {
-            return auth.hasViewerAccess(req.user._id, book)
-            .then(() => book)
-        })
-        .then(utils.handleResponse(res))
-        .catch(utils.handleError(res))
-    }
-}
+/**
+ * Get book if user has at least read access
+ */
+export const getBook = handleApiCall(async(req, res) => {
+    const bookId: string = req.params.id
+    const myBook = await Book.findById(bookId).exec()
+    await auth.hasViewerAccess(req.user._id, myBook)
+    utils.handleResponse(res)(myBook.toJSON())
+})

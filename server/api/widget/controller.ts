@@ -1,57 +1,50 @@
-import { Request, Response } from 'express'
 import { Widget, WidgetDoc } from './model'
 import * as utils from '../utils'
 import { Page } from '../page/model'
 import { Book } from '../book/model'
-import { ISource, Source, SourceDoc } from '../source/model'
+import { Source, SourceDoc } from '../source/model'
 import { pageSocket } from '../page/socket'
 import { widgetSocket } from './socket'
 // import { Layout } from 'react-grid-layout'
+import { handleApiCall } from '../utils'
 import * as auth from '../../auth/auth.service'
-import { IWidget } from 'common/models'
-// import { IWidgetModel, ISourceModel, MyRequest } from 'server/dbModels'
 
 const widgetLayout = {
     x: 0, y: 0, w: 1, h: 1
 }
 
-export const create = (req: Request, res: Response) => {
+export const create = handleApiCall(async(req, res) => {
     const { pageId, sourceId, type } = req.body
 
-    let myWidget = new Widget({
+    const myWidget = new Widget({
         pageId: pageId,
         sourceId: sourceId,
         type: type
     })
 
-    Page.findById(pageId).exec()
-    .then(page => Book.findById(page.bookId).exec())
-    .then(book => auth.hasEditAccess(req.user._id, book))
-    .then(() => Source.findById(sourceId).exec())
-    .then(mySource => addDefaultsToWidget(myWidget, mySource))
-    .then(() => myWidget.validate())
-    .then(() => Widget.create(myWidget))
-    .then(widget => {
-        return Page.findById(widget.pageId)
-        .then(page => {
-            page.layout.push(Object.assign({}, widgetLayout, { i: widget._id }))
-            return page.updateOne(page).exec()
-            .then(() => widgetSocket.onAddOrChange(widget))
-            .then(() => pageSocket.onAddOrChange(page))
-        })
-        .then(() => widget._id)
-    })
-    .then(utils.handleResponse(res))
-    .catch(utils.handleError(res))
+    const myPage = await Page.findById(pageId).exec()
+    const myBook = await Book.findById(myPage.bookId).exec()
+    await auth.hasEditAccess(req.user._id, myBook)
+    const mySource = await Source.findById(sourceId).exec()
+    addDefaultsToWidget(myWidget, mySource)
+
+    await myWidget.validate()
+    const newWidget = await Widget.create(myWidget)
+    myPage.layout.push(Object.assign({}, widgetLayout, { i: newWidget._id }))
+    await myPage.updateOne(myPage).exec()
+    
+    widgetSocket.onAddOrChange(newWidget)
+    pageSocket.onAddOrChange(myPage)
+    utils.handleResponse(res)(newWidget._id)
+})
+
+const canUserEdit = async(pageId: string, userId: string): Promise<void> => {
+    const myPage = await Page.findById(pageId).exec()
+    const myBook = await Book.findById(myPage.bookId).exec()
+    await auth.hasEditAccess(userId, myBook)
 }
 
-const canUserEdit = (pageId: string, userId: string): Promise<void> => {
-    return Page.findById(pageId).exec()
-    .then(page => Book.findById(page.bookId).exec())
-    .then(book => auth.hasEditAccess(userId, book))
-}
-
-export const createMultiple = (req: Request, res: Response) => {
+export const createMultiple = handleApiCall(async(req, res) => {
     const pageId: string = req.body.pageId
     const sourceId: string = req.body.sourceId
     const types: string[] = req.body.types
@@ -62,26 +55,22 @@ export const createMultiple = (req: Request, res: Response) => {
         type
     }))
 
-    canUserEdit(pageId, req.user._id)
-    .then(() => Source.findById(sourceId).exec())
-    .then(mySource => myWidgets.forEach(myWidget => addDefaultsToWidget(myWidget, mySource)))
-    .then(() => Promise.all(myWidgets.map(w => w.validate())))
-    .then(() => Promise.all(myWidgets.map(w => Widget.create(w))))
-    .then(createdList => {
-        return Page.findById(pageId)
-        .then(page => {
-            createdList.forEach(newWidget => {
-                page.layout.push(Object.assign({}, widgetLayout, { i: newWidget._id }))
-            })
-            return page.updateOne(page).exec()
-            .then(() => widgetSocket.onManyAdd(createdList))
-            .then(() => pageSocket.onAddOrChange(page))
-        })
-        .then(() => createdList.map(w => w._id))
+    await canUserEdit(pageId, req.user._id)
+    const mySource = await Source.findById(sourceId).exec()
+    myWidgets.forEach(myWidget => addDefaultsToWidget(myWidget, mySource))
+
+    await Promise.all(myWidgets.map(w => w.validate()))
+    const createdList = await Promise.all(myWidgets.map(w => Widget.create(w)))
+    const myPage = await Page.findById(pageId)
+    createdList.forEach(newWidget => {
+        myPage.layout.push(Object.assign({}, widgetLayout, { i: newWidget._id }))
     })
-    .then(utils.handleResponse(res))
-    .catch(utils.handleError(res))
-}
+
+    await myPage.updateOne(myPage).exec()
+    await widgetSocket.onManyAdd(createdList)
+    pageSocket.onAddOrChange(myPage)
+    utils.handleResponse(res)(createdList.map(w => w._id))
+})
 
 const addDefaultsToWidget = (myWidget: WidgetDoc, mySource: SourceDoc) => {
     if (myWidget.get('type') === 'histogram') {
@@ -116,54 +105,46 @@ export const getDefaultColumn = (type: string, source: SourceDoc, includeCount?:
     return cols[Math.floor(Math.random() * cols.length)].ref
 }
 
-export const remove = (req: Request, res: Response) => {
+export const remove = handleApiCall(async(req, res) => {
     const { id, pageId, bookId } = req.params
 
-    Book.findById(bookId).exec()
-    .then(book => auth.hasEditAccess(req.user._id, book))
-    .then(() => Page.findById(pageId).exec())
-    .then(page => {
-        page.layout = page.layout.filter(item => item.i !== id)
-        return page.updateOne(page).exec()
-        .then(() => pageSocket.onAddOrChange(page))
-    })
-    .then(() => Widget.findByIdAndDelete(id).exec())
-    .then(() => widgetSocket.onDelete({
-        _id: id,
-        pageId
-    }))
-    .then(utils.handleResponseNoData(res))
-    .catch(utils.handleError(res))
-}
+    const myBook = await Book.findById(bookId).exec()
+    await auth.hasEditAccess(req.user._id, myBook)
+    const myPage = await Page.findById(pageId).exec()
 
-export const update = (req: Request, res: Response) => {
-    let myWidget = new Widget(req.body)
+    myPage.layout = myPage.layout.filter(item => item.i !== id)
+    await myPage.updateOne(myPage).exec()
+    Widget.findByIdAndDelete(id).exec()
+
+    pageSocket.onAddOrChange(myPage)
+    widgetSocket.onDelete({ _id: id, pageId })
+    utils.handleResponseNoData(res)()
+})
+
+export const update = handleApiCall(async(req, res) => {
+    const myWidget = new Widget(req.body)
     const myId: string = req.body._id
     delete req.body._id
 
-    myWidget.validate()
-    .then(() => Page.findById(myWidget.pageId).exec())
-    .then(page => Book.findById(page.bookId).exec())
-    .then(book => auth.hasEditAccess(req.user._id, book))
-    .then(() => Widget.findByIdAndUpdate(myId, req.body).exec())
-    .then(() => widgetSocket.onAddOrChange(myWidget))
-    .then(utils.handleResponseNoData(res))
-    .catch(utils.handleError(res))
-}
+    await myWidget.validate()
+    const myPage = await Page.findById(myWidget.pageId).exec()
+    const myBook = await Book.findById(myPage.bookId).exec()
 
-export const get = (req: Request, res: Response) => {
+    await auth.hasEditAccess(req.user._id, myBook)
+    await Widget.findByIdAndUpdate(myId, req.body).exec()
+
+    widgetSocket.onAddOrChange(myWidget)
+    utils.handleResponseNoData(res)()
+})
+
+export const get = handleApiCall(async(req, res) => {
     const myId: string = req.params.id
 
-    Widget.findById(myId)
-    .then(widget => {
-        return Page.findById(widget.pageId)
-        .then(page => {
-            return Book.findById(page.bookId)
-            .then(book => auth.hasViewerAccess(req.user._id, book))
-            .then(() => widget)
-        })
-    })
-    .then(utils.handleResponse(res))
-    .catch(utils.handleError(res))
-}
+    const myWidget = await Widget.findById(myId)
+    const myPage = await Page.findById(myWidget.pageId)
+    const myBook = await Book.findById(myPage.bookId)
+
+    await auth.hasViewerAccess(req.user._id, myBook)
+    utils.handleResponse(res)(myWidget)
+})
 

@@ -1,6 +1,6 @@
 import { Schema, model, InferSchemaType, Document } from 'mongoose'
 
-let SourceSchema = new Schema({
+const SourceSchema = new Schema({
     title: { type: String, required: true },
     location: { type: String, required: true },
     size: { type: Number, default: 0 },

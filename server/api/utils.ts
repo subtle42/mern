@@ -1,4 +1,4 @@
-import { Response } from 'express'
+import { Request, Response } from 'express'
 import * as mongoose from 'mongoose'
 import { createLogger, transports, format } from 'winston'
 
@@ -66,4 +66,15 @@ export const createSchema = (name: string, schema: mongoose.Schema): any => {
     return mongoose.modelNames().indexOf(name) === -1
         ? mongoose.model(name, schema)
         : mongoose.connection.model(name)
+}
+
+type HandlerFn = (req: Request, res: Response) => void
+
+export const handleApiCall = (handler:HandlerFn) => (req: Request, res: Response) => {
+    try {
+        handler(req, res)
+    }
+    catch(err) {
+        handleError(res)(err)
+    }
 }

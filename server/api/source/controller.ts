@@ -8,6 +8,7 @@ import { ISourceColumn, ColumnType, IQuery, ISource } from 'common/models'
 import * as auth from '../../auth/auth.service'
 import config from '../../config/environment'
 import * as utils from '../utils'
+import { handleApiCall } from '../utils'
 import { columnInsertEtlFactory, columnInspectFactory } from './factories'
 import { Widget } from '../widget/model';
 const csv = require('fast-csv')
@@ -128,59 +129,36 @@ const buildSourceObject = (req: Request, headers: string[], columnTypes: ColumnT
     .then(() => mySource)
 }
 
-export const update = (req: Request, res: Response): void => {
+export const update = handleApiCall(async(req, res) => {
     const id = req.body._id
     let mySource = new Source(req.body)
     delete req.body._id
 
-    mySource.validate()
-    .then(() => Source.findById(id).exec())
-    .then(source => {
-        return auth.hasEditAccess(req.user._id, source)
-        .then(() => {
-            if (source.owner !== mySource.owner) {
-                return auth.hasOwnerAccess(req.user._id, source)
-            }
-        })
-        .then(() => Source.findByIdAndUpdate(id, req.body).exec())
-        .then(() => SourceSocket.onAddOrChange(mySource, source))
-    })
-    .then(utils.handleResponseNoData(res))
-    .catch(utils.handleError(res))
-}
-
-
-
-export const remove = async(req: Request, res: Response) => {
-    try {
-        const mySource = await Source.findById(req.params.id).exec()
-        await auth.hasOwnerAccess(req.user._id, mySource)
-        const widgets = await Widget.find({ sourceId: req.params.id}).exec()
-
-        if (widgets.length > 0) throw new Error(`There are ${widgets.length} widgets that use this source.`)
-        
-        await mySource.deleteOne()
-        SourceSocket.onDelete(mySource)
-        utils.handleResponseNoData(res)
+    await mySource.validate()
+    const oldSource = await Source.findById(id).exec()
+    
+    await auth.hasEditAccess(req.user._id, oldSource)
+    if (oldSource.owner !== mySource.owner) {
+        await auth.hasOwnerAccess(req.user._id, oldSource)
     }
-    catch(err) {
-        utils.handleError(err)
-    }
+    await Source.findByIdAndUpdate(id, req.body).exec()
+    await SourceSocket.onAddOrChange(mySource, oldSource)
+    utils.handleResponseNoData(res)()
+})
 
-    // .then(source => {
-    //     return auth.hasOwnerAccess(req.user._id, source)
-    //     .then(() => Widget.find({ sourceId: req.params.id }).exec())
-    //     .then(widgets => {
-    //         if (widgets.length > 0) {
-    //             return Promise.reject(`There are ${widgets.length} widgets that use this source.`)
-    //         }
-    //     })
-    //     .then(() => source.deleteOne())
-    //     .then(() => SourceSocket.onDelete(source))
-    // })
-    // .then(utils.handleResponseNoData(res))
-    // .catch(utils.handleError(res))
-}
+
+
+export const remove = handleApiCall(async(req, res) => {
+    const mySource = await Source.findById(req.params.id).exec()
+    await auth.hasOwnerAccess(req.user._id, mySource)
+    const widgets = await Widget.find({ sourceId: req.params.id}).exec()
+
+    if (widgets.length > 0) throw new Error(`There are ${widgets.length} widgets that use this source.`)
+    
+    await mySource.deleteOne()
+    SourceSocket.onDelete(mySource)
+    utils.handleResponseNoData(res)()
+})
 
 export const create = async(req: Request, res: Response) => {
     // let fileData: string[][] = []
@@ -256,23 +234,16 @@ export const create = async(req: Request, res: Response) => {
     // }))
 }
 
-export const query = (req: Request, res: Response): void => {
+export const query = handleApiCall(async(req, res) => {
     const myQuery: IQuery = req.body
-    let mySource: ISource
 
-    Source.findById(myQuery.sourceId)
-    .then(source => mySource = source as any)
-    .then(() => {
-        if (isHistoQuery(mySource, myQuery)) {
-            return buildHistogramQuery(mySource, myQuery)
-        } else {
-            return buildMongoQuery(mySource, myQuery)
-        }
-    })
-    .then(query => runMongoQuery(mySource, query))
-    .then(utils.handleResponse(res))
-    .catch(utils.handleError(res))
-}
+    const mySource = await Source.findById(myQuery.sourceId)
+    const query = isHistoQuery(mySource, myQuery)
+        ? await buildHistogramQuery(mySource, myQuery)
+        : await buildMongoQuery(mySource, myQuery)
+    const queryResults = await runMongoQuery(mySource, query)
+    utils.handleResponse(res)(queryResults)
+})
 
 const FilterFactory = {
     number: (filter: number[]) => {
@@ -374,10 +345,10 @@ const isHistoQuery = (source: ISource, input: IQuery): boolean => {
 }
 
 const buildMongoQuery = (source: ISource, input: IQuery): any[] => {
-    let output = []
+    const output = []
     addFiltersToQuery(source, input, output)
 
-    let groupByObj = {
+    const groupByObj = {
         _id: input.measures.length > 0 ? `$${input.dimensions[0]}` : '$_id',
         count: { $sum: 1 }
     }
@@ -407,21 +378,20 @@ const buildMongoQuery = (source: ISource, input: IQuery): any[] => {
     return output
 }
 
-const runMongoQuery = (source: ISource, query: any[]): Promise<any[]> => {
+const runMongoQuery = async(source: ISource, query: any[]): Promise<any[]> => {
     if (query.length === 0) return Promise.resolve([])
-    return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
-    .then(client => {
-        const db = client.db(config.db.mongoose.data.dbname)
-        return db.collection(source.location).aggregate(query)
+    const client = await MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
+    const db = client.db(config.db.mongoose.data.dbname)
+    
+    return db.collection(source.location).aggregate(query)
         // .limit(500)
         .toArray()
         .finally(() => client.close())
-    })
 }
 
-export const getMySources = (req: Request, res: Response): void => {
+export const getMySources = handleApiCall(async(req, res) => {
     const userId = req.user._id
-    Source.find({
+    const mySources = await Source.find({
         $or: [{
             owner: userId
         }, {
@@ -432,17 +402,11 @@ export const getMySources = (req: Request, res: Response): void => {
             isPublic: true
         }]
     })
-    .then(utils.handleResponse(res))
-    .catch(utils.handleError(res))
-}
+    utils.handleResponse(res)(mySources.map(x => x.toJSON()))
+})
 
-export const getSource = (req: Request, res: Response): void => {
-    Source.findById(req.params.id).exec()
-    .then(source => {
-        return auth.hasViewerAccess(req.user._id, source)
-        .then(() => source)
-    })
-    .then(utils.handleResponse(res))
-    .catch(utils.handleError(res))
-}
-
+export const getSource = handleApiCall(async(req, res) => {
+    const mySource = await Source.findById(req.params.id).exec()
+    await auth.hasViewerAccess(req.user._id, mySource)
+    utils.handleResponse(res)(mySource.toJSON())
+})

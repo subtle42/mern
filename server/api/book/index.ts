@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import ctrl from './controller'
+import * as ctrl from './controller'
 import * as auth from '../../auth/auth.service'
 
 const router = Router()
