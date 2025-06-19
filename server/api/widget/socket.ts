@@ -1,4 +1,3 @@
-import { IWidgetModel } from '../../dbModels'
 import { Widget } from './model'
 import BaseSocket from '../../sockets/sockets'
 import { Book } from '../book/model'
@@ -9,7 +8,7 @@ class WidgetSocket extends BaseSocket {
         super('widgets')
     }
 
-    getParentId (model: IWidgetModel) {
+    getParentId (model) {
         return model.pageId
     }
 

@@ -1,13 +1,13 @@
 import { Router } from 'express'
-import controller from './controller'
+import ctrl from './controller'
 import * as auth from '../../auth/auth.service'
 
-let router = Router()
+const router = Router()
 
-router.get('/:id', auth.isAuthenticated, controller.getBook)
-router.get('/', auth.isAuthenticated, controller.getMyBooks)
-router.post('/', auth.isAuthenticated, controller.create)
-router.delete('/:id', auth.isAuthenticated, controller.remove)
-router.put('/', auth.isAuthenticated, controller.update)
+router.get('/:id', auth.isAuthenticated, ctrl.getBook)
+router.get('/', auth.isAuthenticated, ctrl.getMyBooks)
+router.post('/', auth.isAuthenticated, ctrl.create)
+router.delete('/:id', auth.isAuthenticated, ctrl.remove)
+router.put('/', auth.isAuthenticated, ctrl.update)
 
-module.exports = router
+export const BookRouter = router

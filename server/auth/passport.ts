@@ -1,7 +1,7 @@
 import * as passport from 'passport'
 import { Strategy as LocalStrategy } from 'passport-local'
 import { User } from '../api/user/model'
-import { Strategy } from 'passport-google-oauth20'
+// import { Strategy } from 'passport-google-oauth20'
 import { readFileSync } from 'fs'
 
 passport.serializeUser((user, cb) => {
@@ -9,7 +9,7 @@ passport.serializeUser((user, cb) => {
 })
 
 passport.deserializeUser((obj, cb) => {
-    cb(null, obj)
+    cb(null, obj as Express.User)
 })
 
 interface GoogleConfig {
@@ -24,27 +24,27 @@ interface GoogleConfig {
     }
 }
 
-const googleConfig: GoogleConfig = JSON.parse(readFileSync('./server/config/google.json') as any)
+// const googleConfig: GoogleConfig = JSON.parse(readFileSync('./server/config/google.json') as any)
 
-passport.use(new Strategy({
-    clientID: googleConfig.web.client_id,
-    clientSecret: googleConfig.web.client_secret,
-    callbackURL: '/auth/google/redirect'
-}, (accessToken, refreshToken, profile, done) => {
-    User.findOne({
-        email: profile.emails[0].value
-    })
-    .then(user => {
-        if (user) return user
-        return User.create(new User({
-            email: profile.emails[0].value,
-            provider: 'google',
-            name: profile.id
-        }))
-    })
-    .then(user => done(undefined, user))
-    .catch(err => done(err, undefined))
-}))
+// passport.use(new Strategy({
+//     clientID: googleConfig.web.client_id,
+//     clientSecret: googleConfig.web.client_secret,
+//     callbackURL: '/auth/google/redirect'
+// }, (accessToken, refreshToken, profile, done) => {
+//     User.findOne({
+//         email: profile.emails[0].value
+//     })
+//     .then(user => {
+//         if (user) return user
+//         return User.create(new User({
+//             email: profile.emails[0].value,
+//             provider: 'google',
+//             name: profile.id
+//         }))
+//     })
+//     .then(user => done(undefined, user))
+//     .catch(err => done(err, undefined))
+// }))
 
 passport.use(new LocalStrategy({
     usernameField: 'email',

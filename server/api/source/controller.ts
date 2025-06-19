@@ -4,7 +4,7 @@ import { MongoClient } from 'mongodb'
 import { Request, Response } from 'express'
 import { createReadStream, unlink } from 'fs'
 import { ISourceColumn, ColumnType, IQuery, ISource } from 'common/models'
-import { ISourceModel, MyRequest } from '../../dbModels'
+// import { ISourceModel, MyRequest } from '../../dbModels'
 import * as auth from '../../auth/auth.service'
 import config from '../../config/environment'
 import * as utils from '../utils'
@@ -12,7 +12,7 @@ import { columnInsertEtlFactory, columnInspectFactory } from './factories'
 import { Widget } from '../widget/model';
 const csv = require('fast-csv')
 
-const parseCSV  = (req: MyRequest): Promise<string[][]> => {
+const parseCSV  = (req: Request): Promise<string[][]> => {
     console.log('request file',req.file)
     
     return new Promise(resolve => {
@@ -95,8 +95,8 @@ const importData = (rows: Array<any[]>, columnTypes: ColumnType[]): Promise<stri
             return batch.execute()
         })
         .then(bulkResult => {
-            if (bulkResult.nInserted !== rows.length) {
-                throw new Error(`Only ${bulkResult.nInserted} out of ${rows.length} in collection ${name}`)
+            if (bulkResult.insertedCount !== rows.length) {
+                throw new Error(`Only ${bulkResult.insertedCount} out of ${rows.length} in collection ${name}`)
             }
             return name
         })
@@ -104,7 +104,7 @@ const importData = (rows: Array<any[]>, columnTypes: ColumnType[]): Promise<stri
     })
 }
 
-const buildSourceObject = (req: MyRequest, headers: string[], columnTypes: ColumnType[], location: string, rowCount: number): Promise<ISourceModel> => {
+const buildSourceObject = (req: Request, headers: string[], columnTypes: ColumnType[], location: string, rowCount: number) => {
     let myColumns: ISourceColumn[] = []
 
     columnTypes.forEach((type, index) => {
@@ -115,7 +115,7 @@ const buildSourceObject = (req: MyRequest, headers: string[], columnTypes: Colum
         })
     })
 
-    let mySource: ISourceModel = new Source({
+    let mySource = new Source({
         title: req.file.originalname,
         location: location,
         size: req.file.size,
@@ -128,7 +128,7 @@ const buildSourceObject = (req: MyRequest, headers: string[], columnTypes: Colum
     .then(() => mySource)
 }
 
-export const update = (req: MyRequest, res: Response): void => {
+export const update = (req: Request, res: Response): void => {
     const id = req.body._id
     let mySource = new Source(req.body)
     delete req.body._id
@@ -149,68 +149,114 @@ export const update = (req: MyRequest, res: Response): void => {
     .catch(utils.handleError(res))
 }
 
-export const remove = (req: MyRequest, res: Response): void => {
-    Source.findById(req.params.id).exec()
-    .then(source => {
-        return auth.hasOwnerAccess(req.user._id, source)
-        .then(() => Widget.find({ sourceId: req.params.id }).exec())
-        .then(widgets => {
-            if (widgets.length > 0) {
-                return Promise.reject(`There are ${widgets.length} widgets that use this source.`)
-            }
-        })
-        .then(() => source.remove())
-        .then(() => SourceSocket.onDelete(source))
-    })
-    .then(utils.handleResponseNoData(res))
-    .catch(utils.handleError(res))
+
+
+export const remove = async(req: Request, res: Response) => {
+    try {
+        const mySource = await Source.findById(req.params.id).exec()
+        await auth.hasOwnerAccess(req.user._id, mySource)
+        const widgets = await Widget.find({ sourceId: req.params.id}).exec()
+
+        if (widgets.length > 0) throw new Error(`There are ${widgets.length} widgets that use this source.`)
+        
+        await mySource.deleteOne()
+        SourceSocket.onDelete(mySource)
+        utils.handleResponseNoData(res)
+    }
+    catch(err) {
+        utils.handleError(err)
+    }
+
+    // .then(source => {
+    //     return auth.hasOwnerAccess(req.user._id, source)
+    //     .then(() => Widget.find({ sourceId: req.params.id }).exec())
+    //     .then(widgets => {
+    //         if (widgets.length > 0) {
+    //             return Promise.reject(`There are ${widgets.length} widgets that use this source.`)
+    //         }
+    //     })
+    //     .then(() => source.deleteOne())
+    //     .then(() => SourceSocket.onDelete(source))
+    // })
+    // .then(utils.handleResponseNoData(res))
+    // .catch(utils.handleError(res))
 }
 
-export const create = (req: MyRequest, res: Response): void => {
-    let fileData: string[][] = []
-    let headers: string[] = []
-    let columnTypes: ColumnType[] = []
+export const create = async(req: Request, res: Response) => {
+    // let fileData: string[][] = []
+    // let headers: string[] = []
+    // let columnTypes: ColumnType[] = []
 
-
-    parseCSV(req)
-    .then(data => {
-        headers = data[0]
-        fileData = data
+    try {
+        const data = await parseCSV(req)
+        const headers = data[0]
+        const fileData = data
         fileData.splice(0, 1)
-        return data
-    })
-    .then(data => getColumnTypes(data))
-    .then(colTypes => {
-        columnTypes = colTypes
-        return importData(fileData, colTypes)
-    })
-    .then(collectionName => buildSourceObject(req, headers, columnTypes, collectionName, fileData.length))
-    .then(mySource => {
-        return Promise.all(
-            mySource.columns.map(col => columnInspectFactory[col.type](mySource.location, col.ref))
+        const columnTypes = await getColumnTypes(data)
+        const collectionName = await importData(fileData, columnTypes)
+        const mySource = await buildSourceObject(req, headers, columnTypes, collectionName, fileData.length)
+    
+        const metaData = await Promise.all(
+            mySource.get('columns').map(col => columnInspectFactory[col.type](mySource.location, col.ref))
         )
-        .then(metaData => {
-            mySource.columns = mySource.columns.map((col, index) => {
-                if (metaData[index].types && metaData[index].types.length > 20) {
-                    return Object.assign(col, { type: 'text' })
-                }
-                return Object.assign(col, metaData[index])
-            })
-            return mySource
-        })
-    })
-    .then(mySource => Source.create(mySource))
-    .then(newSource => {
+        mySource.set('columns', mySource.get('columns').map((col, index) => {
+            if (metaData[index].types && metaData[index].types.length > 20) {
+                return Object.assign(col, { type: 'text' })
+            }
+            return Object.assign(col, metaData[index])
+        }))
+        const newSource = await Source.create(mySource)
         SourceSocket.onAddOrChange(newSource)
         res.json(newSource._id)
-    })
-    .catch(utils.handleError(res))
-    .finally(() => unlink(`./${req.file.path}`, () => {
-        utils.logger.info(`Removed file: ${req.file.path}`)
-    }))
+    }
+    catch(err) {
+        utils.handleError(err)
+    }
+    finally {
+        unlink(`./${req.file.path}`, () => {
+            utils.logger.info(`Removed file: ${req.file.path}`)
+        })
+    }
+
+    // parseCSV(req)
+    // .then(data => {
+    //     headers = data[0]
+    //     fileData = data
+    //     fileData.splice(0, 1)
+    //     return data
+    // })
+    // .then(data => getColumnTypes(data))
+    // .then(colTypes => {
+    //     columnTypes = colTypes
+    //     return importData(fileData, colTypes)
+    // })
+    // .then(collectionName => buildSourceObject(req, headers, columnTypes, collectionName, fileData.length))
+    // .then(mySource => {
+    //     return Promise.all(
+    //         mySource.columns.map(col => columnInspectFactory[col.type](mySource.location, col.ref))
+    //     )
+    //     .then(metaData => {
+    //         mySource.columns = mySource.columns.map((col, index) => {
+    //             if (metaData[index].types && metaData[index].types.length > 20) {
+    //                 return Object.assign(col, { type: 'text' })
+    //             }
+    //             return Object.assign(col, metaData[index])
+    //         })
+    //         return mySource
+    //     })
+    // })
+    // .then(mySource => Source.create(mySource))
+    // .then(newSource => {
+    //     SourceSocket.onAddOrChange(newSource)
+    //     res.json(newSource._id)
+    // })
+    // .catch(utils.handleError(res))
+    // .finally(() => unlink(`./${req.file.path}`, () => {
+    //     utils.logger.info(`Removed file: ${req.file.path}`)
+    // }))
 }
 
-export const query = (req: MyRequest, res: Response): void => {
+export const query = (req: Request, res: Response): void => {
     const myQuery: IQuery = req.body
     let mySource: ISource
 
@@ -373,7 +419,7 @@ const runMongoQuery = (source: ISource, query: any[]): Promise<any[]> => {
     })
 }
 
-export const getMySources = (req: MyRequest, res: Response): void => {
+export const getMySources = (req: Request, res: Response): void => {
     const userId = req.user._id
     Source.find({
         $or: [{
@@ -390,7 +436,7 @@ export const getMySources = (req: MyRequest, res: Response): void => {
     .catch(utils.handleError(res))
 }
 
-export const getSource = (req: MyRequest, res: Response): void => {
+export const getSource = (req: Request, res: Response): void => {
     Source.findById(req.params.id).exec()
     .then(source => {
         return auth.hasViewerAccess(req.user._id, source)

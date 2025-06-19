@@ -1,8 +1,7 @@
-import { Model, Schema } from 'mongoose'
-import { IPageModel } from '../../dbModels'
-import { createSchema } from '../utils'
+import { model, Schema, InferSchemaType, Document} from 'mongoose'
 
-const PageSchema = new Schema({
+
+const pageSchema = new Schema({
     bookId: { type: String, required: true },
     name: { type: String, required: true },
     isDraggable: { type: Boolean, required: true, default: true },
@@ -28,4 +27,7 @@ const PageSchema = new Schema({
     layout: { type: Array, default: [], required: true }
 })
 
-export const Page: Model<IPageModel> = createSchema('Page', PageSchema)
+
+export const Page = model('Page', pageSchema)
+export type IPage = InferSchemaType<typeof pageSchema>
+export type PageDoc = Document<unknown, {}, IPage>

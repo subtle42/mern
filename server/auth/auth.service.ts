@@ -1,12 +1,19 @@
 import config from '../config/environment'
 import { Request, Response, NextFunction } from 'express'
 import * as jwt from 'jsonwebtoken'
-import { ISharedModel } from '../dbModels'
+import { IShared } from 'common/models'
+import { Document } from 'mongoose'
 
-interface MyRequest extends Request {
-    user?: {
-        role: string,
-        _id: string
+
+declare global {
+    namespace Express {
+        interface User {
+            _id: string
+            role: string
+        }
+        interface Request {
+            user?: User | undefined;
+        }
     }
 }
 
@@ -16,7 +23,7 @@ interface MyRequest extends Request {
  * @param res
  * @param next
  */
-export function isAuthenticated (req: MyRequest, res: Response, next: NextFunction): void {
+export function isAuthenticated (req: Request, res: Response, next: NextFunction): void {
     let token = req.body.token || req.query.token || req.headers['authorization']
     if (!token) {
         res.status(401).send({
@@ -36,9 +43,9 @@ export function isAuthenticated (req: MyRequest, res: Response, next: NextFuncti
  * @param userId
  * @param book
  */
-export const hasOwnerAccess = (userId: string, myModel: ISharedModel): Promise<void> => {
+export const hasOwnerAccess = (userId: string, myModel: Document<unknown, {}, IShared>): Promise<void> => {
     return new Promise((resolve, reject) => {
-        if (myModel.owner === userId) return resolve()
+        if (myModel.get('owner') === userId) return resolve()
         return reject(`User does not have owner access to shareModel: ${myModel._id}`)
     })
 }
@@ -48,10 +55,10 @@ export const hasOwnerAccess = (userId: string, myModel: ISharedModel): Promise<v
  * @param userId
  * @param book
  */
-export const hasEditAccess = (userId: string, myModel: ISharedModel): Promise<void> => {
+export const hasEditAccess = (userId: string, myModel: Document<unknown, {}, IShared>): Promise<void> => {
     return new Promise((resolve, reject) => {
-        if (myModel.owner === userId) return resolve()
-        if (myModel.editors.indexOf(userId) !== -1) return resolve()
+        if (myModel.get('owner') === userId) return resolve()
+        if (myModel.get('editors').includes(userId)) return resolve()
         return reject(`User does not have owner access to book: ${myModel._id}`)
     })
 }
@@ -61,12 +68,12 @@ export const hasEditAccess = (userId: string, myModel: ISharedModel): Promise<vo
  * @param userId
  * @param book
  */
-export const hasViewerAccess = (userId: string, myModel: ISharedModel): Promise<void> => {
+export const hasViewerAccess = (userId: string, myModel: Document<unknown, {}, IShared>): Promise<void> => {
     return new Promise((resolve, reject) => {
-        if (myModel.isPublic) return resolve()
-        if (myModel.owner === userId) return resolve()
-        if (myModel.editors.indexOf(userId) !== -1) return resolve()
-        if (myModel.viewers.indexOf(userId) !== -1) return resolve()
+        if (myModel.get('isPublic')) return resolve()
+        if (myModel.get('owner') === userId) return resolve()
+        if (myModel.get('editors').includes(userId)) return resolve()
+        if (myModel.get('viewers').includes(userId)) return resolve()
         return reject(`User does NOT have owner access to item: ${myModel._id}`)
     })
 }
@@ -77,7 +84,7 @@ export const hasViewerAccess = (userId: string, myModel: ISharedModel): Promise<
  * @param res
  * @param next
  */
-export function isAdmin (req: MyRequest, res: Response, next: NextFunction) {
+export function isAdmin (req: Request, res: Response, next: NextFunction) {
     let user = req.user
     if (!user) {
         res.status(403).send('Your JWT has not been checked').end()

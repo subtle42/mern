@@ -1,20 +1,21 @@
 import { Request, Response } from 'express'
-import { Widget } from './model'
+import { Widget, WidgetDoc } from './model'
 import * as utils from '../utils'
 import { Page } from '../page/model'
 import { Book } from '../book/model'
-import { Source } from '../source/model'
+import { ISource, Source, SourceDoc } from '../source/model'
 import { pageSocket } from '../page/socket'
 import { widgetSocket } from './socket'
-import { Layout } from 'react-grid-layout'
+// import { Layout } from 'react-grid-layout'
 import * as auth from '../../auth/auth.service'
-import { IWidgetModel, ISourceModel, MyRequest } from 'server/dbModels'
+import { IWidget } from 'common/models'
+// import { IWidgetModel, ISourceModel, MyRequest } from 'server/dbModels'
 
-const widgetLayout: Layout = {
+const widgetLayout = {
     x: 0, y: 0, w: 1, h: 1
 }
 
-export const create = (req: MyRequest, res: Response) => {
+export const create = (req: Request, res: Response) => {
     const { pageId, sourceId, type } = req.body
 
     let myWidget = new Widget({
@@ -50,12 +51,12 @@ const canUserEdit = (pageId: string, userId: string): Promise<void> => {
     .then(book => auth.hasEditAccess(userId, book))
 }
 
-export const createMultiple = (req: MyRequest, res: Response) => {
+export const createMultiple = (req: Request, res: Response) => {
     const pageId: string = req.body.pageId
     const sourceId: string = req.body.sourceId
     const types: string[] = req.body.types
 
-    const myWidgets: IWidgetModel[] = types.map(type => new Widget({
+    const myWidgets = types.map(type => new Widget({
         pageId,
         sourceId,
         type
@@ -82,29 +83,29 @@ export const createMultiple = (req: MyRequest, res: Response) => {
     .catch(utils.handleError(res))
 }
 
-const addDefaultsToWidget = (myWidget: IWidgetModel, mySource: ISourceModel) => {
-    if (myWidget.type === 'histogram') {
-        myWidget.dimensions.push(getDefaultColumn('number', mySource))
-    } else if (myWidget.type === 'scatter') {
-        myWidget.dimensions.push(getDefaultColumn('number', mySource))
-        myWidget.dimensions.push(getDefaultColumn('number', mySource))
-    } else if (myWidget.type === 'line') {
-        myWidget.dimensions.push(getDefaultColumn('datetime', mySource))
-        myWidget.measures.push({
-            formula: 'sum',
-            ref: getDefaultColumn('number', mySource, true)
-        })
+const addDefaultsToWidget = (myWidget: WidgetDoc, mySource: SourceDoc) => {
+    if (myWidget.get('type') === 'histogram') {
+        myWidget.set('dimensions', [getDefaultColumn('number', mySource)])
+    } else if (myWidget.get('type') === 'scatter') {
+        myWidget.set('dimensions', [
+            getDefaultColumn('number', mySource),
+            getDefaultColumn('number', mySource),
+        ])
+    } else if (myWidget.get('type') === 'line') {
+        myWidget.set('dimensions', [
+            getDefaultColumn('datetime', mySource),
+            { formula: 'sum', ref: getDefaultColumn('number', mySource, true) }
+        ])
     } else {
-        myWidget.dimensions.push(getDefaultColumn('group', mySource))
-        myWidget.measures.push({
-            formula: 'sum',
-            ref: getDefaultColumn('number', mySource, true)
-        })
+        myWidget.set('dimensions', [
+            getDefaultColumn('group', mySource),
+            { formula: 'sum', ref: getDefaultColumn('number', mySource, true) }
+        ])
     }
 }
 
-export const getDefaultColumn = (type: string, source: ISourceModel, includeCount?: boolean): string => {
-    const cols = source.columns.filter(col => col.type === type)
+export const getDefaultColumn = (type: string, source: SourceDoc, includeCount?: boolean): string => {
+    const cols = source.get('columns').filter(col => col.type === type)
     if (includeCount) {
         cols.push({
             ref: 'count',
@@ -115,7 +116,7 @@ export const getDefaultColumn = (type: string, source: ISourceModel, includeCoun
     return cols[Math.floor(Math.random() * cols.length)].ref
 }
 
-export const remove = (req: MyRequest, res: Response) => {
+export const remove = (req: Request, res: Response) => {
     const { id, pageId, bookId } = req.params
 
     Book.findById(bookId).exec()
@@ -126,16 +127,16 @@ export const remove = (req: MyRequest, res: Response) => {
         return page.updateOne(page).exec()
         .then(() => pageSocket.onAddOrChange(page))
     })
-    .then(() => Widget.findByIdAndRemove(id).exec())
+    .then(() => Widget.findByIdAndDelete(id).exec())
     .then(() => widgetSocket.onDelete({
         _id: id,
         pageId
-    } as IWidgetModel))
+    }))
     .then(utils.handleResponseNoData(res))
     .catch(utils.handleError(res))
 }
 
-export const update = (req: MyRequest, res: Response) => {
+export const update = (req: Request, res: Response) => {
     let myWidget = new Widget(req.body)
     const myId: string = req.body._id
     delete req.body._id
@@ -150,7 +151,7 @@ export const update = (req: MyRequest, res: Response) => {
     .catch(utils.handleError(res))
 }
 
-export const get = (req: MyRequest, res: Response) => {
+export const get = (req: Request, res: Response) => {
     const myId: string = req.params.id
 
     Widget.findById(myId)

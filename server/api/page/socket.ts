@@ -1,6 +1,7 @@
-import { IPageModel } from '../../dbModels'
+// import { IPageModel } from '../../dbModels'
 import { Page } from './model'
 import { Book } from '../book/model'
+import { Document, InferRawDocType } from 'mongoose'
 import BaseSocket from '../../sockets/sockets'
 
 class PageSocket extends BaseSocket {
@@ -8,8 +9,8 @@ class PageSocket extends BaseSocket {
         super('pages')
     }
 
-    getParentId (model: IPageModel) {
-        return model.bookId
+    getParentId (doc) {
+        return doc.bookId
     }
 
     getInitialState (bookId: string) {
@@ -22,11 +23,11 @@ class PageSocket extends BaseSocket {
         return Book.findById(bookId).exec()
     }
 
-    onAddOrChange (model: IPageModel) {
+    onAddOrChange (model) {
         this._onAddOrChange(this.getParentId(model), [model])
     }
 
-    onDelete (model: IPageModel) {
+    onDelete (model) {
         this._onDelete(this.getParentId(model), [model._id])
     }
 }

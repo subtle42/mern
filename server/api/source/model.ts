@@ -1,6 +1,4 @@
-import { Schema, Model } from 'mongoose'
-import { ISourceModel } from '../../dbModels'
-import { createSchema } from '../utils'
+import { Schema, model, InferSchemaType, Document } from 'mongoose'
 
 let SourceSchema = new Schema({
     title: { type: String, required: true },
@@ -14,4 +12,6 @@ let SourceSchema = new Schema({
     isPublic: { type: Boolean, default: false }
 })
 
-export const Source: Model<ISourceModel> = createSchema('Source', SourceSchema)
+export const Source = model('Source', SourceSchema)
+export type ISource = InferSchemaType<typeof SourceSchema>
+export type SourceDoc = Document<unknown, {}, ISource>
