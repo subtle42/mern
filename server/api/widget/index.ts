@@ -10,4 +10,4 @@ router.delete('/:id/:pageId/:bookId', auth.isAuthenticated, controller.remove)
 router.put('/', auth.isAuthenticated, controller.update)
 router.get('/:id', auth.isAuthenticated, controller.get)
 
-module.exports = router
+export const WidgetRouter = router

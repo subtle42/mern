@@ -13,5 +13,5 @@ const SourceSchema = new Schema({
 })
 
 export const Source = model('Source', SourceSchema)
-export type ISource = InferSchemaType<typeof SourceSchema> & {_id: string}
+export type ISource = InferSchemaType<typeof SourceSchema> & {_id: any}
 export type SourceDoc = Document<unknown, {}, ISource>

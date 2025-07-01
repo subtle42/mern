@@ -19,10 +19,10 @@ router.get('/google', (req: any, res, next) => {
 }))
 router.get('/google/redirect', passport.authenticate('google', {
     scope: ['profile', 'email']
-}), (req, res) => {
+}), (req: any, res) => {
     const myIO: Server = (global as any).myIO
     const token: string = signRequest(req)
-    myIO.in((req.session as any).socketId).emit('auth', token)
+    myIO.in((req.session).socketId).emit('auth', token)
     res.end()
 })
 router.get('/logout', (req, res) => {
@@ -31,4 +31,4 @@ router.get('/logout', (req, res) => {
     })
 })
 
-module.exports = router
+export const AuthRouter = router

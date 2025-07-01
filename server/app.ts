@@ -5,6 +5,14 @@ import { Server } from 'socket.io'
 import * as mongoose from 'mongoose'
 import * as passport from 'passport'
 import * as session from 'express-session'
+import * as path from 'path'
+
+import { AuthRouter } from './auth'
+import { UserRouter } from './api/user'
+import { BookRouter } from './api/book'
+import { PageRouter } from './api/page'
+import { WidgetRouter } from './api/widget'
+import { SourceRouter } from './api/source'
 
 // import * as utils from './api/utils'
 declare const global: any
@@ -53,7 +61,26 @@ app.use(session({
     saveUninitialized: true
 }))
 // app.use(test())
-require('./routes').default(app)
+// require('./routes').default(app)
+
+app.use('/auth', AuthRouter)
+app.use('/api/user', UserRouter)
+app.use('/api/books', BookRouter)
+app.use('/api/pages', PageRouter)
+app.use('/api/widgets', WidgetRouter)
+app.use('/api/sources', SourceRouter)
+
+app.use('/index', express.static(path.join(__dirname, '../client/index.html')))
+app.use('/.dist', express.static(path.join(__dirname, '../client/.dist')))
+app.use('/health', (req, res) => {
+    res.json('ok')
+})
+
+app.use('/', express.static(path.join(__dirname, '../client/.dist')))
+app.use('/{*any}', (req: express.Request, res) => {
+    console.log(`Redirecting: ${req.method}: ${req.originalUrl}`)
+    return res.redirect('/index')
+})
 
 // Used for integration testing, to not start server multiple times
 if (global.isFirst === undefined) {

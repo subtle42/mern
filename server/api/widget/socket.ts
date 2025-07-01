@@ -1,4 +1,4 @@
-import { Widget } from './model'
+import { IWidget, Widget, WidgetDoc } from './model'
 import BaseSocket from '../../sockets/sockets'
 import { Book } from '../book/model'
 import { Page } from '../page/model'
@@ -23,15 +23,15 @@ class WidgetSocket extends BaseSocket {
         .then(page => Book.findById(page.bookId).exec())
     }
 
-    onManyAdd (models: IWidgetModel[]) {
+    onManyAdd (models: WidgetDoc[]) {
         this._onAddOrChange(this.getParentId(models[0]), models)
     }
 
-    onAddOrChange (model: IWidgetModel) {
+    onAddOrChange (model: WidgetDoc) {
         this._onAddOrChange(this.getParentId(model), [model])
     }
 
-    onDelete (model: IWidgetModel) {
+    onDelete (model: Partial<IWidget>) {
         this._onDelete(this.getParentId(model), [model._id])
     }
 }

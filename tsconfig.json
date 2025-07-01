@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "watch": false,
         "module": "commonjs",
         "noImplicitAny": false,
         "skipLibCheck": true,

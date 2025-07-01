@@ -7,7 +7,6 @@ import { logger } from '../api/utils'
 import { Namespace, Server, Socket } from 'socket.io'
 
 declare var global: any
-let myIO: Server = global.myIO
 
 export default abstract class BaseSocket {
     protected namespace: Namespace
@@ -15,8 +14,12 @@ export default abstract class BaseSocket {
     constructor (
         protected name: string
     ) {
-        this.namespace = myIO.of(name)
-        this.setupSocket(name)
+        setTimeout(() => {
+            let myIO: Server = global.myIO
+
+            this.namespace = myIO.of(name)
+            this.setupSocket(name)
+        }, 1000)
     }
 
     setupSocket (name: string) {
@@ -30,7 +33,7 @@ export default abstract class BaseSocket {
 
     abstract onAddOrChange (changed: Document | Document[]): void
 
-    abstract onDelete (removed: Document | Document[]): void
+    abstract onDelete (removed: any | any[]): void
 
     /**
      * Get the top level shared item for socket permissions
@@ -69,7 +72,7 @@ export default abstract class BaseSocket {
     private hasViewAccess (decodedToken, room: string): Promise<void> {
         const userId: string = decodedToken._id
         return this.getSharedModel(room)
-        .then(shared => auth.hasViewerAccess(userId, shared))
+        .then(shared => auth.hasViewerAccess(userId, shared as any))
     }
 
     protected _onDelete (room: string, ids: string[]): void {

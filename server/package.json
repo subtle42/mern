@@ -1,8 +1,8 @@
 {
   "name": "@mern/server",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
+    "start": "nodemon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -22,18 +22,19 @@
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "socket.io": "^4.8.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2"
   },
-  "ignore": [
+  "nodemonConfig": {
+    "ignore": [
       "/**/*.spec.*",
-      "./e2e",
-      "./integration",
-      "./client",
       "node_modules"
     ],
-    "ext": "ts"
+    "ext": "ts",
+    "exec": "ts-node app.ts"
+  }
 }

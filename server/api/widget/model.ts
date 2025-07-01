@@ -1,4 +1,4 @@
-import { Schema, model, InferSchemaType, Document } from 'mongoose'
+import { Schema, model, InferSchemaType, Document, ObjectId } from 'mongoose'
 
 const AxisSchema = new Schema({
     show: { type: Boolean, default: true },
@@ -30,6 +30,6 @@ const WidgetSchema = new Schema({
 })
 
 export const Widget = model('Widget', WidgetSchema)
-export type IWidget = InferSchemaType<typeof WidgetSchema> & {_id:string}
-export type WidgetDoc = Document<unknown, {}, IWidget>
+export type IWidget = InferSchemaType<typeof WidgetSchema> & {_id:any}
+export type WidgetDoc = Document<any, {}, IWidget>
 

@@ -19,8 +19,14 @@ interface IUserDb extends myModels.IUser {
     makeSalt (byteSize?: number): Promise<string>
     encryptPassword (password: string): Promise<string>
 }
+export interface ISharedModel {
+    _id: any
+    owner: string
+    editors: string[]
+    viewers: string[]
+    isPublic: boolean
+}
 
-// export interface ISharedModel extends myModels.IShared, Document {}
 // export interface IUserModel extends IUserDb, Document {}
 // export interface IBookModel extends ISharedModel, myModels.IBook, Document {}
 // export interface IPageModel extends myModels.IPage, Document {}
