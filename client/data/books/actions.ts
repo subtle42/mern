@@ -32,6 +32,4 @@ class BookActions extends BaseActions {
     }
 }
 
-const myBookActions = new BookActions(store)
-
-export default myBookActions
+export const myBookActions = new BookActions(store)

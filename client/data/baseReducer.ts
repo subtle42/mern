@@ -1,3 +1,4 @@
+import { PayloadAction } from "@reduxjs/toolkit"
 import { Socket } from "socket.io-client"
 
 export class GenericStore {
@@ -7,10 +8,10 @@ export class GenericStore {
 }
 
 export const factory = {
-    addedOrChanged: (state: GenericStore, payload: any[]): GenericStore => {
+    addedOrChanged: (state, action: PayloadAction<any[]>) => {
         state = { ...state }
         state.list = [...state.list]
-        payload.forEach(item => {
+        action.payload.forEach(item => {
             let index = -1
             state.list.forEach((x, i) => {
                 if (x._id === item._id) {
@@ -26,21 +27,21 @@ export const factory = {
         })
         return state
     },
-    select: (state: GenericStore, payload: any): GenericStore => {
+    select: (state, {payload}: PayloadAction<string>) => {
         return { ...state, selected: payload }
     },
-    removed: (state: GenericStore, payload: string[]): GenericStore => {
+    remove: (state, {payload}: PayloadAction<string[]>) => {
         state = { ...state }
         state.list = state.list.filter(item => payload.indexOf(item._id) === -1)
         return state
     },
-    storeSocket: (state: GenericStore, payload: Socket): GenericStore => {
+    storeSocket: (state, {payload}: PayloadAction<Socket>) => {
         return { ...state, socket: payload }
     },
-    disconnect: (state: GenericStore, payload: undefined): GenericStore => {
-        return new GenericStore()
+    disconnect: (state, {payload}: PayloadAction<void>) => {
+        return new GenericStore() as any
     },
-    joinRoom: (state: GenericStore, payload: undefined): GenericStore => {
+    joinRoom: (state, {payload}: PayloadAction<void>) => {
         return { ...state, list: [] }
     }
 }

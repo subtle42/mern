@@ -1,45 +1,35 @@
-import { createStore, applyMiddleware, combineReducers, Store } from 'redux'
+import { combineSlices, configureStore, PayloadAction, Tuple } from '@reduxjs/toolkit'
 import promiseMiddleware from 'redux-promise'
 
-import books from './books/reducer'
-import pages from './pages/reducer'
-import widgets from './widgets/reducer'
-import auth from './auth/reducer'
-import booksModel from './books/model'
-import pagesModel from './pages/model'
-import { SourceReducer, SourceStore } from './sources/reducer'
-import widgetsModel from './widgets/model'
-import authModel from './auth/model'
-import { DataModel, DataReducer } from './data/reducer'
-import { NotificationStore, notifReducer } from './notifications/reducer'
 
-export interface StoreModel {
-    books: booksModel,
-    pages: pagesModel,
-    widgets: widgetsModel,
-    auth: authModel,
-    sources: SourceStore
-    notifcations: NotificationStore,
-    data: DataModel
-}
+import { BookSlice } from './books/reducer'
+import { PageSlice } from './pages/reducer'
+import { WidgetSlice } from './widgets/reducer'
+import { AuthSlice }  from './auth/reducer'
+import { SourceSlice } from './sources/reducer'
+import { DataSlice } from './data/reducer'
+import { NotifSlice } from './notifications/reducer'
 
-const reducers = combineReducers({
-    books,
-    pages,
-    widgets,
-    auth,
-    sources: SourceReducer,
-    notifcations: notifReducer,
-    data: DataReducer
-})
+
+const allSlices = combineSlices(
+    BookSlice,
+    PageSlice,
+    WidgetSlice,
+    AuthSlice,
+    SourceSlice,
+    NotifSlice,
+    DataSlice
+)
 
 // Should reset the store
-const rootReducer = (state, action) => {
+const rootReducer = (state: any, action: PayloadAction<void>) => {
     if (action.type === 'RESET') {
         state = undefined
     }
-    return reducers(state, action)
+    return allSlices(state, action)
 }
 
-const middleware = applyMiddleware(promiseMiddleware)
-export const store: Store<StoreModel> = createStore(rootReducer, middleware)
+export const store = configureStore({
+    reducer: rootReducer,
+    middleware: () => new Tuple(promiseMiddleware as any)
+})

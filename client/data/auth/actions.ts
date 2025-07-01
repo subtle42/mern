@@ -77,7 +77,7 @@ class AuthActions {
 
     waitFor3rdPartyAuth (callback: Function): Promise<string> {
         const mySocket = store.getState().auth.socket
-        if (mySocket) return Promise.resolve(mySocket.id)
+        if (mySocket && mySocket.id) return Promise.resolve(mySocket.id)
 
         return new Promise((resolve, reject) => {
             import('socket.io-client')
@@ -138,7 +138,7 @@ class AuthActions {
         return this.sendDispatch('set_token', token)
     }
 
-    private setSocket (socket: Socket): Promise<void> {
+    private setSocket (socket: Socket|undefined): Promise<void> {
         return this.sendDispatch('set_socket', socket)
     }
 

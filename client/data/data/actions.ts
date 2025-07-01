@@ -1,6 +1,7 @@
 import { store } from '../store'
 import axios from 'axios'
-import { IWidget, IQuery } from 'common/models'
+// import { IWidget, IQuery } from 'common/models'
+
 
 class DataActions {
     private nameSpace = 'data'
@@ -17,8 +18,8 @@ class DataActions {
         }))
     }
 
-    query (widget: IWidget, filter): Promise<void> {
-        const query: IQuery = {
+    query (widget, filter): Promise<void> {
+        const query = {
             sourceId: widget.sourceId,
             measures: widget.measures,
             dimensions: widget.dimensions,

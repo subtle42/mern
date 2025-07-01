@@ -1,11 +1,10 @@
-import { AnyAction } from 'redux'
 import { factory } from '../baseReducer'
 import BookStore from './model'
+import { createSlice } from '@reduxjs/toolkit'
 
-const possibleActions: string[] = Object.keys(factory)
 
-export default (state: BookStore= new BookStore(), action: AnyAction): BookStore => {
-    if (action.namespace !== 'books') return state
-    if (possibleActions.indexOf(action.type) === -1) return state
-    return factory[action.type](state, action.payload)
-}
+export const BookSlice = createSlice({
+    name: 'books',
+    initialState: new BookStore(),
+    reducers: factory
+})

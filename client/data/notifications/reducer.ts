@@ -1,6 +1,7 @@
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AnyAction } from 'redux'
 
-export class NotificationModel {
+export type NotificationModel = {
     type: string
     message: string
     duration?: number
@@ -10,14 +11,18 @@ export class NotificationStore {
     list: NotificationModel[] = []
 }
 
-export const notifReducer = (state: NotificationStore= new NotificationStore(), action: AnyAction): NotificationStore => {
-    if (action.namespace !== 'notifications') return state
-    if (action.type === 'add') {
-        state.list = [...state.list]
-        state.list.push(action.payload)
-    } else if (action.type === 'remove') {
-        state.list = state.list.splice(action.payload, 1)
+export const NotifSlice = createSlice({
+    name: 'notifications',
+    initialState: new NotificationStore(),
+    reducers: {
+        add: (state, {payload}: PayloadAction<NotificationModel>) => {
+            state.list = [...state.list]
+            state.list.push(payload)
+            return state
+        },
+        remove: (state, {payload}: PayloadAction<number>) => {
+            state.list = state.list.splice(payload, 1)
+            return state
+        }
     }
-
-    return state
-}
+})

@@ -2,26 +2,24 @@ import { AnyAction } from 'redux'
 import { IUser } from 'common/models'
 import AuthStore from './model'
 import { Socket } from 'socket.io-client'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-const strategy = {
-    set_token: (state: AuthStore, payload: string): AuthStore => {
-        return { ...state, token: payload }
-    },
-    set_user: (state: AuthStore, payload: IUser): AuthStore => {
-        return { ...state, me: payload }
-    },
-    set_socket: (state: AuthStore, payload: Socket): AuthStore => {
-        return { ...state, socket: payload }
-    },
-    logout: (state: AuthStore, payload: string): AuthStore => {
-        return { me: undefined, token: undefined }
+
+export const AuthSlice = createSlice({
+    name: 'auth',
+    initialState: new AuthStore(),
+    reducers: {
+        set_token: (state, {payload}: PayloadAction<string>) => {
+            return { ...state, token: payload }
+        },
+        set_user: (state, {payload}: PayloadAction<IUser>) => {
+            return { ...state, me: payload }
+        },
+        set_socket: (state, {payload}: PayloadAction<Socket>) => {
+            return { ...state, socket: payload }
+        },
+        logout: () => {
+            return new AuthStore()
+        }
     }
-}
-
-const possibleActions: string[] = Object.keys(strategy)
-
-export default (state: AuthStore= new AuthStore(), action: AnyAction): AuthStore => {
-    if (action.namespace !== 'auth') return state
-    if (possibleActions.indexOf(action.type) === -1) return state
-    return strategy[action.type](state, action.payload)
-}
+})

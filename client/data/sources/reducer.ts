@@ -1,42 +1,39 @@
-import { AnyAction } from 'redux'
 import { factory, GenericStore } from '../baseReducer'
 import { ISource } from 'common/models'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 export class SourceStore implements GenericStore {
     list: ISource[] = []
     filters: {[key: string]: {}} = {}
 }
 
-interface Payload {
+interface SourcePayload {
     _id: string,
     dimension: string,
     filter: any[]
 }
 
-const myFactory = Object.assign({}, factory, {
-    addFilter: (store: SourceStore, payload: Payload): SourceStore => {
-        store = { ...store }
-        if (!store.filters[payload._id]) {
-            store.filters[payload._id] = {}
-        } else {
-            store.filters[payload._id] = { ...store.filters[payload._id] }
+export const SourceSlice = createSlice({
+    name: 'sources',
+    initialState: new SourceStore(),
+    reducers: {
+        ...factory,
+        addFilter: (state, {payload}: PayloadAction<SourcePayload>) => {
+            state = { ...state }
+            if (!state.filters[payload._id]) {
+                state.filters[payload._id] = {}
+            } else {
+                state.filters[payload._id] = { ...state.filters[payload._id] }
+            }
+            if (payload.filter.length === 0) {
+                delete state.filters[payload._id][payload.dimension]
+            } else {
+                state.filters[payload._id][payload.dimension] = payload.filter
+            }
+            return state
+        },
+        disconnect: (state) => {
+            return new SourceStore()
         }
-        if (payload.filter.length === 0) {
-            delete store.filters[payload._id][payload.dimension]
-        } else {
-            store.filters[payload._id][payload.dimension] = payload.filter
-        }
-        return store
-    },
-    disconnect: (state: GenericStore, payload: undefined): GenericStore => {
-        return new SourceStore()
     }
 })
-
-const possibleActions: string[] = Object.keys(myFactory)
-
-export const SourceReducer = (state: SourceStore= new SourceStore(), action: AnyAction): SourceStore => {
-    if (action.namespace !== 'sources') return state
-    if (possibleActions.indexOf(action.type) === -1) return state
-    return myFactory[action.type](state, action.payload)
-}

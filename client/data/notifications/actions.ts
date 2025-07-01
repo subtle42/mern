@@ -45,6 +45,4 @@ class NotificationActions {
     }
 }
 
-const myActions = new NotificationActions(store)
-
-export default myActions
+export const myNotifActions = new NotificationActions(store)
