@@ -1,8 +1,8 @@
 import axios from 'axios'
-import { IBook } from 'common/models'
 import { store } from '../store'
 import BaseActions from '../baseActions'
 import pageActions from '../pages/actions'
+import { IBook } from '@mern/server/api/book/model'
 
 class BookActions extends BaseActions {
     constructor (store) {

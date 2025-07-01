@@ -11,6 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@mern/server": "1.0.0",
     "@reduxjs/toolkit": "^2.8.2",
     "@types/d3": "^7.4.3",
     "@types/react": "^16.14.65",
@@ -34,7 +35,9 @@
     "typescript": "^5.8.3"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@vitejs/plugin-react": "^4.6.0",
+    "jest": "^30.0.3",
     "vite": "^7.0.0"
   }
 }

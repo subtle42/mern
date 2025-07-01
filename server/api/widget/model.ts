@@ -30,6 +30,6 @@ const WidgetSchema = new Schema({
 })
 
 export const Widget = model('Widget', WidgetSchema)
-export type IWidget = InferSchemaType<typeof WidgetSchema>
+export type IWidget = InferSchemaType<typeof WidgetSchema> & {_id:string}
 export type WidgetDoc = Document<unknown, {}, IWidget>
 

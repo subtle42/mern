@@ -1,8 +1,7 @@
-import { AnyAction } from 'redux'
-import { IUser } from 'common/models'
 import AuthStore from './model'
 import { Socket } from 'socket.io-client'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { IUser } from '@mern/server/api/user/model'
 
 
 export const AuthSlice = createSlice({

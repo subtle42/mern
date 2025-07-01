@@ -1,7 +1,17 @@
+import { IWidget } from '@mern/server/api/widget/model'
 import { store } from '../store'
 import axios from 'axios'
 // import { IWidget, IQuery } from 'common/models'
 
+
+export interface IQuery {
+    sourceId: string
+    measures: {ref: string}[]
+    dimensions: string[]
+    filters: {
+        [key: string]: any[]
+    }
+}
 
 class DataActions {
     private nameSpace = 'data'
@@ -18,8 +28,8 @@ class DataActions {
         }))
     }
 
-    query (widget, filter): Promise<void> {
-        const query = {
+    query (widget:IWidget, filter): Promise<void> {
+        const query: IQuery = {
             sourceId: widget.sourceId,
             measures: widget.measures,
             dimensions: widget.dimensions,
@@ -40,4 +50,4 @@ class DataActions {
     }
 }
 
-export default new DataActions()
+export const myDataActions = new DataActions()

@@ -1,11 +1,11 @@
 import axios, { AxiosPromise } from 'axios'
 import { store } from '../store'
-import bookActions from '../books/actions'
 import pageActions from '../pages/actions'
 import widgetActions from '../widgets/actions'
 import sourceActions from '../sources/actions'
-import { IUser } from 'common/models'
 import { Socket } from 'socket.io-client'
+import { IUser } from '@mern/server/api/user/model'
+import { myBookActions } from '../books/actions'
 
 class AuthActions {
     private nameSpace = 'auth'
@@ -55,15 +55,15 @@ class AuthActions {
     private loadConnections (token: string): Promise<void> {
         return this.setToken(token)
         .then(() => this.me())
-        .then(() => bookActions.connect(token))
+        .then(() => myBookActions.connect(token))
         .then(() => pageActions.connect(token))
         .then(() => widgetActions.connect(token))
         .then(() => sourceActions.connect(token))
         .then(() => sourceActions.joinRoom(this.store.getState().auth.me._id))
-        .then(() => bookActions.joinRoom(this.store.getState().auth.me._id))
+        .then(() => myBookActions.joinRoom(this.store.getState().auth.me._id))
         .then(() => {
             if (store.getState().books.list.length === 0) return
-            return bookActions.select(store.getState().books.list[0]._id)
+            return myBookActions.select(store.getState().books.list[0]._id)
         })
     }
 
@@ -104,14 +104,14 @@ class AuthActions {
         return axios.get('/auth/logout')
         .then(() => this._logout())
         .then(() => Promise.all([
-            bookActions.disconnect()
+            myBookActions.disconnect()
         ]))
         .then(() => {
             axios.defaults.headers.common['Authorization'] = undefined
             this.deleteAuthCookie()
         })
         .then(() => this.setUser(undefined))
-        .then(() => bookActions.disconnect())
+        .then(() => myBookActions.disconnect())
         .then(() => pageActions.disconnect())
         .then(() => widgetActions.disconnect())
         .then(() => sourceActions.disconnect())
@@ -129,7 +129,7 @@ class AuthActions {
         return this.sendDispatch('logout', undefined)
     }
 
-    private setUser (user: IUser): Promise<void> {
+    private setUser (user: IUser|undefined): Promise<void> {
         return this.sendDispatch('set_user', user)
     }
 

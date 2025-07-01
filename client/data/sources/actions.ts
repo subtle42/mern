@@ -2,8 +2,8 @@ import axios from 'axios'
 
 import { store } from '../store'
 import BaseActions from '../baseActions'
-import widgetActions from 'data/widgets/actions'
-import { ISource } from 'common/models'
+import { ISource } from '@mern/server/api/source/model'
+import { myWidgetActions } from '../widgets/actions'
 
 class SourceActions extends BaseActions {
     constructor (store) {
@@ -38,14 +38,14 @@ class SourceActions extends BaseActions {
             dimension,
             filter
         })
-        .then(() => widgetActions.runQueries(sourceId))
+        .then(() => myWidgetActions.runQueries(sourceId))
     }
 
     addMultipleFilters (sourceId: string, filters: {dimension: string, filter: number[]}[]): Promise<void> {
         return Promise.all(filters.map(filter => {
             return this.sendDispatch('addFilter', { ...filter, _id: sourceId })
         }))
-        .then(() => widgetActions.runQueries(sourceId))
+        .then(() => myWidgetActions.runQueries(sourceId))
     }
 }
 

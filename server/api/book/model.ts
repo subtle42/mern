@@ -37,5 +37,5 @@ const bookSchema = new Schema({
 
 
 export const Book = model('Book', bookSchema)
-export type IBook = InferSchemaType<typeof bookSchema>
+export type IBook = InferSchemaType<typeof bookSchema> & {_id: string}
 export type BookDoc = Document<unknown, {}, IBook>

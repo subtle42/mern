@@ -1,4 +1,4 @@
-import { IWidget } from 'common/models'
+import { IWidget } from '@mern/server/api/widget/model'
 import { GenericStore } from '../baseReducer'
 
 export default class WidgetStore extends GenericStore {

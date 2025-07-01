@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { AnyAction } from 'redux'
 
 export type NotificationModel = {
     type: string

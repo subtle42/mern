@@ -1,8 +1,9 @@
 import { store } from '../store'
 import BaseActions from '../baseActions'
 import axios from 'axios'
-import { ISource, IWidget, IQuery } from 'common/models'
-import DataActions from '../data/actions'
+import { ISource } from '@mern/server/api/source/model'
+import { IWidget } from '@mern/server/api/widget/model'
+import { myDataActions } from '../data/actions'
 
 class WidgetActions extends BaseActions {
     constructor (store) {
@@ -11,7 +12,7 @@ class WidgetActions extends BaseActions {
 
     select () {
         console.warn('This does nothing')
-        return null
+        return Promise.resolve()
     }
 
     createMultiple (sourceId: string, types: string[]) {
@@ -44,7 +45,7 @@ class WidgetActions extends BaseActions {
         this.sendDispatch('setSize', { id: id, size: { width, height } })
     }
     query (widget: IWidget): Promise<void> {
-        return DataActions.query(widget, this.getFilter(widget))
+        return myDataActions.query(widget, this.getFilter(widget))
     }
 
     private getFilter (widget: IWidget): object {
@@ -71,6 +72,5 @@ class WidgetActions extends BaseActions {
     }
 }
 
-const widgetActions = new WidgetActions(store)
+export const myWidgetActions = new WidgetActions(store)
 
-export default widgetActions

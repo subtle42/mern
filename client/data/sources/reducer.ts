@@ -1,5 +1,5 @@
+import { ISource } from '@mern/server/api/source/model'
 import { factory, GenericStore } from '../baseReducer'
-import { ISource } from 'common/models'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 export class SourceStore implements GenericStore {
