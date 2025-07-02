@@ -1,6 +1,4 @@
 import * as React from 'react'
-import authActions from 'data/auth/actions'
-import bookActions from 'data/books/actions'
 import { Link } from 'react-router-dom'
 import { CreateBookButton } from '../main/book/add'
 import {
@@ -14,6 +12,8 @@ import {
     DropdownMenu,
     DropdownItem } from 'reactstrap'
 import { useBooks, useUser, useSelected } from '../_common/hooks'
+import { myBookActions } from '../../data/books/actions'
+import { myAuthActions } from '../../data/auth/actions'
 
 interface NavProps {}
 
@@ -36,7 +36,7 @@ export const MainNavBar: React.FunctionComponent<NavProps> = (props: NavProps) =
                     {books.map((book, index) => {
                         return <DropdownItem
                         key={index}
-                        onClick={() => bookActions.select(book._id)}>
+                        onClick={() => myBookActions.select(book._id)}>
                         {book.name}
                     </DropdownItem>
                     })}
@@ -66,7 +66,7 @@ export const MainNavBar: React.FunctionComponent<NavProps> = (props: NavProps) =
             <NavItem key={3}>
                 <div className='nav-link'>
                 { user
-                    ? <Link onClick={() => authActions.logout()} to='/about'>Logout</Link>
+                    ? <Link onClick={() => myAuthActions.logout()} to='/about'>Logout</Link>
                     : <Link to='/login'>Login</Link>
                 }
                 </div>

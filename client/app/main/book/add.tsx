@@ -10,12 +10,12 @@ import FormFeedback from 'reactstrap/lib/FormFeedback'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
 import Button from 'reactstrap/lib/Button'
 
-import BookActions from 'data/books/actions'
-import NotifActions from 'data/notifications/actions'
 import { FormControl, FormCtrlGroup } from '../../_common/validation'
 import * as Validators from '../../_common/validators'
 import * as utils from '../../_common/utils'
 import { OnEnter } from '../../_common/onEnter'
+import { myBookActions } from '../../../data/books/actions'
+import { myNotifActions } from '../../../data/notifications/actions'
 
 interface Props {}
 
@@ -32,11 +32,11 @@ export const CreateBookButton: React.FunctionComponent<Props> = (prop: Props) =>
     const save = (event: React.FormEvent<any>) => {
         if (event) event.stopPropagation()
 
-        BookActions.create(rules.value.title)
-        .then(bookId => BookActions.select(bookId))
-        .then(() => NotifActions.notify('success', `Created Book`))
+        myBookActions.create(rules.value.title)
+        .then(bookId => myBookActions.select(bookId))
+        .then(() => myNotifActions.notify('success', `Created Book`))
         .then(() => setOpen(false))
-        .catch(err => NotifActions.notify('danger', err.message))
+        .catch(err => myNotifActions.notify('danger', err.message))
     }
 
     const toggle = (event: React.FormEvent<any>) => {

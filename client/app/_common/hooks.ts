@@ -1,7 +1,11 @@
 import * as React from 'react'
-import { store } from 'data/store'
-import { IBook, ISource, IPage, IWidget, IUser } from 'common/models'
-import { NotificationModel } from 'data/notifications/reducer'
+import { store } from '../../data/store'
+import { IBook } from '@mern/server/api/book/model'
+import { IPage } from '@mern/server/api/page/model'
+import { IWidget } from '@mern/server/api/widget/model'
+import { ISource } from '@mern/server/api/source/model'
+import { IUser } from '@mern/server/api/user/model'
+import { NotificationModel } from '../../data/notifications/reducer'
 
 const _useList = (namespace: string) => {
     const [data, setData] = React.useState(
@@ -100,17 +104,17 @@ export const useUser = (): IUser => {
         return () => unsubscribe()
     })
 
-    return user
+    return user as IUser
 }
 
 export const useAlerts = (): NotificationModel[] => {
     const [alerts, setAlerts] = React.useState(
-        store.getState().notifcations.list || []
+        store.getState().notifications.list || []
     )
 
     React.useEffect(() => {
         const unsubscribe = store.subscribe(() => {
-            const newData = store.getState().notifcations.list
+            const newData = store.getState().notifications.list
             if (alerts === newData) return
             setAlerts(newData)
         })

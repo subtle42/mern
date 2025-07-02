@@ -10,12 +10,12 @@ import ModalFooter from 'reactstrap/lib/ModalFooter'
 import * as FontAwesome from 'react-fontawesome'
 import { useDropzone } from 'react-dropzone'
 
-import SourceActions from 'data/sources/actions'
-import NotifActions from 'data/notifications/actions'
-import { store } from 'data/store'
-import { ISource } from 'common/models'
 import { useSources } from '../../../_common/hooks'
 import Input from 'reactstrap/lib/Input'
+import { ISource } from '@mern/server/api/source/model'
+import { store } from '../../../../data/store'
+import { mySourceActions } from '../../../../data/sources/actions'
+import { myNotifActions } from '../../../../data/notifications/actions'
 
 interface Props {
     selectedId?: string
@@ -24,7 +24,7 @@ interface Props {
 }
 
 export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
-    const getSelected = (): ISource => {
+    const getSelected = () => {
         return props.selectedId ?
             store.getState().sources.list.find(s => s._id === props.selectedId)
             : undefined
@@ -32,7 +32,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
 
     const [isLoading, setLoading] = React.useState(false)
     const [selected, setSelected] = React.useState(getSelected())
-    const [newSourceId, setNewSourceId] = React.useState(undefined)
+    const [newSourceId, setNewSourceId] = React.useState<string|undefined>(undefined)
     const sources = useSources()
     const [searchName, setSearchName] = React.useState('')
 
@@ -57,7 +57,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
         const reader = new FileReader()
         reader.onloadend = (event) => {
             setLoading(true)
-            SourceActions.create(acceptedFiles[0])
+            mySourceActions.create(acceptedFiles[0])
             .then(sourceId => {
                 const newSource = sources.find(x => x._id === sourceId)
                 // in case REST call returns before source update
@@ -68,7 +68,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
                 }
             })
             .catch(err => {
-                NotifActions.error(err.message)
+                myNotifActions.error(err.message)
                 setLoading(false)
             })
         }
@@ -156,7 +156,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
         return <ModalFooter style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Button color='primary'
                 disabled={!selected || isLoading}
-                onClick={() => props.done(selected)}>
+                onClick={() => props.done(selected as ISource)}>
                 Next <FontAwesome name='chevron-right' />
             </Button>
             <Button color='secondary'

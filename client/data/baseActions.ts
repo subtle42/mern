@@ -11,7 +11,7 @@ export default abstract class BaseActions {
     protected sendDispatch (type: string, payload: any): Promise<void> {
         return this.store.dispatch(new Promise((resolve) => {
             resolve({
-                type: `${this.nameSpace}/type`,
+                type: `${this.nameSpace}/${type}`,
                 payload,
             })
         }))

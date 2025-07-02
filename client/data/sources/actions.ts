@@ -49,6 +49,5 @@ class SourceActions extends BaseActions {
     }
 }
 
-const sourceActions = new SourceActions(store)
+export const mySourceActions = new SourceActions(store)
 
-export default sourceActions

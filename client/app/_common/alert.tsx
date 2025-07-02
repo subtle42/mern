@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Alert } from 'reactstrap'
-import NotifActions from 'data/notifications/actions'
 import { useAlerts } from './hooks'
+import { myNotifActions } from '../../data/notifications/actions'
 
 interface Props {
     index: number
@@ -20,7 +20,7 @@ const MyAlert: React.FunctionComponent<Props> = (props: Props) => {
 
     const close = () => {
         setOpen(false)
-        setTimeout(() => NotifActions.remove(props.index), 500)
+        setTimeout(() => myNotifActions.remove(props.index), 500)
     }
 
     return <Alert

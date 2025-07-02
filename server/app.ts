@@ -72,7 +72,7 @@ app.use('/api/sources', SourceRouter)
 
 app.use('/index', express.static(path.join(__dirname, '../client/index.html')))
 app.use('/.dist', express.static(path.join(__dirname, '../client/.dist')))
-app.use('/health', (req, res) => {
+app.use('/api/health', (req, res) => {
     res.json('ok')
 })
 

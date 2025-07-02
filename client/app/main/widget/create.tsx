@@ -1,28 +1,28 @@
 import * as React from 'react'
 import { Modal } from 'reactstrap'
-import widgetActions from 'data/widgets/actions'
-import NotifActions from 'data/notifications/actions'
-import { ISource } from 'common/models'
 import { usePages } from '../../_common/hooks'
 import { SelectSource } from './create/selectSource'
 import { SelectChartType } from './create/selectType'
 import * as FontAwesome from 'react-fontawesome'
 import SwipeableViews from 'react-swipeable-views'
 import './style.css'
+import { ISource } from '@mern/server/api/source/model'
+import { myWidgetActions } from '../../../data/widgets/actions'
+import { myNotifActions } from '../../../data/notifications/actions'
 
 interface Props {}
 
 export const WidgetCreateButton: React.FunctionComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
-    const [source, setSource] = React.useState(undefined as ISource)
+    const [source, setSource] = React.useState<ISource|undefined>(undefined)
     const [mode, setMode] = React.useState('selectSource')
     const pages = usePages()
 
     const close = (chartTypes: string[]) => {
-        widgetActions.createMultiple(source._id, chartTypes)
-        .then(() => NotifActions.success('Created widget'))
+        myWidgetActions.createMultiple(source?._id, chartTypes)
+        .then(() => myNotifActions.success('Created widget'))
         .then(() => setOpen(false))
-        .catch(err => NotifActions.error(err.message))
+        .catch(err => myNotifActions.error(err.message))
     }
 
     const open = () => {

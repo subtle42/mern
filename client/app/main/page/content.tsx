@@ -2,11 +2,11 @@ import 'react-grid-layout/css/styles.css'
 
 import * as React from 'react'
 import * as Loadable from 'react-loadable'
-import PageActions from 'data/pages/actions'
-import widgetActions from 'data/widgets/actions'
 import { Loading } from '../../_common/loading'
-import { store } from 'data/store'
 import { usePage } from '../../_common/hooks'
+import { store } from '../../../data/store'
+import myPageActions from '../../../data/pages/actions'
+import { myWidgetActions } from '../../../data/widgets/actions'
 
 interface Props {}
 
@@ -23,29 +23,29 @@ const useWindowWidth = (): number => {
 }
 
 export const PageContent: React.FunctionComponent<Props> = (props: Props) => {
-    const page = usePage(store.getState().pages.selected)
+    const page = usePage(store.getState().pages.selected || '')
     const width = useWindowWidth()
 
     // Not using the onLayoutChange due to it trigger on layout load
     const defaultLayoutConfig = {
         draggableHandle: '.card-title',
         onDragStop: (layout: ReactGridLayout.Layout[]) => {
-            PageActions.update(Object.assign({}, page, { layout }))
+            myPageActions.update(Object.assign({}, page, { layout }))
         },
         onResizeStop: (layout: ReactGridLayout.Layout[],
             oldItem: ReactGridLayout.Layout,
             newItem: ReactGridLayout.Layout,
             placeholder: ReactGridLayout.Layout,
             event, element) => {
-            widgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 81)
-            PageActions.update(Object.assign({}, page, { layout }))
+            myWidgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 81)
+            myPageActions.update(Object.assign({}, page, { layout }))
         },
         onResize: (layout: ReactGridLayout.Layout[],
             oldItem: ReactGridLayout.Layout,
             newItem: ReactGridLayout.Layout,
             placeholder: ReactGridLayout.Layout,
             event, element) => {
-            widgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 81)
+            myWidgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 81)
         }
     }
 

@@ -8,7 +8,6 @@ import Label from 'reactstrap/lib/Label'
 import Tooltip from 'reactstrap/lib/Tooltip'
 import Button from 'reactstrap/lib/Button'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
-import CustomInput from 'reactstrap/lib/CustomInput'
 import Input from 'reactstrap/lib/Input'
 import FormFeedback from 'reactstrap/lib/FormFeedback'
 import Form from 'reactstrap/lib/Form'
@@ -17,16 +16,16 @@ import Card from 'reactstrap/lib/Card'
 import CardTitle from 'reactstrap/lib/CardTitle'
 import * as FontAwesome from 'react-fontawesome'
 
-import PageActions from 'data/pages/actions'
-import NotifActions from 'data/notifications/actions'
-import { store } from 'data/store'
-import { IPage } from 'common/models'
 
 import { FormCtrlGroup, FormControl, FormCtrlArray } from '../../_common/validation'
 import * as utils from '../../_common/utils'
 import * as Validators from '../../_common/validators'
 import { usePages } from '../../_common/hooks'
 import './page.css'
+import { store } from '../../../data/store'
+import myPageActions from '../../../data/pages/actions'
+import { IPage } from '@mern/server/api/page/model'
+import { myNotifActions } from '../../../data/notifications/actions'
 
 interface Props {
     _id?: string
@@ -82,18 +81,18 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
 
     const open = () => {
         rules.value = store.getState().pages.list
-            .find(page => page._id === props._id)
+            .find(page => page._id === props._id) as IPage
         setOpen(true)
     }
 
     const close = () => {
-        const page: IPage = store.getState().pages.list
-            .find(page => page._id === props._id)
+        const page = store.getState().pages.list
+            .find(page => page._id === props._id) as IPage
         const tmp = Object.assign({}, page, rules.value)
-        PageActions.update(tmp)
-        .then(() => NotifActions.notify('success', 'Page updated'))
+        myPageActions.update(tmp)
+        .then(() => myNotifActions.notify('success', 'Page updated'))
         .then(() => setOpen(false))
-        .catch(err => NotifActions.notify('danger', err.message))
+        .catch(err => myNotifActions.notify('danger', err.message))
     }
 
     const toggleTooltip = (loc: string): void => {
@@ -203,7 +202,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
             <Row style={{ marginTop: 20 }}>
                 <Col xs={4}>
                    <FormGroup>
-                        <CustomInput id='isDraggable'
+                        <Input id='isDraggable'
                             type='switch'
                             name='isDraggable'
                             label='Draggable'
@@ -218,12 +217,12 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                                 target='draggable-tip'>
                                 If turned off it will disable dragging on all widgets.
                             </Tooltip>
-                        </CustomInput>
+                        </Input>
                     </FormGroup>
                 </Col>
                 <Col xs={4}>
                     <FormGroup>
-                        <CustomInput id='isResizable'
+                        <Input id='isResizable'
                             type='switch'
                             label='Resizable'
                             onChange={utils.handleToggle(rules, setRules)}
@@ -238,12 +237,12 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                                 target='resizable-tip'>
                                 If turned off it will resizing dragging on all widgets.
                             </Tooltip>
-                        </CustomInput>
+                        </Input>
                     </FormGroup>
                 </Col>
                 <Col xs={4} style={{ paddingLeft: 0 }}>
                     <FormGroup>
-                        <CustomInput id='isRearrangeable'
+                        <Input id='isRearrangeable'
                             type='switch'
                             name='preventCollision'
                             label='No Collision'
@@ -258,7 +257,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                                 target='rearrangeable-tip'>
                                 Grid items won't change position when being dragged over.
                             </Tooltip>
-                        </CustomInput>
+                        </Input>
                     </FormGroup>
                 </Col>
             </Row>

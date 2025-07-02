@@ -7,12 +7,12 @@ import Input from 'reactstrap/lib/Input'
 import FormFeedback from 'reactstrap/lib/FormFeedback'
 import Button from 'reactstrap/lib/Button'
 
-import AuthActions from 'data/auth/actions'
-import NotifActions from 'data/notifications/actions'
 import { FormCtrlGroup, FormControl } from '../_common/validation'
 import * as Validators from '../_common/validators'
 import * as utils from '../_common/utils'
 import { OnEnter } from '../_common/onEnter'
+import { myAuthActions } from '../../data/auth/actions'
+import { myNotifActions } from '../../data/notifications/actions'
 
 interface Props {}
 
@@ -31,9 +31,9 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
 
     const tryLogin = () => {
         const { email, password } = rules.value
-        AuthActions.login(email, password)
+        myAuthActions.login(email, password)
         .then(() => setLoginSuccess(true))
-        .catch(err => NotifActions.error(err.response.data))
+        .catch(err => myNotifActions.error(err.response.data))
     }
 
     const openPopup = () => {
@@ -43,7 +43,7 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
         const top = (window.innerHeight / 2) - (height / 2)
 
         let popup: Window
-        AuthActions.waitFor3rdPartyAuth(() => {
+        myAuthActions.waitFor3rdPartyAuth(() => {
             popup.close()
             setLoginSuccess(true)
         })
@@ -51,8 +51,8 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
             `toolbar=no, location=no, directories=no, status=no, menubar=no,
             scrollbars=no, resizable=no, copyhistory=no, width=${width},
             height=${height}, top=${top}, left=${left}`
-        ))
-        .catch(err => NotifActions.error(err))
+        ) as Window)
+        .catch(err => myNotifActions.error(err))
     }
 
     if (loginSuccess) {

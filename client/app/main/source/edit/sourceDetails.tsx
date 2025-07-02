@@ -12,18 +12,16 @@ import FormGroup from 'reactstrap/lib/FormGroup'
 import Label from 'reactstrap/lib/Label'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
 import FormFeedback from 'reactstrap/lib/FormFeedback'
-import CustomInput from 'reactstrap/lib/CustomInput'
 
-import { store } from 'data/store'
-import { ISource } from 'common/models'
-import sourceActions from 'data/sources/actions'
-import NotifActions from 'data/notifications/actions'
-import { FormControl, FormCtrlGroup, FormCtrlArray } from '../../../_common/validation'
 import * as Validators from '../../../_common/validators'
 import * as utils from '../../../_common/utils'
 
 import { ColumnNameField } from './columnName'
 import { ColumnTypeDropdown } from './columnType'
+import { ISource } from '@mern/server/api/source/model'
+import { FormControl, FormCtrlArray, FormCtrlGroup } from '../../../_common/validation'
+import { mySourceActions } from '../../../../data/sources/actions'
+import { myNotifActions } from '../../../../data/notifications/actions'
 
 interface Props {
     source: ISource
@@ -48,10 +46,10 @@ export const SourceDetails: React.FunctionComponent<Props> = (props: Props) => {
 
     const save = (): void => {
         const tmp = Object.assign({}, props.source, rules.value)
-        sourceActions.update(tmp)
-        .then(() => NotifActions.success(`Updated source: ${tmp.title}`))
+        mySourceActions.update(tmp)
+        .then(() => myNotifActions.success(`Updated source: ${tmp.title}`))
         .then(() => props.onDone())
-        .catch(err => NotifActions.error(err.message))
+        .catch(err => myNotifActions.error(err.message))
     }
 
     const getColumnColor = (type: string): string => {
@@ -106,12 +104,12 @@ export const SourceDetails: React.FunctionComponent<Props> = (props: Props) => {
                         Is Public:
                     </Label>
                     <Col xs={9}>
-                        <CustomInput id='isPublic'
+                        {/* <CustomInput id='isPublic'
                             type='switch'
                             name='isPublic'
                             onChange={utils.handleToggle(rules, setRules)}
                             checked={rules.get('isPublic').value}>
-                        </CustomInput>
+                        </CustomInput> */}
                     </Col>
                 </FormGroup>
                 <Row>

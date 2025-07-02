@@ -1,20 +1,20 @@
 import * as React from 'react'
-import PageActions from 'data/pages/actions'
-import NotifActions from 'data/notifications/actions'
 import { ConfirmModal } from '../../_common/confirmation'
 import * as FontAwesome from 'react-fontawesome'
 import Button from 'reactstrap/lib/Button'
+import myPageActions from '../../../data/pages/actions'
+import { myNotifActions } from '../../../data/notifications/actions'
 
-class Props {
+type Props = {
     pageName: string
     _id: string
 }
 
 export const DeletePageButton: React.FunctionComponent<Props> = (props: Props) => {
     const removePage = () => {
-        PageActions.delete(props._id)
-        .then(() => NotifActions.success(`Removed page: ${props.pageName}`))
-        .catch(err => NotifActions.error(err.message))
+        myPageActions.delete(props._id)
+        .then(() => myNotifActions.success(`Removed page: ${props.pageName}`))
+        .catch(err => myNotifActions.error(err.message))
     }
 
     return <ConfirmModal

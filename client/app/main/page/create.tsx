@@ -11,13 +11,13 @@ import NavItem from 'reactstrap/lib/NavItem'
 import NavLink from 'reactstrap/lib/NavLink'
 import * as FontAwesome from 'react-fontawesome'
 
-import pageActions from 'data/pages/actions'
-import NotifActions from 'data/notifications/actions'
 import { FormCtrlGroup, FormControl } from '../../_common/validation'
 import * as Validators from '../../_common/validators'
 import * as utils from '../../_common/utils'
 import Modal from 'reactstrap/lib/Modal'
 import { OnEnter } from '../../_common/onEnter'
+import myPageActions from '../../../data/pages/actions'
+import { myNotifActions } from '../../../data/notifications/actions'
 
 interface Props {}
 
@@ -45,11 +45,11 @@ export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) =
     const close = (event: React.FormEvent<any>) => {
         if (event) event.stopPropagation()
         const title: string = rules.value.title
-        pageActions.create(title)
-        .then(pageId => pageActions.select(pageId))
-        .then(() => NotifActions.notify('success', `Created page: ${title}`))
+        myPageActions.create(title)
+        .then(pageId => myPageActions.select(pageId))
+        .then(() => myNotifActions.notify('success', `Created page: ${title}`))
         .then(() => setOpen(false))
-        .catch(err => NotifActions.notify('danger', err.message))
+        .catch(err => myNotifActions.notify('danger', err.message))
     }
 
     const getModalTemplate = (): JSX.Element => {

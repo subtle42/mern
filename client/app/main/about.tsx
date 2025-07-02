@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { store } from 'data/store'
 import { Redirect } from 'react-router'
+import { store } from '../../data/store'
 
 export const AboutPage: React.FunctionComponent<void> = (props) => {
     const [shouldRedirect, setRedirect] = React.useState(false)

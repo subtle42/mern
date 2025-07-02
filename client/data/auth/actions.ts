@@ -1,11 +1,11 @@
 import axios, { AxiosPromise } from 'axios'
 import { store } from '../store'
 import pageActions from '../pages/actions'
-import widgetActions from '../widgets/actions'
-import sourceActions from '../sources/actions'
 import { Socket } from 'socket.io-client'
 import { IUser } from '@mern/server/api/user/model'
 import { myBookActions } from '../books/actions'
+import { myWidgetActions } from '../widgets/actions'
+import { mySourceActions } from '../sources/actions'
 
 class AuthActions {
     private nameSpace = 'auth'
@@ -17,9 +17,8 @@ class AuthActions {
     private sendDispatch (type: string, payload: any): Promise<void> {
         return this.store.dispatch(new Promise((resolve) => {
             resolve({
-                type,
+                type: `${this.nameSpace}/${type}`,
                 payload,
-                namespace: this.nameSpace
             })
         }))
     }
@@ -57,9 +56,9 @@ class AuthActions {
         .then(() => this.me())
         .then(() => myBookActions.connect(token))
         .then(() => pageActions.connect(token))
-        .then(() => widgetActions.connect(token))
-        .then(() => sourceActions.connect(token))
-        .then(() => sourceActions.joinRoom(this.store.getState().auth.me._id))
+        .then(() => myWidgetActions.connect(token))
+        .then(() => mySourceActions.connect(token))
+        .then(() => mySourceActions.joinRoom(this.store.getState().auth.me._id))
         .then(() => myBookActions.joinRoom(this.store.getState().auth.me._id))
         .then(() => {
             if (store.getState().books.list.length === 0) return
@@ -113,8 +112,8 @@ class AuthActions {
         .then(() => this.setUser(undefined))
         .then(() => myBookActions.disconnect())
         .then(() => pageActions.disconnect())
-        .then(() => widgetActions.disconnect())
-        .then(() => sourceActions.disconnect())
+        .then(() => myWidgetActions.disconnect())
+        .then(() => mySourceActions.disconnect())
     }
 
     private deleteAuthCookie () {
@@ -149,6 +148,4 @@ class AuthActions {
     }
 }
 
-const authActions = new AuthActions(store)
-
-export default authActions
+export const myAuthActions = new AuthActions(store)

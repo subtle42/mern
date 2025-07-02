@@ -29,5 +29,5 @@ const pageSchema = new Schema({
 
 
 export const Page = model('Page', pageSchema)
-export type IPage = InferSchemaType<typeof pageSchema>
+export type IPage = InferSchemaType<typeof pageSchema> & {_id:any}
 export type PageDoc = Document<unknown, {}, IPage>

@@ -24,7 +24,7 @@ declare global {
  * @param next
  */
 export function isAuthenticated (req: Request, res: Response, next: NextFunction): void {
-    let token = req.body.token || req.query.token || req.headers['authorization']
+    let token = req.headers['authorization'] || req.body.token
     if (!token) {
         res.status(401).send({
             message: 'No token provided'

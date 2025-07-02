@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as FontAwesome from 'react-fontawesome'
 import InputGroup from 'reactstrap/lib/InputGroup'
-import InputGroupAddon from 'reactstrap/lib/InputGroupAddon'
+import InputGroupText from 'reactstrap/lib/InputGroupText'
 import Button from 'reactstrap/lib/Button'
 import Input from 'reactstrap/lib/Input'
 import FormFeedback from 'reactstrap/lib/FormFeedback'
@@ -30,7 +30,7 @@ export const ColumnNameField: React.FunctionComponent<Props> = (props: Props) =>
                 onClick={() => setEditMode(true)} />
         </span>
         <InputGroup hidden={!isEditMode}>
-            <InputGroupAddon addonType='prepend'>
+            <InputGroupText addonType='prepend'>
                 <Button color='primary'
                     disabled={rules.invalid}
                     onClick={() => {
@@ -39,7 +39,7 @@ export const ColumnNameField: React.FunctionComponent<Props> = (props: Props) =>
                     }}>
                     Done
                 </Button>
-            </InputGroupAddon>
+            </InputGroupText>
             <Input type='text'
                 style={{ width: 250 }}
                 value={rules.value}

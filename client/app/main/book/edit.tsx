@@ -2,15 +2,15 @@ import * as React from 'react'
 import * as FontAwesome from 'react-fontawesome'
 import Modal from 'reactstrap/lib/Modal'
 import SwipeableViews from 'react-swipeable-views'
-import { IBook } from 'common/models'
 import { BookList } from './edit/list'
 import { BookEditForm } from './edit/form'
+import { IBook } from '@mern/server/api/book/model'
 
 interface Props {}
 
 export const EditBookButton: React.FunctionComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
-    const [toEdit, setEdit] = React.useState(undefined as IBook)
+    const [toEdit, setEdit] = React.useState<undefined|IBook>(undefined)
 
     const getModal = (): JSX.Element => {
         return <Modal isOpen={isOpen}

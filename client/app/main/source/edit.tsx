@@ -3,14 +3,14 @@ import * as FontAwesome from 'react-fontawesome'
 import Modal from 'reactstrap/lib/Modal'
 import SwipeableViews from 'react-swipeable-views'
 import { SourceList } from './edit/list'
-import { ISource } from 'common/models'
 import { SourceDetails } from './edit/sourceDetails'
+import { ISource } from '@mern/server/api/source/model'
 
 interface Props {}
 
 export const EditSourceButton: React.FunctionComponent<Props> = (props: Props) => {
     const [isOpen, setOpen] = React.useState(false)
-    const [source, setSource] = React.useState(undefined as ISource)
+    const [source, setSource] = React.useState<ISource|undefined>(undefined)
 
     const getSourceDetails = (): JSX.Element => {
         if (!source) return <div />

@@ -7,12 +7,12 @@ import ModalHeader from 'reactstrap/lib/ModalHeader'
 import ModalBody from 'reactstrap/lib/ModalBody'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
 
-import BookActions from 'data/books/actions'
-import NotifActions from 'data/notifications/actions'
-import { IBook } from 'common/models'
-import { store } from 'data/store'
 import { ConfirmModal } from '../../../_common/confirmation'
 import { useBooks } from '../../../_common/hooks'
+import { IBook } from '@mern/server/api/book/model'
+import { myBookActions } from '../../../../data/books/actions'
+import { myNotifActions } from '../../../../data/notifications/actions'
+import { store } from '../../../../data/store'
 
 interface Props {
     onEdit: (book: IBook) => void
@@ -23,13 +23,13 @@ export const BookList: React.FunctionComponent<Props> = (props: Props) => {
     const books = useBooks()
 
     const remove = (book: IBook) => {
-        BookActions.delete(book)
-        .then(() => NotifActions.success(`Removed book: ${book.name}`))
-        .catch(err => NotifActions.error(err.message))
+        myBookActions.delete(book)
+        .then(() => myNotifActions.success(`Removed book: ${book.name}`))
+        .catch(err => myNotifActions.error(err.message))
     }
 
     const getDeleteButton = (book: IBook): JSX.Element => {
-        if (book.owner !== store.getState().auth.me._id) return <div/>
+        if (book.owner !== store.getState().auth.me?._id) return <div/>
         return <ConfirmModal header='Delete Source'
             message={`Are you sure you want to delete: ${book.name}?`}>
             <Button outline
@@ -43,7 +43,7 @@ export const BookList: React.FunctionComponent<Props> = (props: Props) => {
     }
 
     const getEditButton = (book: IBook): JSX.Element => {
-        const userId = store.getState().auth.me._id
+        const userId = store.getState().auth.me?._id
         if (book.owner !== userId || book.editors.indexOf(userId) !== -1) return <div />
         return <Button outline
             style={{ marginRight: 15 }}

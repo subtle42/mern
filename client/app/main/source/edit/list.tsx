@@ -7,15 +7,15 @@ import ListGroupItem from 'reactstrap/lib/ListGroupItem'
 import Button from 'reactstrap/lib/Button'
 import ListGroup from 'reactstrap/lib/ListGroup'
 
-import { ISource } from 'common/models'
 import { useSources, useUser } from '../../../_common/hooks'
 import { ConfirmModal } from '../../../_common/confirmation'
-import SourceActions from 'data/sources/actions'
-import NotifActions from 'data/notifications/actions'
 import Row from 'reactstrap/lib/Row'
 import Col from 'reactstrap/lib/Col'
 import Input from 'reactstrap/lib/Input'
 import FormGroup from 'reactstrap/lib/FormGroup'
+import { ISource } from '@mern/server/api/source/model'
+import { mySourceActions } from '../../../../data/sources/actions'
+import { myNotifActions } from '../../../../data/notifications/actions'
 
 interface Props {
     onDone: () => void
@@ -28,9 +28,9 @@ export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
     const [searchName, setSearchName] = React.useState('')
 
     const remove = (source: ISource) => {
-        SourceActions.delete(source._id)
-        .then(() => NotifActions.success(`Removed source: ${source.title}`))
-        .catch(err => NotifActions.error(err.response.data))
+        mySourceActions.delete(source._id)
+        .then(() =>  myNotifActions.success(`Removed source: ${source.title}`))
+        .catch(err => myNotifActions.error(err.response.data))
     }
 
     const getDeleteButton = (source: ISource): JSX.Element => {

@@ -6,11 +6,11 @@ import Col from 'reactstrap/lib/Col'
 import Input from 'reactstrap/lib/Input'
 import FormFeedback from 'reactstrap/lib/FormFeedback'
 import Button from 'reactstrap/lib/Button'
-import AuthActions from 'data/auth/actions'
-import NotifActions from 'data/notifications/actions'
 import { FormCtrlGroup, FormControl } from '../_common/validation'
 import * as Validators from '../_common/validators'
 import * as utils from '../_common/utils'
+import { myAuthActions } from '../../data/auth/actions'
+import { myNotifActions } from '../../data/notifications/actions'
 
 interface Props {}
 
@@ -35,10 +35,10 @@ export const RegisterPage: React.FunctionComponent<Props> = (props: Props) => {
     }))
 
     const createUser = () => {
-        AuthActions.create(rules.value as any)
-        .then(() => NotifActions.notify('success', 'Register Successful'))
+        myAuthActions.create(rules.value as any)
+        .then(() => myNotifActions.notify('success', 'Register Successful'))
         .then(() => setRegisterSuccess(true))
-        .catch(err => NotifActions.notify('danger', err.message))
+        .catch(err => myNotifActions.notify('danger', err.message))
     }
 
     if (registerSuccess) {
