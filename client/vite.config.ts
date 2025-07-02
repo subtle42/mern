@@ -12,6 +12,11 @@ export default defineConfig({
             "/auth": {
                 target: 'http://localhost:3333',
                 changeOrigin: false,
+            },
+            '/socket.io': {
+                target: 'ws://localhost:3333',
+                ws: true,
+                rewriteWsOrigin: false,
             }
         }
     }

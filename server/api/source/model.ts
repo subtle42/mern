@@ -1,11 +1,24 @@
 import { Schema, model, InferSchemaType, Document } from 'mongoose'
 
+const SourceColumnSchema = new Schema({
+    name: {type: String, required: true},
+    ref: {type: String, required: true},
+    type: {
+        type: String,
+        required: true,
+        enum: ['number', 'group', 'text', 'datetime']
+    },
+    values: {type: [String], default: [], required: false},
+    min: Number,
+    max: Number,
+})
+
 const SourceSchema = new Schema({
     title: { type: String, required: true },
     location: { type: String, required: true },
     size: { type: Number, default: 0 },
     rowCount: { type: Number, default: 0 },
-    columns: { type: [], default: [] },
+    columns: { type: [SourceColumnSchema], default: [] },
     owner: { type: String, required: true },
     editors: { type: [String], default: [] },
     viewers: { type: [String], default: [] },
@@ -13,5 +26,7 @@ const SourceSchema = new Schema({
 })
 
 export const Source = model('Source', SourceSchema)
-export type ISource = InferSchemaType<typeof SourceSchema> & {_id: any}
+export type ISourceColumn = InferSchemaType<typeof SourceColumnSchema>
+export type ISource = Omit<InferSchemaType<typeof SourceSchema>, 'columns'> & { columns: ISourceColumn[]}
 export type SourceDoc = Document<unknown, {}, ISource>
+export type ISourceColumnType = 'number' | 'group' | 'text' | 'datetime'

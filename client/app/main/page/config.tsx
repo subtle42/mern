@@ -14,7 +14,7 @@ import Form from 'reactstrap/lib/Form'
 import FormGroup from 'reactstrap/lib/FormGroup'
 import Card from 'reactstrap/lib/Card'
 import CardTitle from 'reactstrap/lib/CardTitle'
-import * as FontAwesome from 'react-fontawesome'
+import FontAwesome from 'react-fontawesome'
 
 
 import { FormCtrlGroup, FormControl, FormCtrlArray } from '../../_common/validation'
@@ -80,6 +80,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
     const pages = usePages()
 
     const open = () => {
+        debugger
         rules.value = store.getState().pages.list
             .find(page => page._id === props._id) as IPage
         setOpen(true)
@@ -201,53 +202,54 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
             </Row>
             <Row style={{ marginTop: 20 }}>
                 <Col xs={4}>
-                   <FormGroup>
+                   <FormGroup switch>
                         <Input id='isDraggable'
                             type='switch'
                             name='isDraggable'
-                            label='Draggable'
                             onChange={utils.handleToggle(rules, setRules)}
                             checked={rules.get('isDraggable').value}>
-                            <FontAwesome
-                                name='question-circle'
-                                id='draggable-tip'
-                                style={{ marginLeft: 10 }}/>
-                            <Tooltip isOpen={tips.draggable}
-                                toggle={() => toggleTooltip('draggable')}
-                                target='draggable-tip'>
-                                If turned off it will disable dragging on all widgets.
-                            </Tooltip>
                         </Input>
+                        <Label>Draggable</Label>
+                        <FontAwesome
+                            name='question-circle'
+                            id='draggable-tip'
+                            style={{ marginLeft: 10 }}/>
+                        <Tooltip isOpen={tips.draggable}
+                            toggle={() => toggleTooltip('draggable')}
+                            target='draggable-tip'>
+                            If turned off it will disable dragging on all widgets.
+                        </Tooltip>
                     </FormGroup>
                 </Col>
                 <Col xs={4}>
-                    <FormGroup>
+                    <FormGroup switch>
                         <Input id='isResizable'
                             type='switch'
-                            label='Resizable'
                             onChange={utils.handleToggle(rules, setRules)}
                             name='isResizable'
                             checked={rules.get('isResizable').value}>
-                            <FontAwesome
-                                name='question-circle'
-                                id='resizable-tip'
-                                style={{ marginLeft: 10 }}/>
-                            <Tooltip isOpen={tips.resizable}
-                                toggle={() => toggleTooltip('resizable')}
-                                target='resizable-tip'>
-                                If turned off it will resizing dragging on all widgets.
-                            </Tooltip>
                         </Input>
+                        <Label>Resizable</Label>
+                        <FontAwesome
+                            name='question-circle'
+                            id='resizable-tip'
+                            style={{ marginLeft: 10 }}/>
+                        <Tooltip isOpen={tips.resizable}
+                            toggle={() => toggleTooltip('resizable')}
+                            target='resizable-tip'>
+                            If turned off it will resizing dragging on all widgets.
+                        </Tooltip>
                     </FormGroup>
                 </Col>
                 <Col xs={4} style={{ paddingLeft: 0 }}>
-                    <FormGroup>
+                    <FormGroup switch>
                         <Input id='isRearrangeable'
                             type='switch'
                             name='preventCollision'
-                            label='No Collision'
                             onChange={utils.handleToggle(rules, setRules)}
                             checked={rules.get('preventCollision').value}>
+                        </Input>
+                        <Label>No Collision</Label>
                             <FontAwesome
                                 name='question-circle'
                                 id='rearrangeable-tip'
@@ -257,7 +259,6 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                                 target='rearrangeable-tip'>
                                 Grid items won't change position when being dragged over.
                             </Tooltip>
-                        </Input>
                     </FormGroup>
                 </Col>
             </Row>
@@ -288,7 +289,9 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
 
     return <div hidden={pages.length === 0}>
         <div className='fixed-plugin' onClick={() => open()}>
-            <FontAwesome style={{ paddingTop: 6 }} size='2x' name='cog' />
+            
+            {/* <FontAwesome style={{ paddingTop: 6 }} size='2x' name='cog' /> */}
+            <span>X</span>
         </div>
         {getModal()}
     </div>

@@ -7,7 +7,7 @@ import ListGroup from 'reactstrap/lib/ListGroup'
 import Col from 'reactstrap/lib/Col'
 import ListGroupItem from 'reactstrap/lib/ListGroupItem'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
-import * as FontAwesome from 'react-fontawesome'
+import FontAwesome from 'react-fontawesome'
 import { useDropzone } from 'react-dropzone'
 
 import { useSources } from '../../../_common/hooks'

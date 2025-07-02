@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as FontAwesome from 'react-fontawesome'
+import FontAwesome from 'react-fontawesome'
 import Button from 'reactstrap/lib/Button'
 import ListGroup from 'reactstrap/lib/ListGroup'
 import ListGroupItem from 'reactstrap/lib/ListGroupItem'

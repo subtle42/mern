@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as FontAwesome from 'react-fontawesome'
+import FontAwesome from 'react-fontawesome'
 import Modal from 'reactstrap/lib/Modal'
 import SwipeableViews from 'react-swipeable-views'
 import { BookList } from './edit/list'

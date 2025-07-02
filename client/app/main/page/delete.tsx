@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { ConfirmModal } from '../../_common/confirmation'
-import * as FontAwesome from 'react-fontawesome'
+import FontAwesome from 'react-fontawesome'
 import Button from 'reactstrap/lib/Button'
 import myPageActions from '../../../data/pages/actions'
 import { myNotifActions } from '../../../data/notifications/actions'

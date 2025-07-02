@@ -27,8 +27,10 @@ export class AclSocket {
 
     private setupSockEvents () {
         this.namespace.on('connection', (socket: Socket) => {
+            console.log(`connecting to ${this.name}`)
             this.veryifyToken(socket.handshake.query.token as string)
             .then(decoded => {
+                console.log(`socket verified: ${this.name}`)
                 socket.join(decoded._id)
                 return this.getInitialState(decoded._id)
                 .then(data => this.namespace.in(decoded._id).emit('addedOrChanged', data))

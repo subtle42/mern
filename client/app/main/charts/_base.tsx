@@ -1,19 +1,19 @@
 import * as React from 'react'
-import { store } from 'data/store'
 import { Unsubscribe } from 'redux'
-import { IWidget, AxisConfig } from 'common/models'
-import sourceActions from 'data/sources/actions'
 import { ScaleLinear, ScaleBand, ScaleTime } from 'd3-scale'
 import { axisBottom, axisLeft, Axis } from 'd3-axis'
 import { format } from 'd3-format'
 import { select } from 'd3-selection'
 import { brushX } from 'd3-brush'
 import './style.css'
+import { IWidget } from '@mern/server/api/widget/model'
+import { mySourceActions } from '../../../data/sources/actions'
+import { store } from '../../../data/store'
 
 class State {
     chart: any[] = []
-    height: number
-    width: number
+    height!: number
+    width!: number
 }
 
 interface Props {
@@ -22,14 +22,14 @@ interface Props {
 
 export abstract class BaseChart extends React.Component<Props, State> {
     private data: any[] = []
-    private unsub: Unsubscribe
+    private unsub!: Unsubscribe
     state = new State()
     chart: any[] = []
-    config: IWidget
-    xAxis: Axis<any>
-    yAxis: Axis<any>
-    x: ScaleLinear<number, number> | ScaleBand<string> | ScaleTime<number, number>
-    y: ScaleLinear<number, number>
+    config!: IWidget
+    xAxis!: Axis<any>
+    yAxis!: Axis<any>
+    x!: ScaleLinear<number, number> | ScaleBand<string> | ScaleTime<number, number>
+    y!: ScaleLinear<number, number>
     brush = brushX()
     .on('end', (event) => {
         const x: any = this.x
@@ -38,7 +38,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
     })
 
     private updateRangeFilter (range: number[]) {
-        sourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], range)
+        mySourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], range)
     }
 
     private _updateChart () {
@@ -55,7 +55,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
     abstract renderChart (): JSX.Element
 
     componentDidMount () {
-        this.config = store.getState().widgets.list.find(w => w._id === this.props.id)
+        this.config = store.getState().widgets.list.find(w => w._id === this.props.id) as IWidget
         this.data = store.getState().data.results[this.props.id] || []
         this._updateChart()
 
@@ -68,7 +68,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
                 }
             }
 
-            const config = store.getState().widgets.list.find(w => w._id === this.props.id)
+            const config = store.getState().widgets.list.find(w => w._id === this.props.id) as IWidget
             if (this.config !== config) {
                 this.config = config
                 this._updateChart()
@@ -83,10 +83,12 @@ export abstract class BaseChart extends React.Component<Props, State> {
     }
 
     getWidthtWithMargins (): number {
+        if (!this.config.margins) return this.state.width
         return this.state.width - this.config.margins.left - this.config.margins.right
     }
 
     getHeightWithMargins (): number {
+        if (!this.config.margins) return this.state.height
         return this.state.height - this.config.margins.top - this.config.margins.bottom
     }
 
@@ -94,7 +96,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
         this.unsub()
     }
 
-    adjustDomain (domain: any[], axis: AxisConfig): [number, number] {
+    adjustDomain (domain: any[], axis): [number, number] {
         if (axis.min) {
             domain[0] = domain[0] < axis.min ? domain[0] : axis.min
         }
@@ -106,28 +108,28 @@ export abstract class BaseChart extends React.Component<Props, State> {
     }
 
     clear () {
-        sourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], [])
+        mySourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], [])
     }
 
-    getXAxis (): JSX.Element {
+    getXAxis (): JSX.Element|undefined {
         if (!this.xAxis || !this.config.xAxis.show) return
         return <g transform={`translate(0, ${this.getHeightWithMargins()})`}
             className='xAxis'
             ref={node => select(node).call(
                 this.xAxis
-                .ticks(this.config.xAxis.ticks || 5)
+                .ticks(this.config.xAxis.ticks || 5) as any
             )}>
         </g>
     }
 
-    getYAxis (): JSX.Element {
+    getYAxis (): JSX.Element|undefined {
         if (!this.yAxis || !this.config.yAxis.show) return
         return <g transform={`translate(${0}, 0)`}
             className='xAxis'
             ref={node => select(node).call(
                 this.yAxis
                 .ticks(this.config.yAxis.ticks || 5)
-                .tickFormat(format('~s'))
+                .tickFormat(format('~s')) as any
             )}>
         </g>
     }
@@ -138,7 +140,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
         this.brush.extent([var1, var2])
         return <g
             className='brushArea'
-            ref={node => select(node).call(this.brush) }>
+            ref={node => select(node).call(this.brush as any) }>
         </g>
     }
 

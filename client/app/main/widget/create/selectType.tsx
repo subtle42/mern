@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Button, Row, Col, ModalHeader, ModalFooter, ModalBody } from 'reactstrap'
 import { ColumnType } from 'common/constants'
-import * as FontAwesome from 'react-fontawesome'
+import FontAwesome from 'react-fontawesome'
 import { useSource } from '../../../_common/hooks'
 import Badge from 'reactstrap/lib/Badge'
 

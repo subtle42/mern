@@ -21,7 +21,7 @@ export const create = handleApiCall(async(req, res) => {
     await myBook.validate()
     const data = await Book.create(myBook)
     BookSocket.onAddOrChange(data.toJSON())
-    utils.handleNoResult(res)()
+    utils.handleResponseNoData(res)()
 })
 
 /**

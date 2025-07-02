@@ -15,15 +15,15 @@ import TabContent from 'reactstrap/lib/TabContent'
 import TabPane from 'reactstrap/lib/TabPane'
 import Card from 'reactstrap/lib/Card'
 import CardTitle from 'reactstrap/lib/CardTitle'
-import * as FontAwesome from 'react-fontawesome'
+import FontAwesome from 'react-fontawesome'
 
-import widgetActions from 'data/widgets/actions'
-import notifActions from 'data/notifications/actions'
 import { FormCtrlGroup, FormControl, ValidatorFn } from '../../_common/validation'
 import * as Validators from '../../_common/validators'
 import * as utils from '../../_common/utils'
 import { useWidget } from '../../_common/hooks'
 import { chartFormStrategy } from './edit/chartFormStrategy'
+import { myWidgetActions } from '../../../data/widgets/actions'
+import { myNotifActions } from '../../../data/notifications/actions'
 
 interface Props {
     id: string
@@ -189,10 +189,10 @@ export const EditButton: React.FunctionComponent<Props> = (props: Props) => {
     }
 
     const save = () => {
-        widgetActions.update(Object.assign({}, config, rules.value))
-        .then(() => notifActions.success('Updated widget'))
+        myWidgetActions.update(Object.assign({}, config, rules.value))
+        .then(() => myNotifActions.success('Updated widget'))
         .then(() => setOpen(false))
-        .catch(err => notifActions.error(err.message))
+        .catch(err => myNotifActions.error(err.message))
     }
 
     return <div>

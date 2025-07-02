@@ -3,8 +3,8 @@ import { scaleBand, scaleLinear } from 'd3-scale'
 import { select } from 'd3-selection'
 import { BaseChart } from './_base'
 import { max } from 'd3-array'
-import sourceActions from 'data/sources/actions'
-import { store } from 'data/store'
+import { store } from '../../../data/store'
+import { mySourceActions } from '../../../data/sources/actions'
 
 export class BarGrouped extends BaseChart {
     x = scaleBand()
@@ -24,7 +24,7 @@ export class BarGrouped extends BaseChart {
         const options: string[] = data.map(d => d._id)
         this.x.domain(options)
         this.xInner.domain(this.config.measures.map(m => m.ref))
-        const yDomain = [0, max(data, d => max(this.config.measures, key => d[key.ref])) as any]
+        const yDomain = [0, max(data, (d:object) => max(this.config.measures, key => d[key.ref]))]
         this.y.domain(this.adjustDomain(yDomain, this.config.yAxis))
 
         const mappedData = {}
@@ -57,7 +57,7 @@ export class BarGrouped extends BaseChart {
     updateFilter (key: string, e: React.FormEvent<any>) {
         e.stopPropagation()
         const mySourceFilter = store.getState().sources.filters[this.config.sourceId]
-        let myFilterDimension = []
+        let myFilterDimension:string[] = []
         if (mySourceFilter) {
             myFilterDimension = mySourceFilter[this.config.dimensions[0]] || []
         }
@@ -74,21 +74,21 @@ export class BarGrouped extends BaseChart {
                 return !myFilterDimension.find(x => x === category)
             })
 
-        sourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], myFilterDimension)
+        mySourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], myFilterDimension)
     }
 
     clear () {
         select(this.myRef.current as any)
             .selectAll('rect')
             .classed('notSelected', false)
-        sourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], [])
+        mySourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], [])
     }
 
     reverseFilter (key: string, event) {
         event.preventDefault()
         event.stopPropagation()
         const mySourceFilter = store.getState().sources.filters[this.config.sourceId]
-        let myFilterDimension = []
+        let myFilterDimension:string[] = []
         if (mySourceFilter) {
             myFilterDimension = mySourceFilter[this.config.dimensions[0]] || []
         }
@@ -104,7 +104,7 @@ export class BarGrouped extends BaseChart {
                 const category = Object.keys(this.state.chart)[index]
                 return !myFilterDimension.find(x => x === category)
             })
-        sourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], myFilterDimension)
+        mySourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], myFilterDimension)
     }
 
     renderChart () {

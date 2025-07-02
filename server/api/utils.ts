@@ -75,6 +75,7 @@ export const handleApiCall = (handler:HandlerFn) => (req: Request, res: Response
         handler(req, res)
     }
     catch(err) {
+        console.error(err)
         handleError(res)(err)
     }
 }

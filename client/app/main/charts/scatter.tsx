@@ -4,7 +4,7 @@ import { extent } from 'd3-array'
 import { brush } from 'd3-brush'
 import { select, } from 'd3-selection'
 import { BaseChart } from './_base'
-import sourceActions from 'data/sources/actions'
+import { mySourceActions } from '../../../data/sources/actions'
 
 interface BrushBounds {
     x: number
@@ -15,10 +15,10 @@ interface BrushBounds {
 
 export class Scatter extends BaseChart {
     myRef = React.createRef()
-    radius: number
+    radius!: number
     x = scaleLinear()
     y = scaleLinear()
-    myBounds: BrushBounds
+    myBounds!: BrushBounds
 
     brush = brush()
         .on('brush', (event) => {
@@ -41,7 +41,7 @@ export class Scatter extends BaseChart {
                 select(this.myRef.current as any)
                 .selectAll('circle')
                 .classed('notSelected', () => false)
-                return sourceActions.addMultipleFilters(this.config.sourceId, this.config.dimensions.map(dim => {
+                return mySourceActions.addMultipleFilters(this.config.sourceId, this.config.dimensions.map(dim => {
                     return {
                         dimension: dim,
                         filter: []
@@ -50,11 +50,11 @@ export class Scatter extends BaseChart {
             }
             const { x,y,x1,y1 } = this.getBrushBounds(event)
 
-            let response = []
+            let response:number[][] = []
             response.push([x, x1])
             response.push([y, y1])
 
-            sourceActions.addMultipleFilters(this.config.sourceId, response.map((row, index) => {
+            mySourceActions.addMultipleFilters(this.config.sourceId, response.map((row, index) => {
                 return {
                     dimension: this.config.dimensions[index],
                     filter: row

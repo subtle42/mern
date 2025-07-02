@@ -15,11 +15,13 @@ const OtherSchema = new Schema({
 const WidgetSchema = new Schema({
     pageId: { type: String, required: true },
     sourceId: { type: String, required: true },
-    margins: {
-        top: { type: Number, required: true, default: 5 },
-        bottom: { type: Number, required: true, default: 20 },
-        left: { type: Number, required: true, default: 35 },
-        right: { type: Number, required: true, default: 10 }
+    margins: { type: {
+            top: { type: Number, required: true, default: 5 },
+            bottom: { type: Number, required: true, default: 20 },
+            left: { type: Number, required: true, default: 35 },
+            right: { type: Number, required: true, default: 10 }
+        },
+        required:true
     },
     dimensions: { type: Array, required: true, default: [] },
     measures: { type: Array, required: true, default: [] },

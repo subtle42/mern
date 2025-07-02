@@ -25,14 +25,19 @@ declare global {
  */
 export function isAuthenticated (req: Request, res: Response, next: NextFunction): void {
     let token = req.headers['authorization'] || req.body.token
+    console.log(`has token: ${!!token}`)
     if (!token) {
         res.status(401).send({
             message: 'No token provided'
         }).end()
         return
     }
+    console.log(`has token: ${!!token}`)
     jwt.verify(token, config.shared.secret, (err, decoded) => {
-        if (err) return res.status(401).send('Failed to authenticate token')
+        if (err) {
+            console.warn('unable to decrypt')
+            return res.status(401).send('Failed to authenticate token')
+        }
         req.user = decoded
         next()
     })
@@ -43,11 +48,13 @@ export function isAuthenticated (req: Request, res: Response, next: NextFunction
  * @param userId
  * @param book
  */
-export const hasOwnerAccess = (userId: string, myModel: Document<unknown, {}, IShared>): Promise<void> => {
-    return new Promise((resolve, reject) => {
-        if (myModel.get('owner') === userId) return resolve()
-        return reject(`User does not have owner access to shareModel: ${myModel._id}`)
-    })
+export const hasOwnerAccess = async(userId: string, myModel: Document<unknown, {}, IShared>): Promise<void> => {
+    if (myModel.get('owner') === userId) return
+    throw new Error(`User does not have owner access to shareModel: ${myModel._id}`)
+    // return new Promise((resolve, reject) => {
+    //     if (myModel.get('owner') === userId) return resolve()
+    //     return reject(`User does not have owner access to shareModel: ${myModel._id}`)
+    // })
 }
 
 /**

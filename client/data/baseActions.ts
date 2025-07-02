@@ -76,6 +76,10 @@ export default abstract class BaseActions {
             .on('error', (err) => console.error(err))
         )
         .then(nsp => this.storeSocket(nsp))
+        .catch(err => {
+            console.error('bad ws', err)
+            return Promise.reject(err)
+        })
     }
 
     /**

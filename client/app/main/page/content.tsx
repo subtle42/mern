@@ -1,8 +1,8 @@
 import 'react-grid-layout/css/styles.css'
 
 import * as React from 'react'
-import * as Loadable from 'react-loadable'
-import { Loading } from '../../_common/loading'
+import ReactGridLayout from 'react-grid-layout'
+import {Widget} from '../widget/widget'
 import { usePage } from '../../_common/hooks'
 import { store } from '../../../data/store'
 import myPageActions from '../../../data/pages/actions'
@@ -49,22 +49,16 @@ export const PageContent: React.FunctionComponent<Props> = (props: Props) => {
         }
     }
 
-    const ReactGridLayout = Loadable({
-        loader: () => import('react-grid-layout'),
-        loading () {
-            return <Loading />
-        }
-    })
+    // const ReactGridLayout = Loadable({
+    //     loader: () => import('react-grid-layout'),
+    // })
 
-    const Widget = Loadable({
-        loader: () => import('../widget/widget')
-            .then(mod => mod.Widget),
-        loading () {
-            return <Loading />
-        }
-    }) as any
+    // const Widget = Loadable({
+    //     loader: () => import('../widget/widget')
+    //         .then(mod => mod.Widget),
+    // }) as any
 
-    const asdf = Object.assign({}, defaultLayoutConfig, page)
+    const asdf = Object.assign({}, defaultLayoutConfig, page) as any
 
     const buildGrid = (): JSX.Element => {
         if (!page) return <div />

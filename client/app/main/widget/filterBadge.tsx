@@ -1,11 +1,12 @@
 import * as React from 'react'
-import * as FontAwesome from 'react-fontawesome'
+import FontAwesome from 'react-fontawesome'
 import Tooltip from 'reactstrap/lib/Tooltip'
 import Badge from 'reactstrap/lib/Badge'
 import { useWidget, useSource } from '../../_common/hooks'
-import { store } from 'data/store'
+import { store } from '../../../data/store'
+import { ISourceColumn } from '@mern/server/api/source/model'
 
-class Props {
+type Props = {
     widgetId: string
 }
 
@@ -28,8 +29,8 @@ const useFilter = (sourceId: string) => {
 
 export const FilterBadge: React.FunctionComponent<Props> = (props: Props) => {
     const widget = useWidget(props.widgetId)
-    const source = useSource(widget ? widget.sourceId : undefined)
-    const filters = useFilter(widget ? widget.sourceId : undefined)
+    const source = useSource(widget?.sourceId)
+    const filters = useFilter(widget?.sourceId)
     const [isOpen, setOpen] = React.useState(false)
     if (!filters) return <div/>
     const keys = Object.keys(filters)
@@ -43,7 +44,7 @@ export const FilterBadge: React.FunctionComponent<Props> = (props: Props) => {
             style={{ textAlign: 'left', fontSize: 10, maxWidth: 500 }}
             target={`filterTooltip_${props.widgetId}`}>
             {keys.map((key, index) => {
-                const myCol = source.columns.find(col => col.ref === key)
+                const myCol = source.columns.find(col => col.ref === key) as ISourceColumn
                 const data = filters[key].map(item => {
                     if (myCol.type === 'number') {
                         return Math.round(item)

@@ -4,14 +4,10 @@ import CardHeader from 'reactstrap/lib/CardHeader'
 import Button from 'reactstrap/lib/Button'
 import CardTitle from 'reactstrap/lib/CardTitle'
 import CardBody from 'reactstrap/lib/CardBody'
-import * as FontAwesome from 'react-fontawesome'
+import FontAwesome from 'react-fontawesome'
 
-import { IWidget, ISource, ISourceColumn } from 'common/models'
 import { ConfirmModal } from '../../_common/confirmation'
 import { useSource, useWidget } from '../../_common/hooks'
-import { store } from 'data/store'
-import WidgetActions from 'data/widgets/actions'
-import NotifyActions from 'data/notifications/actions'
 import { ColumnButton } from './content/columnBtn'
 import { EditButton } from './edit'
 import { Histogram } from '../charts/histogram'
@@ -19,14 +15,19 @@ import { BarGrouped } from '../charts/barGrouped'
 import { Scatter } from '../charts/scatter'
 import { Line } from '../charts/line'
 import { FilterBadge } from './filterBadge'
+import { IWidget } from '@mern/server/api/widget/model'
+import { ISource, ISourceColumn } from '@mern/server/api/source/model'
+import { store } from '../../../data/store'
+import { myWidgetActions } from '../../../data/widgets/actions'
+import { myNotifActions } from '../../../data/notifications/actions'
 
 interface Props {
     _id: string
 }
 
 class State {
-    widgetConfig: IWidget = undefined
-    source: ISource = undefined
+    widgetConfig!: IWidget
+    source: ISource|undefined
     width: number = 0
     height: number = 0
     showTooltip: boolean = false
@@ -34,16 +35,16 @@ class State {
 
 export class Widget extends React.Component<Props, State> {
     state = new State()
-    unsubscribe: Function
+    unsubscribe!: Function
     myRef: any = React.createRef()
 
     getInitalState () {
         const storeState = store.getState()
         const widget = storeState.widgets.list.filter(w => w._id === this.props._id)[0]
-        let source = undefined
+        let source:ISource|undefined = undefined
         if (widget) {
-            source = storeState.sources.list.filter(s => s._id === widget.sourceId)[0]
-            WidgetActions.query(widget)
+            source = storeState.sources.list.filter(s => s._id === widget.sourceId)[0] as ISource
+            myWidgetActions.query(widget)
             .catch(err => console.warn(err))
         }
 
@@ -58,7 +59,7 @@ export class Widget extends React.Component<Props, State> {
         const height = this.myRef.current.offsetHeight - 58
         if (!this.state.widgetConfig) return
         if (this.state.width === width && this.state.height === height) return
-        WidgetActions.setSize(this.state.widgetConfig._id, width, height)
+        myWidgetActions.setSize(this.state.widgetConfig._id, width, height)
     }
 
     componentDidMount () {
@@ -67,7 +68,7 @@ export class Widget extends React.Component<Props, State> {
         this.unsubscribe = store.subscribe(() => {
             let newValue = store.getState().widgets.list.filter(w => w._id === this.props._id)[0]
             if (this.state.widgetConfig !== newValue) {
-                WidgetActions.query(newValue)
+                myWidgetActions.query(newValue)
                 .catch(err => console.warn(err))
                 this.setState({
                     widgetConfig: newValue
@@ -90,12 +91,12 @@ export class Widget extends React.Component<Props, State> {
     }
 
     removeWidget () {
-        WidgetActions.delete(this.props._id)
-        .then(() => NotifyActions.success('Widget removed'))
-        .catch(err => NotifyActions.error(err.message))
+        myWidgetActions.delete(this.props._id)
+        .then(() => myNotifActions.success('Widget removed'))
+        .catch(err => myNotifActions.error(err.message))
     }
 
-    getDropdown (): JSX.Element {
+    getDropdown (): JSX.Element|undefined {
         if (!this.state.widgetConfig) return
 
         const dimCount = this.state.widgetConfig.dimensions.length
@@ -108,8 +109,8 @@ export class Widget extends React.Component<Props, State> {
                     colId={this.state.widgetConfig.dimensions[1]}
                     onColUpdate={col => {
                         this.state.widgetConfig.dimensions[1] = col.ref
-                        WidgetActions.update(this.state.widgetConfig)
-                        .then(() => WidgetActions.query(this.state.widgetConfig))
+                        myWidgetActions.update(this.state.widgetConfig)
+                        .then(() => myWidgetActions.query(this.state.widgetConfig))
                     }}/>
             </div>
         }
@@ -130,9 +131,9 @@ export class Widget extends React.Component<Props, State> {
     getDimDropdown () {
         if (!this.state.widgetConfig) return
 
-        const source = store.getState().sources.list.find(s => s._id === this.state.widgetConfig.sourceId)
+        const source = store.getState().sources.list.find(s => s._id === this.state.widgetConfig.sourceId) as ISource
         const column = source.columns
-            .find(col => col.ref === this.state.widgetConfig.dimensions[0])
+            .find(col => col.ref === this.state.widgetConfig.dimensions[0]) as ISourceColumn
         const helpText: string = column.type !== 'number' ? 'Grouped by ' : ''
 
         return <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -143,8 +144,8 @@ export class Widget extends React.Component<Props, State> {
                 colId={this.state.widgetConfig.dimensions[0]}
                 onColUpdate={col => {
                     this.state.widgetConfig.dimensions[0] = col.ref
-                    WidgetActions.update(this.state.widgetConfig)
-                    .then(() => WidgetActions.query(this.state.widgetConfig))
+                    myWidgetActions.update(this.state.widgetConfig)
+                    .then(() =>  myWidgetActions.query(this.state.widgetConfig))
                 }}/>
         </div>
     }
@@ -153,9 +154,9 @@ export class Widget extends React.Component<Props, State> {
         this.state.widgetConfig.measures[0] = {
             ref: col.ref
         }
-        WidgetActions.update(this.state.widgetConfig)
-        .then(() => WidgetActions.query(this.state.widgetConfig))
-        .catch(err => NotifyActions.success(err.message))
+        myWidgetActions.update(this.state.widgetConfig)
+        .then(() => myWidgetActions.query(this.state.widgetConfig))
+        .catch(err => myNotifActions.success(err.message))
     }
 
     getChart = (widget: IWidget): JSX.Element => {

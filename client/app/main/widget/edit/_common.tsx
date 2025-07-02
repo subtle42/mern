@@ -2,7 +2,8 @@ import * as React from 'react'
 import Card from 'reactstrap/lib/Card'
 import Row from 'reactstrap/lib/Row'
 import Col from 'reactstrap/lib/Col'
-import CustomInput from 'reactstrap/lib/CustomInput'
+// import CustomInput from 'reactstrap/lib/CustomInput'
+import Input from 'reactstrap/lib/Input'
 import Collapse from 'reactstrap/lib/Collapse'
 import FormGroup from 'reactstrap/lib/FormGroup'
 
@@ -13,13 +14,13 @@ export const buildLegendTemplate = (rules, setRules): JSX.Element => {
     return <Row>
         <Col>
             <FormGroup>
-                <CustomInput id='other.showLegend'
+                <Input id='other.showLegend'
                     label='Show Legend'
                     name='other.showLegend'
                     type='switch'
                     checked={rules.get('other').get('showLegend').value}
                     onChange={utils.handleToggle(rules, setRules)}>
-                </CustomInput>
+                </Input>
             </FormGroup>
         </Col>
     </Row>
