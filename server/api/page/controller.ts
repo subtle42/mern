@@ -24,10 +24,8 @@ export const update = utils.handleApiCall(async(req, res) => {
     let myId: string = req.body._id
     let myPage = new Page(req.body)
     delete req.body._id
-    
     const toUpdatePage = await Page.findById(myId).exec()
-    await Book.find().getPageParent(toUpdatePage)
-    const toUpdateBook = await Book.findById(toUpdatePage._id).exec()
+    const toUpdateBook = await Book.findById(toUpdatePage.bookId).exec()
     await auth.hasEditAccess(req.user._id, toUpdateBook)
     await Page.findByIdAndUpdate(myId, myPage).exec()
     pageSocket.onAddOrChange(myPage)

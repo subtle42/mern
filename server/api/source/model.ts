@@ -27,6 +27,6 @@ const SourceSchema = new Schema({
 
 export const Source = model('Source', SourceSchema)
 export type ISourceColumn = InferSchemaType<typeof SourceColumnSchema>
-export type ISource = Omit<InferSchemaType<typeof SourceSchema>, 'columns'> & { columns: ISourceColumn[]}
+export type ISource = Omit<InferSchemaType<typeof SourceSchema>, 'columns'> & { _id: any, columns: ISourceColumn[]}
 export type SourceDoc = Document<unknown, {}, ISource>
 export type ISourceColumnType = 'number' | 'group' | 'text' | 'datetime'

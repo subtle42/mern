@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { Button, Row, Col, ModalHeader, ModalFooter, ModalBody } from 'reactstrap'
-import { ColumnType } from 'common/constants'
 import FontAwesome from 'react-fontawesome'
 import { useSource } from '../../../_common/hooks'
 import Badge from 'reactstrap/lib/Badge'
+import { ISourceColumnType } from '@mern/server/api/source/model'
 
 interface Props {
     sourceId: string
@@ -12,12 +12,12 @@ interface Props {
     done: (chartType: string[]) => void
 }
 
-class ChartConf {
+type ChartConf = {
     name: string
     type: string
     requires: {
         count: number,
-        colType: ColumnType
+        colType: ISourceColumnType
     }[]
 }
 
@@ -74,7 +74,7 @@ export const SelectChartType: React.FunctionComponent<Props> = (props: Props) =>
         })
     }
 
-    const getCountBadge = (col: ChartConf): JSX.Element => {
+    const getCountBadge = (col: ChartConf): JSX.Element|undefined => {
         const count = selected.filter(x => x.type === col.type).length
         if (count === 0) return
         return <Badge color='light'

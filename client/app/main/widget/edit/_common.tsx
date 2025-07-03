@@ -30,15 +30,15 @@ export const buildAxisTemplate = (axis: string, rules, setRules): JSX.Element =>
     return <Card body style={{ padding: 10 }}>
         <Row>
             <Col>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <CustomInput id={`${axis}.show`}
+                <FormGroup switch style={{ display: 'flex', justifyContent: 'center' }}>
+                    <Input id={`${axis}.show`}
                         label={axis}
                         name={`${axis}.show`}
                         type='switch'
                         checked={rules.get(axis).get('show').value}
                         onChange={utils.handleToggle(rules, setRules)}>
-                    </CustomInput>
-                </div>
+                    </Input>
+                </FormGroup>
             </Col>
         </Row>
         <Collapse isOpen={rules.get(axis).get('show').value}>

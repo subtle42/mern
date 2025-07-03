@@ -70,12 +70,12 @@ export const createSchema = (name: string, schema: mongoose.Schema): any => {
 
 type HandlerFn = (req: Request, res: Response) => void
 
-export const handleApiCall = (handler:HandlerFn) => (req: Request, res: Response) => {
+export const handleApiCall = (handler:HandlerFn) => async(req: Request, res: Response) => {
     try {
-        handler(req, res)
+        await handler(req, res)
     }
     catch(err) {
-        console.error(err)
+        console.error('in error', err)
         handleError(res)(err)
     }
 }
