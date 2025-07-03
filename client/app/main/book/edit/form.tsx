@@ -15,6 +15,7 @@ import { useForm } from 'react-hook-form'
 import { FormFeedback } from 'reactstrap'
 import { myBookActions } from '../../../../data/books/actions'
 import { myNotifActions } from '../../../../data/notifications/actions'
+import { handleAsync } from '../../utils'
 
 
 
@@ -37,13 +38,12 @@ export const BookEditForm: React.FunctionComponent<Props> = (props: Props) => {
     // newRules.value = book
     // const [rules, setRules] = React.useState(newRules)
 
-    const save = (data) => {
+    const save = handleAsync(async(data) => {
         const tmp = Object.assign({}, book, data)
-        myBookActions.update(tmp)
-        .then(() => myNotifActions.success(`Updated book: ${tmp.name}`))
-        .then(() => props.onDone())
-        .catch(err => myNotifActions.error(err.message))
-    }
+        await myBookActions.update(tmp)
+        myNotifActions.success(`Updated book: ${tmp.name}`)
+        props.onDone()
+    })
 
 
     const getForm = (): JSX.Element => {
@@ -52,7 +52,10 @@ export const BookEditForm: React.FunctionComponent<Props> = (props: Props) => {
                 <FormGroup>
                     <Label>Name</Label>
                     <Input type='text'
-                        {...register('name', {required: 'Book name is required'})}
+                        {...register('name', {
+                            required: 'Book name is required',
+                            value: book.name
+                        })}
                         invalid={errors.name}>
                     </Input>
                     <FormFeedback>{errors.name?.message}</FormFeedback>
@@ -72,7 +75,7 @@ export const BookEditForm: React.FunctionComponent<Props> = (props: Props) => {
     }
 
     return <div>
-        <Form onSubmit={handleSubmit(save)}>
+        <Form >
             <ModalHeader>Edit Book</ModalHeader>
             <ModalBody>
                 {getForm()}

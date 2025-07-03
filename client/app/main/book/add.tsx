@@ -16,63 +16,69 @@ import * as utils from '../../_common/utils'
 import { OnEnter } from '../../_common/onEnter'
 import { myBookActions } from '../../../data/books/actions'
 import { myNotifActions } from '../../../data/notifications/actions'
+import { RegisterOptions, SubmitHandler, useForm } from 'react-hook-form'
+import { handleRegister, hasErorrs } from '../utils'
 
 interface Props {}
+type Inputs = {
+    title: string
+}
+
 
 export const CreateBookButton: React.FunctionComponent<Props> = (prop: Props) => {
     const [isOpen, setOpen] = React.useState(false)
-    const [rules, setRules] = React.useState(new FormCtrlGroup({
-        title: new FormControl('', [
-            Validators.isRequired,
-            Validators.maxLength(15),
-            Validators.minLength(3)
-        ])
+    const {register, handleSubmit, reset, formState: { errors, isDirty }} = useForm<Inputs>({
+        mode: 'onChange',
+        reValidateMode: 'onChange',
+        defaultValues: {title: ''}
+    })
+    const {ref, ...titleRegister} = register('title', handleRegister({
+        required: true,
+        minLength: 3,
+        maxLength: 15
     }))
 
-    const save = (event: React.FormEvent<any>) => {
-        if (event) event.stopPropagation()
 
-        myBookActions.create(rules.value.title)
+    const save:SubmitHandler<Inputs> = (data) => {
+        myBookActions.create(data.title)
         .then(bookId => myBookActions.select(bookId))
         .then(() => myNotifActions.notify('success', `Created Book`))
         .then(() => setOpen(false))
         .catch(err => myNotifActions.notify('danger', err.message))
     }
 
-    const toggle = (event: React.FormEvent<any>) => {
-        if (event) event.stopPropagation()
-        rules.reset()
-        setRules(Object.create(rules))
+    const myToggle = () => {
+        reset()
         setOpen(!isOpen)
     }
 
-    return <DropdownItem onClick={toggle}>
+    return <DropdownItem toggle={false} onClick={() => myToggle()}>
         Add Book
         <Modal size='sm' isOpen={isOpen} autoFocus={true}>
             <ModalHeader>Create Book</ModalHeader>
-            <ModalBody>
-                <FormGroup>
-                    <Label>Name:</Label>
-                    <OnEnter callback={save}>
-                    <Input
-                        type='text'
-                        name='title'
-                        placeholder='Enter Name'
-                        onChange={utils.handleChange(rules, setRules)}
-                        value={rules.get('title').value}
-                        invalid={rules.get('title').invalid} />
-                    </OnEnter>
-                    <FormFeedback>{utils.getError(rules.get('title'))}</FormFeedback>
-                </FormGroup>
-            </ModalBody>
-            <ModalFooter>
-                <Button color='primary'
-                    disabled={!rules.valid}
-                    onClick={save}>
-                    Create
-                </Button>
-                <Button color='secondary' onClick={toggle}>Cancel</Button>
-            </ModalFooter>
+            <form onSubmit={handleSubmit(save)}>
+                <ModalBody>
+                    <FormGroup>
+                        <Label>Name:</Label>
+                        {/* <OnEnter callback={save}> */}
+                        <Input
+                            innerRef={ref}
+                            {...titleRegister}
+                            placeholder='Enter Name'
+                            invalid={!!errors.title} />
+                        {/* </OnEnter> */}
+                        <FormFeedback>{errors.title?.message}</FormFeedback>
+                    </FormGroup>
+                </ModalBody>
+                <ModalFooter>
+                    <Button color='primary'
+                        disabled={!isDirty || hasErorrs(errors)}
+                        type="submit">
+                        Create
+                    </Button>
+                    <Button color='secondary' onClick={() => myToggle()}>Cancel</Button>
+                </ModalFooter>
+            </form>
         </Modal>
     </DropdownItem>
 }

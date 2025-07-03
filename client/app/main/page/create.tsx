@@ -3,7 +3,6 @@ import ModalHeader from 'reactstrap/lib/ModalHeader'
 import ModalBody from 'reactstrap/lib/ModalBody'
 import FormGroup from 'reactstrap/lib/FormGroup'
 import Label from 'reactstrap/lib/Label'
-import Input from 'reactstrap/lib/Input'
 import FormFeedback from 'reactstrap/lib/FormFeedback'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
 import Button from 'reactstrap/lib/Button'
@@ -11,25 +10,31 @@ import NavItem from 'reactstrap/lib/NavItem'
 import NavLink from 'reactstrap/lib/NavLink'
 import FontAwesome from 'react-fontawesome'
 
-import { FormCtrlGroup, FormControl } from '../../_common/validation'
-import * as Validators from '../../_common/validators'
-import * as utils from '../../_common/utils'
 import Modal from 'reactstrap/lib/Modal'
 import { OnEnter } from '../../_common/onEnter'
 import myPageActions from '../../../data/pages/actions'
 import { myNotifActions } from '../../../data/notifications/actions'
+import { SubmitHandler, useForm } from 'react-hook-form'
+import { handleRegister, MyInput } from '../utils'
 
 interface Props {}
+type Inputs = {
+    title: string
+}
 
 export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) => {
+    const { register, handleSubmit, reset, formState: { errors, isDirty } , getValues} = useForm<Inputs>({
+        mode: 'onChange',
+        reValidateMode: 'onChange'
+    })
+
+    const { ref, ...registerTitle } = register('title', {
+        required: 'This is a required field',
+        minLength: {value: 3, message: 'Min length of 3'},
+        maxLength: {value: 15, message: 'Max lenghth of 15'}
+    })
+
     const [isOpen, setOpen] = React.useState(false)
-    const [rules, setRules] = React.useState(new FormCtrlGroup({
-        title: new FormControl('', [
-            Validators.isRequired,
-            Validators.minLength(3),
-            Validators.maxLength(15)
-        ])
-    }))
 
     const cancel = (event: React.FormEvent<any>) => {
         if (event) event.stopPropagation()
@@ -38,13 +43,24 @@ export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) =
 
     const open = (event: React.FormEvent<any>) => {
         if (event) event.stopPropagation()
-        rules.reset()
+        reset({title: ''})
         setOpen(true)
+    }
+
+    const runSubmit:SubmitHandler<Inputs> = (data) => {
+        const title: string = data.title
+        console.log('title', title)
+        myPageActions.create(title)
+        .then(pageId => myPageActions.select(pageId))
+        .then(() => myNotifActions.notify('success', `Created page: ${title}`))
+        .then(() => setOpen(false))
+        .catch(err => myNotifActions.notify('danger', err.message))
     }
 
     const close = (event: React.FormEvent<any>) => {
         if (event) event.stopPropagation()
-        const title: string = rules.value.title
+
+        const title: string = getValues().title
         myPageActions.create(title)
         .then(pageId => myPageActions.select(pageId))
         .then(() => myNotifActions.notify('success', `Created page: ${title}`))
@@ -55,28 +71,33 @@ export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) =
     const getModalTemplate = (): JSX.Element => {
         return <Modal size='sm' isOpen={isOpen}>
             <ModalHeader>Create Page</ModalHeader>
+            <form onSubmit={handleSubmit(runSubmit)} noValidate={true}>
             <ModalBody>
                 <FormGroup>
                     <Label>Name:</Label>
-                    <OnEnter callback={close}>
-                    <Input
-                        type='text'
+                    {/* <OnEnter callback={close}> */}
+                    <MyInput
+                        register={() => register('title', handleRegister({
+                            required: true,
+                            minLength: 3,
+                            maxLength: 15
+                        }))}
+                        placeholder="Enter Name"
+                        invalid={!!errors.title}
                         name='title'
-                        placeholder='Enter Name'
-                        onChange={utils.handleChange(rules, setRules)}
-                        value={rules.get('title').value}
-                        invalid={rules.get('title').invalid}/>
-                    </OnEnter>
-                    <FormFeedback>{utils.getError(rules.get('title'))}</FormFeedback>
+                    />
+                    {/* </OnEnter> */}
+                    <FormFeedback>{errors.title?.message}</FormFeedback>
                 </FormGroup>
             </ModalBody>
             <ModalFooter>
                 <Button color='primary'
-                    disabled={rules.invalid || rules.pristine}
-                    onClick={close}
+                    type='submit'
+                    disabled={Object.keys(errors).length > 0 || !isDirty}
                 >Create</Button>
                 <Button color='secondary' onClick={cancel}>Cancel</Button>
             </ModalFooter>
+            </form>
         </Modal>
     }
 

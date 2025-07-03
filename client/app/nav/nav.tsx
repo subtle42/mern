@@ -36,6 +36,7 @@ export const MainNavBar: React.FunctionComponent<NavProps> = (props: NavProps) =
                     {books.map((book, index) => {
                         return <DropdownItem
                         key={index}
+                        toggle={false}
                         onClick={() => myBookActions.select(book._id)}>
                         {book.name}
                     </DropdownItem>

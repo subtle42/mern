@@ -4,6 +4,7 @@ import FontAwesome from 'react-fontawesome'
 import Button from 'reactstrap/lib/Button'
 import myPageActions from '../../../data/pages/actions'
 import { myNotifActions } from '../../../data/notifications/actions'
+import { handleAsync } from '../utils'
 
 type Props = {
     pageName: string
@@ -11,11 +12,10 @@ type Props = {
 }
 
 export const DeletePageButton: React.FunctionComponent<Props> = (props: Props) => {
-    const removePage = () => {
-        myPageActions.delete(props._id)
-        .then(() => myNotifActions.success(`Removed page: ${props.pageName}`))
-        .catch(err => myNotifActions.error(err.message))
-    }
+    const removePage = handleAsync(async() => {
+        await myPageActions.delete(props._id)
+        await myNotifActions.success(`Removed page: ${props.pageName}`)
+    })
 
     return <ConfirmModal
         header='Delete Page'
