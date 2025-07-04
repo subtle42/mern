@@ -6,10 +6,10 @@ export class DataModel {
 
 export const DataSlice = createSlice({
     name: 'data',
-    initialState: {} as DataModel,
+    initialState: new DataModel(),
     reducers: {
         setData: (store, {payload}: PayloadAction<any>) => {
-            store = { ...store }
+            // store = { ...store }
             store.results[payload._id] = payload.data
             return store
         }

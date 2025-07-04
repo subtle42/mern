@@ -9,7 +9,7 @@ export class GenericStore {
 
 export const factory = {
     addedOrChanged: (state, action: PayloadAction<any[]>) => {
-        state = { ...state }
+        // state = { ...state }
         state.list = [...state.list]
         action.payload.forEach(item => {
             let index = -1
@@ -25,7 +25,7 @@ export const factory = {
                 state.list[index] = item
             }
         })
-        return state
+        // return state
     },
     select: (state, {payload}: PayloadAction<string>) => {
         return { ...state, selected: payload }

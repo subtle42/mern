@@ -161,15 +161,15 @@ export class Widget extends React.Component<Props, State> {
 
     getChart = (widget: IWidget): JSX.Element => {
         if (!widget) return <div />
-        // if (widget.type === 'histogram') {
-        //     return <Histogram id={this.props._id}/>
-        // } else if (widget.type === 'barGroup') {
-        //     return <BarGrouped id={this.props._id} />
-        // } else if (widget.type === 'scatter') {
-        //     return <Scatter id={this.props._id} />
-        // } else if (widget.type === 'line') {
-        //     return <Line id={this.props._id} />
-        // }
+        if (widget.type === 'histogram') {
+            return <Histogram id={this.props._id}/>
+        } else if (widget.type === 'barGroup') {
+            return <BarGrouped id={this.props._id} />
+        } else if (widget.type === 'scatter') {
+            return <Scatter id={this.props._id} />
+        } else if (widget.type === 'line') {
+            return <Line id={this.props._id} />
+        }
         return <div/>
     }
 

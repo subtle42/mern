@@ -21,9 +21,8 @@ class DataActions {
     sendDispatch (type, payload) {
         this.myStore.dispatch(new Promise((resolve) => {
             resolve({
-                type,
+                type: `${this.nameSpace}/${type}`,
                 payload,
-                namespace: this.nameSpace
             })
         }))
     }

@@ -16,12 +16,13 @@ const WidgetSchema = new Schema({
     pageId: { type: String, required: true },
     sourceId: { type: String, required: true },
     margins: { type: {
-            top: { type: Number, required: true, default: 5 },
-            bottom: { type: Number, required: true, default: 20 },
-            left: { type: Number, required: true, default: 35 },
-            right: { type: Number, required: true, default: 10 }
+            top: { type: Number, required: true },
+            bottom: { type: Number, required: true},
+            left: { type: Number, required: true },
+            right: { type: Number, required: true}
         },
-        required:true
+        required:true,
+        default: { top: 5, bottom: 20, left: 35, right: 10 }
     },
     dimensions: { type: Array, required: true, default: [] },
     measures: { type: Array, required: true, default: [] },
