@@ -22,7 +22,7 @@ export default abstract class BaseActions {
     }
 
     private remove (items: any[]): Promise<void> {
-        return this.sendDispatch(`removed`, items)
+        return this.sendDispatch(`remove`, items)
     }
 
     private storeSocket (socket): Promise<void> {

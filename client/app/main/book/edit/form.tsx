@@ -15,7 +15,8 @@ import { useForm } from 'react-hook-form'
 import { FormFeedback } from 'reactstrap'
 import { myBookActions } from '../../../../data/books/actions'
 import { myNotifActions } from '../../../../data/notifications/actions'
-import { handleAsync } from '../../utils'
+import { handleAsync, handleRegister, MyInput } from '../../utils'
+import { IBook } from '@mern/server/api/book/model'
 
 
 
@@ -24,21 +25,16 @@ interface Props {
     onDone: () => void
 }
 
+
 export const BookEditForm: React.FunctionComponent<Props> = (props: Props) => {
-    const {register, handleSubmit, formState, getValues, setValue} = useForm()
-    const errors = formState.errors
-
     const book = useBook(props._id)
-    // const newRules = new FormCtrlGroup({
-    //     name: new FormControl('', [
-    //         Validators.isRequired
-    //     ]),
-    //     isPublic: new FormControl(false)
-    // })
-    // newRules.value = book
-    // const [rules, setRules] = React.useState(newRules)
+    const {register, handleSubmit, formState: {isValid, errors}} = useForm<IBook>({
+        defaultValues: book,
+        mode: 'onChange',
+        reValidateMode: 'onChange'
+    })
 
-    const save = handleAsync(async(data) => {
+    const save = (async(data) => {
         const tmp = Object.assign({}, book, data)
         await myBookActions.update(tmp)
         myNotifActions.success(`Updated book: ${tmp.name}`)
@@ -51,46 +47,46 @@ export const BookEditForm: React.FunctionComponent<Props> = (props: Props) => {
             <Col xs={6}>
                 <FormGroup>
                     <Label>Name</Label>
-                    <Input type='text'
-                        {...register('name', {
-                            required: 'Book name is required',
-                            value: book.name
-                        })}
-                        invalid={errors.name}>
-                    </Input>
+                    <MyInput type='text'
+                        register={() => register('name', handleRegister({
+                            required: true,
+                            minLength:3,
+                            maxLength: 20
+                        }))}
+                        placeholder='Book Name'
+                        invalid={!!errors.name}
+                    />
                     <FormFeedback>{errors.name?.message}</FormFeedback>
                 </FormGroup>
             </Col>
             <Col xs={6}>
-                <FormGroup style={{ paddingTop: 38 }}>
-                    {/* <CustomInput
-                        {...register('isPublic')}
-                        label='Is Public'
-                        type='switch'
-                        onChange={setValue('isPublic', !getValues('isPublic'))}
-                        checked={getValues('isPublic')}/> */}
+                <FormGroup switch style={{ paddingTop: 38 }}>
+                    <MyInput type='switch'
+                        register={() => register('isPublic')}
+                        invalid={!!errors.name}
+                    />
+                    <Label>Is Public</Label>
                 </FormGroup>
             </Col>
         </Row>
     }
 
-    return <div>
-        <Form >
-            <ModalHeader>Edit Book</ModalHeader>
-            <ModalBody>
-                {getForm()}
-            </ModalBody>
-            <ModalFooter>
-                <Button color='primary'
-                    onClick={save}>
-                    Save
-                </Button>
-                <Button color='secondary'
-                    type="submit"
-                    onClick={() => props.onDone()}>
-                    Cancel
-                </Button>
-            </ModalFooter>
-        </Form>
-    </div>
+    return <form onSubmit={handleSubmit(save)}>
+        <ModalHeader>Edit Book</ModalHeader>
+        <ModalBody>
+            {getForm()}
+        </ModalBody>
+        <ModalFooter>
+            <Button color='primary'
+                disabled={!isValid}
+                type='submit'>
+                Save
+            </Button>
+            <Button color='secondary'
+                type="submit"
+                onClick={() => props.onDone()}>
+                Cancel
+            </Button>
+        </ModalFooter>
+    </form>
 }

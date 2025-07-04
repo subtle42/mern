@@ -49,3 +49,25 @@ export const ConfirmModal: React.FunctionComponent<Props> = (props: Props) => {
         </Modal>
     </span>
 }
+
+
+
+type Props2 = {
+    header: string
+    message: string
+    onConfirm: () => any
+    onCancel: () => any
+    isOpen: boolean
+}
+export const ConfirmModal2: React.FunctionComponent<Props2> = (props) => {
+    return <Modal size='sm'
+        isOpen={props.isOpen}
+        onClosed={props.onCancel}>
+        <ModalHeader>{props.header}</ModalHeader>
+        <ModalBody>{props.message}</ModalBody>
+        <ModalFooter>
+            <Button onClick={props.onCancel} color='secondary'>Cancel</Button>
+            <Button onClick={() => props.onConfirm()} color='primary'>Confirm</Button>
+        </ModalFooter>
+    </Modal>
+    }

@@ -78,7 +78,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: onFileDrop })
 
     const renderHeader = (): JSX.Element => {
-        return <div className='modal-header'>
+        return <div className='modal-header' style={{display: 'flex', justifyContent:'space-between'}}>
             <h5 className='modal-title'>Sources</h5>
             <div {...getRootProps()} hidden={isLoading}>
                 <input {...getInputProps()} />
@@ -135,7 +135,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
                     .map(source => <ListGroupItem
                         action
                         style={{ cursor: 'pointer' }}
-                        className={source === selected && 'active'}
+                        className={source === selected ? 'active': ''}
                         key={source._id}
                         onClick={() => setSelected(source)}>
                     {source.title}

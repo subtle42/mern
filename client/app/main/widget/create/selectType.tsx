@@ -78,7 +78,7 @@ export const SelectChartType: React.FunctionComponent<Props> = (props: Props) =>
         const count = selected.filter(x => x.type === col.type).length
         if (count === 0) return
         return <Badge color='light'
-            style={{ position: 'absolute', top: 5, right: 21 }}>
+            style={{ position: 'absolute', top: 5, right: 10, color: 'black' }}>
             {count}
         </Badge>
     }
@@ -99,7 +99,7 @@ export const SelectChartType: React.FunctionComponent<Props> = (props: Props) =>
             {row.map((col, colIndex) => {
                 return <Col key={colIndex} xs={12 / rowSize}>
                     <Button
-                        style={{ width: '100%' }}
+                        style={{ width: '100%', position: 'relative' }}
                         onContextMenu={e => {
                             e.preventDefault()
                             const index = selected.findIndex(x => x.type === col.type)

@@ -61,7 +61,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
             console.warn(`Unable to find page: ${props._id}`)
             return
         }
-        reset({...toEdit, margin: [0,0], containerPadding: [0,0]})
+        reset(toEdit)
         setOpen(true)
     }
 
