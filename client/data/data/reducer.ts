@@ -9,8 +9,8 @@ export const DataSlice = createSlice({
     initialState: new DataModel(),
     reducers: {
         setData: (store, {payload}: PayloadAction<any>) => {
-            // store = { ...store }
-            store.results[payload._id] = payload.data
+            store = { ...store }
+            store.results = {...store.results, [payload._id]:payload.data}
             return store
         }
     }

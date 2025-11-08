@@ -5,14 +5,13 @@ import DropdownMenu from 'reactstrap/lib/DropdownMenu'
 import DropdownItem from 'reactstrap/lib/DropdownItem'
 
 import { useSource } from '../../../_common/hooks'
-import { ColumnType } from 'common/constants'
 import '../style.css'
-import { ISourceColumn } from 'common/models'
+import { ISourceColumn, ISourceColumnType } from '@mern/server/api/source/model'
 
 interface DropdownProps {
     sourceId: any
     colId: any
-    colType: ColumnType
+    colType: ISourceColumnType
     hasCount?: boolean
     onColUpdate: (col: ISourceColumn) => void
 }

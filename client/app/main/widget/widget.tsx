@@ -3,11 +3,9 @@ import Card from 'reactstrap/lib/Card'
 import CardHeader from 'reactstrap/lib/CardHeader'
 import Button from 'reactstrap/lib/Button'
 import CardTitle from 'reactstrap/lib/CardTitle'
-import CardBody from 'reactstrap/lib/CardBody'
 import FontAwesome from 'react-fontawesome'
 
 import { ConfirmModal } from '../../_common/confirmation'
-import { useSource, useWidget } from '../../_common/hooks'
 import { ColumnButton } from './content/columnBtn'
 import { EditButton } from './edit'
 import { Histogram } from '../charts/histogram'
@@ -108,9 +106,13 @@ export class Widget extends React.Component<Props, State> {
                     sourceId={this.state.widgetConfig.sourceId}
                     colId={this.state.widgetConfig.dimensions[1]}
                     onColUpdate={col => {
-                        this.state.widgetConfig.dimensions[1] = col.ref
-                        myWidgetActions.update(this.state.widgetConfig)
-                        .then(() => myWidgetActions.query(this.state.widgetConfig))
+                        const tmp = {
+                            ...this.state.widgetConfig,
+                            dimensions:[this.state.widgetConfig.dimensions[0], col.ref]
+                        }
+                        // this.state.widgetConfig.dimensions[1] = col.ref
+                        myWidgetActions.update(tmp)
+                        .then(() => myWidgetActions.query(tmp))
                     }}/>
             </div>
         }
@@ -143,19 +145,23 @@ export class Widget extends React.Component<Props, State> {
                 sourceId={this.state.widgetConfig.sourceId}
                 colId={this.state.widgetConfig.dimensions[0]}
                 onColUpdate={col => {
-                    this.state.widgetConfig.dimensions[0] = col.ref
-                    myWidgetActions.update(this.state.widgetConfig)
-                    .then(() =>  myWidgetActions.query(this.state.widgetConfig))
+                    const newDims = [...this.state.widgetConfig.dimensions]
+                    newDims[0] = col.ref
+                    const tmp = {...this.state.widgetConfig, dimensions:newDims}
+                    myWidgetActions.update(tmp)
+                    .then(() =>  myWidgetActions.query(tmp))
                 }}/>
         </div>
     }
 
     onColUpdate = (col: ISourceColumn): void => {
-        this.state.widgetConfig.measures[0] = {
-            ref: col.ref
-        }
-        myWidgetActions.update(this.state.widgetConfig)
-        .then(() => myWidgetActions.query(this.state.widgetConfig))
+        // this.state.widgetConfig.measures[0] = {
+        //     ref: col.ref
+        // }
+        alert('in fn')
+        const tmp = {...this.state.widgetConfig, measures: [col.ref]}
+        myWidgetActions.update(tmp)
+        .then(() => myWidgetActions.query(tmp))
         .catch(err => myNotifActions.success(err.message))
     }
 
