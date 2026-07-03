@@ -1,19 +1,20 @@
-import { Widget, WidgetDoc } from './model'
-import * as utils from '../utils'
+import { IWidget, Widget, WidgetDoc } from './model'
 import { Page } from '../page/model'
 import { Book } from '../book/model'
 import { Source, SourceDoc } from '../source/model'
 import { pageSocket } from '../page/socket'
 import { widgetSocket } from './socket'
 // import { Layout } from 'react-grid-layout'
-import { handleApiCall } from '../utils'
-import * as auth from '../../auth/auth.service'
+import { FastifyReply, FastifyRequest } from 'fastify'
 
 const widgetLayout = {
     x: 0, y: 0, w: 1, h: 1
 }
 
-export const create = handleApiCall(async(req, res) => {
+export const create = async(
+    req: FastifyRequest<{Body: {pageId: string, sourceId: string, type: string}}>,
+    res: FastifyReply<{Reply: string}>
+) => {
     const { pageId, sourceId, type } = req.body
 
     const myWidget = new Widget({
@@ -24,7 +25,7 @@ export const create = handleApiCall(async(req, res) => {
 
     const myPage = await Page.findById(pageId).exec()
     const myBook = await Book.findById(myPage.bookId).exec()
-    await auth.hasEditAccess(req.user._id, myBook)
+    myBook.hasEditAccess(req.user._id)
     const mySource = await Source.findById(sourceId).exec()
     addDefaultsToWidget(myWidget, mySource)
 
@@ -35,16 +36,19 @@ export const create = handleApiCall(async(req, res) => {
     
     widgetSocket.onAddOrChange(newWidget)
     pageSocket.onAddOrChange(myPage)
-    utils.handleResponse(res)(newWidget._id)
-})
+    res.send(newWidget._id.toString())
+}
 
 const canUserEdit = async(pageId: string, userId: string): Promise<void> => {
     const myPage = await Page.findById(pageId).exec()
     const myBook = await Book.findById(myPage.bookId).exec()
-    await auth.hasEditAccess(userId, myBook)
+    myBook.hasEditAccess(userId)
 }
 
-export const createMultiple = handleApiCall(async(req, res) => {
+export const createMultiple = async(
+    req: FastifyRequest<{Body: {pageId: string, sourceId: string, types: string[]}}>,
+    res: FastifyReply<{Reply: string[]}>
+) => {
     const pageId: string = req.body.pageId
     const sourceId: string = req.body.sourceId
     const types: string[] = req.body.types
@@ -69,8 +73,8 @@ export const createMultiple = handleApiCall(async(req, res) => {
     await myPage.updateOne(myPage).exec()
     await widgetSocket.onManyAdd(createdList)
     pageSocket.onAddOrChange(myPage)
-    utils.handleResponse(res)(createdList.map(w => w._id))
-})
+    res.send(createdList.map(w => w._id.toString()))
+}
 
 const addDefaultsToWidget = (myWidget: WidgetDoc, mySource: SourceDoc) => {
     if (myWidget.get('type') === 'histogram') {
@@ -105,11 +109,14 @@ export const getDefaultColumn = (type: string, source: SourceDoc, includeCount?:
     return cols[Math.floor(Math.random() * cols.length)].ref
 }
 
-export const remove = handleApiCall(async(req, res) => {
+export const remove = async(
+    req: FastifyRequest<{Params: {id: string, pageId: string, bookId: string}}>,
+    res: FastifyReply
+) => {
     const { id, pageId, bookId } = req.params
 
     const myBook = await Book.findById(bookId).exec()
-    await auth.hasEditAccess(req.user._id, myBook)
+    myBook.hasEditAccess(req.user._id)
     const myPage = await Page.findById(pageId).exec()
 
     myPage.layout = myPage.layout.filter(item => item.i !== id)
@@ -118,10 +125,13 @@ export const remove = handleApiCall(async(req, res) => {
 
     pageSocket.onAddOrChange(myPage)
     widgetSocket.onDelete({ _id: id, pageId })
-    utils.handleResponseNoData(res)()
-})
+    res.send()
+}
 
-export const update = handleApiCall(async(req, res) => {
+export const update = async(
+    req: FastifyRequest<{Body: {_id: string}}>,
+    res: FastifyReply<{Reply: void}>
+) => {
     const myWidget = new Widget(req.body)
     const myId: string = req.body._id
     delete req.body._id
@@ -130,21 +140,23 @@ export const update = handleApiCall(async(req, res) => {
     const myPage = await Page.findById(myWidget.pageId).exec()
     const myBook = await Book.findById(myPage.bookId).exec()
 
-    await auth.hasEditAccess(req.user._id, myBook)
+    myBook.hasEditAccess(req.user._id)
     await Widget.findByIdAndUpdate(myId, req.body).exec()
 
     widgetSocket.onAddOrChange(myWidget)
-    utils.handleResponseNoData(res)()
-})
+    res.send()
+}
 
-export const get = handleApiCall(async(req, res) => {
+export const get = async(
+    req: FastifyRequest<{Params: {id: string}}>,
+    res: FastifyReply<{Reply: IWidget}>
+) => {
     const myId: string = req.params.id
 
     const myWidget = await Widget.findById(myId)
     const myPage = await Page.findById(myWidget.pageId)
     const myBook = await Book.findById(myPage.bookId)
 
-    await auth.hasViewerAccess(req.user._id, myBook)
-    utils.handleResponse(res)(myWidget)
-})
-
+    myBook.hasViewerAccess(req.user._id)
+    res.send(myWidget)
+}

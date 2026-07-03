@@ -1,15 +1,28 @@
-import { Router } from 'express'
-import * as controller from './controller'
-import * as auth from '../../auth/auth.service'
+import * as ctrl from './controller'
+import { FastifyInstance } from 'fastify'
+import { isAdmin, isAuthenticated } from 'server/auth/auth.service'
 
-const router = Router()
 
-router.get('/', auth.isAuthenticated, auth.isAdmin, controller.index)
-router.get('/public', auth.isAuthenticated, controller.getPublic)
-router.delete('/:id', auth.isAuthenticated, auth.isAdmin, controller.destroy)
-router.get('/me', auth.isAuthenticated, controller.me)
-router.put('/:id/password', auth.isAuthenticated, controller.changePassword)
-router.get('id', auth.isAuthenticated, controller.show)
-router.post('/', controller.create)
+export const buildUserApis = (app: FastifyInstance) => {
+    app.get('/public', {
+        onRequest: [isAuthenticated]
+    }, ctrl.getPublic)
 
-export const UserRouter = router
+    app.delete('/:id', {
+        onRequest: [isAuthenticated, isAdmin]
+    }, ctrl.destroy)
+
+    app.get('/me', {
+        onRequest: [isAuthenticated]
+    }, ctrl.me)
+
+    app.put('/password/change', {
+        onRequest: [isAuthenticated]
+    }, ctrl.changePassword)
+
+    app.get('/profile', {
+        onRequest: [isAuthenticated]
+    }, ctrl.show)
+
+    app.post('/', ctrl.create)
+}

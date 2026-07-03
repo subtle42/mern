@@ -105,4 +105,4 @@ let UserSchema = new Schema({
 
 
 export const User = model('User', UserSchema)
-export type IUser = InferSchemaType<typeof UserSchema> & {_id:string}
+export type IUser = InferSchemaType<typeof UserSchema> & {_id:any}

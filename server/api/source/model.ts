@@ -13,7 +13,7 @@ const SourceColumnSchema = new Schema({
     max: Number,
 })
 
-const SourceSchema = new Schema({
+export const SourceSchema = new Schema({
     title: { type: String, required: true },
     location: { type: String, required: true },
     size: { type: Number, default: 0 },

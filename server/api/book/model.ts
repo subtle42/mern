@@ -2,7 +2,7 @@ import { model, Schema , InferSchemaType, Document} from 'mongoose'
 import { PageDoc } from '../page/model'
 
 
-const bookSchema = new Schema({
+export const bookSchema = new Schema({
     name: { type: String, required: true },
     pages: [{ type: String, required: true }],
     owner: { type: String, required: true },
@@ -35,7 +35,6 @@ const bookSchema = new Schema({
     }
 })
 
-
 export const Book = model('Book', bookSchema)
-export type IBook = InferSchemaType<typeof bookSchema> & {_id: string}
+export type IBook = InferSchemaType<typeof bookSchema> & {_id: any}
 export type BookDoc = Document<unknown, {}, IBook>

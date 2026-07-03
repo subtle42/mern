@@ -1,7 +1,7 @@
 import { model, Schema, InferSchemaType, Document} from 'mongoose'
 
 
-const pageSchema = new Schema({
+export const pageSchema = new Schema({
     bookId: { type: String, required: true },
     name: { type: String, required: true },
     isDraggable: { type: Boolean, required: true, default: true },

@@ -1,24 +1,21 @@
 import { Source } from './model'
 import { SourceSocket } from './socket'
 import { MongoClient } from 'mongodb'
-import { Request, Response } from 'express'
-import { createReadStream, unlink } from 'fs'
+import { createReadStream, createWriteStream, statSync } from 'fs'
 import { ISourceColumn, ColumnType, IQuery, ISource } from 'common/models'
 // import { ISourceModel, MyRequest } from '../../dbModels'
 import * as auth from '../../auth/auth.service'
 import config from '../../config/environment'
-import * as utils from '../utils'
-import { handleApiCall } from '../utils'
 import { columnInsertEtlFactory, columnInspectFactory } from './factories'
 import { Widget } from '../widget/model';
+import { FastifyReply, FastifyRequest } from 'fastify'
+import { pipeline } from 'stream/promises'
 const csv = require('fast-csv')
 
-const parseCSV  = (req: Request): Promise<string[][]> => {
-    console.log('request file',req.file)
-    
+const parseCSV  = (fileName: string): Promise<string[][]> => {
     return new Promise(resolve => {
         let response = []
-        let stream = createReadStream(req.file.path)
+        let stream = createReadStream(fileName)
         let csvStream = csv.parse({
             ignoreEmpty: true,
             trim: true
@@ -105,7 +102,7 @@ const importData = (rows: Array<any[]>, columnTypes: ColumnType[]): Promise<stri
     })
 }
 
-const buildSourceObject = (req: Request, headers: string[], columnTypes: ColumnType[], location: string, rowCount: number) => {
+const buildSourceObject = async(filename: string, userId: string, headers: string[], columnTypes: ColumnType[], location: string, rowCount: number) => {
     let myColumns: ISourceColumn[] = []
 
     columnTypes.forEach((type, index) => {
@@ -117,19 +114,22 @@ const buildSourceObject = (req: Request, headers: string[], columnTypes: ColumnT
     })
 
     let mySource = new Source({
-        title: req.file.originalname,
+        title: filename,
         location: location,
-        size: req.file.size,
+        size: (await statSync(`./uploads`)).size,//req.file.size,
         rowCount: rowCount,
         columns: myColumns,
-        owner: req.user._id
+        owner: userId
     })
 
     return mySource.validate()
     .then(() => mySource)
 }
 
-export const update = handleApiCall(async(req, res) => {
+export const update = async(
+    req: FastifyRequest<{Body: ISource}>,
+    res: FastifyReply<{Reply: void}>
+) => {
     const id = req.body._id
     let mySource = new Source(req.body)
     delete req.body._id
@@ -143,12 +143,15 @@ export const update = handleApiCall(async(req, res) => {
     }
     await Source.findByIdAndUpdate(id, req.body).exec()
     await SourceSocket.onAddOrChange(mySource, oldSource)
-    utils.handleResponseNoData(res)()
-})
+    res.send()
+}
 
 
 
-export const remove = handleApiCall(async(req, res) => {
+export const remove = async(
+    req: FastifyRequest<{Params: {id: string}}>,
+    res: FastifyReply
+) => {
     const mySource = await Source.findById(req.params.id).exec()
     await auth.hasOwnerAccess(req.user._id, mySource)
     const widgets = await Widget.find({ sourceId: req.params.id}).exec()
@@ -157,44 +160,42 @@ export const remove = handleApiCall(async(req, res) => {
     
     await mySource.deleteOne()
     SourceSocket.onDelete(mySource)
-    utils.handleResponseNoData(res)()
-})
+    res.send()
+}
 
-export const create = async(req: Request, res: Response) => {
+export const create = async(
+    req: FastifyRequest<{Body: Omit<ISource, '_id'>}>,
+    res: FastifyReply<{Reply: string}>
+) => {
     // let fileData: string[][] = []
     // let headers: string[] = []
     // let columnTypes: ColumnType[] = []
 
-    try {
-        const data = await parseCSV(req)
-        const headers = data[0]
-        const fileData = data
-        fileData.splice(0, 1)
-        const columnTypes = await getColumnTypes(data)
-        const collectionName = await importData(fileData, columnTypes)
-        const mySource = await buildSourceObject(req, headers, columnTypes, collectionName, fileData.length)
-    
-        const metaData = await Promise.all(
-            mySource.get('columns').map(col => columnInspectFactory[col.type](mySource.location, col.ref))
-        )
-        mySource.set('columns', mySource.get('columns').map((col, index) => {
-            if (metaData[index].types && metaData[index].types.length > 20) {
-                return Object.assign(col, { type: 'text' })
-            }
-            return Object.assign(col, metaData[index])
-        }))
-        const newSource = await Source.create(mySource)
-        SourceSocket.onAddOrChange(newSource)
-        res.json(newSource._id)
-    }
-    catch(err) {
-        utils.handleError(err)
-    }
-    finally {
-        unlink(`./${req.file.path}`, () => {
-            utils.logger.info(`Removed file: ${req.file.path}`)
-        })
-    }
+    const myFile = await req.file()
+    if (!myFile) throw new Error('No file')
+    await pipeline(myFile.file, createWriteStream(`./uploads/${myFile.filename}`))
+
+    const data = await parseCSV(`./uploads/${myFile.fieldname}`)
+    const headers = data[0]
+    const fileData = data
+    fileData.splice(0, 1)
+    const columnTypes = await getColumnTypes(data)
+    const collectionName = await importData(fileData, columnTypes)
+    const mySource = await buildSourceObject(myFile.fieldname, req.user._id, headers, columnTypes, collectionName, fileData.length)
+
+    const metaData = await Promise.all(
+        mySource.get('columns').map(col => columnInspectFactory[col.type](mySource.location, col.ref))
+    )
+    mySource.set('columns', mySource.get('columns').map((col, index) => {
+        if (metaData[index].types && metaData[index].types.length > 20) {
+            return Object.assign(col, { type: 'text' })
+        }
+        return Object.assign(col, metaData[index])
+    }))
+    const newSource = await Source.create(mySource)
+    SourceSocket.onAddOrChange(newSource)
+    res.send(newSource._id.toString())
+
 
     // parseCSV(req)
     // .then(data => {
@@ -234,7 +235,10 @@ export const create = async(req: Request, res: Response) => {
     // }))
 }
 
-export const query = handleApiCall(async(req, res) => {
+export const query = async(
+    req: FastifyRequest<{Body: IQuery}>,
+    res: FastifyReply<{Reply: any[]}>
+) => {
     const myQuery: IQuery = req.body
 
     const mySource = await Source.findById(myQuery.sourceId)
@@ -242,8 +246,8 @@ export const query = handleApiCall(async(req, res) => {
         ? await buildHistogramQuery(mySource, myQuery)
         : await buildMongoQuery(mySource, myQuery)
     const queryResults = await runMongoQuery(mySource, query)
-    utils.handleResponse(res)(queryResults)
-})
+    res.send(queryResults)
+}
 
 const FilterFactory = {
     number: (filter: number[]) => {
@@ -389,7 +393,10 @@ const runMongoQuery = async(source: ISource, query: any[]): Promise<any[]> => {
         .finally(() => client.close())
 }
 
-export const getMySources = handleApiCall(async(req, res) => {
+export const getMySources = async(
+    req: FastifyRequest,
+    res: FastifyReply<{Reply: ISource[]}>
+) => {
     const userId = req.user._id
     const mySources = await Source.find({
         $or: [{
@@ -402,11 +409,14 @@ export const getMySources = handleApiCall(async(req, res) => {
             isPublic: true
         }]
     })
-    utils.handleResponse(res)(mySources.map(x => x.toJSON()))
-})
+    res.send(mySources.map(x => x.toJSON()))
+}
 
-export const getSource = handleApiCall(async(req, res) => {
+export const getSource = async(
+    req: FastifyRequest<{Params: {id: string}}>,
+    res: FastifyReply<{Reply: ISource}>
+) => {
     const mySource = await Source.findById(req.params.id).exec()
     await auth.hasViewerAccess(req.user._id, mySource)
-    utils.handleResponse(res)(mySource.toJSON())
-})
+    res.send(mySource.toJSON())
+}

@@ -1,58 +1,66 @@
-import { Request, Response } from 'express'
-import { Page } from './model'
+import { IPage, Page } from './model'
 import { Book } from '../book/model'
-import * as utils from '../utils'
 import { pageSocket } from './socket'
-import * as auth from '../../auth/auth.service'
 import { Widget } from '../widget/model'
+import { FastifyReply, FastifyRequest } from 'fastify'
 
 /**
  * Creates a page as part of a book
  */
-export const create = utils.handleApiCall(async(req, res) => {
+export const create = async(
+    req: FastifyRequest<{Body: Omit<IPage, '_id'>}>,
+    res: FastifyReply<{Reply: string}>
+) => {
     const myBook = await Book.findById(req.body.bookId).exec()
-    await auth.hasEditAccess(req.user._id, myBook)
+    myBook.hasEditAccess(req.user._id)
     const newPage = await Page.create(req.body)
     pageSocket.onAddOrChange(newPage)
-    utils.handleResponse(res)(newPage._id)
-})
+    res.send(newPage._id.toString())
+}
 
 /**
  * Updates a page if user has edit access
  */
-export const update = utils.handleApiCall(async(req, res) => {
+export const update = async(
+    req: FastifyRequest<{Body: IPage}>,
+    res: FastifyReply<{Reply: void}>
+) => {
     let myId: string = req.body._id
     let myPage = new Page(req.body)
     delete req.body._id
     const toUpdatePage = await Page.findById(myId).exec()
     const toUpdateBook = await Book.findById(toUpdatePage.bookId).exec()
-    await auth.hasEditAccess(req.user._id, toUpdateBook)
+    toUpdateBook.hasEditAccess(req.user._id)
     await Page.findByIdAndUpdate(myId, myPage).exec()
     pageSocket.onAddOrChange(myPage)
-    utils.handleResponseNoData(res)()
-})
+    res.send()
+}
 
 /**
  * Removes a page if user has book edit access
  */
-export const remove = utils.handleApiCall(async(req, res) => {
+export const remove = async(
+    req: FastifyRequest<{Params: {id: string}}>,
+    res: FastifyReply
+) => {
     const myId: string = req.params.id
 
     const myPage = await Page.findById(myId)
     const myBook = await Book.findById(myPage.bookId).exec()
-    await auth.hasEditAccess(req.user._id, myBook)
-
+    myBook.hasEditAccess(req.user._id)
     await Widget.deleteMany({ pageId: myId }).exec()
     await myPage.deleteOne()
     pageSocket.onDelete(myPage)
+    res.send()
+}
 
-    utils.handleResponseNoData(res)()
-})
-
-export const getPages = utils.handleApiCall(async(req: Request, res: Response) => {
+export const getPages = async(
+    req: FastifyRequest<{Params: {id: string}}>,
+    res: FastifyReply<{Reply: IPage[]}>
+) => {
     const bookId: string = req.params.id
     const myBook = await Book.findById(bookId).exec()
-    await auth.hasViewerAccess(req.user._id, myBook)
+    myBook.hasViewerAccess(req.user._id)
     const pageRes = await Page.find({ bookId }).exec()
-    utils.handleResponse(res)(pageRes.map(x => x.toJSON()))
-})
+    res.send(pageRes.map(x => x.toJSON()))
+}

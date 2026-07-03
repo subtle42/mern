@@ -1,12 +1,48 @@
-import { Router } from 'express'
-import * as controller from './controller'
-import * as auth from '../../auth/auth.service'
+import * as ctrl from './controller'
+import { FastifyInstance } from 'fastify'
+import { isAuthenticated } from 'server/auth/auth.service'
+import { pageSchema } from './model'
 
-const router = Router()
 
-router.get('/:id', auth.isAuthenticated, controller.getPages)
-router.post('/', auth.isAuthenticated, controller.create)
-router.delete('/:id', auth.isAuthenticated, controller.remove)
-router.put('/', auth.isAuthenticated, controller.update)
 
-export const PageRouter = router
+export const buildPageApis = (app: FastifyInstance) => {
+    app.get('/:id', {
+        preHandler: [isAuthenticated],
+        schema: {
+            response: {
+                200: pageSchema.toJSONSchema()
+            }
+        }
+    }, ctrl.getPages)
+
+    app.post('/', {
+        preHandler: [isAuthenticated],
+        schema: {
+            body: pageSchema.toJSONSchema(),
+            response: {
+                200: undefined
+            }
+        }
+    }, ctrl.create)
+
+    app.delete('/:id', {
+        schema: {
+            params: {
+                type: 'object',
+                properties: {
+                    id: 'string'
+                }
+            }
+        }
+    }, ctrl.remove)
+
+    app.put('/', {
+        preHandler: [isAuthenticated],
+        schema: {
+            body: pageSchema.toJSONSchema(),
+            response: {
+                200: undefined
+            }
+        }
+    }, ctrl.update)
+}

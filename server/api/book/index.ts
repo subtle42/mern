@@ -1,13 +1,65 @@
-import { Router } from 'express'
+import { FastifyInstance } from 'fastify'
+import { bookSchema } from './model'
+import { isAuthenticated } from 'server/auth/auth.service'
 import * as ctrl from './controller'
-import * as auth from '../../auth/auth.service'
 
-const router = Router()
 
-router.get('/:id', auth.isAuthenticated, ctrl.getBook)
-router.get('/', auth.isAuthenticated, ctrl.getMyBooks)
-router.post('/', auth.isAuthenticated, ctrl.create)
-router.delete('/:id', auth.isAuthenticated, ctrl.remove)
-router.put('/', auth.isAuthenticated, ctrl.update)
+export const buildBookApis = (app: FastifyInstance) => {
+    app.get('/', {
+        preHandler: [isAuthenticated],
+        schema: {
+            response: {
+                200: {
+                    type: 'array',
+                    items: bookSchema.toJSONSchema()
+                }
+            }
+        }
+    }, ctrl.getMyBooks)
 
-export const BookRouter = router
+    app.get('/:id', {
+        preHandler: [isAuthenticated],
+        schema: {
+            params: {
+                type: 'object',
+                properties: {
+                    id: 'string'
+                }
+            },
+            response: {
+                200: bookSchema.toJSONSchema()
+            }
+        },
+    }, ctrl.getBook)
+
+    app.put('/', {
+        preHandler: [isAuthenticated],
+        schema: {
+            body: bookSchema.toJSONSchema(),
+            response: {
+                200: undefined
+            }
+        }
+    }, ctrl.update)
+
+    app.post('/', {
+        preHandler: [isAuthenticated],
+        schema: {
+            body: bookSchema.toJSONSchema()
+        }
+    }, ctrl.create)
+
+    app.delete('/:id', {
+        schema: {
+            params: {
+                type: 'object',
+                properties: {
+                    id: 'string'
+                }
+            },
+            response: {
+                200: undefined
+            }
+        }
+    }, ctrl.remove)
+}

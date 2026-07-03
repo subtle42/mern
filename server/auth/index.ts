@@ -1,34 +1,51 @@
-import './passport'
-import { Router } from 'express'
-import * as passport from 'passport'
-import { Server } from 'socket.io'
-import { signRequest } from './auth.service'
+import { isAuthenticated } from './auth.service'
 
-const router = Router()
+import { FastifyInstance } from 'fastify'
+import jwt from '@fastify/jwt'
+import config from '../config/environment'
+import { User } from 'server/api/user/model'
 
-router.post('/local', passport.authenticate('local'), (req, res) => {
-    res.json({
-        token: signRequest(req)
+declare module '@fastify/jwt' {
+    interface FastifyJWT {
+        user: {
+            _id: string;
+            role: string;
+        }
+    }
+}
+
+export const buildJwt = (app: FastifyInstance) => {
+    app.register(jwt, {
+        secret: config.shared.secret
     })
-})
-router.get('/google', (req: any, res, next) => {
-    req.session.socketId = req.query.socketId
-    next()
-}, passport.authenticate('google', {
-    scope: ['profile', 'email']
-}))
-router.get('/google/redirect', passport.authenticate('google', {
-    scope: ['profile', 'email']
-}), (req: any, res) => {
-    const myIO: Server = (global as any).myIO
-    const token: string = signRequest(req)
-    myIO.in((req.session).socketId).emit('auth', token)
-    res.end()
-})
-router.get('/logout', (req, res) => {
-    req.logOut(err => {
-        res.send()
-    })
-})
+}
 
-export const AuthRouter = router
+export const buildAuthApis = (app: FastifyInstance) => {
+    app.post<{
+        Body: {email:string, password:string},
+    }>('/local', {
+        onError: (req, res, err) => {
+            console.error(err)
+            res.status(401).send({message: err})
+        }
+    }, async(req, res) => {
+        const {email, password} = req.body
+        const user = await User.findOne({email})
+
+        if (!user) throw new Error('This email is not registered')
+        await user.authenticate(password)
+
+        res.send({
+            token: app.jwt.sign({
+                _id: user._id,
+                role: user.role
+            })
+        })
+    })
+
+    app.get('/logout', {
+        onRequest: [isAuthenticated]
+    }, (req, res) => {
+        res.send({message: 'destory'})
+    })
+}

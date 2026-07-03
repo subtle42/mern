@@ -1,112 +1,58 @@
-import config from '../config/environment'
-import { Request, Response, NextFunction } from 'express'
-import * as jwt from 'jsonwebtoken'
 import { IShared } from 'common/models'
 import { Document } from 'mongoose'
+import { FastifyReply, FastifyRequest } from 'fastify'
 
-
-declare global {
-    namespace Express {
-        interface User {
-            _id: string
-            role: string
-        }
-        interface Request {
-            user?: User | undefined;
-        }
-    }
-}
 
 /**
  * Checks if user is logged in.
- * @param req
- * @param res
- * @param next
  */
-export function isAuthenticated (req: Request, res: Response, next: NextFunction): void {
-    let token = req.headers['authorization'] || req.body.token
-    console.log(`has token: ${!!token}`)
-    if (!token) {
-        res.status(401).send({
-            message: 'No token provided'
-        }).end()
-        return
+export const isAuthenticated = async(req: FastifyRequest, res: FastifyReply) => {
+    try {
+        req.jwtVerify()
     }
-    console.log(`has token: ${!!token}`)
-    jwt.verify(token, config.shared.secret, (err, decoded) => {
-        if (err) {
-            console.warn('unable to decrypt')
-            return res.status(401).send('Failed to authenticate token')
-        }
-        req.user = decoded
-        next()
-    })
+    catch (err) {
+        console.error(`Unable to verify token`, err)
+        res.status(401).send({ error: 'Unauthorized: Invalid or missing token' });
+    }
 }
 
 /**
  * Checks if user has owner access to specific resource before CRUD operation.
- * @param userId
- * @param book
  */
-export const hasOwnerAccess = async(userId: string, myModel: Document<unknown, {}, IShared>): Promise<void> => {
+export const hasOwnerAccess = (userId: string, myModel: Document<unknown, {}, IShared>): boolean => {
     if (myModel.get('owner') === userId) return
-    throw new Error(`User does not have owner access to shareModel: ${myModel._id}`)
-    // return new Promise((resolve, reject) => {
-    //     if (myModel.get('owner') === userId) return resolve()
-    //     return reject(`User does not have owner access to shareModel: ${myModel._id}`)
-    // })
+    return false
+}
+
+
+/**
+ * Checks if user has owner access to specific resource before CRUD operation.
+ */
+export const hasEditAccess = (userId: string, myModel: Document<unknown, {}, IShared>): boolean => {
+    if (myModel.get('owner') === userId) return true
+    if (myModel.get('editors').includes(userId)) return true
+    return false
 }
 
 /**
  * Checks if user has owner access to specific resource before CRUD operation.
- * @param userId
- * @param book
  */
-export const hasEditAccess = (userId: string, myModel: Document<unknown, {}, IShared>): Promise<void> => {
-    return new Promise((resolve, reject) => {
-        if (myModel.get('owner') === userId) return resolve()
-        if (myModel.get('editors').includes(userId)) return resolve()
-        return reject(`User does not have owner access to book: ${myModel._id}`)
-    })
-}
-
-/**
- * Checks if user has owner access to specific resource before CRUD operation.
- * @param userId
- * @param book
- */
-export const hasViewerAccess = (userId: string, myModel: Document<unknown, {}, IShared>): Promise<void> => {
-    return new Promise((resolve, reject) => {
-        if (myModel.get('isPublic')) return resolve()
-        if (myModel.get('owner') === userId) return resolve()
-        if (myModel.get('editors').includes(userId)) return resolve()
-        if (myModel.get('viewers').includes(userId)) return resolve()
-        return reject(`User does NOT have owner access to item: ${myModel._id}`)
-    })
+export const hasViewerAccess = (userId: string, myModel: Document<unknown, {}, IShared>): boolean => {
+    if (myModel.get('isPublic')) return true
+    if (myModel.get('owner') === userId) return true
+    if (myModel.get('editors').includes(userId)) return true
+    if (myModel.get('viewers').includes(userId)) return true
+    return false
 }
 
 /**
  * Checks if the user role is admin
- * @param req
- * @param res
- * @param next
  */
-export function isAdmin (req: Request, res: Response, next: NextFunction) {
-    let user = req.user
+export const isAdmin = async(req: FastifyRequest, res: FastifyReply) => {
+    let user = req.user as any
     if (!user) {
-        res.status(403).send('Your JWT has not been checked').end()
+        res.status(403).send('Your JWT has not been checked')
     } else if (user.role !== 'admin') {
-        res.status(403).send(`You are not an ADMIN. Your access is: ${user.role}`).end()
-    } else {
-        next()
+        res.status(403).send(`You are not an ADMIN. Your access is: ${user.role}`)
     }
-}
-
-export function signRequest (req: Request): string {
-    const user: any = req.user
-    const tmp = { _id: user.id, role: user.role }
-    const token = jwt.sign(tmp, config.shared.secret, {
-        expiresIn: 60 * 60 * 5
-    })
-    return token
 }
