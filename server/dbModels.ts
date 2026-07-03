@@ -1,6 +1,5 @@
 import * as myModels from 'common/models'
 import { Document } from 'mongoose'
-import { Request } from 'express'
 
 interface IUserDb extends myModels.IUser {
     password: string
