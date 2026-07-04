@@ -6,28 +6,32 @@ import { unlink } from 'fs'
 
 
 export const buildSourceApis = (app: FastifyInstance) => {
+    app.log.info('building source apis...')
+
     app.get('/:id', {
         onRequest: [isAuthenticated],
         schema: {
+            tags: ['Sources'],
             params: {
                 type: 'object',
                 properties: {
-                    id: 'string'
+                    id: {type:'string'}
                 }
             }
         }
     }, ctrl.getSource)
 
-    app.get('/', {
+    app.get('', {
         onRequest: [isAuthenticated],
         schema: {
+            tags: ['Sources'],
             response: {
                 200: SourceSchema.toJSONSchema()
             }
         }
     }, ctrl.getMySources)
 
-    app.post('/', {
+    app.post('', {
         onRequest: [isAuthenticated],
         onResponse: [async(req, res, done) => {
             const data = await req.file()
@@ -37,24 +41,29 @@ export const buildSourceApis = (app: FastifyInstance) => {
             })
         }],
         schema: {
+            tags: ['Sources'],
             body: SourceSchema.toJSONSchema(),
             response: {
-                200: 'string'
+                200: {type: 'string'}
             }
         }
     }, ctrl.create)
 
-    app.put('/', {
+    app.put('', {
         onRequest: [isAuthenticated],
+        schema: {
+            tags: ['Sources'],
+        }
     }, ctrl.update)
 
     app.delete('/:id', {
         onRequest: [isAuthenticated],
         schema: {
+            tags: ['Sources'],
             params: {
                 type: 'object',
                 properties: {
-                    id: 'string'
+                    id: {type:'string'}
                 }
             }
         }
@@ -62,5 +71,10 @@ export const buildSourceApis = (app: FastifyInstance) => {
 
     app.post('/query', {
         onRequest: [isAuthenticated],
+        schema: {
+            tags: ['Sources'],
+        }
     }, ctrl.query)
+
+    app.log.info('done')
 }

@@ -1,48 +1,56 @@
 import * as ctrl from './controller'
 import { FastifyInstance } from 'fastify'
-import { isAuthenticated } from 'server/auth/auth.service'
+import { isAuthenticated } from '../../auth/auth.service'
 import { pageSchema } from './model'
 
 
 
 export const buildPageApis = (app: FastifyInstance) => {
+    app.log.info('buidling page apis...')
+
     app.get('/:id', {
         preHandler: [isAuthenticated],
         schema: {
+            tags: ['Pages'],
             response: {
                 200: pageSchema.toJSONSchema()
             }
         }
     }, ctrl.getPages)
 
-    app.post('/', {
+    app.post('', {
         preHandler: [isAuthenticated],
         schema: {
+            tags: ['Pages'],
             body: pageSchema.toJSONSchema(),
             response: {
-                200: undefined
+                200: {}
             }
         }
     }, ctrl.create)
 
     app.delete('/:id', {
         schema: {
+            tags: ['Pages'],
             params: {
                 type: 'object',
                 properties: {
-                    id: 'string'
+                    id: {type:'string'}
                 }
             }
         }
     }, ctrl.remove)
 
-    app.put('/', {
+    app.put('', {
         preHandler: [isAuthenticated],
         schema: {
+            tags: ['Pages'],
             body: pageSchema.toJSONSchema(),
             response: {
-                200: undefined
+                200: {}
             }
         }
     }, ctrl.update)
+
+    app.log.info('done')
 }

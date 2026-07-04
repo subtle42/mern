@@ -1,13 +1,17 @@
 import { FastifyInstance } from 'fastify'
 import { bookSchema } from './model'
-import { isAuthenticated } from 'server/auth/auth.service'
+import { isAuthenticated } from '../../auth/auth.service'
 import * as ctrl from './controller'
 
 
 export const buildBookApis = (app: FastifyInstance) => {
-    app.get('/', {
+    app.log.info('building book apis...')
+
+    app.get('', {
         preHandler: [isAuthenticated],
         schema: {
+            tags: ['Books'],
+            // security: [{bearerAuth: []}],
             response: {
                 200: {
                     type: 'array',
@@ -20,10 +24,11 @@ export const buildBookApis = (app: FastifyInstance) => {
     app.get('/:id', {
         preHandler: [isAuthenticated],
         schema: {
+            tags: ['Books'],
             params: {
                 type: 'object',
                 properties: {
-                    id: 'string'
+                    id: {type:'string'}
                 }
             },
             response: {
@@ -32,34 +37,39 @@ export const buildBookApis = (app: FastifyInstance) => {
         },
     }, ctrl.getBook)
 
-    app.put('/', {
+    app.put('', {
         preHandler: [isAuthenticated],
         schema: {
+            tags: ['Books'],
             body: bookSchema.toJSONSchema(),
             response: {
-                200: undefined
+                200: {}
             }
         }
     }, ctrl.update)
 
-    app.post('/', {
+    app.post('', {
         preHandler: [isAuthenticated],
         schema: {
+            tags: ['Books'],
             body: bookSchema.toJSONSchema()
         }
     }, ctrl.create)
 
     app.delete('/:id', {
         schema: {
+            tags: ['Books'],
             params: {
                 type: 'object',
                 properties: {
-                    id: 'string'
+                    id: {type:'string'}
                 }
             },
             response: {
-                200: undefined
+                200: {}
             }
         }
     }, ctrl.remove)
+
+    app.log.info('done')
 }

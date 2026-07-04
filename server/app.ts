@@ -12,39 +12,64 @@ import fastify from 'fastify'
 import fastSwagger from '@fastify/swagger'
 import multipart from '@fastify/multipart'
 import { writeFileSync } from 'fs'
+import fastifyStatic from '@fastify/static'
+
+import * as path from 'path'
+import { MongoMemoryServer } from 'mongodb-memory-server'
 
 // import * as utils from './api/utils'
-declare const global: any
+// declare const global: any
 
-let MONGO_URI = 'mongodb://localhost/merntest';
 
-(mongoose as any).connect(MONGO_URI, {
-    useNewUrlParser: true
-});
-(mongoose as any).Promise = global.Promise
-mongoose.connection.on('error', () => {
-    console.error('MongoDB connection error!')
-    process.exit(-1)
-})
+export const buildMongoDb = async() => {
+    console.log('building mongo db...')
+    const mongod = await MongoMemoryServer.create();
+    console.log('creating connection to db...');
+    (mongoose as any).connect(mongod.getUri(), {
+        useNewUrlParser: true
+    });
+    (mongoose as any).Promise = global.Promise
+    mongoose.connection.on('error', () => {
+        console.error('MongoDB connection error!')
+        process.exit(-1)
+    })
+}
 
-let server = http.createServer()
-
-const buildServer = async() => {
+export const buildServer = async() => {
 
     const myFastServer = fastify({
-        logger: true,
+        logger: {
+            level: 'info',
+            transport: {
+                target: 'pino-pretty',
+                options: {
+                    translateTime: 'HH:MM:ss Z',
+                    ignore: 'pid,hostname',
+                },
+            }
+        },
+    })
+    await myFastServer.register(fastifyStatic, {
+        root: path.join(__dirname, 'static')
     })
     await myFastServer.register(multipart)
     await myFastServer.register(fastSwagger, {
         openapi: {
-            openapi: '3.0',
+            openapi: '3.1.0',
             info: {
                 title: 'MERN swagger',
                 description: 'Testing the Fastify swagger API',
                 version: '0.1.0'
             },
+            servers: [{
+                url: 'http://localhost:3333',
+                description: 'The localhost for development'
+            }]
         }
     })
+    if (1 === 1) {
+        await myFastServer.register(import('@fastify/swagger-ui'), {})
+    }
 
     await myFastServer.register(buildBookApis, {prefix: '/books'})
     await myFastServer.register(buildPageApis, {prefix: '/pages'})
@@ -53,14 +78,16 @@ const buildServer = async() => {
     await myFastServer.register(buildWidgetApis, {prefix: '/widgets'})
     await myFastServer.register(buildAuthApis, {prefix: '/auth'})
 
+    await myFastServer.ready()
     const swaggerData = await myFastServer.swagger()
-    writeFileSync('../../swagger.json', JSON.stringify(swaggerData))
+    writeFileSync('swagger.json', JSON.stringify(swaggerData))
+
     return myFastServer
 }
 
 
 
-let myIO = new Server(server, {})
+let myIO = new Server()
 global.myIO = myIO
 
 myIO.on('connection', socket => {
@@ -68,8 +95,10 @@ myIO.on('connection', socket => {
 })
 // socketAuth(myIO);
 
-buildServer()
+buildMongoDb()
+.then(() => buildServer())
 .then(server => server.listen({port: 3333}))
+.catch(err => console.error(err))
 
 
 // app.use('/index', express.static(path.join(__dirname, '../client/index.html')))

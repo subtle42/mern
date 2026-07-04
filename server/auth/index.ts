@@ -3,7 +3,7 @@ import { isAuthenticated } from './auth.service'
 import { FastifyInstance } from 'fastify'
 import jwt from '@fastify/jwt'
 import config from '../config/environment'
-import { User } from 'server/api/user/model'
+import { User } from '../api/user/model'
 
 declare module '@fastify/jwt' {
     interface FastifyJWT {
@@ -24,6 +24,9 @@ export const buildAuthApis = (app: FastifyInstance) => {
     app.post<{
         Body: {email:string, password:string},
     }>('/local', {
+        schema: {
+            tags: ['Auth']
+        },
         onError: (req, res, err) => {
             console.error(err)
             res.status(401).send({message: err})
@@ -44,7 +47,10 @@ export const buildAuthApis = (app: FastifyInstance) => {
     })
 
     app.get('/logout', {
-        onRequest: [isAuthenticated]
+        onRequest: [isAuthenticated],
+        schema: {
+            tags: ['Auth']
+        },
     }, (req, res) => {
         res.send({message: 'destory'})
     })

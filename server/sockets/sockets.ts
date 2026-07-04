@@ -3,7 +3,6 @@ import { ISharedModel } from '../dbModels'
 import * as jwt from 'jsonwebtoken'
 import config from '../config/environment'
 import * as auth from '../auth/auth.service'
-import { logger } from '../api/utils'
 import { Namespace, Server, Socket } from 'socket.io'
 
 declare var global: any
@@ -24,7 +23,7 @@ export default abstract class BaseSocket {
 
     setupSocket (name: string) {
         this.namespace.on('connection', socket => this.onJoin(socket))
-        logger.debug(`Created socket namespace: ${this.name}`)
+        console.debug(`Created socket namespace: ${this.name}`)
     }
 
     protected abstract getParentId (model: Document): string
@@ -54,7 +53,7 @@ export default abstract class BaseSocket {
             })
             .then(data => this._onAddOrChange(room, data))
             .catch(err => {
-                logger.error(err)
+                console.error(err)
                 socket.emit('message', err)
             })
         })
@@ -69,7 +68,7 @@ export default abstract class BaseSocket {
         })
     }
 
-    private hasViewAccess (decodedToken, room: string): Promise<void> {
+    private hasViewAccess (decodedToken, room: string): Promise<void|boolean> {
         const userId: string = decodedToken._id
         return this.getSharedModel(room)
         .then(shared => auth.hasViewerAccess(userId, shared as any))

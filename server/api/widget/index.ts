@@ -1,27 +1,46 @@
 import * as ctrl from './controller'
 // import * as auth from '../../auth/auth.service'
 import { FastifyInstance } from 'fastify'
-import { isAuthenticated } from 'server/auth/auth.service'
+import { isAuthenticated } from '../../auth/auth.service'
 
 
 export const buildWidgetApis = (app: FastifyInstance) => {
-    app.post('/', {
-        onRequest: [isAuthenticated]
+    app.log.info('building widget apis...')
+
+    app.post('', {
+        onRequest: [isAuthenticated],
+        schema: {
+            tags: ['Widget']
+        }
     }, ctrl.create)
 
     app.post('/multiple', {
-        onRequest: [isAuthenticated]
+        onRequest: [isAuthenticated],
+        schema: {
+            tags: ['Widget']
+        }
     }, ctrl.createMultiple)
 
     app.delete('/:id/:pageId/:bookId', {
-        onRequest: [isAuthenticated]
+        onRequest: [isAuthenticated],
+        schema: {
+            tags: ['Widget']
+        }
     }, ctrl.remove)
 
-    app.put('/', {
-        onRequest: [isAuthenticated]
+    app.put('', {
+        onRequest: [isAuthenticated],
+        schema: {
+            tags: ['Widget']
+        }
     }, ctrl.update)
 
     app.get('/:id', {
-        onRequest: [isAuthenticated]
+        onRequest: [isAuthenticated],
+        schema: {
+            tags: ['Widget']
+        }
     }, ctrl.get)
+
+    app.log.info('done')
 }
