@@ -1,0 +1,172 @@
+import config from '../server/config/environment'
+import * as jwt from 'jsonwebtoken'
+import * as ioClient from 'socket.io-client'
+import * as io from 'socket.io'
+import { IBook, ISource, IPage, IWidget } from 'common/models'
+import { FastifyInstance } from 'fastify'
+import { buildMongoDb, buildServer } from './app'
+import mongoose from 'mongoose'
+import { MongoMemoryServer } from 'mongodb-memory-server'
+import { IUser } from './api/user/model'
+import { AddressInfo } from 'net'
+
+interface FakeUser {
+    email: string
+    password: string
+    name: string
+}
+
+export const USERS: FakeUser[] = [{
+    email: 'test1@test.com',
+    password: 'test1',
+    name: 'Test1'
+}, {
+    email: 'test2@test.com',
+    password: 'test2',
+    name: 'Test2'
+}, {
+    email: 'test3@test.com',
+    password: 'test3',
+    name: 'Test3'
+}]
+
+export const getBaseUrl = (): string => {
+    return `${config.server.protocol}://${config.server.location}:${config.server.port}`
+}
+
+export const getUserIdFromToken = (app: FastifyInstance, tokens: string[]): string[] => {
+    return tokens.map(token => app.jwt.verify<IUser>(token)._id)
+}
+
+export const createUserAndLogin = async(app: FastifyInstance, user: FakeUser): Promise<string> => {
+    await app.inject().post('/api/user').body(user)
+    const res = await app.inject().post('/api/auth/local').body(user)
+    return JSON.parse(res.body).token as string
+}
+
+export const createAllUsers = (app: FastifyInstance) => {
+    return Promise.all(USERS.map(user => createUserAndLogin(app, user)))
+}
+
+export const testSetup = async() => {
+    const db = await buildMongoDb()
+    const server = await buildServer(true)
+    const tokens = await createAllUsers(server)
+    const userIds = getUserIdFromToken(server, tokens)
+    await server.listen()
+    return {server, tokens, userIds, db}
+}
+
+export const testCleanup = async(server: FastifyInstance, db: MongoMemoryServer) => {
+    await mongoose.disconnect()
+    await db.stop({doCleanup: true})
+    await server.close()
+}
+
+export const websocketConnect = (app:FastifyInstance, channel: string, token: string) => {
+    return ioClient.connect(`${getAddress(app)}/${channel}`, {
+        query: { token }
+    })
+}
+
+const getAddress = (app:FastifyInstance) => {
+    const tmp = app.server.address() as AddressInfo
+    console.log('tmp', tmp)
+    return `http://localhost:${tmp.port}`
+}
+
+export const createBook = async(app: FastifyInstance, token: string, name: string): Promise<string> => {
+    const res = await app.inject()
+        .post(`/api/books`)
+        .body({ name })
+        .headers({authorization: token})
+    return res.body
+}
+
+export const updateBook = async(app: FastifyInstance, token: string, item: IBook): Promise<void> => {
+    const res = await app.inject()
+        .put(`/api/books`)
+        .body(item)
+        .headers({authorization: token})
+    return JSON.parse(res.body)
+}
+
+// /**
+//  * Will create a page and return it's id
+//  * @param token
+//  * @param bookId
+//  * @param name
+//  */
+// export const createPage = (token: string, bookId: string, name: string): Promise<string> => {
+//     return axios.post(`${getBaseUrl()}/api/pages`, { name, bookId }, setHeader(token))
+//     .then(res => res.data as string)
+// }
+
+// export const createSource = (token: string, filePath: string): Promise<string> => {
+//     return chai.request(getBaseUrl())
+//     .post('/api/sources')
+//     .set('authorization', token)
+//     .attach('file', filePath, 'myFile.csv')
+//     .then(res => res.body as string)
+// }
+
+// export const deleteSource = (token: string, sourceId: string): Promise<void> => {
+//     return axios.delete(`${getBaseUrl()}/api/sources/${sourceId}`, setHeader(token))
+//     .then(res => res.data as undefined)
+// }
+
+// export const getSource = (token: string, id: string): Promise<ISource> => {
+//     return axios.get(`${getBaseUrl()}/api/sources/${id}`, setHeader(token))
+//     .then(res => res.data as ISource)
+// }
+
+export const getBook = async(app: FastifyInstance, token: string, id: string): Promise<IBook> => {
+    const res = await app.inject()
+        .get(`/api/books/${id}`)
+        .headers({authorization: token})
+    return JSON.parse(res.body)
+}
+
+// export const getPages = (token: string, bookId: string): Promise<IPage[]> => {
+//     return axios.get(`${getBaseUrl()}/api/pages/${bookId}`, setHeader(token))
+//     .then(res => res.data as IPage[])
+// }
+
+// export const deleteBook = (token: string, bookId: string): Promise<void> => {
+//     return axios.delete(`${getBaseUrl()}/api/books/${bookId}`, setHeader(token))
+//     .then(res => res.data as undefined)
+// }
+
+// export const updatePage = (token: string, page: IPage): Promise<void> => {
+//     return axios.put(`${getBaseUrl()}/api/pages`, page, setHeader(token))
+//     .then(res => res.data as undefined)
+// }
+
+// export const deletePage = (token: string, pageId: string): Promise<void> => {
+//     return axios.delete(`${getBaseUrl()}/api/pages/${pageId}`, setHeader(token))
+//     .then(res => res.data as undefined)
+// }
+
+// export const getWidget = (token: string, widgetId: string): Promise<IWidget> => {
+//     return axios.get(`${getBaseUrl()}/api/widgets/${widgetId}`, setHeader(token))
+//     .then(res => res.data as IWidget)
+// }
+
+// export const createWidget = (token: string, pageId: string, sourceId: string, type: string): Promise<string> => {
+//     return axios.post(`${getBaseUrl()}/api/widgets`, {
+//         pageId,
+//         sourceId,
+//         type
+//     }, setHeader(token))
+//     .then(res => res.data as string)
+// }
+
+// export const updateWidget = (token: string, widget: IWidget): Promise<void> => {
+//     return axios.put(`${getBaseUrl()}/api/widgets`, widget, setHeader(token))
+//     .then(res => res.data as undefined)
+// }
+
+// export const deleteWidget = (token: string, widgetId: string, pageId: string, bookId: string): Promise<void> => {
+//     return axios.delete(`${getBaseUrl()}/api/widgets/${widgetId}/${pageId}/${bookId}`, setHeader(token))
+//     .then(res => res.data as undefined)
+// }

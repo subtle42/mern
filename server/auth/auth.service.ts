@@ -11,7 +11,7 @@ export const isAuthenticated = async(req: FastifyRequest, res: FastifyReply) => 
         await req.jwtVerify()
     }
     catch (err) {
-        res.status(401).send({ error: 'Unauthorized: Invalid or missing token' });
+        res.status(401).send({ message: 'Unauthorized: Invalid or missing token' });
     }
 }
 

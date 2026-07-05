@@ -1,7 +1,7 @@
 import { Book, IBook } from './model'
 import { Page } from '../page/model'
 import { Widget } from '../widget/model'
-import { BookSocket } from './socket'
+import { getBookSocket } from './socket'
 import * as auth from '../../auth/auth.service'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
@@ -21,7 +21,7 @@ export const create = async(
 
     await myBook.validate()
     const data = await Book.create(myBook)
-    BookSocket.onAddOrChange(data.toJSON())
+    getBookSocket().onAddOrChange(data.toJSON())
     res.send(data._id.toString())
 }
 
@@ -39,13 +39,13 @@ export const update = async(
     await myBook.validate()
     const oldBook = await Book.findById(myId).exec()
     oldBook.hasEditAccess(req.user._id)
-    if (oldBook.owner !== req.user._id) {
+    if (oldBook.owner !== myBook.owner) {
         oldBook.hasOwnerAccess(req.user._id)
         // throw Error(`Only the owner of the book: ${oldBook._id}, can edit the owner field.`)
     }
 
     await Book.findByIdAndUpdate(myId, req.body).exec()
-    BookSocket.onAddOrChange(myBook, oldBook)
+    getBookSocket().onAddOrChange(myBook, oldBook)
     res.send()
 }
 
@@ -59,14 +59,14 @@ export const remove = async(
     const myId: string = req.params.id
 
     const myBook = await Book.findById(myId).exec()
-    myBook.hasOwnerAccess(myId)
+    myBook.hasOwnerAccess(req.user._id)
     // Delete all pages
     const pages = await Page.find({ bookId: myId }).exec()
     await Promise.all(pages.map(p => Widget.deleteMany({ pageId: p._id }).exec()))
     await Page.deleteMany({ bookId: myId }).exec()
     // Delete book
     await myBook.deleteOne()
-    BookSocket.onDelete(myBook)
+    getBookSocket().onDelete(myBook)
     res.send()
 }
 

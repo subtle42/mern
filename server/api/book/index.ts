@@ -52,11 +52,17 @@ export const buildBookApis = (app: FastifyInstance) => {
         preHandler: [isAuthenticated],
         schema: {
             tags: ['Books'],
-            body: bookSchema.toJSONSchema()
+            body: {
+                type: 'object',
+                properties: {
+                    name: {type: 'string'}
+                }
+            }
         }
     }, ctrl.create)
 
     app.delete('/:id', {
+        onRequest: [isAuthenticated],
         schema: {
             tags: ['Books'],
             params: {

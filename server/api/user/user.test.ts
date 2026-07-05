@@ -1,8 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import { MongoMemoryServer } from 'mongodb-memory-server'
-import mongoose from 'mongoose'
 import { after, before, describe, it } from 'node:test'
-import { buildMongoDb, buildServer } from 'server/app'
+import { testCleanup, testSetup } from 'server/testUtils'
 
 describe('User API', () => {
     const userName = 'test'
@@ -13,14 +12,11 @@ describe('User API', () => {
     let db!: MongoMemoryServer
 
     before(async() => {
-        server = await buildServer(true)
-        db = await buildMongoDb()
+        ({server, db} = await testSetup())
     })
 
     after(async () => {
-        await mongoose.disconnect()
-        await db.stop({doCleanup: true})
-        await server.close()
+        await testCleanup(server, db)
     })
 
     describe('post /api/user', () => {

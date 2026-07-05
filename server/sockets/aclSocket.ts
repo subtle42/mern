@@ -1,39 +1,36 @@
 import { Model } from 'mongoose'
 import * as jwt from 'jsonwebtoken'
 import config from '../config/environment'
-import { Server, Namespace, Socket } from 'socket.io'
+import { Namespace, Socket } from 'socket.io'
 import { ISharedModel } from 'server/dbModels'
+import { getWsServer } from '.'
+import { FastifyInstance } from 'fastify'
 
-declare var global: any
-let myIO: Server = global.myIO
 
 export class AclSocket {
     private namespace: Namespace
+    private myIO = getWsServer()
 
     constructor (
+        private server: FastifyInstance,
         private name: string,
-        protected model: Model<ISharedModel>
+        protected model: Model<ISharedModel>,
     ) {
-        // setTimeout(() => {
-        //     let myIO: Server = global.myIO
-            
-        //     console.log(`creating namespace: ${this.name}`)
-        //     this.namespace = myIO.of(this.name)
-        //     console.debug(`Created socket namespace: ${this.name}`)
-        //     this.setupSockEvents()
-        // }, 1000)
+        console.log(`creating namespace: ${this.name}`)
+        this.namespace = this.myIO.of(this.name)
+        console.debug(`Created socket namespace: ${this.name}`)
+        this.setupSockEvents()
     }
 
     private setupSockEvents () {
         this.namespace.on('connection', (socket: Socket) => {
             console.log(`connecting to ${this.name}`)
-            this.veryifyToken(socket.handshake.query.token as string)
-            .then(decoded => {
-                console.log(`socket verified: ${this.name}`)
-                socket.join(decoded._id)
-                return this.getInitialState(decoded._id)
-                .then(data => this.namespace.in(decoded._id).emit('addedOrChanged', data))
-            })
+            const decoded = this.veryifyToken(socket.handshake.query.token as string)
+            console.log(`socket verified: ${this.name}`)
+            socket.join(decoded._id)
+            
+            return this.getInitialState(decoded._id)
+            .then(data => this.namespace.in(decoded._id).emit('addedOrChanged', data))
             .catch(err => {
                 console.error(err)
                 socket.emit('message', err)
@@ -41,13 +38,9 @@ export class AclSocket {
         })
     }
 
-    private veryifyToken (token: string): Promise<any> {
-        return new Promise((resolve, reject) => {
-            jwt.verify(token, config.shared.secret, (err, decoded) => {
-                if (err) return reject(err)
-                resolve(decoded)
-            })
-        })
+    private veryifyToken (token: string) {
+        console.log('in verify')
+        return this.server.jwt.verify<{_id:string, role:string}>(token)
     }
 
     private getInitialState (userId: string) {
