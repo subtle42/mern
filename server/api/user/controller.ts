@@ -1,5 +1,5 @@
 import { IUser, User } from './model'
-import { FastifyReply, FastifyRequest } from 'fastify'
+import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 
 export const getPublic = async(
     req: FastifyRequest,
@@ -9,9 +9,9 @@ export const getPublic = async(
     res.send(users.map(x => x.toJSON()))
 }
 
-export const create = async(
+export const create = (app: FastifyInstance) => async(
     req: FastifyRequest,
-    res: FastifyReply
+    res: FastifyReply,
 ) => {
     const newUser = new User(req.body)
     newUser.provider = 'local'
@@ -20,13 +20,11 @@ export const create = async(
     newUser.salt = await newUser.makeSalt()
     newUser.password = await newUser.encryptPassword(newUser.password)
     await newUser.save()
-    res.send()
-
-    // const tmp = { _id: myUser._id, role: myUser.role }
-    // const token = jwt.sign(tmp, config.shared.secret, {
-    //     expiresIn: 60 * 60 * 5
-    // })
-    // res.json({ token })
+    res.send({ 
+        token: app.jwt.sign({
+            _id: newUser._id, role: newUser.role
+        })
+    })
 }
 
 export const show = async(

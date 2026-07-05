@@ -13,12 +13,12 @@ export default abstract class BaseSocket {
     constructor (
         protected name: string
     ) {
-        setTimeout(() => {
-            let myIO: Server = global.myIO
+        // setTimeout(() => {
+        //     let myIO: Server = global.myIO
 
-            this.namespace = myIO.of(name)
-            this.setupSocket(name)
-        }, 1000)
+        //     this.namespace = myIO.of(name)
+        //     this.setupSocket(name)
+        // }, 1000)
     }
 
     setupSocket (name: string) {

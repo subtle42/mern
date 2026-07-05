@@ -21,11 +21,14 @@ export const buildJwt = (app: FastifyInstance) => {
 }
 
 export const buildAuthApis = (app: FastifyInstance) => {
+    app.log.info('building auth apis...')
+
     app.post<{
         Body: {email:string, password:string},
     }>('/local', {
         schema: {
-            tags: ['Auth']
+            tags: ['Auth'],
+            security: []
         },
         onError: (req, res, err) => {
             console.error(err)
@@ -54,4 +57,6 @@ export const buildAuthApis = (app: FastifyInstance) => {
     }, (req, res) => {
         res.send({message: 'destory'})
     })
+
+    app.log.info('done')
 }

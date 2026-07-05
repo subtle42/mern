@@ -111,10 +111,11 @@ const setHeader = (token: string) => {
     }
 }
 
-export const websocketConnect = (channel: string, token: string): SocketIOClient.Socket => {
-    return io.connect(`${getBaseUrl()}/${channel}`, {
-        query: { token }
-    })
+export const websocketConnect = (channel: string, token: string) => {
+    // return io.connect(`${getBaseUrl()}/${channel}`, {
+    //     query: { token }
+    // })
+    return new WebSocket('')
 }
 
 export const createBook = (token: string, name: string): Promise<string> => {

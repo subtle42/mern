@@ -8,10 +8,9 @@ import { FastifyReply, FastifyRequest } from 'fastify'
  */
 export const isAuthenticated = async(req: FastifyRequest, res: FastifyReply) => {
     try {
-        req.jwtVerify()
+        await req.jwtVerify()
     }
     catch (err) {
-        console.error(`Unable to verify token`, err)
         res.status(401).send({ error: 'Unauthorized: Invalid or missing token' });
     }
 }

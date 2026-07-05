@@ -10,12 +10,13 @@ import { columnInsertEtlFactory, columnInspectFactory } from './factories'
 import { Widget } from '../widget/model';
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { pipeline } from 'stream/promises'
-const csv = require('fast-csv')
+// const csv = require('fast-csv')
 
-const parseCSV  = (fileName: string): Promise<string[][]> => {
-    return new Promise(resolve => {
+const parseCSV  = async(fileName: string): Promise<string[][]> => {
+    return new Promise(async (resolve) => {
         let response = []
         let stream = createReadStream(fileName)
+        const csv = await import('fast-csv')
         let csvStream = csv.parse({
             ignoreEmpty: true,
             trim: true

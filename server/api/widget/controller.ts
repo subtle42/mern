@@ -110,21 +110,21 @@ export const getDefaultColumn = (type: string, source: SourceDoc, includeCount?:
 }
 
 export const remove = async(
-    req: FastifyRequest<{Params: {id: string, pageId: string, bookId: string}}>,
+    req: FastifyRequest<{Params: {widgetId: string, pageId: string, bookId: string}}>,
     res: FastifyReply
 ) => {
-    const { id, pageId, bookId } = req.params
+    const { widgetId, pageId, bookId } = req.params
 
     const myBook = await Book.findById(bookId).exec()
     myBook.hasEditAccess(req.user._id)
     const myPage = await Page.findById(pageId).exec()
 
-    myPage.layout = myPage.layout.filter(item => item.i !== id)
+    myPage.layout = myPage.layout.filter(item => item.i !== widgetId)
     await myPage.updateOne(myPage).exec()
-    Widget.findByIdAndDelete(id).exec()
+    Widget.findByIdAndDelete(widgetId).exec()
 
     pageSocket.onAddOrChange(myPage)
-    widgetSocket.onDelete({ _id: id, pageId })
+    widgetSocket.onDelete({ _id: widgetId, pageId })
     res.send()
 }
 

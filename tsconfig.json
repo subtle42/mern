@@ -16,7 +16,7 @@
             "common/*": ["./common/*"]
         },
         "outDir": "./.out",
-        "types": ["@wdio/sync", "@wdio/mocha-framework"]
+        "types": []
     },
     "include": [
         "./server/**/*.ts",

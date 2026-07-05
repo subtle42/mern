@@ -9,6 +9,7 @@ export const buildUserApis = (app: FastifyInstance) => {
     app.get('/public', {
         onRequest: [isAuthenticated],
         schema: {
+            description: `Get the public infoformation about a user's profile`,
             tags: ['Users']
         }
     }, ctrl.getPublic)
@@ -43,9 +44,10 @@ export const buildUserApis = (app: FastifyInstance) => {
 
     app.post('', {
         schema: {
-            tags: ['Users']
+            tags: ['Users'],
+            security: []
         }
-    }, ctrl.create)
+    }, ctrl.create(app))
 
     app.log.info('done')
 }

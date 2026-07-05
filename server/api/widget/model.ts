@@ -12,7 +12,7 @@ const OtherSchema = new Schema({
     showLegend: Boolean
 })
 
-const WidgetSchema = new Schema({
+export const WidgetSchema = new Schema({
     pageId: { type: String, required: true },
     sourceId: { type: String, required: true },
     margins: { type: {

@@ -14,14 +14,14 @@ export class AclSocket {
         private name: string,
         protected model: Model<ISharedModel>
     ) {
-        setTimeout(() => {
-            let myIO: Server = global.myIO
+        // setTimeout(() => {
+        //     let myIO: Server = global.myIO
             
-            console.log(`creating namespace: ${this.name}`)
-            this.namespace = myIO.of(this.name)
-            console.debug(`Created socket namespace: ${this.name}`)
-            this.setupSockEvents()
-        }, 1000)
+        //     console.log(`creating namespace: ${this.name}`)
+        //     this.namespace = myIO.of(this.name)
+        //     console.debug(`Created socket namespace: ${this.name}`)
+        //     this.setupSockEvents()
+        // }, 1000)
     }
 
     private setupSockEvents () {
