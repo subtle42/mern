@@ -1,10 +1,9 @@
 {
   "name": "@mern/server",
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
     "start": "nodemon",
-    "test": "node --import tsx --test ./api/user/*.test.ts"
+    "test": "node --import tsx --test ./api/book/*.test.ts"
   },
   "author": "",
   "license": "ISC",
