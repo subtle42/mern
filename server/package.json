@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "nodemon",
-    "test": "node --import tsx --test ./api/book/*.test.ts"
+    "test": "node --import tsx --test ./**/*.test.ts"
   },
   "author": "",
   "license": "ISC",

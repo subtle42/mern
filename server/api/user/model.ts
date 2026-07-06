@@ -3,7 +3,7 @@ import {InferSchemaType, model, Schema } from 'mongoose'
 
 const authTypes = ['github', 'twitter', 'facebook', 'google']
 
-let UserSchema = new Schema({
+export const UserSchema = new Schema({
     name: { required: true, type: String },
     email: {
         lowercase: true,

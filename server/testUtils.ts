@@ -65,13 +65,12 @@ export const testCleanup = async(server: FastifyInstance, db: MongoMemoryServer)
 
 export const websocketConnect = (app:FastifyInstance, channel: string, token: string) => {
     return ioClient.connect(`${getAddress(app)}/${channel}`, {
-        query: { token }
+        auth: {token}
     })
 }
 
 const getAddress = (app:FastifyInstance) => {
     const tmp = app.server.address() as AddressInfo
-    console.log('tmp', tmp)
     return `http://localhost:${tmp.port}`
 }
 
@@ -84,11 +83,11 @@ export const createBook = async(app: FastifyInstance, token: string, name: strin
 }
 
 export const updateBook = async(app: FastifyInstance, token: string, item: IBook): Promise<void> => {
-    const res = await app.inject()
+    await app.inject()
         .put(`/api/books`)
         .body(item)
         .headers({authorization: token})
-    return JSON.parse(res.body)
+    return undefined
 }
 
 // /**
@@ -132,10 +131,11 @@ export const getBook = async(app: FastifyInstance, token: string, id: string): P
 //     .then(res => res.data as IPage[])
 // }
 
-// export const deleteBook = (token: string, bookId: string): Promise<void> => {
-//     return axios.delete(`${getBaseUrl()}/api/books/${bookId}`, setHeader(token))
-//     .then(res => res.data as undefined)
-// }
+export const deleteBook = async(app: FastifyInstance, token: string, bookId: string): Promise<void> => {
+    await app.inject()
+        .delete(`/api/books/${bookId}`)
+        .headers({authorization: token})
+}
 
 // export const updatePage = (token: string, page: IPage): Promise<void> => {
 //     return axios.put(`${getBaseUrl()}/api/pages`, page, setHeader(token))

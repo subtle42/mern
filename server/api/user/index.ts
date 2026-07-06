@@ -1,6 +1,7 @@
 import * as ctrl from './controller'
 import { FastifyInstance } from 'fastify'
 import { isAdmin, isAuthenticated } from '../../auth/auth.service'
+import { UserSchema } from './model'
 
 
 export const buildUserApis = (app: FastifyInstance) => {
@@ -10,7 +11,10 @@ export const buildUserApis = (app: FastifyInstance) => {
         onRequest: [isAuthenticated],
         schema: {
             description: `Get the public infoformation about a user's profile`,
-            tags: ['Users']
+            tags: ['Users'],
+            response: {
+                200: UserSchema.toJSONSchema()
+            }
         }
     }, ctrl.getPublic)
 
@@ -24,7 +28,10 @@ export const buildUserApis = (app: FastifyInstance) => {
     app.get('/me', {
         onRequest: [isAuthenticated],
         schema: {
-            tags: ['Users']
+            tags: ['Users'],
+            response: {
+                200: UserSchema.toJSONSchema()
+            }
         }
     }, ctrl.me)
 
@@ -45,7 +52,23 @@ export const buildUserApis = (app: FastifyInstance) => {
     app.post('', {
         schema: {
             tags: ['Users'],
-            security: []
+            security: [],
+            body: {
+                type: 'object',
+                properties: {
+                    name: {type: 'string'},
+                    email: {type: 'string'},
+                    password: {type: 'string'},
+                }
+            },
+            response: {
+                200: {
+                    type: 'object',
+                    properties: {
+                        token: {type: 'string'}
+                    }
+                }
+            }
         }
     }, ctrl.create(app))
 

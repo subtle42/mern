@@ -7,7 +7,6 @@ import * as io from 'socket.io-client'
 
 describe('Book API', () => {
     let tokens: string[]
-    // let nsp: io.Socket
     let userIds: string[]
     let server: FastifyInstance
     let db: MongoMemoryServer
@@ -48,18 +47,6 @@ describe('Book API', () => {
 
         before(async() => {
             bookId = await utils.createBook(server, tokens[0], 'update book test')
-            // .then(() => {
-            //     const nsp = utils.websocketConnect(server, 'books', tokens[0])
-            //     nsp.on('addedOrChanged', async(data: IBook[]) => {
-            //         nsp.disconnect()
-            //         data.forEach(item => {
-            //             books = books.filter(book => book._id !== item._id)
-            //             books.push(item)
-            //         })
-            //         console.log('books', books)
-            //         done()
-            //     })
-            // })
         })
 
         beforeEach(async() => {
@@ -153,19 +140,6 @@ describe('Book API', () => {
     })
 
     describe('DELETE /api/books', () => {
-        // let removed: string[] = []
-        // let myBook: IBook
-        // before(() => {
-        //     nsp.on('removed', (ids: string[]) => {
-        //         removed = removed.concat(ids)
-        //     })
-        //     return utils.createBook(server, tokens[0], 'to delete')
-        //     .then(id => utils.getBook(server, tokens[0], id))
-        //     .then(book => myBook = book)
-        // })
-
-        // after(() => nsp.removeListener('removed'))
-
         it('should return an error if user is NOT logged in', async(t) => {
             const res = await server.inject()
                 .delete(`/api/books/myBookID`)
@@ -200,301 +174,306 @@ describe('Book API', () => {
     })
 })
 
-// describe('Book Socket', () => {
-//     let tokens: string[] = []
-//     let userIds: string[] = []
+describe('Book Socket', () => {
+    let tokens: string[] = []
+    let userIds: string[] = []
+    let server: FastifyInstance
+    let db: MongoMemoryServer
 
-//     before(() => {
-//         return utils.testSetup()
-//         .then(setup => ({ userIds, tokens } = setup))
-//     })
+    before(async() => {
+        ({ userIds, tokens, server, db } = await utils.testSetup())
+    })
 
-//     after(() => {
-//         return utils.cleanDb()
-//     })
+    after(async() => {
+        await utils.testCleanup(server, db)
+    })
 
-//     describe('authentication', () => {
-//         it('should return an error if no token is provided', (t, done) => {
-//             let socket = utils.websocketConnect('books', 'aaa')
-//             socket.onmessage = (ev) => {
-//                 t.assert.equal(ev.data, 'jwt malformed')
-//                 socket.close()
-//                 done()
-//             }
-//         })
-//     })
+    describe('authentication', () => {
+        it('should return an error if no token is provided', (t, done) => {
+            const socket = utils.websocketConnect(server, 'books', 'aaa')
+            socket.io.on('packet', ev => {
+                socket.close()
+                t.assert.equal(ev.data.message, 'Authentication failed')
+                done()
+            })
+        })
+    })
 
-//     describe('onAddedOrChanged channel', () => {
-//         describe('initial response', () => {
-//             it('should send a list of all books that user owns', done => {
-//                 Promise.all([
-//                     utils.createBook(tokens[0], 'user1'),
-//                     utils.createBook(tokens[1], 'user2')
-//                 ])
-//                 .then(books => {
-//                     let socket = utils.websocketConnect('books', tokens[0])
-//                     socket.on('addedOrChanged', (data: IBook[]) => {
-//                         expect(data[0]._id).to.equal(books[0])
-//                         expect(data.length).to.equal(1)
-//                         socket.disconnect()
-//                         done()
-//                     })
-//                 })
-//             })
+    describe('onAddedOrChanged channel', () => {
+        describe('initial response', () => {
+            it('should send a list of all books that user owns', (t, done) => {
+                Promise.all([
+                    utils.createBook(server, tokens[0], 'user1'),
+                    utils.createBook(server, tokens[1], 'user2')
+                ])
+                .then(([book1, book2]) => {
+                    let socket = utils.websocketConnect(server, 'books', tokens[0])
+                    socket.on('addedOrChanged', (data: IBook[]) => {
+                        socket.disconnect()
+                        t.assert.equal(data[0]._id, book1)
+                        t.assert.equal(data.length, 1)
+                        done()
+                    })
+                })
+            })
 
-//             it('should send books that a user can edit', (t) => {
-//                 Promise.all([
-//                     utils.createBook(tokens[1], 'book1'),
-//                     utils.createBook(tokens[1], 'book1')
-//                 ])
-//                 .then(bookIds => {
-//                     return new Promise(resolve => {
-//                         // Book does not show up in response
-//                         let socket = utils.websocketConnect('books', tokens[0])
-//                         socket.on('addedOrChanged', (data: IBook[]) => {
-//                             expect(data.filter(d => d._id === bookIds[0]).length).to.equal(0)
-//                             socket.disconnect()
-//                             resolve()
-//                         })
-//                     })
-//                     .then(() => utils.getBook(tokens[1], bookIds[0]))
-//                     .then(book => {
-//                         book.editors.push(userIds[0])
-//                         return utils.updateBook(tokens[1], book)
-//                     })
-//                     .then(() => bookIds[0])
-//                 })
-//                 .then(canEditId => {
-//                     let socket = utils.websocketConnect('books', tokens[0])
-//                     socket.on('addedOrChanged', (data: IBook[]) => {
-//                         expect(data.filter(d => d._id === canEditId).length).to.equal(1)
-//                         socket.disconnect()
-//                         done()
-//                     })
-//                 })
-//             })
+            it('should send books that a user can edit', (t, done) => {
+                Promise.all([
+                    utils.createBook(server, tokens[1], 'book1'),
+                    utils.createBook(server, tokens[1], 'book3')
+                ])
+                .then(bookIds => {
+                    return new Promise(resolve => {
+                        // Book does not show up in response
+                        let socket = utils.websocketConnect(server, 'books', tokens[0])
+                        socket.on('addedOrChanged', (data: IBook[]) => {
+                            socket.disconnect()
+                            t.assert.equal(data.filter(d => d._id === bookIds[0]).length, 0)
+                            resolve('')
+                        })
+                    })
+                    .then(() => utils.getBook(server, tokens[1], bookIds[0]))
+                    .then(book => {
+                        book.editors.push(userIds[0])
+                        return utils.updateBook(server, tokens[1], book)
+                    })
+                    .then(() => bookIds[0])
+                })
+                .then(canEditId => {
+                    let socket = utils.websocketConnect(server, 'books', tokens[0])
+                    socket.on('addedOrChanged', (data: IBook[]) => {
+                        socket.disconnect()
+                        t.assert.equal(data.filter(d => d._id === canEditId).length, 1)
+                        done()
+                    })
+                })
+            })
 
-//             it('should send books that a user can view', done => {
-//                 utils.createBook(tokens[1], 'book3')
-//                 .then(bookId => {
-//                     return new Promise(resolve => {
-//                         // Book does not show up in response
-//                         let socket = utils.websocketConnect('books', tokens[0])
-//                         socket.on('addedOrChanged', (data: IBook[]) => {
-//                             expect(data.filter(d => d._id === bookId).length).to.equal(0)
-//                             socket.disconnect()
-//                             resolve()
-//                         })
-//                     })
-//                     .then(() => utils.getBook(tokens[1], bookId))
-//                     .then(book => {
-//                         book.viewers.push(userIds[0])
-//                         return utils.updateBook(tokens[1], book)
-//                     })
-//                     .then(() => bookId)
-//                 })
-//                 .then(canEditId => {
-//                     let socket = utils.websocketConnect('books', tokens[0])
-//                     socket.on('addedOrChanged', (data: IBook[]) => {
-//                         expect(data.filter(d => d._id === canEditId).length).to.equal(1)
-//                         socket.disconnect()
-//                         done()
-//                     })
-//                 })
-//             })
-//         })
+            it('should send books that a user can view', (t, done) => {
+                utils.createBook(server, tokens[1], 'book3')
+                .then(bookId => {
+                    return new Promise(resolve => {
+                        // Book does not show up in response
+                        let socket = utils.websocketConnect(server, 'books', tokens[0])
+                        socket.on('addedOrChanged', (data: IBook[]) => {
+                            socket.disconnect()
+                            t.assert.equal(data.filter(d => d._id === bookId).length, 0)
+                            resolve('')
+                        })
+                    })
+                    .then(() => utils.getBook(server, tokens[1], bookId))
+                    .then(book => {
+                        book.viewers.push(userIds[0])
+                        return utils.updateBook(server, tokens[1], book)
+                    })
+                    .then(() => bookId)
+                })
+                .then(canEditId => {
+                    let socket = utils.websocketConnect(server, 'books', tokens[0])
+                    socket.on('addedOrChanged', (data: IBook[]) => {
+                        socket.disconnect()
+                        t.assert.equal(data.filter(d => d._id === canEditId).length, 1)
+                        done()
+                    })
+                })
+            })
+        })
 
-//         describe('secondary responses', () => {
-//             let socket: SocketIOClient.Socket
-//             let books: IBook[] = []
+        describe('secondary responses', () => {
+            it('should send an item when it is added', (t, done) => {
+                const socket = utils.websocketConnect(server, 'books', tokens[2])
+                let isFirst = true
+                let bookId;
+                socket.on('addedOrChanged', (data: IBook[]) => {
+                    if (isFirst) {
+                        isFirst = false
+                        t.assert.equal(data.length, 0)
+                        utils.createBook(server, tokens[2], 'alwefjowie')
+                        .then(res => bookId = res)
+                    } else {
+                        socket.disconnect()
+                        t.assert.equal(data.length, 1)
+                        t.assert.equal(data[0]._id, bookId)
+                        done()
+                    }
+                })
+            })
 
-//             before(done => {
-//                 let first: boolean = true
-//                 socket = utils.websocketConnect('books', tokens[2])
-//                 socket.on('addedOrChanged', data => {
-//                     books = books.concat(data)
-//                     if (first) {
-//                         first = false
-//                         done()
-//                     }
-//                 })
-//             })
+            it('should send an item when it is updated', (t, done) => {
+                const socket = utils.websocketConnect(server, 'books', tokens[2])
+                let isFirst = true
+                let bookId
+                const updatedName = 'waeiouweofiuwqioefu'
+                socket.on('addedOrChanged', (data: IBook[]) => {
+                    if (isFirst) {
+                        isFirst = false
+                        const myBook = data.find(x => x._id === bookId) as IBook
+                        myBook.name = updatedName
+                        utils.updateBook(server, tokens[2], myBook)
+                    } else {
+                        socket.disconnect()
+                        t.assert.equal(data.find(x => x._id === bookId).name, updatedName)
+                        done()
+                    }
+                })
 
-//             after(() => socket.disconnect())
+                utils.createBook(server, tokens[2], 'woifjjw')
+                .then(res => bookId =res)
+            })
 
-//             beforeEach(() => books = [])
+            it('should send an item if a user is added as an editor', (t, done) => {
+                let secondSocket = utils.websocketConnect(server, 'books', tokens[1])
+                let isFirst: boolean = true
+                let bookId: string
+                secondSocket.on('addedOrChanged', (data: IBook[]) => {
+                    if (isFirst) {
+                        isFirst = false
+                        utils.createBook(server, tokens[0], 'toShareAsEditor')
+                        .then(bookId => utils.getBook(server, tokens[0], bookId))
+                        .then(book => {
+                            bookId = book._id
+                            book.editors.push(userIds[1])
+                            return utils.updateBook(server, tokens[0], book)
+                        })
+                    } else {
+                        secondSocket.disconnect();
+                        t.assert.equal(data.length, 1)
+                        t.assert.equal(data[0]._id, bookId)
+                        done()
+                    }
+                })
+            })
 
-//             it('should send an item when it is added', () => {
-//                 expect(books.length).to.equal(0)
-//                 return utils.createBook(tokens[2], 'alwefjowie')
-//                 .then(bookId => {
-//                     expect(books.length).to.equal(1)
-//                     expect(books[0]._id).to.equal(bookId)
-//                 })
-//             })
+            it('should send an item if a user is added as a viewer', (t, done) => {
+                let secondSocket = utils.websocketConnect(server, 'books', tokens[1])
+                let isFirst: boolean = true
+                let bookId: string
+                secondSocket.on('addedOrChanged', (data: IBook[]) => {
+                    if (isFirst) {
+                        isFirst = false
+                        utils.createBook(server, tokens[0], 'toShareAsViewer')
+                        .then(bookId => utils.getBook(server, tokens[0], bookId))
+                        .then(book => {
+                            bookId = book._id
+                            book.viewers.push(userIds[1])
+                            return utils.updateBook(server, tokens[0], book)
+                        })
+                    } else {
+                        secondSocket.disconnect()
+                        t.assert.equal(data.length, 1)
+                        t.assert.equal(data[0]._id, bookId)
+                        done()
+                    }
+                })
+            })
 
-//             it('should send an item when it is updated', () => {
-//                 const updatedName = 'waeiouweofiuwqioefu'
-//                 return utils.createBook(tokens[2], 'woifjjw')
-//                 .then(bookId => utils.getBook(tokens[2], bookId))
-//                 .then(book => {
-//                     books = []
-//                     book.name = updatedName
-//                     return utils.updateBook(tokens[2], book)
-//                 })
-//                 .then(() => expect(books.length).to.equal(1))
-//                 .then(() => expect(books[0].name).to.equal(updatedName))
-//             })
+            it('should send an item if a book becomes public', (t, done) => {
+                let secondSocket = utils.websocketConnect(server, 'books', tokens[1])
+                let isFirst: boolean = true
+                let bookId: string
+                secondSocket.on('addedOrChanged', (data: IBook[]) => {
+                    if (isFirst) {
+                        isFirst = false
+                        utils.createBook(server, tokens[0], 'toGoPublic')
+                        .then(bookId => utils.getBook(server, tokens[0], bookId))
+                        .then(book => {
+                            bookId = book._id
+                            book.isPublic = true
+                            return utils.updateBook(server, tokens[0], book)
+                        })
+                    } else {
+                        secondSocket.disconnect()
+                        t.assert.equal(data.length, 1)
+                        t.assert.equal(data[0]._id, bookId)
+                        done()
+                    }
+                })
+            })
+        })
+    })
 
-//             it('should send an item if a user is added as an editor', done => {
-//                 let secondSocket = utils.websocketConnect('books', tokens[1])
-//                 let isFirst: boolean = true
-//                 let bookId: string
-//                 secondSocket.on('addedOrChanged', (data: IBook[]) => {
-//                     if (isFirst) {
-//                         isFirst = false
-//                         utils.createBook(tokens[0], 'toShareAsEditor')
-//                         .then(bookId => utils.getBook(tokens[0], bookId))
-//                         .then(book => {
-//                             bookId = book._id
-//                             book.editors.push(userIds[1])
-//                             return utils.updateBook(tokens[0], book)
-//                         })
-//                     } else {
-//                         expect(data.length).to.equal(1)
-//                         expect(data[0]._id).to.equal(bookId)
-//                         secondSocket.disconnect()
-//                         done()
-//                     }
-//                 })
-//             })
+    describe('removed channel', () => {
+        it('should send an id if an item is deleted', (t, done) => {
+            const socket = utils.websocketConnect(server, 'books', tokens[1])
+            let removedId: string
+            socket.on('addedOrChanged', async() => {
+                // Remove listener to avoid infinit loop
+                socket.removeListener('addedOrChanged')
+                // Done inside addOrChanged due to socket being slow
+                removedId = await utils.createBook(server, tokens[1], 'toBeRemoved')
+                await utils.deleteBook(server, tokens[1], removedId)
+            })
+            socket.on('removed', (data) => {
+                socket.disconnect()
+                t.assert.equal(data[0], removedId)
+                done()
+            })
+        })
 
-//             it('should send an item if a user is added as a viewer', done => {
-//                 let secondSocket = utils.websocketConnect('books', tokens[1])
-//                 let isFirst: boolean = true
-//                 let bookId: string
-//                 secondSocket.on('addedOrChanged', (data: IBook[]) => {
-//                     if (isFirst) {
-//                         isFirst = false
-//                         utils.createBook(tokens[0], 'toShareAsViewer')
-//                         .then(bookId => utils.getBook(tokens[0], bookId))
-//                         .then(book => {
-//                             bookId = book._id
-//                             book.viewers.push(userIds[1])
-//                             return utils.updateBook(tokens[0], book)
-//                         })
-//                     } else {
-//                         expect(data.length).to.equal(1)
-//                         expect(data[0]._id).to.equal(bookId)
-//                         secondSocket.disconnect()
-//                         done()
-//                     }
-//                 })
-//             })
+        it('should send an id to a user if they are an editor', (t, done) => {
+            let socket = utils.websocketConnect(server, 'books', tokens[1])
 
-//             it('should send an item if a book becomes public', done => {
-//                 let secondSocket = utils.websocketConnect('books', tokens[1])
-//                 let isFirst: boolean = true
-//                 let bookId: string
-//                 secondSocket.on('addedOrChanged', (data: IBook[]) => {
-//                     if (isFirst) {
-//                         isFirst = false
-//                         utils.createBook(tokens[0], 'toGoPublic')
-//                         .then(bookId => utils.getBook(tokens[0], bookId))
-//                         .then(book => {
-//                             bookId = book._id
-//                             book.isPublic = true
-//                             return utils.updateBook(tokens[0], book)
-//                         })
-//                     } else {
-//                         expect(data.length).to.equal(1)
-//                         expect(data[0]._id).to.equal(bookId)
-//                         secondSocket.disconnect()
-//                         done()
-//                     }
-//                 })
-//             })
-//         })
-//     })
+            socket.on('removed', (data) => {
+                socket.disconnect()
+                t.assert.equal(data[0], bookId)
+                done()
+            })
 
-//     describe('removed channel', () => {
-//         it('should send an id if an item is deleted', done => {
-//             let socket = utils.websocketConnect('books', tokens[1])
-//             let removedId: string
-//             socket.on('removed', (data) => {
-//                 expect(data[0]).to.equal(removedId)
-//                 socket.disconnect()
-//                 done()
-//             })
+            let isFirst = true
+            let bookId
+            socket.on('addedOrChanged', async(books: IBook[]) => {
+                if (!isFirst) return
+                isFirst = false
+                bookId = await utils.createBook(server, tokens[0], 'toBeRemoved')
+                const myBook = await utils.getBook(server, tokens[0], bookId)
+                myBook.editors.push(userIds[1])
+                await utils.updateBook(server, tokens[0], myBook)
+                await utils.deleteBook(server, tokens[0], myBook._id)
+            })
+        })
 
-//             utils.createBook(tokens[1], 'toBeRemoved')
-//             .then(bookId => {
-//                 removedId = bookId
-//                 return utils.deleteBook(tokens[1], bookId)
-//             })
-//         })
+        it('should send an id to a user if they are a viewer', (t, done) => {
+            let socket = utils.websocketConnect(server, 'books', tokens[1])
 
-//         it('should send an id to a user if they are no longer an editor', done => {
-//             let socket = utils.websocketConnect('books', tokens[1])
-//             let removedId: string
+            socket.on('removed', (data) => {
+                socket.disconnect()
+                t.assert.equal(data[0], bookId)
+                done()
+            })
 
-//             socket.on('removed', (data) => {
-//                 expect(data[0]).to.equal(removedId)
-//                 socket.disconnect()
-//                 done()
-//             })
+            let isFirst = true
+            let bookId
+            socket.on('addedOrChanged', async(books: IBook[]) => {
+                if (!isFirst) return
+                isFirst = false
+                bookId = await utils.createBook(server, tokens[0], 'toBeRemoved')
+                const myBook = await utils.getBook(server, tokens[0], bookId)
+                myBook.viewers.push(userIds[1])
+                await utils.updateBook(server, tokens[0], myBook)
+                await utils.deleteBook(server, tokens[0], myBook._id)
+            })
+        })
 
-//             utils.createBook(tokens[0], 'toBeRemoved')
-//             .then(bookId => utils.getBook(tokens[0], bookId))
-//             .then(book => {
-//                 removedId = book._id
-//                 book.editors.push(userIds[1])
-//                 return utils.updateBook(tokens[0], book)
-//                 .then(() => utils.deleteBook(tokens[0], book._id))
-//             })
-//         })
+        it('should send an id if item is no longer public', (t, done) => {
+            let socket = utils.websocketConnect(server, 'books', tokens[1])
 
-//         it('should send an id to a user if they are no longer a viewer', done => {
-//             let socket = utils.websocketConnect('books', tokens[1])
-//             let removedId: string
+            socket.on('removed', (data) => {
+                socket.disconnect()
+                t.assert.equal(data[0], bookId)
+                done()
+            })
 
-//             socket.on('removed', (data) => {
-//                 expect(data[0]).to.equal(removedId)
-//                 socket.disconnect()
-//                 done()
-//             })
-
-//             utils.createBook(tokens[0], 'toBeRemoved')
-//             .then(bookId => utils.getBook(tokens[0], bookId))
-//             .then(book => {
-//                 removedId = book._id
-//                 book.viewers.push(userIds[1])
-//                 return utils.updateBook(tokens[0], book)
-//                 .then(() => utils.deleteBook(tokens[0], book._id))
-//             })
-//         })
-
-//         it('should send an id if item is no longer public', done => {
-//             let socket = utils.websocketConnect('books', tokens[1])
-//             let publicId: string
-
-//             socket.on('removed', (data) => {
-//                 expect(data[0]).to.equal(publicId)
-//                 socket.disconnect()
-//                 done()
-//             })
-
-//             utils.createBook(tokens[0], 'toBeRemoved')
-//             .then(bookId => utils.getBook(tokens[0], bookId))
-//             .then(book => {
-//                 publicId = book._id
-//                 book.isPublic = true
-//                 return book
-//             })
-//             .then(book => {
-//                 return utils.updateBook(tokens[0], book)
-//                 .then(() => utils.deleteBook(tokens[0], book._id))
-//             })
-//         })
-//     })
-// })
+            let isFirst = true
+            let bookId
+            socket.on('addedOrChanged', async(books: IBook[]) => {
+                if (!isFirst) return
+                isFirst = false
+                bookId = await utils.createBook(server, tokens[0], 'toBeRemoved')
+                const myBook = await utils.getBook(server, tokens[0], bookId)
+                myBook.isPublic = true
+                await utils.updateBook(server, tokens[0], myBook)
+                await utils.deleteBook(server, tokens[0], myBook._id)
+            })
+        })
+    })
+})

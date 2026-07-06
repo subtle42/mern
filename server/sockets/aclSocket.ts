@@ -1,6 +1,4 @@
 import { Model } from 'mongoose'
-import * as jwt from 'jsonwebtoken'
-import config from '../config/environment'
 import { Namespace, Socket } from 'socket.io'
 import { ISharedModel } from 'server/dbModels'
 import { getWsServer } from '.'
@@ -18,6 +16,11 @@ export class AclSocket {
     ) {
         console.log(`creating namespace: ${this.name}`)
         this.namespace = this.myIO.of(this.name)
+        this.namespace.use((socket, next) => {
+            const decoded = this.veryifyToken(socket)
+            if (decoded) return next()
+            return next(new Error("Authentication failed"))
+        })
         console.debug(`Created socket namespace: ${this.name}`)
         this.setupSockEvents()
     }
@@ -25,12 +28,10 @@ export class AclSocket {
     private setupSockEvents () {
         this.namespace.on('connection', (socket: Socket) => {
             console.log(`connecting to ${this.name}`)
-            const decoded = this.veryifyToken(socket.handshake.query.token as string)
-            console.log(`socket verified: ${this.name}`)
+            const decoded = this.veryifyToken(socket)
             socket.join(decoded._id)
-            
             return this.getInitialState(decoded._id)
-            .then(data => this.namespace.in(decoded._id).emit('addedOrChanged', data))
+            .then(data => socket.emit('addedOrChanged', data))
             .catch(err => {
                 console.error(err)
                 socket.emit('message', err)
@@ -38,22 +39,25 @@ export class AclSocket {
         })
     }
 
-    private veryifyToken (token: string) {
-        console.log('in verify')
-        return this.server.jwt.verify<{_id:string, role:string}>(token)
+    private veryifyToken (socket: Socket) {
+        try {
+            return this.server.jwt.verify<{_id:string, role:string}>(
+                socket.handshake.auth.token
+            )
+        }
+        catch(err) {
+            return undefined
+        }
     }
 
     private getInitialState (userId: string) {
         return this.model.find({
-            $or: [{
-                owner: userId
-            }, {
-                editors: userId
-            }, {
-                viewers: userId
-            }, {
-                isPublic: true
-            }]
+            $or: [
+                { owner: userId },
+                { editors: userId },
+                { viewers: userId },
+                { isPublic: true }
+            ]
         }).exec()
     }
 

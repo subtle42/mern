@@ -34,7 +34,7 @@ class AuthActions {
     }
 
     private setAuths (token: string): void {
-        axios.defaults.headers.common['Authorization'] = token
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
         document.cookie = `authToken=${token}`
     }
 
