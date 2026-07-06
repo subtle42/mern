@@ -11,6 +11,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server'
 import config from './config/environment'
 import { buildWsServer } from './sockets'
 import { buildBookSocket } from './api/book/socket'
+import { buildPageSocket } from './api/page/socket'
 
 
 
@@ -26,7 +27,7 @@ export const buildMongoDb = async() => {
 export const buildServer = async(isTest?: boolean) => {
     const myFastServer = fastify(isTest ? undefined : {
         logger: {
-            level: 'error',
+            level: 'info',
             transport: {
                 target: 'pino-pretty',
                 options: {
@@ -78,9 +79,10 @@ export const buildServer = async(isTest?: boolean) => {
     })
     buildWsServer(myFastServer)
     buildBookSocket(myFastServer)
+    buildPageSocket(myFastServer)
 
     await myFastServer.register((await import('./api/book')).buildBookApis, {prefix: '/api/books'})
-    // await myFastServer.register((await import('./api/page')).buildPageApis, {prefix: '/api/pages'})
+    await myFastServer.register((await import('./api/page')).buildPageApis, {prefix: '/api/pages'})
     // await myFastServer.register((await import('./api/source')).buildSourceApis, {prefix: '/sources'})
     await myFastServer.register((await import('./api/user')).buildUserApis, {prefix: '/api/user'})
     // await myFastServer.register((await import('./api/widget')).buildWidgetApis, {prefix: '/api/widgets'})

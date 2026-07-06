@@ -74,20 +74,19 @@ const getAddress = (app:FastifyInstance) => {
     return `http://localhost:${tmp.port}`
 }
 
-export const createBook = async(app: FastifyInstance, token: string, name: string): Promise<string> => {
+export const createBook = async(app: FastifyInstance, token: string, name: string)=> {
     const res = await app.inject()
         .post(`/api/books`)
         .body({ name })
         .headers({authorization: token})
-    return res.body
+    return res.body as string
 }
 
-export const updateBook = async(app: FastifyInstance, token: string, item: IBook): Promise<void> => {
+export const updateBook = async(app: FastifyInstance, token: string, item: IBook) => {
     await app.inject()
         .put(`/api/books`)
         .body(item)
         .headers({authorization: token})
-    return undefined
 }
 
 // /**
@@ -119,19 +118,21 @@ export const updateBook = async(app: FastifyInstance, token: string, item: IBook
 //     .then(res => res.data as ISource)
 // }
 
-export const getBook = async(app: FastifyInstance, token: string, id: string): Promise<IBook> => {
+export const getBook = async(app: FastifyInstance, token: string, id: string) => {
     const res = await app.inject()
         .get(`/api/books/${id}`)
         .headers({authorization: token})
-    return JSON.parse(res.body)
+    return JSON.parse(res.body) as IBook
 }
 
-// export const getPages = (token: string, bookId: string): Promise<IPage[]> => {
-//     return axios.get(`${getBaseUrl()}/api/pages/${bookId}`, setHeader(token))
-//     .then(res => res.data as IPage[])
-// }
+export const getPages = async(app: FastifyInstance, token: string, bookId: string) => {
+    const res = await app.inject()
+        .get(`${getBaseUrl()}/api/pages/${bookId}`)
+        .headers({authorization: token})
+    return JSON.parse(res.body) as IPage[]
+}
 
-export const deleteBook = async(app: FastifyInstance, token: string, bookId: string): Promise<void> => {
+export const deleteBook = async(app: FastifyInstance, token: string, bookId: string) => {
     await app.inject()
         .delete(`/api/books/${bookId}`)
         .headers({authorization: token})

@@ -1,12 +1,22 @@
 // import { IPageModel } from '../../dbModels'
 import { Page } from './model'
 import { Book } from '../book/model'
-import { Document, InferRawDocType } from 'mongoose'
 import BaseSocket from '../../sockets/sockets'
+import { FastifyInstance } from 'fastify'
+
+let tmp: PageSocket
+export const buildPageSocket = (app: FastifyInstance) => {
+    tmp = new PageSocket(app)
+}
+
+export const getPageSocket = () => {
+    if (!tmp) throw Error(`Asked too soon for Page Socket`)
+    return tmp
+}
 
 class PageSocket extends BaseSocket {
-    constructor () {
-        super('pages')
+    constructor (app: FastifyInstance) {
+        super(app, 'pages')
     }
 
     getParentId (doc) {
@@ -31,5 +41,3 @@ class PageSocket extends BaseSocket {
         this._onDelete(this.getParentId(model), [model._id])
     }
 }
-
-export const pageSocket = new PageSocket()

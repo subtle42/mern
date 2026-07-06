@@ -1,27 +1,30 @@
 import { Document } from 'mongoose'
 import { ISharedModel } from '../dbModels'
-import * as jwt from 'jsonwebtoken'
-import config from '../config/environment'
 import * as auth from '../auth/auth.service'
-import { Namespace, Server, Socket } from 'socket.io'
+import { Namespace, Socket } from 'socket.io'
+import { FastifyInstance } from 'fastify'
+import { getWsServer } from '.'
 
-declare var global: any
 
 export default abstract class BaseSocket {
     protected namespace: Namespace
+    protected myIO = getWsServer()
 
     constructor (
+        protected server: FastifyInstance,
         protected name: string
     ) {
-        // setTimeout(() => {
-        //     let myIO: Server = global.myIO
-
-        //     this.namespace = myIO.of(name)
-        //     this.setupSocket(name)
-        // }, 1000)
+        this.server.log.info(`creating namespace: ${name}`)
+        this.namespace = this.myIO.of(name)
+        this.namespace.use((socket, next) => {
+            const decoded = this.veryifyToken(socket)
+            if (decoded) return next()
+            return next(new Error("Authentication failed"))
+        })
+        this.setupSocket()
     }
 
-    setupSocket (name: string) {
+    setupSocket () {
         this.namespace.on('connection', socket => this.onJoin(socket))
         console.debug(`Created socket namespace: ${this.name}`)
     }
@@ -42,8 +45,10 @@ export default abstract class BaseSocket {
 
     private onJoin (socket: Socket) {
         socket.on('join', (room: string) => {
-            this.veryifyToken(socket.handshake.query.token as string)
-            .then(decoded => this.hasViewAccess(decoded, room))
+            this.server.log.info(`joined room: ${room}`)
+            const decoded = this.veryifyToken(socket)
+            
+            this.hasViewAccess(decoded, room)
             .then(() => {
                 // Leave all rooms
                 socket.rooms.forEach(room => socket.leave(room))
@@ -59,13 +64,15 @@ export default abstract class BaseSocket {
         })
     }
 
-    private veryifyToken (token: string): Promise<any> {
-        return new Promise((resolve, reject) => {
-            jwt.verify(token, config.shared.secret, (err, decoded) => {
-                if (err) return reject(err)
-                resolve(decoded)
-            })
-        })
+    private veryifyToken (socket: Socket) {
+        try {
+            return this.server.jwt.verify<{_id:string, role:string}>(
+                socket.handshake.auth.token
+            )
+        }
+        catch(err) {
+            return undefined
+        }
     }
 
     private hasViewAccess (decodedToken, room: string): Promise<void|boolean> {

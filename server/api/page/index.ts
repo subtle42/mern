@@ -22,7 +22,13 @@ export const buildPageApis = (app: FastifyInstance) => {
         preHandler: [isAuthenticated],
         schema: {
             tags: ['Pages'],
-            body: pageSchema.toJSONSchema(),
+            body: {
+                type: 'object',
+                properties: {
+                    name: {type: 'string'},
+                    bookId: {type: 'string'}
+                }
+            },
             response: {
                 200: {}
             }

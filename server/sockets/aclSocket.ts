@@ -14,20 +14,19 @@ export class AclSocket {
         private name: string,
         protected model: Model<ISharedModel>,
     ) {
-        console.log(`creating namespace: ${this.name}`)
+        this.server.log.info(`creating namespace: ${this.name}`)
         this.namespace = this.myIO.of(this.name)
         this.namespace.use((socket, next) => {
             const decoded = this.veryifyToken(socket)
             if (decoded) return next()
             return next(new Error("Authentication failed"))
         })
-        console.debug(`Created socket namespace: ${this.name}`)
         this.setupSockEvents()
     }
 
     private setupSockEvents () {
         this.namespace.on('connection', (socket: Socket) => {
-            console.log(`connecting to ${this.name}`)
+            this.server.log.info(`connecting to ${this.name}`)
             const decoded = this.veryifyToken(socket)
             socket.join(decoded._id)
             return this.getInitialState(decoded._id)
