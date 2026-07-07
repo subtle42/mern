@@ -89,110 +89,101 @@ describe('Page API', () => {
             t.assert.notEqual(res.statusCode, 200)
         })
 
-    //     it('should return a success if user is the owner of the parent book', () => {
-    //         let myPage: IPage = myPages[0]
-    //         expect(myBook._id).to.equal(myPage.bookId)
-    //         expect(myBook.owner).to.equal(userIds[0])
+        it('should return a success if user is the owner of the parent book', async(t) => {
+            const myPage = myPages[0]
+            t.assert.equal(myBook._id, myPage.bookId)
+            t.assert.equal(myBook.owner, userIds[0])
 
-    //         return chai.request(server)
-    //         .put('/api/pages')
-    //         .set('authorization', tokens[0])
-    //         .send(myPage)
-    //         .then(res => expect(res.status).to.equal(200))
-    //     })
+            const res = await server.inject()
+                .put('/api/pages')
+                .headers({authorization: tokens[0]})
+                .body(myPage)
+            t.assert.equal(res.statusCode, 200)
+        })
 
-    //     it('should return a success if user is an editor of the parent book', () => {
-    //         let myPage: IPage = myPages[0]
-    //         expect(myPage).not.to.equal(undefined)
+        it('should return a success if user is an editor of the parent book', async(t) => {
+            const myPage = myPages[0]
+            t.assert.notEqual(myPage, undefined)
 
-    //         return utils.decodeToken(tokens[1])
-    //         .then(decoded => myBook.editors.push(decoded._id))
-    //         .then(() => utils.updateBook(tokens[0], myBook))
-    //         .then(() => {
-    //             return chai.request(server)
-    //             .put('/api/pages')
-    //             .set('authorization', tokens[1])
-    //             .send(myPage)
-    //         })
-    //         .then(res => expect(res.status).to.equal(200))
-    //     })
+            const userId = utils.getUserIdFromToken(server, [tokens[1]])[0]
+            myBook.editors.push(userId)
+            await utils.updateBook(server, tokens[0], myBook)
+            const res = await server.inject()
+                .put('/api/pages')
+                .headers({authorization: tokens[1]})
+                .body(myPage)
+            t.assert.equal(res.statusCode, 200)
+        })
 
-    //     it('should return a failure if user NOT an owner or an editor', () => {
-    //         let myPage: IPage = myPages[0]
-    //         expect(myPage).not.to.equal(undefined)
+        it('should return a failure if user NOT an owner or an editor', async(t) => {
+            const myPage = myPages[0]
+            t.assert.notEqual(myPage, undefined)
 
-    //         return chai.request(server)
-    //         .put('/api/pages')
-    //         .set('authorization', tokens[2])
-    //         .send(myPage)
-    //         .then(res => expect(res.status).not.to.equal(200))
-    //     })
+            const res = await server.inject()
+                .put('/api/pages')
+                .headers({authorization: tokens[2]})
+                .body(myPage)
+            t.assert.notEqual(res.statusCode, 200)
+        })
 
-    //     it('should return a failure if schema does not match', () => {
-    //         let myPage: any = myPages[0]
-    //         expect(myPage).not.to.equal(undefined)
-    //         myPage.name = { badData: 'awekfjwef' }
+        it('should return a failure if schema does not match', async(t) => {
+            const myPage = myPages[0]
+            t.assert.notEqual(myPage, undefined)
+            myPage.name = { badData: 'awekfjwef' } as any
 
-    //         return chai.request(server)
-    //         .put('/api/pages')
-    //         .set('authorization', tokens[0])
-    //         .send(myPage)
-    //         .then(res => expect(res.status).not.to.equal(200))
-    //     })
+            const res = await server.inject()
+                .put('/api/pages')
+                .headers({authorization: tokens[0]})
+                .body(myPage)
+            t.assert.notEqual(res.statusCode, 200)
+        })
     })
 
-    // describe('DELETE /api/pages', () => {
-    //     let myBook: IBook
-    //     let myPages: IPage[]
+    describe('DELETE /api/pages', () => {
+        let myBook: IBook
+        let myPages: IPage[]
 
-    //     beforeEach(() => {
-    //         return utils.getPages(tokens[0], bookId)
-    //         .then(data => myPages = data)
-    //         .then(() => utils.getBook(tokens[0], bookId))
-    //         .then(data => myBook = data)
-    //     })
+        beforeEach(async() => {
+            myBook = await utils.getBook(server, tokens[0], bookId)
+            myPages = await utils.getPages(server, tokens[0], bookId)
+        })
 
-    //     it('should return a failure if user is not logged in', () => {
-    //         return chai.request(server)
-    //         .del('/api/pages/myID')
-    //         .then(res => expect(res.status).to.equal(401))
-    //     })
+        it('should return a failure if user is not logged in', async(t) => {
+            const res = await server.inject()
+                .delete('/api/pages/myID')
+            t.assert.equal(res.statusCode, 401)
+        })
 
-    //     it('should return an error if page does NOT exist', () => {
-    //         expect(myBook.owner).to.equal(userIds[0])
+        it('should return an error if page does NOT exist', async(t) => {
+            t.assert.equal(myBook.owner, userIds[0])
 
-    //         return chai.request(server)
-    //         .del('/api/pages/badId')
-    //         .set('authorization', tokens[0])
-    //         .then(res => expect(res.status).not.to.equal(200))
-    //     })
+            const res = await server.inject()
+                .delete('/api/pages/badId')
+                .headers({authorization: tokens[0]})
+            t.assert.notEqual(res.statusCode, 200)
+        })
 
-    //     it('should return a success if the user is the owner of the parent book', () => {
-    //         return utils.createPage(tokens[0], bookId, 'to remove')
-    //         .then(pageId => {
-    //             return chai.request(server)
-    //             .del(`/api/pages/${pageId}`)
-    //             .set('authorization', tokens[0])
-    //             .then(res => expect(res.status).to.equal(200))
-    //             .then(() => utils.getPages(tokens[0], bookId))
-    //             .then(pages => expect(pages.filter(p => p._id === pageId).length).to.equal(0))
-    //         })
-    //     })
+        it('should return a success if the user is the owner of the parent book', async(t) => {
+            const pageId = await utils.createPage(server, tokens[0], bookId, 'to remove')
+            const res = await server.inject()
+                .delete(`/api/pages/${pageId}`)
+                .headers({authorization: tokens[0]})
+            t.assert.equal(res.statusCode, 200)
+            const pages = await utils.getPages(server, tokens[0], bookId)
+            t.assert.equal(pages.find(p => p._id === pageId), undefined)
+        })
 
-    //     it('should return a success if the user is an editor of the parent book', () => {
-    //         expect(myBook.editors.indexOf(userIds[1])).not.to.equal(-1)
-
-    //         return utils.createPage(tokens[0], bookId, 'editor remove')
-    //         .then(pageId => {
-    //             return chai.request(server)
-    //             .del(`/api/pages/${pageId}`)
-    //             .set('authorization', tokens[1])
-    //             .then(res => expect(res.status).to.equal(200))
-    //             .then(() => utils.getPages(tokens[0], bookId))
-    //             .then(pages => expect(pages.filter(p => p._id === pageId).length).to.equal(0))
-    //         })
-    //     })
-    // })
+        it('should return a success if the user is an editor of the parent book', async(t) => {
+            t.assert.equal(myBook.editors.includes(userIds[1]), true)
+            const pageId = await utils.createPage(server, tokens[0], bookId, 'editor remove')
+            const res = await server.inject()
+                .delete(`/api/pages/${pageId}`)
+                .headers({authorization: tokens[1]})
+            t.assert.equal(res.statusCode, 200)
+            const pages = await utils.getPages(server, tokens[0], bookId)
+            t.assert.equal(pages.find(p => p._id === pageId), undefined)
+        })
+    })
 })
 
 // describe('Page Socket', () => {

@@ -8,12 +8,21 @@ import { pageSchema } from './model'
 export const buildPageApis = (app: FastifyInstance) => {
     app.log.info('buidling page apis...')
 
-    app.get('/:id', {
+    app.get('/:bookId', {
         preHandler: [isAuthenticated],
         schema: {
             tags: ['Pages'],
+            params: {
+                type: 'object',
+                properties: {
+                    bookId: {type: 'string'}
+                }
+            },
             response: {
-                200: pageSchema.toJSONSchema()
+                200: {
+                    type: 'array',
+                    items: pageSchema.toJSONSchema()
+                }
             }
         }
     }, ctrl.getPages)
@@ -36,6 +45,7 @@ export const buildPageApis = (app: FastifyInstance) => {
     }, ctrl.create)
 
     app.delete('/:id', {
+        onRequest: [isAuthenticated],
         schema: {
             tags: ['Pages'],
             params: {
@@ -48,7 +58,7 @@ export const buildPageApis = (app: FastifyInstance) => {
     }, ctrl.remove)
 
     app.put('', {
-        preHandler: [isAuthenticated],
+        onRequest: [isAuthenticated],
         schema: {
             tags: ['Pages'],
             body: pageSchema.toJSONSchema(),

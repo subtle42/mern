@@ -89,16 +89,13 @@ export const updateBook = async(app: FastifyInstance, token: string, item: IBook
         .headers({authorization: token})
 }
 
-// /**
-//  * Will create a page and return it's id
-//  * @param token
-//  * @param bookId
-//  * @param name
-//  */
-// export const createPage = (token: string, bookId: string, name: string): Promise<string> => {
-//     return axios.post(`${getBaseUrl()}/api/pages`, { name, bookId }, setHeader(token))
-//     .then(res => res.data as string)
-// }
+export const createPage = async(app: FastifyInstance, token: string, bookId: string, name: string) => {
+    const res = await app.inject()
+        .post(`/api/pages`)
+        .body({ name, bookId })
+        .headers({authorization: token})
+    return res.body as string
+}
 
 // export const createSource = (token: string, filePath: string): Promise<string> => {
 //     return chai.request(getBaseUrl())

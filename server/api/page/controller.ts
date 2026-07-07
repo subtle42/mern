@@ -55,12 +55,14 @@ export const remove = async(
 }
 
 export const getPages = async(
-    req: FastifyRequest<{Params: {id: string}}>,
+    req: FastifyRequest<{Params: {bookId: string}}>,
     res: FastifyReply<{Reply: IPage[]}>
 ) => {
-    const bookId: string = req.params.id
+    const bookId: string = req.params.bookId
     const myBook = await Book.findById(bookId).exec()
     myBook.hasViewerAccess(req.user._id)
     const pageRes = await Page.find({ bookId }).exec()
-    res.send(pageRes.map(x => x.toJSON()))
+    res.send(pageRes.map(x => {
+        return {...x.toJSON(), _id: x._id.toString()}
+    }))
 }
