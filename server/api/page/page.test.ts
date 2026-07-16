@@ -186,108 +186,107 @@ describe('Page API', () => {
     })
 })
 
-// describe('Page Socket', () => {
-//     let tokens: string[]
-//     let userIds: string[]
+describe('Page Socket', () => {
+    let tokens: string[]
+    let userIds: string[]
+    let server: FastifyInstance
+    let db: MongoMemoryServer
 
-//     before(() => {
-//         return utils.testSetup()
-//         .then(setup => ({ userIds, tokens } = setup))
-//     })
+    before(async() => {
+        ({server, db, userIds, tokens} = await utils.testSetup())
+    })
 
-//     after(() => {
-//         return utils.cleanDb()
-//     })
+    after(async() => {
+        await utils.testCleanup(server, db)
+    })
 
-//     describe('athorization', () => {
-//         let bookId: string
-//         let book: IBook
-//         before(() => {
-//             return utils.createBook(tokens[0], 'authbook')
-//             .then(id => bookId = id)
-//         })
+    describe('athorization', () => {
+        let bookId: string
+        let book: IBook
+        before(async() => {
+            bookId = await utils.createBook(server, tokens[0], 'authbook')
+        })
 
-//         beforeEach(() => {
-//             return utils.getBook(tokens[0], bookId)
-//             .then(res => book = res)
-//         })
+        beforeEach(async() => {
+            book = await utils.getBook(server, tokens[0], bookId)
+        })
 
-//         it('should NOT let you join a room if you do NOT have access to the parent book', done => {
-//             const socket = utils.websocketConnect('pages', tokens[1])
-//             socket.emit('join', bookId)
-//             socket.on('message', data => {
-//                 socket.disconnect()
-//                 expect(data).to.contain(bookId)
-//                 done()
-//             })
-//         })
+        it('should NOT let you join a room if you do NOT have access to the parent book', (t, done) => {
+            const socket = utils.websocketConnect(server, 'pages', tokens[1])
+            socket.emit('join', bookId)
+            socket.on('message', (data: string) => {
+                socket.disconnect()
+                t.assert.equal(data.includes(bookId), true)
+                done()
+            })
+        })
 
-//         it('should return records if user is the owner of the book', done => {
-//             expect(userIds[0]).to.equal(book.owner)
+        it.todo('should return records if user is the owner of the book', (t, done) => {
+            t.assert.equal(userIds[0], book.owner)
 
-//             const socket = utils.websocketConnect('pages', tokens[0])
-//             socket.emit('join', bookId)
-//             socket.on('addedOrChanged', data => {
-//                 socket.disconnect()
-//                 done()
-//             })
-//         })
+            const socket = utils.websocketConnect(server, 'pages', tokens[0])
+            socket.emit('join', bookId)
+            socket.on('addedOrChanged', data => {
+                socket.disconnect()
+                done()
+            })
+        })
 
-//         it('should return records if user has edit access to the book', done => {
-//             book.editors.push(userIds[1])
+        it.todo('should return records if user has edit access to the book', (t, done) => {
+            book.editors.push(userIds[1])
 
-//             utils.updateBook(tokens[0], book)
-//             .then(() => {
-//                 const socket = utils.websocketConnect('pages', tokens[1])
-//                 socket.emit('join', bookId)
-//                 socket.on('addedOrChanged', data => {
-//                     socket.disconnect()
-//                     done()
-//                 })
-//             })
-//         })
+            utils.updateBook(server, tokens[0], book)
+            .then(() => {
+                const socket = utils.websocketConnect(server, 'pages', tokens[1])
+                socket.emit('join', bookId)
+                socket.on('addedOrChanged', data => {
+                    socket.disconnect()
+                    done()
+                })
+            })
+        })
 
-//         it('should return records if user has viewer access to the book', done => {
-//             book.editors = []
-//             book.viewers.push(userIds[1])
+        it.todo('should return records if user has viewer access to the book', (t, done) => {
+            book.editors = []
+            book.viewers.push(userIds[1])
 
-//             utils.updateBook(tokens[0], book)
-//             .then(() => {
-//                 const socket = utils.websocketConnect('pages', tokens[1])
-//                 socket.emit('join', bookId)
-//                 socket.on('addedOrChanged', data => {
-//                     socket.disconnect()
-//                     done()
-//                 })
-//             })
-//         })
+            utils.updateBook(server, tokens[0], book)
+            .then(() => {
+                const socket = utils.websocketConnect(server, 'pages', tokens[1])
+                socket.emit('join', bookId)
+                socket.on('addedOrChanged', data => {
+                    socket.disconnect()
+                    done()
+                })
+            })
+        })
 
-//         it('should return records if book is public', done => {
-//             expect(book.owner).not.to.equal(userIds[2])
-//             expect(book.editors.indexOf(userIds[2])).to.equal(-1)
-//             expect(book.viewers.indexOf(userIds[2])).to.equal(-1)
-//             book.isPublic = true
+        it.todo('should return records if book is public', (t, done) => {
+            t.assert.notEqual(book.owner, userIds[2])
+            t.assert.equal(book.editors.indexOf(userIds[2]), -1)
+            t.assert.equal(book.viewers.indexOf(userIds[2]), -1)
+            book.isPublic = true
 
-//             utils.updateBook(tokens[0], book)
-//             .then(() => {
-//                 const socket = utils.websocketConnect('pages', tokens[2])
-//                 socket.emit('join', bookId)
-//                 socket.on('addedOrChanged', data => {
-//                     socket.disconnect()
-//                     done()
-//                 })
-//             })
-//         })
+            utils.updateBook(server, tokens[0], book)
+            .then(() => {
+                const socket = utils.websocketConnect(server, 'pages', tokens[2])
+                socket.emit('join', bookId)
+                socket.on('addedOrChanged', data => {
+                    socket.disconnect()
+                    done()
+                })
+            })
+        })
 
-//         it('should return an error if user tried to join a room that does not exist', done => {
-//             const socket = utils.websocketConnect('pages', tokens[2])
-//             socket.emit('join', 'badid')
-//             socket.on('message', data => {
-//                 socket.disconnect()
-//                 done()
-//             })
-//         })
-//     })
+        it.todo('should return an error if user tried to join a room that does not exist', (t, done) => {
+            const socket = utils.websocketConnect(server, 'pages', tokens[2])
+            socket.emit('join', 'badid')
+            socket.on('message', data => {
+                socket.disconnect()
+                done()
+            })
+        })
+    })
 
 //     describe('addedOrChanged channel', () => {
 //         let bookId: string
@@ -378,4 +377,4 @@ describe('Page API', () => {
 //             .then(() => utils.deletePage(tokens[0], pageId))
 //         })
 //     })
-// })
+})
