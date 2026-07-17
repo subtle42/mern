@@ -1,7 +1,5 @@
 import config from '../server/config/environment'
-import * as jwt from 'jsonwebtoken'
 import * as ioClient from 'socket.io-client'
-import * as io from 'socket.io'
 import { IBook, ISource, IPage, IWidget } from 'common/models'
 import { FastifyInstance } from 'fastify'
 import { buildMongoDb, buildServer } from './app'
@@ -9,6 +7,7 @@ import mongoose from 'mongoose'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import { IUser } from './api/user/model'
 import { AddressInfo } from 'net'
+import { readFileSync } from 'fs'
 
 interface FakeUser {
     email: string
@@ -97,23 +96,29 @@ export const createPage = async(app: FastifyInstance, token: string, bookId: str
     return res.body as string
 }
 
-// export const createSource = (token: string, filePath: string): Promise<string> => {
-//     return chai.request(getBaseUrl())
-//     .post('/api/sources')
-//     .set('authorization', token)
-//     .attach('file', filePath, 'myFile.csv')
-//     .then(res => res.body as string)
-// }
+export const createSource = async(app: FastifyInstance, token: string, filePath: string) => {
+    const formData = new FormData()
+    const blob = new Blob([readFileSync(filePath)], {type: 'plain/text'})
+    formData.append('myFile', blob, 'test-file.txt')
+
+    const res = await app.inject()
+        .post('/api/sources')
+        .payload(formData)
+        .headers({authorization: token})
+    return res.body as string
+}
 
 // export const deleteSource = (token: string, sourceId: string): Promise<void> => {
 //     return axios.delete(`${getBaseUrl()}/api/sources/${sourceId}`, setHeader(token))
 //     .then(res => res.data as undefined)
 // }
 
-// export const getSource = (token: string, id: string): Promise<ISource> => {
-//     return axios.get(`${getBaseUrl()}/api/sources/${id}`, setHeader(token))
-//     .then(res => res.data as ISource)
-// }
+export const getSource = async(app: FastifyInstance, token: string, id: string): Promise<ISource> => {
+    const res = await app.inject()
+        .get(`/api/sources/${id}`)
+        .headers({authorization: token})
+    return JSON.parse(res.body)
+}
 
 export const getBook = async(app: FastifyInstance, token: string, id: string) => {
     const res = await app.inject()

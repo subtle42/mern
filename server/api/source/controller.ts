@@ -138,9 +138,9 @@ export const update = async(
     await mySource.validate()
     const oldSource = await Source.findById(id).exec()
     
-    await auth.hasEditAccess(req.user._id, oldSource)
+    await oldSource.hasEditAccess(req.user._id)
     if (oldSource.owner !== mySource.owner) {
-        await auth.hasOwnerAccess(req.user._id, oldSource)
+        await oldSource.hasOwnerAccess(req.user._id)
     }
     await Source.findByIdAndUpdate(id, req.body).exec()
     await getSourceSocket().onAddOrChange(mySource, oldSource)
@@ -154,7 +154,7 @@ export const remove = async(
     res: FastifyReply
 ) => {
     const mySource = await Source.findById(req.params.id).exec()
-    await auth.hasOwnerAccess(req.user._id, mySource)
+    await mySource.hasOwnerAccess(req.user._id)
     const widgets = await Widget.find({ sourceId: req.params.id}).exec()
 
     if (widgets.length > 0) throw new Error(`There are ${widgets.length} widgets that use this source.`)
@@ -175,9 +175,9 @@ export const create = async(
     const myFile = await req.file()
     if (!myFile) throw new Error('No file')
 
-    await pipeline(myFile.file, createWriteStream(myFile.filename))
+    await pipeline(myFile.file, createWriteStream(`./uploads/${myFile.filename}`))
 
-    const data = await parseCSV(`./uploads/${myFile.fieldname}`)
+    const data = await parseCSV(`./uploads/${myFile.filename}`)
     const headers = data[0]
     const fileData = data
     fileData.splice(0, 1)

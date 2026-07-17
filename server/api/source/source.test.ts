@@ -42,182 +42,173 @@ describe('Source API', () => {
         })
     })
 
-    // describe('PUT /api/sources', () => {
-    //     let sourceId: string
-    //     let mySource: ISource
+    describe('PUT /api/sources', () => {
+        let sourceId: string
+        let mySource: ISource
 
-    //     before(() => {
-    //         return utils.createSource(tokens[0], path.join(__dirname, 'data/2012_SAT_RESULTS.csv'))
-    //         .then(newId => sourceId = newId)
-    //     })
+        before(async() => {
+            sourceId = await utils.createSource(server, tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
+        })
 
-    //     beforeEach(() => {
-    //         return utils.getSource(tokens[0], sourceId)
-    //         .then(source => mySource = source)
-    //     })
+        beforeEach(async() => {
+            mySource = await utils.getSource(server, tokens[0], sourceId)
+        })
 
-    //     it('should return an error if user is NOT logged in', () => {
-    //         return chai.request(server)
-    //         .put('/api/sources')
-    //         .send({})
-    //         .then(res => expect(res.status).to.equal(401))
-    //     })
+        it('should return an error if user is NOT logged in', async(t) => {
+            const res = await server.inject()
+                .put('/api/sources')
+                .body({})
+            t.assert.equal(res.statusCode, 401)
+        })
 
-    //     it('should return an error if user is NOT owner or editor', () => {
-    //         expect(mySource).not.to.equal(undefined)
-    //         mySource = { ...mySource, title: 'changed' }
+        it('should return an error if user is NOT owner or editor', async(t) => {
+            t.assert.notEqual(mySource, undefined)
+            mySource = { ...mySource, title: 'changed' }
 
-    //         return chai.request(server)
-    //         .put('/api/sources')
-    //         .set('authorization', tokens[1])
-    //         .send(mySource)
-    //         .then(res => expect(res.status).not.to.equal(200))
-    //         .then(() => utils.getSource(tokens[0], sourceId))
-    //         .then(updated => expect(updated.title).not.to.equal('changed'))
-    //     })
+            const res = await server.inject()
+                .put('/api/sources')
+                .headers({authorization: tokens[1]})
+                .body(mySource)
+            t.assert.notEqual(res.statusCode, 200)
+            const updated = await utils.getSource(server, tokens[0], sourceId)
+            t.assert.notEqual(updated.title, mySource.title)
+        })
 
-    //     it('should return a success if user is the owner', () => {
-    //         expect(mySource).not.to.equal(undefined)
-    //         expect(mySource.owner).to.equal(userIds[0])
-    //         mySource = { ...mySource, title: 'updated' }
+        it('should return a success if user is the owner', async(t) => {
+            t.assert.notEqual(mySource, undefined)
+            t.assert.equal(mySource.owner, userIds[0])
+            mySource = { ...mySource, title: 'updated' }
 
-    //         return chai.request(server)
-    //         .put('/api/sources')
-    //         .set('authorization', tokens[0])
-    //         .send(mySource)
-    //         .then(res => expect(res.status).to.equal(200))
-    //         .then(() => utils.getSource(tokens[0], sourceId))
-    //         .then(updated => expect(updated.title).to.equal('updated'))
-    //     })
+            const res = await server.inject()
+                .put('/api/sources')
+                .headers({authorization: tokens[0]})
+                .body(mySource)
+            t.assert.equal(res.statusCode, 200)
+            const updated = await utils.getSource(server, tokens[0], sourceId)
+            t.assert.equal(updated.title, mySource.title)
+        })
 
-    //     it('should return a success if user is an editor', () => {
-    //         expect(mySource).not.to.equal(undefined)
-    //         expect(mySource.owner).to.equal(userIds[0])
-    //         mySource = { ...mySource }
-    //         mySource.editors.push(userIds[1])
+        it('should return a success if user is an editor', async(t) => {
+            t.assert.notEqual(mySource, undefined)
+            t.assert.equal(mySource.owner, userIds[0])
+            mySource = { ...mySource }
+            mySource.editors.push(userIds[1])
 
-    //         return chai.request(server)
-    //         .put('/api/sources')
-    //         .set('authorization', tokens[0])
-    //         .send(mySource)
-    //         .then(res => expect(res.status).to.equal(200))
-    //         .then(() => mySource.title = 'new Updated')
-    //         .then(() => chai.request(server)
-    //         .put('/api/sources')
-    //         .set('authorization', tokens[1])
-    //         .send(mySource)
-    //         .then(res => expect(res.status).to.equal(200)))
-    //     })
+            const res = await server.inject()
+                .put('/api/sources')
+                .headers({authorization: tokens[0]})
+                .body(mySource)
+            t.assert.equal(res.statusCode, 200)
+            mySource.title = 'new Updated'
 
-    //     it('should return an error if the schema does NOT match', () => {
-    //         expect(mySource).not.to.equal(undefined)
-    //         let tmp: any = mySource
-    //         tmp.size = []
-    //         return chai.request(server)
-    //         .put('/api/sources')
-    //         .set('authorization', tokens[0])
-    //         .send(tmp)
-    //         .then(res => expect(res.status).not.to.equal(200))
-    //     })
+            const res2 = await server.inject()
+                .put('/api/sources')
+                .headers({authorization: tokens[1]})
+                .body(mySource)
+            t.assert.equal(res2.statusCode, 200)
+        })
 
-    //     it('should return an error if a user other than the owner tries to change the owner', () => {
-    //         expect(mySource).not.to.equal(undefined)
-    //         expect(mySource.owner).not.to.equal(userIds[1])
-    //         expect(mySource.editors.indexOf(userIds[1])).not.to.equal(-1)
-    //         mySource = { ...mySource }
-    //         mySource.owner = userIds[1]
+        it('should return an error if the schema does NOT match', async(t) => {
+            t.assert.notEqual(mySource, undefined)
+            let tmp: any = mySource
+            tmp.size = []
 
-    //         return chai.request(server)
-    //         .put('/api/sources')
-    //         .set('authorization', tokens[1])
-    //         .send(mySource)
-    //         .then(res => expect(res.status).not.to.equal(200))
-    //     })
+            const res = await server.inject()
+                .put('/api/sources')
+                .headers({authorization: tokens[0]})
+                .body(tmp)
+            t.assert.notEqual(res.statusCode, 200)
+        })
 
-    //     it('should return a success if the owner changes the owner field', () => {
-    //         expect(mySource.owner).not.to.equal(userIds[1])
-    //         mySource = { ...mySource }
-    //         mySource.owner = userIds[1]
+        it('should return an error if a user other than the owner tries to change the owner', async(t) => {
+            t.assert.notEqual(mySource, undefined)
+            t.assert.notEqual(mySource.owner, userIds[1])
+            t.assert.equal(mySource.editors.includes(userIds[1]), true)
+            mySource = { ...mySource }
+            mySource.owner = userIds[1]
 
-    //         return chai.request(server)
-    //         .put('/api/sources')
-    //         .set('authorization', tokens[0])
-    //         .send(mySource)
-    //         .then(res => expect(res.status).to.equal(200))
-    //     })
-    // })
+            const res = await server.inject()
+                .put('/api/sources')
+                .headers({authorization: tokens[1]})
+                .body(mySource)
+            t.assert.notEqual(res.statusCode, 200)
+        })
 
-    // describe('DELETE /api/sources', () => {
-    //     let sourceId: string
-    //     let socket: SocketIOClient.Socket
-    //     let removedIds: string[] = []
+        it('should return a success if the owner changes the owner field', async(t) => {
+            t.assert.notEqual(mySource.owner, userIds[1])
+            mySource = { ...mySource }
+            mySource.owner = userIds[1]
 
-    //     before(() => {
-    //         socket = utils.websocketConnect('sources', tokens[0])
-    //         socket.on('removed', (ids: string[]) => {
-    //             removedIds = removedIds.concat(ids)
-    //         })
+            const res = await server.inject()
+                .put('/api/sources')
+                .headers({authorization: tokens[0]})
+                .body(mySource)
+            t.assert.equal(res.statusCode, 200)
+        })
+    })
 
-    //         return utils.createSource(tokens[0], path.join(__dirname, 'data/2012_SAT_RESULTS.csv'))
-    //         .then(newSourceId => sourceId = newSourceId)
-    //     })
+    describe('DELETE /api/sources', () => {
+        let sourceId: string
+        // let socket: SocketIOClient.Socket
+        // let removedIds: string[] = []
 
-    //     it('should return an error if user is NOT logged in', () => {
-    //         return chai.request(server)
-    //         .del(`/api/sources/${sourceId}`)
-    //         .then(res => expect(res.status).to.equal(401))
-    //         .then(() => expect(removedIds.indexOf(sourceId)).to.equal(-1))
-    //     })
+        before(async() => {
+            sourceId = await utils.createSource(server, tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
+        })
 
-    //     it('should return an error if record does NOT exist', () => {
-    //         return chai.request(server)
-    //         .del(`/api/sources/ERROR`)
-    //         .set('authorization', tokens[0])
-    //         .then(res => expect(res.status).not.to.equal(200))
-    //         .then(() => expect(removedIds.length).to.equal(0))
-    //     })
+        it('should return an error if user is NOT logged in', async(t) => {
+            const res = await server.inject()
+                .delete(`/api/sources/${sourceId}`)
+            t.assert.equal(res.statusCode, 401)
+        })
 
-    //     it('should return an error if a user other than owner tries to delete', () => {
-    //         return chai.request(server)
-    //         .del(`/api/sources/${sourceId}`)
-    //         .set('authorization', tokens[1])
-    //         .then(res => expect(res.status).not.to.equal(200))
-    //         .then(() => expect(removedIds.indexOf(sourceId)).to.equal(-1))
-    //     })
+        it('should return an error if record does NOT exist', async(t) => {
+            const res = await server.inject()
+                .delete(`/api/sources/ERROR`)
+                .headers({authorization: tokens[0]})
+            t.assert.notEqual(res.statusCode, 200)
+        })
 
-    //     it('should return a success if source exists and user is owner', () => {
-    //         return chai.request(server)
-    //         .del(`/api/sources/${sourceId}`)
-    //         .set('authorization', tokens[0])
-    //         .then(res => expect(res.status).to.equal(200))
-    //     })
-    // })
+        it('should return an error if a user other than owner tries to delete', async(t) => {
+            const res = await server.inject()
+                .delete(`/api/sources/${sourceId}`)
+                .headers({authorization: tokens[1]})
+            t.assert.notEqual(res.statusCode, 200)
+        })
 
-    // describe('POST /api/sources/query', () => {
-    //     it('should return an error if user is NOT logged in', () => {
-    //         return chai.request(server)
-    //         .post('/api/sources/query')
-    //         .then(res => expect(res.status).not.to.equal(200))
-    //     })
+        it('should return a success if source exists and user is owner', async(t) => {
+            const res = await server.inject()
+                .delete(`/api/sources/${sourceId}`)
+                .headers({authorization: tokens[0]})
+            t.assert.equal(res.statusCode, 200)
+        })
+    })
 
-    //     xit('should return records', () => {
-    //         return chai.request(server)
-    //         .post('/api/sources')
-    //         .set('Authorization', tokens[0])
-    //         .attach('file', fs.readFileSync(path.join(__dirname, 'data/2012_SAT_RESULTS.csv')), '2012_SAT_RESULTS.csv')
-    //         .then(res => {
-    //             expect(res.status).to.equal(200)
-    //             return chai.request(server)
-    //             .post('/api/sources/query')
-    //             .set('Authorization', tokens[0])
-    //             .send({
-    //                 sourceId: res.body,
-    //                 measures: [],
-    //                 dimensions: [],
-    //                 filters: []
-    //             })
-    //         })
-    //         .then(res => expect(res.status).to.equal(200))
-    //     })
-    // })
+    describe('POST /api/sources/query', () => {
+        it('should return an error if user is NOT logged in', async(t) => {
+            const res = await server.inject()
+                .post('/api/sources/query')
+            t.assert.notEqual(res.statusCode, 200)
+        })
+
+        it.skip('should return records', () => {
+            // return chai.request(server)
+            // .post('/api/sources')
+            // .set('Authorization', tokens[0])
+            // .attach('file', fs.readFileSync(path.join(__dirname, 'data/2012_SAT_RESULTS.csv')), '2012_SAT_RESULTS.csv')
+            // .then(res => {
+            //     expect(res.status).to.equal(200)
+            //     return chai.request(server)
+            //     .post('/api/sources/query')
+            //     .set('Authorization', tokens[0])
+            //     .send({
+            //         sourceId: res.body,
+            //         measures: [],
+            //         dimensions: [],
+            //         filters: []
+            //     })
+            // })
+            // .then(res => expect(res.status).to.equal(200))
+        })
+    })
 })
