@@ -3,7 +3,6 @@ import * as utils from '../../testUtils'
 import {describe, before, after, it, beforeEach} from 'node:test'
 import { FastifyInstance } from 'fastify'
 import { MongoMemoryServer } from 'mongodb-memory-server'
-import * as io from 'socket.io-client'
 
 describe('Book API', () => {
     let tokens: string[]

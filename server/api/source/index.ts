@@ -33,16 +33,16 @@ export const buildSourceApis = (app: FastifyInstance) => {
 
     app.post('', {
         onRequest: [isAuthenticated],
-        onResponse: [async(req, res, done) => {
-            const data = await req.file()
-            unlink(`./uploads/${data.filename}`, () => {
-                console.info(`Removed file: ${data.filename}`)
-                done()
-            })
-        }],
+        // onResponse: [async(req, res, done) => {
+        //     const data = await req.file()
+        //     unlink(`./uploads/${data.filename}`, () => {
+        //         console.info(`Removed file: ${data.filename}`)
+        //         done()
+        //     })
+        // }],
         schema: {
             tags: ['Sources'],
-            body: SourceSchema.toJSONSchema(),
+            // body: SourceSchema.toJSONSchema(),
             response: {
                 200: {type: 'string'}
             }

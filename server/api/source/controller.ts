@@ -1,5 +1,5 @@
 import { Source } from './model'
-import { SourceSocket } from './socket'
+import { getSourceSocket } from './socket'
 import { MongoClient } from 'mongodb'
 import { createReadStream, createWriteStream, statSync } from 'fs'
 import { ISourceColumn, ColumnType, IQuery, ISource } from 'common/models'
@@ -143,7 +143,7 @@ export const update = async(
         await auth.hasOwnerAccess(req.user._id, oldSource)
     }
     await Source.findByIdAndUpdate(id, req.body).exec()
-    await SourceSocket.onAddOrChange(mySource, oldSource)
+    await getSourceSocket().onAddOrChange(mySource, oldSource)
     res.send()
 }
 
@@ -160,7 +160,7 @@ export const remove = async(
     if (widgets.length > 0) throw new Error(`There are ${widgets.length} widgets that use this source.`)
     
     await mySource.deleteOne()
-    SourceSocket.onDelete(mySource)
+    getSourceSocket().onDelete(mySource)
     res.send()
 }
 
@@ -174,7 +174,8 @@ export const create = async(
 
     const myFile = await req.file()
     if (!myFile) throw new Error('No file')
-    await pipeline(myFile.file, createWriteStream(`./uploads/${myFile.filename}`))
+
+    await pipeline(myFile.file, createWriteStream(myFile.filename))
 
     const data = await parseCSV(`./uploads/${myFile.fieldname}`)
     const headers = data[0]
@@ -194,7 +195,7 @@ export const create = async(
         return Object.assign(col, metaData[index])
     }))
     const newSource = await Source.create(mySource)
-    SourceSocket.onAddOrChange(newSource)
+    getSourceSocket().onAddOrChange(newSource)
     res.send(newSource._id.toString())
 
 

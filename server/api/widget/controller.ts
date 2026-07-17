@@ -2,7 +2,7 @@ import { IWidget, Widget, WidgetDoc } from './model'
 import { Page } from '../page/model'
 import { Book } from '../book/model'
 import { Source, SourceDoc } from '../source/model'
-import { pageSocket } from '../page/socket'
+import { getPageSocket } from '../page/socket'
 import { widgetSocket } from './socket'
 // import { Layout } from 'react-grid-layout'
 import { FastifyReply, FastifyRequest } from 'fastify'
@@ -35,7 +35,7 @@ export const create = async(
     await myPage.updateOne(myPage).exec()
     
     widgetSocket.onAddOrChange(newWidget)
-    pageSocket.onAddOrChange(myPage)
+    getPageSocket().onAddOrChange(myPage)
     res.send(newWidget._id.toString())
 }
 
@@ -72,7 +72,7 @@ export const createMultiple = async(
 
     await myPage.updateOne(myPage).exec()
     await widgetSocket.onManyAdd(createdList)
-    pageSocket.onAddOrChange(myPage)
+    getPageSocket().onAddOrChange(myPage)
     res.send(createdList.map(w => w._id.toString()))
 }
 
@@ -123,7 +123,7 @@ export const remove = async(
     await myPage.updateOne(myPage).exec()
     Widget.findByIdAndDelete(widgetId).exec()
 
-    pageSocket.onAddOrChange(myPage)
+    getPageSocket().onAddOrChange(myPage)
     widgetSocket.onDelete({ _id: widgetId, pageId })
     res.send()
 }
