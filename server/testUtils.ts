@@ -135,15 +135,18 @@ export const deleteBook = async(app: FastifyInstance, token: string, bookId: str
         .headers({authorization: token})
 }
 
-// export const updatePage = (token: string, page: IPage): Promise<void> => {
-//     return axios.put(`${getBaseUrl()}/api/pages`, page, setHeader(token))
-//     .then(res => res.data as undefined)
-// }
+export const updatePage = async(app: FastifyInstance, token: string, page: IPage) => {
+    await app.inject()
+        .put(`/api/pages`)
+        .headers({authorization: token})
+        .body(page)
+}
 
-// export const deletePage = (token: string, pageId: string): Promise<void> => {
-//     return axios.delete(`${getBaseUrl()}/api/pages/${pageId}`, setHeader(token))
-//     .then(res => res.data as undefined)
-// }
+export const deletePage = async(app: FastifyInstance, token: string, pageId: string) => {
+    await app.inject()
+        .delete(`/api/pages/${pageId}`)
+        .headers({authorization: token})
+}
 
 // export const getWidget = (token: string, widgetId: string): Promise<IWidget> => {
 //     return axios.get(`${getBaseUrl()}/api/widgets/${widgetId}`, setHeader(token))
