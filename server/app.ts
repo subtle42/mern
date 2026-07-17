@@ -13,6 +13,7 @@ import { buildWsServer } from './sockets'
 import { buildBookSocket } from './api/book/socket'
 import { buildPageSocket } from './api/page/socket'
 import { buildSourceSocket } from './api/source/socket'
+import { buildWidgetSocket } from './api/widget/socket'
 
 
 
@@ -82,12 +83,13 @@ export const buildServer = async(isTest?: boolean) => {
     buildBookSocket(myFastServer)
     buildPageSocket(myFastServer)
     buildSourceSocket(myFastServer)
+    buildWidgetSocket(myFastServer)
 
     await myFastServer.register((await import('./api/book')).buildBookApis, {prefix: '/api/books'})
     await myFastServer.register((await import('./api/page')).buildPageApis, {prefix: '/api/pages'})
     await myFastServer.register((await import('./api/source')).buildSourceApis, {prefix: '/api/sources'})
     await myFastServer.register((await import('./api/user')).buildUserApis, {prefix: '/api/user'})
-    // await myFastServer.register((await import('./api/widget')).buildWidgetApis, {prefix: '/api/widgets'})
+    await myFastServer.register((await import('./api/widget')).buildWidgetApis, {prefix: '/api/widgets'})
     await myFastServer.register((await import('./auth')).buildAuthApis, {prefix: '/api/auth'})
 
 

@@ -1,6 +1,5 @@
 import config from '../server/config/environment'
 import * as ioClient from 'socket.io-client'
-import { IBook, ISource, IPage, IWidget } from 'common/models'
 import { FastifyInstance } from 'fastify'
 import { buildMongoDb, buildServer } from './app'
 import mongoose from 'mongoose'
@@ -8,6 +7,10 @@ import { MongoMemoryServer } from 'mongodb-memory-server'
 import { IUser } from './api/user/model'
 import { AddressInfo } from 'net'
 import { readFileSync } from 'fs'
+import { IBook } from './api/book/model'
+import { IPage } from './api/page/model'
+import { IWidget } from './api/widget/model'
+import { ISource } from './api/source/model'
 
 interface FakeUser {
     email: string
@@ -113,11 +116,11 @@ export const createSource = async(app: FastifyInstance, token: string, filePath:
 //     .then(res => res.data as undefined)
 // }
 
-export const getSource = async(app: FastifyInstance, token: string, id: string): Promise<ISource> => {
+export const getSource = async(app: FastifyInstance, token: string, id: string) => {
     const res = await app.inject()
         .get(`/api/sources/${id}`)
         .headers({authorization: token})
-    return JSON.parse(res.body)
+    return JSON.parse(res.body) as ISource
 }
 
 export const getBook = async(app: FastifyInstance, token: string, id: string) => {
@@ -153,19 +156,20 @@ export const deletePage = async(app: FastifyInstance, token: string, pageId: str
         .headers({authorization: token})
 }
 
-// export const getWidget = (token: string, widgetId: string): Promise<IWidget> => {
-//     return axios.get(`${getBaseUrl()}/api/widgets/${widgetId}`, setHeader(token))
-//     .then(res => res.data as IWidget)
-// }
+export const getWidget = async(app: FastifyInstance, token: string, widgetId: string) => {
+    const res = await app.inject()
+        .get(`/api/widgets/${widgetId}`)
+        .headers({authorization: token})
+    return JSON.parse(res.body) as IWidget
+}
 
-// export const createWidget = (token: string, pageId: string, sourceId: string, type: string): Promise<string> => {
-//     return axios.post(`${getBaseUrl()}/api/widgets`, {
-//         pageId,
-//         sourceId,
-//         type
-//     }, setHeader(token))
-//     .then(res => res.data as string)
-// }
+export const createWidget = async(app: FastifyInstance, token: string, pageId: string, sourceId: string, type: string) => {
+    const res = await app.inject()
+        .post('/api/widgets')
+        .body({pageId, sourceId, type})
+        .headers({authorization: token})
+    return res.body as string
+}
 
 // export const updateWidget = (token: string, widget: IWidget): Promise<void> => {
 //     return axios.put(`${getBaseUrl()}/api/widgets`, widget, setHeader(token))

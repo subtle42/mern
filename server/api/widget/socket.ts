@@ -2,10 +2,21 @@ import { IWidget, Widget, WidgetDoc } from './model'
 import BaseSocket from '../../sockets/sockets'
 import { Book } from '../book/model'
 import { Page } from '../page/model'
+import { FastifyInstance } from 'fastify'
+
+let tmp: WidgetSocket
+export const buildWidgetSocket = (app: FastifyInstance) => {
+    tmp = new WidgetSocket(app)
+}
+
+export const getWidgetSocket = () => {
+    if (!tmp) throw Error(`Asked too soon for Widget Socket`)
+    return tmp
+}
 
 class WidgetSocket extends BaseSocket {
-    constructor () {
-        super('widgets')
+    constructor (app: FastifyInstance) {
+        super(app, 'widgets')
     }
 
     getParentId (model) {
@@ -36,4 +47,3 @@ class WidgetSocket extends BaseSocket {
     }
 }
 
-export const widgetSocket = new WidgetSocket()

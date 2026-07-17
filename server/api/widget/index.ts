@@ -12,7 +12,7 @@ export const buildWidgetApis = (app: FastifyInstance) => {
         onRequest: [isAuthenticated],
         schema: {
             tags: ['Widget'],
-            body: WidgetSchema.toJSONSchema(),
+            // body: WidgetSchema.toJSONSchema(),
             response: {
                 200: {type: 'string'}
             }
@@ -23,10 +23,10 @@ export const buildWidgetApis = (app: FastifyInstance) => {
         onRequest: [isAuthenticated],
         schema: {
             tags: ['Widget'],
-            body: {
-                type: 'array',
-                items: WidgetSchema.toJSONSchema()
-            },
+            // body: {
+            //     type: 'array',
+            //     items: WidgetSchema.toJSONSchema()
+            // },
             response: {
                 200: {
                     type: 'array',

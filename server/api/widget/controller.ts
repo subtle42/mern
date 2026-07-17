@@ -3,7 +3,7 @@ import { Page } from '../page/model'
 import { Book } from '../book/model'
 import { Source, SourceDoc } from '../source/model'
 import { getPageSocket } from '../page/socket'
-import { widgetSocket } from './socket'
+import { getWidgetSocket } from './socket'
 // import { Layout } from 'react-grid-layout'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
@@ -34,7 +34,7 @@ export const create = async(
     myPage.layout.push(Object.assign({}, widgetLayout, { i: newWidget._id }))
     await myPage.updateOne(myPage).exec()
     
-    widgetSocket.onAddOrChange(newWidget)
+    getWidgetSocket().onAddOrChange(newWidget)
     getPageSocket().onAddOrChange(myPage)
     res.send(newWidget._id.toString())
 }
@@ -71,7 +71,7 @@ export const createMultiple = async(
     })
 
     await myPage.updateOne(myPage).exec()
-    await widgetSocket.onManyAdd(createdList)
+    await getWidgetSocket().onManyAdd(createdList)
     getPageSocket().onAddOrChange(myPage)
     res.send(createdList.map(w => w._id.toString()))
 }
@@ -124,7 +124,7 @@ export const remove = async(
     Widget.findByIdAndDelete(widgetId).exec()
 
     getPageSocket().onAddOrChange(myPage)
-    widgetSocket.onDelete({ _id: widgetId, pageId })
+    getWidgetSocket().onDelete({ _id: widgetId, pageId })
     res.send()
 }
 
@@ -143,7 +143,7 @@ export const update = async(
     myBook.hasEditAccess(req.user._id)
     await Widget.findByIdAndUpdate(myId, req.body).exec()
 
-    widgetSocket.onAddOrChange(myWidget)
+    getWidgetSocket().onAddOrChange(myWidget)
     res.send()
 }
 

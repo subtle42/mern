@@ -1,219 +1,192 @@
-// import {describe, before, after, it, beforeEach} from 'node:test'
-// import { IWidget, IBook } from 'common/models'
-// import * as utils from '../../testUtils'
-// import * as path from 'path'
-// import { FastifyInstance } from 'fastify'
-// import { MongoMemoryServer } from 'mongodb-memory-server'
+import {describe, before, after, it, beforeEach} from 'node:test'
+import * as utils from '../../testUtils'
+import { FastifyInstance } from 'fastify'
+import { MongoMemoryServer } from 'mongodb-memory-server'
+import { IWidget } from './model'
+import { IBook } from '../book/model'
 
-// describe('Widget API', () => {
-//     let tokens: string[]
-//     let userIds: string[]
-//     let server: FastifyInstance
-//     let db: MongoMemoryServer
-//     let bookId: string
-//     let pageId: string
-//     let sourceId: string
+describe('Widget API', () => {
+    let tokens: string[]
+    let userIds: string[]
+    let server: FastifyInstance
+    let db: MongoMemoryServer
+    let bookId: string
+    let pageId: string
+    let sourceId: string
 
-//     before(async() => {
-//         ({server, db, userIds, tokens} = await utils.testSetup())
+    before(async() => {
+        ({server, db, userIds, tokens} = await utils.testSetup())
 
-//         bookId = await utils.createBook(server, tokens[0], 'top book')
-//         pageId = await utils.createPage(server, tokens[0], bookId, 'top page')
-//         sourceId = await utils.createSource()
-        
-//         return utils.testSetup()
-//         .then(setup => ({ userIds, tokens, server } = setup))
-//         .then(() => utils.createBook(tokens[0], 'top book'))
-//         .then(id => bookId = id)
-//         .then(() => utils.createPage(tokens[0], bookId, 'top page'))
-//         .then(id => pageId = id)
-//         .then(() => utils.createSource(tokens[0], path.join(__dirname, 'data/2012_SAT_RESULTS.csv')))
-//         .then(id => sourceId = id)
-//     })
+        bookId = await utils.createBook(server, tokens[0], 'top book')
+        pageId = await utils.createPage(server, tokens[0], bookId, 'top page')
+        sourceId = await utils.createSource(server, tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
+    })
 
-//     after(() => {
-//         return utils.testCleanup(server, db)
-//     })
+    after(async() => {
+        await utils.testCleanup(server, db)
+    })
 
-//     describe('POST /api/widgets', () => {
-//         it('should return an error if user is NOT logged in', () => {
-//             return chai.request(server)
-//             .post(`/api/widgets`)
-//             .send({
-//                 pageId,
-//                 sourceId,
-//                 type: 'histogram'
-//             })
-//             .then(res => expect(res.status).to.equal(401))
-//         })
+    describe('POST /api/widgets', () => {
+        it('should return an error if user is NOT logged in', async(t) => {
+            const res = await server.inject()
+                .post(`/api/widgets`)
+                .body({
+                    pageId,
+                    sourceId,
+                    type: 'histogram'
+                })
+            t.assert.equal(res.statusCode, 401)
+        })
 
-//         it('should retiurn an error if the user does NOT have edit access', () => {
-//             return chai.request(server)
-//             .post(`/api/widgets`)
-//             .set('authorization', tokens[1])
-//             .send({
-//                 pageId,
-//                 sourceId,
-//                 type: 'histogram'
-//             })
-//             .then(res => expect(res.status).not.to.equal(200))
-//         })
+        it('should retiurn an error if the user does NOT have edit access', async(t) => {
+            const res = await server.inject()
+                .post(`/api/widgets`)
+                .headers({authorization: tokens[1]})
+                .body({
+                    pageId,
+                    sourceId,
+                    type: 'histogram'
+                })
+            t.assert.notEqual(res.statusCode, 200)
+        })
 
-//         it('should return a success if user is the owner of the book', () => {
-//             return chai.request(server)
-//             .post(`/api/widgets`)
-//             .set('authorization', tokens[0])
-//             .send({
-//                 pageId,
-//                 sourceId,
-//                 type: 'histogram'
-//             })
-//             .then(res => expect(res.status).to.equal(200))
-//         })
+        it('should return a success if user is the owner of the book', async(t) => {
+            const res = await server.inject()
+                .post(`/api/widgets`)
+                .headers({authorization: tokens[0]})
+                .body({
+                    pageId,
+                    sourceId,
+                    type: 'histogram'
+                })
+            t.assert.equal(res.statusCode, 200)
+        })
 
-//         it('should return a success if the user has edit access to the book', () => {
-//             return utils.getBook(tokens[0], bookId)
-//             .then(book => {
-//                 book.editors.push(userIds[1])
-//                 return utils.updateBook(tokens[0], book)
-//             })
-//             .then(() => chai.request(server)
-//             .post(`/api/widgets`)
-//             .set('authorization', tokens[0])
-//             .send({
-//                 pageId,
-//                 sourceId,
-//                 type: 'histogram'
-//             }))
-//             .then(res => expect(res.status).to.equal(200))
-//         })
-//     })
+        it('should return a success if the user has edit access to the book', async(t) => {
+            const myBook = await utils.getBook(server, tokens[0], bookId)
+            myBook.editors.push(userIds[1])
+            await utils.updateBook(server, tokens[0], myBook)
 
-//     describe('PUT /api/widgets', () => {
-//         let widgetId: string
-//         let widget: IWidget
+            const res = await server.inject()
+                .post('/api/widgets')
+                .headers({authorization: tokens[1]})
+                .body({
+                    pageId,
+                    sourceId,
+                    type: 'histogram'
+                })
+            console.log(res.body)
+            t.assert.equal(res.statusCode, 200)
+        })
+    })
 
-//         before(() => {
-//             return utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
-//             .then(id => widgetId = id)
-//         })
+    describe('PUT /api/widgets', () => {
+        let widgetId: string
+        let widget: IWidget
 
-//         beforeEach(() => {
-//             return utils.getWidget(tokens[0], widgetId)
-//             .then(data => widget = data)
-//         })
+        before(async() => {
+            widgetId = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+        })
 
-//         it('should return an error if user is NOT logged in', () => {
-//             return chai.request(server)
-//             .put(`/api/widgets`)
-//             .send(widget)
-//             .then(res => expect(res.status).to.equal(401))
-//         })
+        beforeEach(async() => {
+            widget = await utils.getWidget(server, tokens[0], widgetId)
+        })
 
-//         it('should return an error if the user does NOT have edit access', () => {
-//             const test: string = 'awlefhqwoefjw'
-//             widget.dimensions.push(test)
+        it('should return an error if user is NOT logged in', async(t) => {
+            const res = await server.inject()
+                .put(`/api/widgets`)
+                .body(widget)
+            t.assert.equal(res.statusCode, 401)
+        })
 
-//             return chai.request(server)
-//             .put(`/api/widgets`)
-//             .set('authorization', tokens[2])
-//             .send(widget)
-//             .then(res => expect(res.status).not.to.equal(200))
-//             .then(() => utils.getWidget(tokens[0], widgetId))
-//             .then(data => expect(data.dimensions.filter(x => x === test).length).to.equal(0))
-//         })
+        it('should return an error if the user does NOT have edit access', async(t) => {
+            const test: string = 'awlefhqwoefjw'
+            widget.dimensions.push(test)
 
-//         it('should return a success if the user is the owner of the book', () => {
-//             const test: string = 'works'
-//             widget.dimensions.push(test)
+            const res = await server.inject()
+                .put('/api/widgets')
+                .headers({authorization: tokens[2]})
+                .body(widget)
+            t.assert.notEqual(res.statusCode, 200)
+            const data = await utils.getWidget(server, tokens[0], widgetId)
+            t.assert.equal(data.dimensions.filter(x => x === test).length, 0)
+        })
 
-//             return chai.request(server)
-//             .put(`/api/widgets`)
-//             .set('authorization', tokens[0])
-//             .send(widget)
-//             .then(res => expect(res.status).to.equal(200))
-//             .then(() => utils.getWidget(tokens[0], widgetId))
-//             .then(data => expect(data.dimensions.filter(x => x === test).length).to.equal(1))
-//         })
+        it('should return a success if the user is the owner of the book', async(t) => {
+            const test: string = 'works'
+            widget.dimensions.push(test)
 
-//         it('should return a success if the user is an editor of the book', () => {
-//             const test: string = 'editor'
-//             widget.dimensions.push(test)
+            const res = await server.inject()
+                .put('/api/widgets')
+                .headers({authorization: tokens[0]})
+                .body(widget)
+            t.assert.equal(res.statusCode, 200)
+            const data = await utils.getWidget(server, tokens[0], widgetId)
+            t.assert.equal(data.dimensions.filter(x => x === test).length, 1)
+        })
 
-//             return chai.request(server)
-//             .put(`/api/widgets`)
-//             .set('authorization', tokens[1])
-//             .send(widget)
-//             .then(res => expect(res.status).to.equal(200))
-//             .then(() => utils.getWidget(tokens[0], widgetId))
-//             .then(data => expect(data.dimensions.filter(x => x === test).length).to.equal(1))
-//         })
-//     })
+        it('should return a success if the user is an editor of the book', async(t) => {
+            const test: string = 'editor'
+            widget.dimensions.push(test)
 
-//     describe('DELETE /api/widgets', () => {
-//         let book: IBook
-//         before(() => {
-//             return utils.getBook(tokens[0], bookId)
-//             .then(data => book = data)
-//         })
+            const res = await server.inject()
+                .put('/api/widgets')
+                .headers({authorization: tokens[1]})
+                .body(widget)
+            t.assert.equal(res.statusCode, 200)
+            const data = await utils.getWidget(server, tokens[0], widgetId)
+            t.assert.equal(data.dimensions.filter(x => x === test).length, 1)
+        })
+    })
 
-//         it('should return an error if user is NOT logged in', () => {
-//             return chai.request(server)
-//             .del(`/api/widgets/asdf/${pageId}/${bookId}`)
-//             .then(res => expect(res.status).to.equal(401))
-//         })
+    describe('DELETE /api/widgets', () => {
+        let book: IBook
+        before(async() => {
+            book = await utils.getBook(server, tokens[0], bookId)
+        })
 
-//         it('should return an error if widget does NOT exist', () => {
-//             return chai.request(server)
-//             .del(`/api/widgets/asdf/${pageId}/${bookId}`)
-//             .set('authorization', tokens[0])
-//             .then(res => expect(res.status).not.to.equal(200))
-//         })
+        it('should return an error if user is NOT logged in', async(t) => {
+            const res = await server.inject()
+                .delete(`/api/widgets/asdf/${pageId}/${bookId}`)
+            t.assert.equal(res.statusCode, 401)
+        })
 
-//         it('should return an error if user does NOT have edit access', () => {
-//             let widgetId: string
-//             expect(book.owner).not.to.equal(userIds[2])
-//             expect(book.editors.indexOf(userIds[2])).to.equal(-1)
+        it('should return an error if user does NOT have edit access', async(t) => {
+            t.assert.notEqual(book.owner, userIds[2])
+            t.assert.equal(book.editors.includes(userIds[2]), false)
 
-//             return utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
-//             .then(id => widgetId = id)
-//             .then(() => chai.request(server)
-//             .del(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
-//             .set('authorization', tokens[2]))
-//             .then(res => expect(res.status).not.to.equal(200))
-//             .then(() => utils.getWidget(tokens[0], widgetId))
-//             .then(data => expect(data._id).to.equal(widgetId))
-//         })
+            const widgetId = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            const res = await server.inject()
+                .delete(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
+                .headers({authorization: tokens[2]})
+            t.assert.notEqual(res.statusCode, 200)
+            const data = await utils.getWidget(server, tokens[0], widgetId)
+            t.assert.equal(data._id, widgetId)
+        })
 
-//         it('should return a success if the user has owner access', () => {
-//             let widgetId: string
-//             expect(book.owner).to.equal(userIds[0])
+        it('should return a success if the user has owner access', async(t) => {
+            t.assert.equal(book.owner, userIds[0])
+            const widgetId = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            const res = await server.inject()
+                .delete(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
+                .headers({authorization: tokens[0]})
+            t.assert.equal(res.statusCode, 200)
+            const data: any = await utils.getWidget(server, tokens[0], widgetId)
+            t.assert.notEqual(data.statusCode, 200)
+        })
 
-//             return utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
-//             .then(id => widgetId = id)
-//             .then(() => chai.request(server)
-//             .del(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
-//             .set('authorization', tokens[0]))
-//             .then(res => expect(res.status).to.equal(200))
-//             .then(() => utils.getWidget(tokens[0], widgetId))
-//             .catch(res => expect(res.status).not.to.equal(200))
-//         })
-
-//         it('should return a success if the user has edit access', () => {
-//             let widgetId: string
-//             expect(book.editors.indexOf(userIds[1])).not.to.equal(-1)
-
-//             return utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
-//             .then(id => widgetId = id)
-//             .then(() => chai.request(server)
-//             .del(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
-//             .set('authorization', tokens[1]))
-//             .then(res => expect(res.status).to.equal(200))
-//             .then(() => utils.getWidget(tokens[0], widgetId))
-//             .catch(res => expect(res.status).not.to.equal(200))
-//         })
-//     })
-// })
+        it('should return a success if the user has edit access', async(t) => {
+            t.assert.equal(book.editors.includes(userIds[1]), true)
+            const widgetId = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            const res = await server.inject()
+                .delete(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
+                .headers({authorization: tokens[1]})
+            t.assert.equal(res.statusCode, 200)
+            const data: any = await utils.getWidget(server, tokens[0], widgetId)
+            t.assert.notEqual(data.statusCode, 200)
+        })
+    })
+})
 
 // describe('Widget Channel', () => {
 //     let bookId: string
