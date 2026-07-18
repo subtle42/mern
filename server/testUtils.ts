@@ -171,12 +171,15 @@ export const createWidget = async(app: FastifyInstance, token: string, pageId: s
     return res.body as string
 }
 
-// export const updateWidget = (token: string, widget: IWidget): Promise<void> => {
-//     return axios.put(`${getBaseUrl()}/api/widgets`, widget, setHeader(token))
-//     .then(res => res.data as undefined)
-// }
+export const updateWidget = async(app: FastifyInstance, token: string, widget: IWidget) => {
+    const res = await app.inject()
+        .put('/api/widgets')
+        .headers({authorization: token})
+        .body(widget)
+}
 
-// export const deleteWidget = (token: string, widgetId: string, pageId: string, bookId: string): Promise<void> => {
-//     return axios.delete(`${getBaseUrl()}/api/widgets/${widgetId}/${pageId}/${bookId}`, setHeader(token))
-//     .then(res => res.data as undefined)
-// }
+export const deleteWidget = async(app: FastifyInstance, token: string, widgetId: string, pageId: string, bookId: string) => {
+    const res = await app.inject()
+        .delete(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
+        .headers({authorization: token})
+}

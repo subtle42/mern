@@ -121,7 +121,7 @@ export const remove = async(
 
     myPage.layout = myPage.layout.filter(item => item.i !== widgetId)
     await myPage.updateOne(myPage).exec()
-    Widget.findByIdAndDelete(widgetId).exec()
+    await Widget.findByIdAndDelete(widgetId).exec()
 
     getPageSocket().onAddOrChange(myPage)
     getWidgetSocket().onDelete({ _id: widgetId, pageId })

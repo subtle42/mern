@@ -188,205 +188,191 @@ describe('Widget API', () => {
     })
 })
 
-// describe('Widget Channel', () => {
-//     let bookId: string
-//     let tokens: string[]
-//     let userIds: string[]
-//     let pageId: string
-//     let sourceId: string
+describe('Widget Channel', () => {
+    let bookId: string
+    let tokens: string[]
+    let pageId: string
+    let sourceId: string
+    let userIds: string[]
+    let server: FastifyInstance
+    let db: MongoMemoryServer
 
-//     before(() => {
-//         return utils.testSetup()
-//         .then(setup => ({ userIds, tokens } = setup))
-//         .then(() => utils.createBook(tokens[0], 'top book'))
-//         .then(id => bookId = id)
-//         .then(() => utils.createPage(tokens[0], bookId, 'top page'))
-//         .then(id => pageId = id)
-//         .then(() => utils.createSource(tokens[0], path.join(__dirname, 'data/2012_SAT_RESULTS.csv')))
-//         .then(id => sourceId = id)
-//     })
+    before(async() => {
+        ({server, db, userIds, tokens} = await utils.testSetup())
 
-//     after(() => {
-//         return utils.cleanDb()
-//     })
+        bookId = await utils.createBook(server, tokens[0], 'top book')
+        pageId = await utils.createPage(server, tokens[0], bookId, 'top page')
+        sourceId = await utils.createSource(server, tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
+    })
 
-//     describe('authorization', () => {
-//         it('should NOT let you join a room if user does NOT have access to the parent book', done => {
-//             let socket: SocketIOClient.Socket = utils.websocketConnect('widgets', tokens[2])
-//             socket.on('message', data => {
-//                 socket.disconnect()
-//                 done()
-//             })
+    after(() => {
+        return utils.testCleanup(server, db)
+    })
 
-//             socket.emit('join', pageId)
-//         })
+    describe('authorization', () => {
+        it('should NOT let you join a room if user does NOT have access to the parent book', (t, done) => {
+            const socket = utils.websocketConnect(server, 'widgets', tokens[2])
+            socket.on('message', data => {
+                socket.disconnect()
+                done()
+            })
+            socket.emit('join', pageId)
+        })
 
-//         it('should return records if user is the owner of the book', done => {
-//             let socket: SocketIOClient.Socket = utils.websocketConnect('widgets', tokens[0])
-//             socket.on('addedOrChanged', data => {
-//                 socket.disconnect()
-//                 expect(data).not.to.equal(undefined)
-//                 done()
-//             })
+        it('should return records if user is the owner of the book', (t, done) => {
+            const socket = utils.websocketConnect(server, 'widgets', tokens[0])
+            socket.on('addedOrChanged', data => {
+                socket.disconnect()
+                t.assert.notEqual(data, undefined)
+                done()
+            })
+            socket.emit('join', pageId)
+        })
 
-//             socket.emit('join', pageId)
-//         })
+        it('should return recores if user has edit access to the book', (t, done) => {
+            utils.getBook(server, tokens[0], bookId)
+            .then(book => {
+                book.editors.push(userIds[1])
+                return utils.updateBook(server, tokens[0], book)
+            })
+            .then(() => {
+                const socket = utils.websocketConnect(server, 'widgets', tokens[1])
+                socket.on('addedOrChanged', data => {
+                    socket.disconnect()
+                    t.assert.notEqual(data, undefined)
+                    done()
+                })
+                socket.emit('join', pageId)
+            })
+        })
 
-//         it('should return recores if user has edit access to the book', done => {
-//             let socket: SocketIOClient.Socket
+        it('should return records if user has viewer access to the book', (t, done) => {
+            utils.getBook(server, tokens[0], bookId)
+            .then(book => {
+                book.viewers.push(userIds[2])
+                return utils.updateBook(server, tokens[0], book)
+            })
+            .then(() => {
+                const socket = utils.websocketConnect(server, 'widgets', tokens[2])
+                socket.on('addedOrChanged', data => {
+                    socket.disconnect()
+                    t.assert.notEqual(data, undefined)
+                    done()
+                })
+                socket.emit('join', pageId)
+            })
+        })
 
-//             utils.getBook(tokens[0], bookId)
-//             .then(book => {
-//                 book.editors.push(userIds[1])
-//                 return utils.updateBook(tokens[0], book)
-//             })
-//             .then(() => {
-//                 socket = utils.websocketConnect('widgets', tokens[1])
-//                 socket.on('addedOrChanged', data => {
-//                     socket.disconnect()
-//                     expect(data).not.to.equal(undefined)
-//                     done()
-//                 })
+        it('should return records if book is public', (t, done) => {
+            utils.getBook(server, tokens[0], bookId)
+            .then(book => {
+                book.editors = []
+                book.viewers = []
+                book.isPublic = true
+                return utils.updateBook(server, tokens[0], book)
+            })
+            .then(() => {
+                const socket = utils.websocketConnect(server, 'widgets', tokens[2])
+                socket.on('addedOrChanged', data => {
+                    socket.disconnect()
+                    t.assert.notEqual(data, undefined)
+                    done()
+                })
+                socket.emit('join', pageId)
+            })
+        })
 
-//                 socket.emit('join', pageId)
-//             })
-//         })
+        it('should return an error if user tries to join a room that does not exist', (t, done) => {
+            const socket = utils.websocketConnect(server, 'widgets', tokens[2])
 
-//         it('should return records if user has viewer access to the book', done => {
-//             let socket: SocketIOClient.Socket
+            socket.on('message', data => {
+                socket.disconnect()
+                t.assert.notEqual(data, undefined)
+                done()
+            })
+            socket.emit('join', 'badId')
+        })
+    })
 
-//             utils.getBook(tokens[0], bookId)
-//             .then(book => {
-//                 book.viewers.push(userIds[2])
-//                 return utils.updateBook(tokens[0], book)
-//             })
-//             .then(() => {
-//                 socket = utils.websocketConnect('widgets', tokens[2])
-//                 socket.on('addedOrChanged', data => {
-//                     socket.disconnect()
-//                     expect(data).not.to.equal(undefined)
-//                     done()
-//                 })
+    describe('addedOrChanged channel', () => {
+        const widgetIds: string[] = []
 
-//                 socket.emit('join', pageId)
-//             })
-//         })
+        before(async() => {
+            const id1 = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            const id2 = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            widgetIds.push(id1, id2)
+        })
 
-//         it('should return records if book is public', done => {
-//             let socket: SocketIOClient.Socket
+        it("should return all widgets in a page when joining a page's room", (t, done) => {
+            const socket = utils.websocketConnect(server, 'widgets', tokens[0])
+            socket.on('addedOrChanged', (data: IWidget[]) => {
+                socket.disconnect()
+                t.assert.notEqual(data.find(x => x._id === widgetIds[0]), undefined)
+                t.assert.notEqual(data.find(x => x._id === widgetIds[1]), undefined)
+                done()
+            })
+            socket.emit('join', pageId)
+        })
 
-//             utils.getBook(tokens[0], bookId)
-//             .then(book => {
-//                 book.editors = []
-//                 book.viewers = []
-//                 book.isPublic = true
-//                 return utils.updateBook(tokens[0], book)
-//             })
-//             .then(() => {
-//                 socket = utils.websocketConnect('widgets', tokens[2])
-//                 socket.on('addedOrChanged', data => {
-//                     socket.disconnect()
-//                     expect(data).not.to.equal(undefined)
-//                     done()
-//                 })
+        it('should return a record when a widget is added', (t, done) => {
+            let first = true
+            const type = 'histogram'
+            const socket = utils.websocketConnect(server, 'widgets', tokens[0])
 
-//                 socket.emit('join', pageId)
-//             })
-//         })
+            socket.on('addedOrChanged', (data: IWidget[]) => {
+                if (first === true) {
+                    first = false
+                    utils.createWidget(server, tokens[0], pageId, sourceId, type)
+                } else {
+                    socket.disconnect()
+                    t.assert.equal(data[0].type, type)
+                    done()
+                }
+            })
+            socket.emit('join', pageId)
+        })
 
-//         it('should return an error if user tries to join a room that does not exist', done => {
-//             let socket: SocketIOClient.Socket = utils.websocketConnect('widgets', tokens[2])
+        it('should return a record when a widget is updated', (t, done) => {
+            let first = true
+            const type = 'histogram'
+            const socket = utils.websocketConnect(server, 'widgets', tokens[0])
 
-//             socket.on('message', data => {
-//                 socket.disconnect()
-//                 expect(data).not.to.equal(undefined)
-//                 done()
-//             })
+            socket.on('addedOrChanged', (data: IWidget[]) => {
+                if (first === true) {
+                    first = false
+                    utils.getWidget(server, tokens[0], widgetIds[0])
+                    .then(widget => {
+                        widget.type = type
+                        return utils.updateWidget(server, tokens[0], widget)
+                    })
+                } else {
+                    socket.disconnect()
+                    t.assert.equal(data[0].type, type)
+                    done()
+                }
+            })
+            socket.emit('join', pageId)
+        })
+    })
 
-//             socket.emit('join', 'badId')
-//         })
-//     })
-
-//     describe('addedOrChanged channel', () => {
-//         let widgetIds: string[]
-
-//         before(() => {
-//             return Promise.all([
-//                 utils.createWidget(tokens[0], pageId, sourceId, 'histogram'),
-//                 utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
-//             ])
-//             .then(ids => widgetIds = ids)
-//         })
-
-//         it("should return all widgets in a page when joining a page's room", done => {
-//             let socket: SocketIOClient.Socket = utils.websocketConnect('widgets', tokens[0])
-//             socket.on('addedOrChanged', (data: IWidget[]) => {
-//                 socket.disconnect()
-//                 expect(data.filter(x => x._id === widgetIds[0]).length).to.equal(1)
-//                 expect(data.filter(x => x._id === widgetIds[1]).length).to.equal(1)
-//                 done()
-//             })
-
-//             socket.emit('join', pageId)
-//         })
-
-//         it('should return a record when a widget is added', done => {
-//             let first: boolean = true
-//             let type: string = 'histogram'
-//             let socket: SocketIOClient.Socket = utils.websocketConnect('widgets', tokens[0])
-
-//             socket.on('addedOrChanged', (data: IWidget[]) => {
-//                 if (first === true) {
-//                     first = false
-//                     utils.createWidget(tokens[0], pageId, sourceId, type)
-//                 } else {
-//                     socket.disconnect()
-//                     expect(data[0].type).to.equal(type)
-//                     done()
-//                 }
-//             })
-
-//             socket.emit('join', pageId)
-//         })
-
-//         it('should return a record when a widget is updated', done => {
-//             let first: boolean = true
-//             let type: string = 'histogram'
-//             let socket: SocketIOClient.Socket = utils.websocketConnect('widgets', tokens[0])
-
-//             socket.on('addedOrChanged', (data: IWidget[]) => {
-//                 if (first === true) {
-//                     first = false
-//                     utils.getWidget(tokens[0], widgetIds[0])
-//                     .then(widget => {
-//                         widget.type = type
-//                         return utils.updateWidget(tokens[0], widget)
-//                     })
-//                 } else {
-//                     socket.disconnect()
-//                     expect(data[0].type).to.equal(type)
-//                     done()
-//                 }
-//             })
-
-//             socket.emit('join', pageId)
-//         })
-//     })
-
-//     describe('removed channel', () => {
-//         it('should return the id of a deleted widget', done => {
-//             let widgetId: string
-//             let socket: SocketIOClient.Socket = utils.websocketConnect('widgets', tokens[0])
-//             socket.on('removed', (ids: string[]) => {
-//                 socket.disconnect()
-//                 expect(ids[0]).to.equal(widgetId)
-//                 done()
-//             })
-//             socket.emit('join', pageId)
-
-//             utils.createWidget(tokens[0], pageId, sourceId, 'histogram')
-//             .then(id => widgetId = id)
-//             .then(() => utils.deleteWidget(tokens[0], widgetId, pageId, bookId))
-//         })
-//     })
-// })
+    describe('removed channel', () => {
+        it('should return the id of a deleted widget', (t, done) => {
+            let widgetId: string
+            let isFirst = true
+            const socket = utils.websocketConnect(server, 'widgets', tokens[0])
+            
+            socket.on('removed', (ids: string[]) => {
+                socket.disconnect()
+                t.assert.equal(ids[0], widgetId)
+                done()
+            })
+            socket.on('addedOrChanged', async() => {
+                if (!isFirst) return
+                isFirst = false
+                widgetId = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+                await utils.deleteWidget(server, tokens[0], widgetId, pageId, bookId)
+            })
+            socket.emit('join', pageId)
+        })
+    })
+})
