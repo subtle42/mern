@@ -6,16 +6,17 @@ import * as ctrl from './controller'
 
 export const buildBookApis = (app: FastifyInstance) => {
     app.log.info('building book apis...')
+    app.addSchema({...bookSchema.toJSONSchema(), '$id': 'Book'})
 
     app.get('', {
         onRequest: [isAuthenticated],
         schema: {
             tags: ['Books'],
-            // security: [{bearerAuth: []}],
+            security: [{bearerAuth: []}],
             response: {
                 200: {
                     type: 'array',
-                    items: bookSchema.toJSONSchema()
+                    items: {'$ref': 'Book'}
                 }
             }
         }
@@ -32,7 +33,7 @@ export const buildBookApis = (app: FastifyInstance) => {
                 }
             },
             response: {
-                200: bookSchema.toJSONSchema()
+                200: {'$ref': 'Book'}
             }
         },
     }, ctrl.getBook)
@@ -41,7 +42,7 @@ export const buildBookApis = (app: FastifyInstance) => {
         onRequest: [isAuthenticated],
         schema: {
             tags: ['Books'],
-            body: bookSchema.toJSONSchema(),
+            body: {'$ref': 'Book'},
             response: {
                 200: {}
             }

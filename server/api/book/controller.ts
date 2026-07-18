@@ -2,7 +2,6 @@ import { Book, IBook } from './model'
 import { Page } from '../page/model'
 import { Widget } from '../widget/model'
 import { getBookSocket } from './socket'
-import * as auth from '../../auth/auth.service'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 

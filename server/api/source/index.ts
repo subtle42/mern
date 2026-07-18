@@ -2,11 +2,11 @@ import * as ctrl from './controller'
 import { isAuthenticated } from '../../auth/auth.service'
 import { FastifyInstance } from 'fastify'
 import { SourceSchema } from './model'
-import { unlink } from 'fs'
 
 
 export const buildSourceApis = (app: FastifyInstance) => {
     app.log.info('building source apis...')
+    app.addSchema({...SourceSchema.toJSONSchema(), '$id': 'Source'})
 
     app.get('/:id', {
         onRequest: [isAuthenticated],
@@ -26,7 +26,7 @@ export const buildSourceApis = (app: FastifyInstance) => {
         schema: {
             tags: ['Sources'],
             response: {
-                200: SourceSchema.toJSONSchema()
+                200: {'$ref': 'Source'}
             }
         }
     }, ctrl.getMySources)
@@ -53,6 +53,7 @@ export const buildSourceApis = (app: FastifyInstance) => {
         onRequest: [isAuthenticated],
         schema: {
             tags: ['Sources'],
+            body: {'$ref': 'Source'}
         }
     }, ctrl.update)
 

@@ -1,12 +1,13 @@
 import * as ctrl from './controller'
 import { FastifyInstance } from 'fastify'
 import { isAuthenticated } from '../../auth/auth.service'
-import { pageSchema } from './model'
+import { Page, pageSchema } from './model'
 
 
 
 export const buildPageApis = (app: FastifyInstance) => {
     app.log.info('buidling page apis...')
+    app.addSchema({...pageSchema.toJSONSchema(), '$id': 'Page'})
 
     app.get('/:bookId', {
         onRequest: [isAuthenticated],
@@ -21,7 +22,7 @@ export const buildPageApis = (app: FastifyInstance) => {
             response: {
                 200: {
                     type: 'array',
-                    items: pageSchema.toJSONSchema()
+                    items: {'$ref': 'Page'}
                 }
             }
         }
@@ -61,7 +62,7 @@ export const buildPageApis = (app: FastifyInstance) => {
         onRequest: [isAuthenticated],
         schema: {
             tags: ['Pages'],
-            body: pageSchema.toJSONSchema(),
+            body: {'$ref': 'Page'},
             response: {
                 200: {}
             }

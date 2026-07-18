@@ -1,5 +1,3 @@
-import * as http from 'http'
-import { Server } from 'socket.io'
 import * as mongoose from 'mongoose'
 
 import fastify, { FastifyRequest } from 'fastify'
@@ -67,6 +65,12 @@ export const buildServer = async(isTest?: boolean) => {
                     }
                 }
             },
+            refResolver: {
+                buildLocalReference(json, baseUri, fragment, i) {
+                    if (json.$id) return json.$id as string
+                    return `def-${i}`
+                }
+            }
         })
         await myFastServer.register(import('@fastify/swagger-ui'))
     }

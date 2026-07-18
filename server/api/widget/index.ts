@@ -7,6 +7,7 @@ import { WidgetSchema } from './model'
 
 export const buildWidgetApis = (app: FastifyInstance) => {
     app.log.info('building widget apis...')
+    app.addSchema({...WidgetSchema.toJSONSchema(), '$id': 'Widget'})
 
     app.post('', {
         onRequest: [isAuthenticated],
