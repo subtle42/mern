@@ -9,7 +9,7 @@ export const buildPageApis = (app: FastifyInstance) => {
     app.log.info('buidling page apis...')
 
     app.get('/:bookId', {
-        preHandler: [isAuthenticated],
+        onRequest: [isAuthenticated],
         schema: {
             tags: ['Pages'],
             params: {
@@ -28,7 +28,7 @@ export const buildPageApis = (app: FastifyInstance) => {
     }, ctrl.getPages)
 
     app.post('', {
-        preHandler: [isAuthenticated],
+        onRequest: [isAuthenticated],
         schema: {
             tags: ['Pages'],
             body: {

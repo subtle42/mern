@@ -8,7 +8,7 @@ export const buildBookApis = (app: FastifyInstance) => {
     app.log.info('building book apis...')
 
     app.get('', {
-        preHandler: [isAuthenticated],
+        onRequest: [isAuthenticated],
         schema: {
             tags: ['Books'],
             // security: [{bearerAuth: []}],
@@ -22,7 +22,7 @@ export const buildBookApis = (app: FastifyInstance) => {
     }, ctrl.getMyBooks)
 
     app.get('/:id', {
-        preHandler: [isAuthenticated],
+        onRequest: [isAuthenticated],
         schema: {
             tags: ['Books'],
             params: {
@@ -38,7 +38,7 @@ export const buildBookApis = (app: FastifyInstance) => {
     }, ctrl.getBook)
 
     app.put('', {
-        preHandler: [isAuthenticated],
+        onRequest: [isAuthenticated],
         schema: {
             tags: ['Books'],
             body: bookSchema.toJSONSchema(),
@@ -49,7 +49,7 @@ export const buildBookApis = (app: FastifyInstance) => {
     }, ctrl.update)
 
     app.post('', {
-        preHandler: [isAuthenticated],
+        onRequest: [isAuthenticated],
         schema: {
             tags: ['Books'],
             body: {

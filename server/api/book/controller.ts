@@ -29,8 +29,8 @@ export const create = async(
  * Updates a book, only the owner or editors can make updates
  */
 export const update = async(
-    req: FastifyRequest<{Body: IBook}>,
-    res: FastifyReply<{Reply: void}>
+    req: FastifyRequest<{Body: IBook, Reply: void}>,
+    res: FastifyReply
 ) => {
     const myId: string = req.body._id
     const myBook = new Book(req.body)
@@ -98,11 +98,11 @@ export const getMyBooks = async(
  * Get book if user has at least read access
  */
 export const getBook = async(
-    req: FastifyRequest<{Params: {id: string}}>,
-    res: FastifyReply<{Reply: IBook}>
+    req: FastifyRequest<{Params: {id: string}, Reply: IBook}>,
+    res: FastifyReply
 ) => {
     const bookId: string = req.params.id
-    const myBook = await Book.findById(bookId).exec()
-    await auth.hasViewerAccess(req.user._id, myBook)
-    res.send(myBook.toJSON())
+        const myBook = await Book.findById(bookId).exec()
+        await myBook.hasViewerAccess(req.user._id)
+        res.send(myBook.toJSON() as IBook)
 }

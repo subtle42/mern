@@ -1,4 +1,4 @@
-import { IBook } from 'common/models'
+import { IBook } from './model'
 import * as utils from '../../testUtils'
 import {describe, before, after, it, beforeEach} from 'node:test'
 import { FastifyInstance } from 'fastify'
