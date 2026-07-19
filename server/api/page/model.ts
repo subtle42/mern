@@ -8,7 +8,7 @@ export const pageSchema = new Schema({
     isResizable: { type: Boolean, required: true, default: true },
     preventCollision: { type: Boolean, required: true, default: false },
     margin: {
-        type: [{ type: Number }],
+        type: [{ type: Number, required: true }],
         validate: [(val: number[]) => {
             return val.length === 2
         }, 'Margins must be an array of 2.'],
@@ -16,7 +16,7 @@ export const pageSchema = new Schema({
         required: true
     },
     containerPadding: {
-        type: [{ type: Number }],
+        type: [{ type: Number, required: true }],
         validate: [(val: number[]) => {
             return val.length === 2
         }, 'Conatiner padding must be an array of 2.'],

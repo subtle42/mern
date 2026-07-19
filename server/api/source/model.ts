@@ -20,9 +20,9 @@ export const SourceSchema = new Schema({
     rowCount: { type: Number, default: 0 },
     columns: { type: [SourceColumnSchema], default: [] },
     owner: { type: String, required: true },
-    editors: { type: [String], default: [] },
-    viewers: { type: [String], default: [] },
-    isPublic: { type: Boolean, default: false }
+    editors: { type: [{type: String, required: true}], required: true },
+    viewers: { type: [{type: String, required: true}], required: true },
+    isPublic: { type: Boolean, required: true,  default: false }
 }, {
     methods: {
         hasOwnerAccess(userId: string) {

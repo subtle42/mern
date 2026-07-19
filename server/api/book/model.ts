@@ -4,10 +4,10 @@ import { PageDoc } from '../page/model'
 
 export const bookSchema = new Schema({
     name: { type: String, required: true },
-    pages: { type: [String], required: true },
+    pages: { type: [{type: String, required: true}], required: true },
     owner: { type: String, required: true },
-    editors: { type: [String], required: true },
-    viewers: { type: [String], required: true },
+    editors: { type: [{type: String, required: true}], required: true },
+    viewers: { type: [{type: String, required: true}], required: true },
     isPublic: { type: Boolean, required: true, default: false }
 }, {
     query: {

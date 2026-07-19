@@ -7,6 +7,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
+    "build:types": "openapi-typescript ../server/swagger.json -o ./app/_common/mytypes.ts",
     "start": "vite",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,6 +24,7 @@
     "bootstrap": "^5.3.7",
     "d3": "^7.9.0",
     "font-awesome": "^4.7.0",
+    "openapi-typescript": "^7.13.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-dropzone": "^14.3.8",
@@ -36,7 +38,8 @@
     "redux": "^5.0.1",
     "redux-promise": "^0.6.0",
     "socket.io-client": "^4.8.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^24.0.10",
