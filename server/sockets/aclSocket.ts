@@ -18,7 +18,11 @@ export class AclSocket {
         this.namespace = this.myIO.of(this.name)
         this.namespace.use((socket, next) => {
             const decoded = this.veryifyToken(socket)
-            if (decoded) return next()
+            if (decoded) {
+                this.server.log.warn('logging in user')
+                socket.emit('message', 'you are logged in')
+                return next()
+            }
             return next(new Error("Authentication failed"))
         })
         this.setupSockEvents()
@@ -29,6 +33,7 @@ export class AclSocket {
             this.server.log.info(`connecting to ${this.name}`)
             const decoded = this.veryifyToken(socket)
             socket.join(decoded._id)
+            this.server.log.info(`joining room ${decoded._id}`)
             return this.getInitialState(decoded._id)
             .then(data => socket.emit('addedOrChanged', data))
             .catch(err => {
@@ -41,7 +46,7 @@ export class AclSocket {
     private veryifyToken (socket: Socket) {
         try {
             return this.server.jwt.verify<{_id:string, role:string}>(
-                socket.handshake.auth.token
+                socket.handshake.query.token as string
             )
         }
         catch(err) {

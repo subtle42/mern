@@ -34,7 +34,7 @@ class AuthActions {
     }
 
     private setAuths (token: string): void {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        axios.defaults.headers.common['Authorization'] = token
         document.cookie = `authToken=${token}`
     }
 
@@ -67,7 +67,7 @@ class AuthActions {
     }
 
     login (email: string, password: string): Promise<void> {
-        return axios.post('/auth/local', {
+        return axios.post('/api/auth/local', {
             email,
             password
         })

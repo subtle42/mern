@@ -67,7 +67,7 @@ export default abstract class BaseSocket {
     private veryifyToken (socket: Socket) {
         try {
             return this.server.jwt.verify<{_id:string, role:string}>(
-                socket.handshake.auth.token
+                socket.handshake.query.token as string
             )
         }
         catch(err) {

@@ -16,7 +16,7 @@ export default defineConfig({
             '/socket.io': {
                 target: 'ws://localhost:3333',
                 ws: true,
-                rewriteWsOrigin: false,
+                changeOrigin: false,
             }
         }
     }
