@@ -1,12 +1,15 @@
 // import { IPageModel } from '../../dbModels'
-import { Page } from './model'
+import { IPage, Page } from './model'
 import { Book } from '../book/model'
-import BaseSocket from '../../sockets/sockets'
+import { WsBaseSocket } from '../../sockets/sockets'
 import { FastifyInstance } from 'fastify'
 
-let tmp: PageSocket
+
+let tmp: WsPageSocket
 export const buildPageSocket = (app: FastifyInstance) => {
-    tmp = new PageSocket(app)
+    if (tmp) return tmp
+    tmp = new WsPageSocket(app)
+    return tmp
 }
 
 export const getPageSocket = () => {
@@ -14,30 +17,17 @@ export const getPageSocket = () => {
     return tmp
 }
 
-class PageSocket extends BaseSocket {
-    constructor (app: FastifyInstance) {
-        super(app, 'pages')
+
+class WsPageSocket extends WsBaseSocket<IPage> {
+    constructor(server: FastifyInstance) {
+        super(server, 'pages')
     }
 
-    getParentId (doc) {
-        return doc.bookId
+    getInitState(id: string) {
+        return Page.find({bookId: id}).exec()
     }
 
-    getInitialState (bookId: string) {
-        return Page.find({
-            bookId
-        }).exec()
-    }
-
-    getSharedModel (bookId: string) {
-        return Book.findById(bookId).exec()
-    }
-
-    onAddOrChange (model) {
-        this._onAddOrChange(this.getParentId(model), [model])
-    }
-
-    onDelete (model) {
-        this._onDelete(this.getParentId(model), [model._id])
+    getBook(id: string) {
+        return Book.findById(id).exec()
     }
 }

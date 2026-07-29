@@ -1,91 +1,74 @@
-import { Document } from 'mongoose'
+import { Document, Model } from 'mongoose'
 import { ISharedModel } from '../dbModels'
 import * as auth from '../auth/auth.service'
 import { Namespace, Socket } from 'socket.io'
 import { FastifyInstance } from 'fastify'
 import { getWsServer } from '.'
+import { WebSocket } from '@fastify/websocket'
+import { IBook } from 'server/api/book/model'
 
+type MyChannels = 'addedOrChanged' | 'removed' | 'join' | 'leave'
 
-export default abstract class BaseSocket {
-    protected namespace: Namespace
-    protected myIO = getWsServer()
+export abstract class WsBaseSocket<T> {
+    private rooms: {[key:string]: WebSocket[]} = {}
 
-    constructor (
+    constructor(
         protected server: FastifyInstance,
-        protected name: string
+        private namespace: string,
     ) {
-        this.server.log.info(`creating namespace: ${name}`)
-        this.namespace = this.myIO.of(name)
-        this.namespace.use((socket, next) => {
-            const decoded = this.veryifyToken(socket)
-            if (decoded) return next()
-            return next(new Error("Authentication failed"))
-        })
-        this.setupSocket()
+
     }
 
-    setupSocket () {
-        this.namespace.on('connection', socket => this.onJoin(socket))
-        console.debug(`Created socket namespace: ${this.name}`)
-    }
-
-    protected abstract getParentId (model: Document): string
-
-    protected abstract getInitialState (room: string): Promise<any[]>
-
-    abstract onAddOrChange (changed: Document | Document[]): void
-
-    abstract onDelete (removed: any | any[]): void
-
-    /**
-     * Get the top level shared item for socket permissions
-     * @param id
-     */
-    abstract getSharedModel (id: string): Promise<ISharedModel>
-
-    private onJoin (socket: Socket) {
-        socket.on('join', (room: string) => {
-            this.server.log.info(`joined room: ${room}`)
-            const decoded = this.veryifyToken(socket)
-            
-            this.hasViewAccess(decoded, room)
-            .then(() => {
-                // Leave all rooms
-                socket.rooms.forEach(room => socket.leave(room))
-                socket.join(room)
-                socket.emit('message', `${this.name.toUpperCase()}, joined room: ${room}`)
-                return this.getInitialState(room)
-            })
-            .then(data => this._onAddOrChange(room, data))
-            .catch(err => {
-                console.error(err)
-                socket.emit('message', err)
-            })
-        })
-    }
-
-    private veryifyToken (socket: Socket) {
-        try {
-            return this.server.jwt.verify<{_id:string, role:string}>(
-                socket.handshake.query.token as string
-            )
+    private send(room: string, channel: MyChannels, data: any[]) {
+        if (!this.rooms[room]) {
+            this.server.log.error(`Unabel to find room: ${room} in namespace: ${this.namespace}`);
+            return
         }
-        catch(err) {
-            return undefined
+        const msg = JSON.stringify({
+            namespace: this.namespace, channel, data
+        })
+        this.rooms[room].forEach(client => client.send(msg))
+    }
+
+    onDelete(room: string, ids: string[]) {
+        this.send(room, 'removed', ids)
+    }
+
+    onAddOrChange(room: string, data: any[]) {
+        this.send(room, 'addedOrChanged', data)
+    }
+
+    protected abstract getBook(id: string): Promise<IBook>
+
+    protected abstract getInitState(id: string): Promise<T[]>
+
+    private getAcl (shared: IBook): string[] {
+        return [shared.owner].concat(shared.editors, shared.viewers)
+    }
+
+    async join(room: string, uId: string, client: WebSocket) {
+        const myBook = await this.getBook(room)
+                        
+        if (!this.getAcl(myBook).includes(uId)) {
+            return client.send(JSON.stringify({
+                error: `You do NOT have access to ${this.namespace}: ${room}`
+            }))
         }
-    }
+        // leave all the existing rooms
+        Object.keys(this.rooms).forEach(roomId => {
+            if (!this.rooms[roomId].includes(client)) return
+            this.rooms[roomId] = this.rooms[roomId].filter(x => x !== client)
+        })
 
-    private hasViewAccess (decodedToken, room: string): Promise<void|boolean> {
-        const userId: string = decodedToken._id
-        return this.getSharedModel(room)
-        .then(shared => auth.hasViewerAccess(userId, shared as any))
-    }
-
-    protected _onDelete (room: string, ids: string[]): void {
-        this.namespace.in(room).emit('removed', ids)
-    }
-
-    protected _onAddOrChange (room: string, items: Document[]): void {
-        this.namespace.in(room).emit('addedOrChanged', items)
+        // create list if room does NOT exist yet
+        if (!this.rooms[room]) this.rooms[room] = []
+        // join room
+        this.rooms[room].push(client)
+        // send intial list of pages
+        client.send(JSON.stringify({
+            namespace: this.namespace,
+            channel: 'addedOrChanged',
+            data: await this.getInitState(room)
+        }))
     }
 }

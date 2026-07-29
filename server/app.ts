@@ -2,16 +2,17 @@ import * as mongoose from 'mongoose'
 
 import fastify, { FastifyRequest } from 'fastify'
 import fastSwagger from '@fastify/swagger'
+import fastifyWebsocket from '@fastify/websocket';
 import { writeFileSync } from 'fs'
 
 import * as path from 'path'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import config from './config/environment'
-import { buildWsServer } from './sockets'
 import { buildBookSocket } from './api/book/socket'
 import { buildPageSocket } from './api/page/socket'
 import { buildSourceSocket } from './api/source/socket'
 import { buildWidgetSocket } from './api/widget/socket'
+import * as testUtils from './testUtils'
 
 
 
@@ -79,11 +80,17 @@ export const buildServer = async(isTest?: boolean) => {
         secret: config.shared.secret,
         verify: {
             // Needed for JWT
-            extractToken: (req: FastifyRequest) => req.headers.authorization
+            extractToken: (req: FastifyRequest) => {
+                const authHeader = req.headers.authorization
+                if (authHeader) return authHeader
+                // this is for web tokens
+                return (req.query as any).token
+            }
         }
-
     })
-    buildWsServer(myFastServer)
+    await myFastServer.register(fastifyWebsocket)
+
+    // buildWsServer(myFastServer)
     buildBookSocket(myFastServer)
     buildPageSocket(myFastServer)
     buildSourceSocket(myFastServer)
@@ -95,7 +102,7 @@ export const buildServer = async(isTest?: boolean) => {
     await myFastServer.register((await import('./api/user')).buildUserApis, {prefix: '/api/user'})
     await myFastServer.register((await import('./api/widget')).buildWidgetApis, {prefix: '/api/widgets'})
     await myFastServer.register((await import('./auth')).buildAuthApis, {prefix: '/api/auth'})
-
+    await myFastServer.register((await import ('./sockets/websocket')).buildSocketServer)
 
     await myFastServer.ready()
     
@@ -117,10 +124,18 @@ export const buildServer = async(isTest?: boolean) => {
 // })
 // socketAuth(myIO);
 
-// buildMongoDb()
-// .then(() => buildServer())
-// .then(server => server.listen({port: 3333}))
-// .catch(err => console.error(err))
+buildMongoDb()
+.then(() => buildServer())
+.then(async(server) => {
+    const token = await testUtils.createUserAndLogin(server, {
+        email: 'test@test.com',
+        name: 'test',
+        password: 'test'
+    })
+    await testUtils.createBook(server, token, 'testbook')
+    server.listen({port: 3333})
+})
+.catch(err => console.error(err))
 
 
 // app.use('/index', express.static(path.join(__dirname, '../client/index.html')))

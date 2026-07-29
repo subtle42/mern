@@ -34,8 +34,8 @@ export const create = async(
     myPage.layout.push(Object.assign({}, widgetLayout, { i: newWidget._id }))
     await myPage.updateOne(myPage).exec()
     
-    getWidgetSocket().onAddOrChange(newWidget)
-    getPageSocket().onAddOrChange(myPage)
+    getWidgetSocket().onAddOrChange(pageId, [newWidget])
+    getPageSocket().onAddOrChange(myPage.bookId, [myPage])
     res.send(newWidget._id.toString())
 }
 
@@ -71,8 +71,8 @@ export const createMultiple = async(
     })
 
     await myPage.updateOne(myPage).exec()
-    await getWidgetSocket().onManyAdd(createdList)
-    getPageSocket().onAddOrChange(myPage)
+    await getWidgetSocket().onAddOrChange(pageId, createdList)
+    getPageSocket().onAddOrChange(myPage.bookId, [myPage])
     res.send(createdList.map(w => w._id.toString()))
 }
 
@@ -123,8 +123,8 @@ export const remove = async(
     await myPage.updateOne(myPage).exec()
     await Widget.findByIdAndDelete(widgetId).exec()
 
-    getPageSocket().onAddOrChange(myPage)
-    getWidgetSocket().onDelete({ _id: widgetId, pageId })
+    getPageSocket().onAddOrChange(bookId, [myPage])
+    getWidgetSocket().onDelete(pageId, [widgetId])
     res.send()
 }
 
@@ -143,7 +143,7 @@ export const update = async(
     myBook.hasEditAccess(req.user._id)
     await Widget.findByIdAndUpdate(myId, req.body).exec()
 
-    getWidgetSocket().onAddOrChange(myWidget)
+    getWidgetSocket().onAddOrChange(myPage._id.toString(), [myWidget])
     res.send()
 }
 

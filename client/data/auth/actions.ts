@@ -51,19 +51,32 @@ class AuthActions {
         this.loadConnections(token.split('=')[1])
     }
 
-    private loadConnections (token: string): Promise<void> {
-        return this.setToken(token)
-        .then(() => this.me())
-        .then(() => myBookActions.connect(token))
-        .then(() => pageActions.connect(token))
-        .then(() => myWidgetActions.connect(token))
-        .then(() => mySourceActions.connect(token))
-        .then(() => mySourceActions.joinRoom(this.store.getState().auth.me._id))
-        .then(() => myBookActions.joinRoom(this.store.getState().auth.me._id))
-        .then(() => {
-            if (store.getState().books.list.length === 0) return
-            return myBookActions.select(store.getState().books.list[0]._id)
-        })
+    private async loadConnections (token: string): Promise<void> {
+        await this.setToken(token)
+        await this.me()
+        const tmp = new WebSocket(`ws://localhost:3333/ws?token=${token}`);
+        tmp.onclose = (ev) => console.log('closing', ev)
+        tmp.onerror = (ev) => console.error('error', ev)
+        tmp.onopen = ev => console.log('opening', ev)
+        tmp.onmessage = (ev) => {
+            const {namespace, channel, data} = JSON.parse(ev.data)
+            console.log('message', namespace, channel, data)
+            tmp.send(JSON.stringify({namespace, room:'ssssssss', channel}))
+        }
+        
+        return undefined
+        // return this.setToken(token)
+        // .then(() => this.me())
+        // .then(() => myBookActions.connect(token))
+        // .then(() => pageActions.connect(token))
+        // .then(() => myWidgetActions.connect(token))
+        // .then(() => mySourceActions.connect(token))
+        // .then(() => mySourceActions.joinRoom(this.store.getState().auth.me._id))
+        // .then(() => myBookActions.joinRoom(this.store.getState().auth.me._id))
+        // .then(() => {
+        //     if (store.getState().books.list.length === 0) return
+        //     return myBookActions.select(store.getState().books.list[0]._id)
+        // })
     }
 
     login (email: string, password: string): Promise<void> {

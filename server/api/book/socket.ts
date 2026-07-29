@@ -1,10 +1,10 @@
 import { Book } from './model'
-import { AclSocket } from '../../sockets/aclSocket'
+import { WsAclSocket } from '../../sockets/aclSocket'
 import { FastifyInstance } from 'fastify'
 
-let tmp: AclSocket
+let tmp: WsAclSocket
 export const buildBookSocket = (server: FastifyInstance) => {
-    tmp = new AclSocket(server, 'books', Book as any)
+    tmp = new WsAclSocket(server, 'books', Book as any)
 }
 
 export const getBookSocket = () => {

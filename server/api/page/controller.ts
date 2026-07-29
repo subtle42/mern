@@ -14,7 +14,7 @@ export const create = async(
     const myBook = await Book.findById(req.body.bookId).exec()
     myBook.hasEditAccess(req.user._id)
     const newPage = await Page.create(req.body)
-    getPageSocket().onAddOrChange(newPage)
+    getPageSocket().onAddOrChange(newPage.bookId, [newPage])
     res.send(newPage._id.toString())
 }
 
@@ -32,7 +32,7 @@ export const update = async(
     const toUpdateBook = await Book.findById(toUpdatePage.bookId).exec()
     toUpdateBook.hasEditAccess(req.user._id)
     await Page.findByIdAndUpdate(myId, myPage).exec()
-    getPageSocket().onAddOrChange(myPage)
+    getPageSocket().onAddOrChange(myPage.bookId, [myPage])
     res.send()
 }
 
@@ -50,7 +50,7 @@ export const remove = async(
     myBook.hasEditAccess(req.user._id)
     await Widget.deleteMany({ pageId: myId }).exec()
     await myPage.deleteOne()
-    getPageSocket().onDelete(myPage)
+    getPageSocket().onDelete(myPage.bookId, [myPage._id.toString()])
     res.send()
 }
 

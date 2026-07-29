@@ -1,11 +1,11 @@
 import { Source } from './model'
-import { AclSocket } from '../../sockets/aclSocket'
+import { WsAclSocket } from '../../sockets/aclSocket'
 import { FastifyInstance } from 'fastify'
 
 
-let tmp: AclSocket
+let tmp: WsAclSocket
 export const buildSourceSocket = (server: FastifyInstance) => {
-    tmp = new AclSocket(server, 'sources', Source as any)
+    tmp = new WsAclSocket(server, 'sources', Source as any)
 }
 
 export const getSourceSocket = () => {
