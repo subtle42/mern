@@ -1,16 +1,15 @@
 import config from '../server/config/environment'
-import * as ioClient from 'socket.io-client'
 import { FastifyInstance } from 'fastify'
 import { buildMongoDb, buildServer } from './app'
 import mongoose from 'mongoose'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import { IUser } from './api/user/model'
-import { AddressInfo } from 'net'
 import { readFileSync } from 'fs'
 import { IBook } from './api/book/model'
 import { IPage } from './api/page/model'
 import { IWidget } from './api/widget/model'
 import { ISource } from './api/source/model'
+import { WebSocket } from '@fastify/websocket'
 
 interface FakeUser {
     email: string
@@ -56,6 +55,7 @@ export const testSetup = async() => {
     const tokens = await createAllUsers(server)
     const userIds = getUserIdFromToken(server, tokens)
     await server.listen()
+    await server.ready()
     return {server, tokens, userIds, db}
 }
 
@@ -65,15 +65,20 @@ export const testCleanup = async(server: FastifyInstance, db: MongoMemoryServer)
     await server.close()
 }
 
-export const websocketConnect = (app:FastifyInstance, channel: string, token: string) => {
-    return ioClient.connect(`${getAddress(app)}/${channel}`, {
-        auth: {token}
-    })
+export const websocketConnect = (app:FastifyInstance, token: string) => {
+    // return new WebSocket(`ws://${getWsAddress(app)}/ws?token=${token}`);
+    return app.injectWS(`/ws?token=${token}`)
 }
 
-const getAddress = (app:FastifyInstance) => {
-    const tmp = app.server.address() as AddressInfo
-    return `http://localhost:${tmp.port}`
+export const getWsMessage = async<T>(socket: WebSocket, opts: {channel:string, namespace: string}): Promise<T> => {
+    return new Promise(resolve => {
+        socket.on('message', ev => {
+            const {channel, namespace, data} = JSON.parse(ev.toString())
+            if (namespace !== opts.namespace) return
+            if (channel !== opts.channel) return
+            resolve(data)
+        })
+    })
 }
 
 export const createBook = async(app: FastifyInstance, token: string, name: string)=> {
