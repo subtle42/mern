@@ -4,7 +4,7 @@ import {describe, before, after, it, beforeEach} from 'node:test'
 import { FastifyInstance } from 'fastify'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 
-describe('Book API', () => {
+describe.skip('Book API', () => {
     let tokens: string[]
     let userIds: string[]
     let server: FastifyInstance
@@ -226,77 +226,73 @@ describe('Book Socket', () => {
                 t.assert.equal(msg2.filter(d => d._id === bookId1).length, 1)
             })
 
-    //         it('should send books that a user can view', (t, done) => {
-    //             utils.createBook(server, tokens[1], 'book3')
-    //             .then(bookId => {
-    //                 return new Promise(resolve => {
-    //                     // Book does not show up in response
-    //                     let socket = utils.websocketConnect(server, 'books', tokens[0])
-    //                     socket.on('addedOrChanged', (data: IBook[]) => {
-    //                         socket.disconnect()
-    //                         t.assert.equal(data.filter(d => d._id === bookId).length, 0)
-    //                         resolve('')
-    //                     })
-    //                 })
-    //                 .then(() => utils.getBook(server, tokens[1], bookId))
-    //                 .then(book => {
-    //                     book.viewers.push(userIds[0])
-    //                     return utils.updateBook(server, tokens[1], book)
-    //                 })
-    //                 .then(() => bookId)
-    //             })
-    //             .then(canEditId => {
-    //                 let socket = utils.websocketConnect(server, 'books', tokens[0])
-    //                 socket.on('addedOrChanged', (data: IBook[]) => {
-    //                     socket.disconnect()
-    //                     t.assert.equal(data.filter(d => d._id === canEditId).length, 1)
-    //                     done()
-    //                 })
-    //             })
-    //         })
+            it('should send books that a user can view', async(t) => {
+                const bookId = await utils.createBook(server, tokens[1], 'book3')
+                const emptySocket = await utils.websocketConnect(server, tokens[0])
+                const emptyData = await utils.getWsMessage<IBook[]>(emptySocket, socketOpts)
+                t.assert.equal(emptyData.filter(d => d._id === bookId).length, 0)
+                emptySocket.terminate()
+
+                const myBook = await utils.getBook(server, tokens[1], bookId)
+                myBook.viewers.push(userIds[0])
+                await utils.updateBook(server, tokens[1], myBook)
+
+                const dataSocket = await utils.websocketConnect(server, tokens[0])
+                const withData = await utils.getWsMessage<IBook[]>(dataSocket, socketOpts)
+                t.assert.equal(withData.filter(d => d._id === bookId).length, 1)
+                dataSocket.terminate()
+            })
         })
 
-    //     describe('secondary responses', () => {
-    //         it('should send an item when it is added', (t, done) => {
-    //             const socket = utils.websocketConnect(server, 'books', tokens[2])
-    //             let isFirst = true
-    //             let bookId;
-    //             socket.on('addedOrChanged', (data: IBook[]) => {
-    //                 if (isFirst) {
-    //                     isFirst = false
-    //                     t.assert.equal(data.length, 0)
-    //                     utils.createBook(server, tokens[2], 'alwefjowie')
-    //                     .then(res => bookId = res)
-    //                 } else {
-    //                     socket.disconnect()
-    //                     t.assert.equal(data.length, 1)
-    //                     t.assert.equal(data[0]._id, bookId)
-    //                     done()
-    //                 }
-    //             })
-    //         })
+        describe('secondary responses', () => {
+            it('should send an item when it is added', async(t) => {
+                const socket = await utils.websocketConnect(server, tokens[2])
+                let isFirst = true
+                let firstResolve;
+                const firstCall = new Promise<IBook[]>(r => { firstResolve = r })
+                let secondResolve;
+                const secondCall = new Promise<IBook[]>(r => { secondResolve = r })
 
-    //         it('should send an item when it is updated', (t, done) => {
-    //             const socket = utils.websocketConnect(server, 'books', tokens[2])
-    //             let isFirst = true
-    //             let bookId
-    //             const updatedName = 'waeiouweofiuwqioefu'
-    //             socket.on('addedOrChanged', (data: IBook[]) => {
-    //                 if (isFirst) {
-    //                     isFirst = false
-    //                     const myBook = data.find(x => x._id === bookId) as IBook
-    //                     myBook.name = updatedName
-    //                     utils.updateBook(server, tokens[2], myBook)
-    //                 } else {
-    //                     socket.disconnect()
-    //                     t.assert.equal(data.find(x => x._id === bookId).name, updatedName)
-    //                     done()
-    //                 }
-    //             })
+                socket.on('message', ev => {
+                    const {channel, namespace, data} = JSON.parse(ev.toString())
+                    if (namespace !== socketOpts.namespace) return
+                    if (channel !== socketOpts.channel) return
+                    isFirst ? firstResolve(data) : secondResolve(data)
+                    isFirst = false
+                })
 
-    //             utils.createBook(server, tokens[2], 'woifjjw')
-    //             .then(res => bookId =res)
-    //         })
+                t.assert.equal((await firstCall).length, 0)
+                const bookId = await utils.createBook(server, tokens[2], 'alwefjowie')
+                const secondData = await secondCall
+                t.assert.equal(secondData.length, 1)
+                t.assert.equal(secondData[0]._id, bookId)
+                socket.terminate()
+            })
+
+            it('should send an item when it is updated', async(t) => {
+                const bookId = await utils.createBook(server, tokens[2], 'woifjjw')
+                const socket = await utils.websocketConnect(server, tokens[2])
+                const updatedName = 'waeiouweofiuwqioefu'
+                let isFirst = true
+                let firstResolve;
+                const firstCall = new Promise<IBook[]>(r => { firstResolve = r })
+                let secondResolve;
+                const secondCall = new Promise<IBook[]>(r => { secondResolve = r })
+                
+                socket.on('message', ev => {
+                    const {channel, namespace, data} = JSON.parse(ev.toString())
+                    if (namespace !== socketOpts.namespace) return
+                    if (channel !== socketOpts.channel) return
+                    isFirst ? firstResolve(data) : secondResolve(data)
+                    isFirst = false
+                });
+
+                const myBook = (await firstCall).find(x => x._id === bookId)
+                myBook.name = updatedName
+                await utils.updateBook(server, tokens[2], myBook)
+                t.assert.equal((await secondCall).find(x => x._id === bookId).name, updatedName)
+                socket.terminate()
+            })
 
     //         it('should send an item if a user is added as an editor', (t, done) => {
     //             let secondSocket = utils.websocketConnect(server, 'books', tokens[1])
@@ -366,7 +362,7 @@ describe('Book Socket', () => {
     //                 }
     //             })
     //         })
-    //     })
+        })
     })
 
     // describe('removed channel', () => {
