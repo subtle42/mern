@@ -4,7 +4,7 @@ import {describe, before, after, it, beforeEach} from 'node:test'
 import { FastifyInstance } from 'fastify'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 
-describe.skip('Book API', () => {
+describe('Book API', () => {
     let tokens: string[]
     let userIds: string[]
     let server: FastifyInstance
@@ -294,159 +294,175 @@ describe('Book Socket', () => {
                 socket.terminate()
             })
 
-    //         it('should send an item if a user is added as an editor', (t, done) => {
-    //             let secondSocket = utils.websocketConnect(server, 'books', tokens[1])
-    //             let isFirst: boolean = true
-    //             let bookId: string
-    //             secondSocket.on('addedOrChanged', (data: IBook[]) => {
-    //                 if (isFirst) {
-    //                     isFirst = false
-    //                     utils.createBook(server, tokens[0], 'toShareAsEditor')
-    //                     .then(bookId => utils.getBook(server, tokens[0], bookId))
-    //                     .then(book => {
-    //                         bookId = book._id
-    //                         book.editors.push(userIds[1])
-    //                         return utils.updateBook(server, tokens[0], book)
-    //                     })
-    //                 } else {
-    //                     secondSocket.disconnect();
-    //                     t.assert.equal(data.length, 1)
-    //                     t.assert.equal(data[0]._id, bookId)
-    //                     done()
-    //                 }
-    //             })
-    //         })
+            it('should send an item if a user is added as an editor', async(t) => {
+                const socket = await utils.websocketConnect(server, tokens[1])
+                let isFirst = true
+                let firstResolve;
+                const firstCall = new Promise<IBook[]>(r => { firstResolve = r })
+                let secondResolve;
+                const secondCall = new Promise<IBook[]>(r => { secondResolve = r })
+                
+                socket.on('message', ev => {
+                    const {channel, namespace, data} = JSON.parse(ev.toString())
+                    if (namespace !== socketOpts.namespace) return
+                    if (channel !== socketOpts.channel) return
+                    isFirst ? firstResolve(data) : secondResolve(data)
+                    isFirst = false
+                });
 
-    //         it('should send an item if a user is added as a viewer', (t, done) => {
-    //             let secondSocket = utils.websocketConnect(server, 'books', tokens[1])
-    //             let isFirst: boolean = true
-    //             let bookId: string
-    //             secondSocket.on('addedOrChanged', (data: IBook[]) => {
-    //                 if (isFirst) {
-    //                     isFirst = false
-    //                     utils.createBook(server, tokens[0], 'toShareAsViewer')
-    //                     .then(bookId => utils.getBook(server, tokens[0], bookId))
-    //                     .then(book => {
-    //                         bookId = book._id
-    //                         book.viewers.push(userIds[1])
-    //                         return utils.updateBook(server, tokens[0], book)
-    //                     })
-    //                 } else {
-    //                     secondSocket.disconnect()
-    //                     t.assert.equal(data.length, 1)
-    //                     t.assert.equal(data[0]._id, bookId)
-    //                     done()
-    //                 }
-    //             })
-    //         })
+                await firstCall
+                const bookId = await utils.createBook(server, tokens[0], 'toShareAsEditor')
+                const book = await utils.getBook(server, tokens[0], bookId)
+                book.editors.push(userIds[1])
+                await utils.updateBook(server, tokens[0], book)
+                const data = await secondCall
+                t.assert.equal(data.length, 1)
+                t.assert.equal(data[0]._id, bookId)
+                socket.terminate()
+            })
 
-    //         it('should send an item if a book becomes public', (t, done) => {
-    //             let secondSocket = utils.websocketConnect(server, 'books', tokens[1])
-    //             let isFirst: boolean = true
-    //             let bookId: string
-    //             secondSocket.on('addedOrChanged', (data: IBook[]) => {
-    //                 if (isFirst) {
-    //                     isFirst = false
-    //                     utils.createBook(server, tokens[0], 'toGoPublic')
-    //                     .then(bookId => utils.getBook(server, tokens[0], bookId))
-    //                     .then(book => {
-    //                         bookId = book._id
-    //                         book.isPublic = true
-    //                         return utils.updateBook(server, tokens[0], book)
-    //                     })
-    //                 } else {
-    //                     secondSocket.disconnect()
-    //                     t.assert.equal(data.length, 1)
-    //                     t.assert.equal(data[0]._id, bookId)
-    //                     done()
-    //                 }
-    //             })
-    //         })
+            it('should send an item if a user is added as a viewer', async(t) => {
+                const socket = await utils.websocketConnect(server, tokens[1])
+                let isFirst = true
+                let firstResolve;
+                const firstCall = new Promise<IBook[]>(r => { firstResolve = r })
+                let secondResolve;
+                const secondCall = new Promise<IBook[]>(r => { secondResolve = r })
+                
+                socket.on('message', ev => {
+                    const {channel, namespace, data} = JSON.parse(ev.toString())
+                    if (namespace !== socketOpts.namespace) return
+                    if (channel !== socketOpts.channel) return
+                    isFirst ? firstResolve(data) : secondResolve(data)
+                    isFirst = false
+                });
+
+                await firstCall
+                const bookId = await utils.createBook(server, tokens[0], 'toShareAsViewer')
+                const book = await utils.getBook(server, tokens[0], bookId)
+                book.viewers.push(userIds[1])
+                await utils.updateBook(server, tokens[0], book)
+                const data = await secondCall
+                t.assert.equal(data.length, 1)
+                t.assert.equal(data[0]._id, bookId)
+                socket.terminate()
+            })
+
+            it('should send an item if a book becomes public', async(t) => {
+                const socket = await utils.websocketConnect(server, tokens[1])
+                let isFirst = true
+                let firstResolve;
+                const firstCall = new Promise<IBook[]>(r => { firstResolve = r })
+                let secondResolve;
+                const secondCall = new Promise<IBook[]>(r => { secondResolve = r })
+                
+                socket.on('message', ev => {
+                    const {channel, namespace, data} = JSON.parse(ev.toString())
+                    if (namespace !== socketOpts.namespace) return
+                    if (channel !== socketOpts.channel) return
+                    isFirst ? firstResolve(data) : secondResolve(data)
+                    isFirst = false
+                });
+
+                await firstCall
+                const bookId = await utils.createBook(server, tokens[0], 'toGoPublic')
+                const book = await utils.getBook(server, tokens[0], bookId)
+                book.isPublic = true
+                await utils.updateBook(server, tokens[0], book)
+                const data = await secondCall
+                t.assert.equal(data.length, 1)
+                t.assert.equal(data[0]._id, bookId)
+                socket.terminate()
+            })
         })
     })
 
-    // describe('removed channel', () => {
-    //     it('should send an id if an item is deleted', (t, done) => {
-    //         const socket = utils.websocketConnect(server, 'books', tokens[1])
-    //         let removedId: string
-    //         socket.on('addedOrChanged', async() => {
-    //             // Remove listener to avoid infinit loop
-    //             socket.removeListener('addedOrChanged')
-    //             // Done inside addOrChanged due to socket being slow
-    //             removedId = await utils.createBook(server, tokens[1], 'toBeRemoved')
-    //             await utils.deleteBook(server, tokens[1], removedId)
-    //         })
-    //         socket.on('removed', (data) => {
-    //             socket.disconnect()
-    //             t.assert.equal(data[0], removedId)
-    //             done()
-    //         })
-    //     })
+    describe('removed channel', () => {
+        const myNamespace = 'books'
 
-    //     it('should send an id to a user if they are an editor', (t, done) => {
-    //         let socket = utils.websocketConnect(server, 'books', tokens[1])
+        it('should send an id if an item is deleted', async(t) => {
+            const socket = await utils.websocketConnect(server, tokens[1])
+            let addResolve;
+            const addCall = new Promise<IBook[]>(r => { addResolve = r })
+            let removeResolve;
+            const removeCall = new Promise<IBook[]>(r => { removeResolve = r })
+                
+            socket.on('message', ev => {
+                const {channel, namespace, data} = JSON.parse(ev.toString())
+                if (myNamespace !== namespace) return
+                if (channel === 'addedOrChanged') return addResolve(data)
+                if (channel === 'removed') return removeResolve(data)
+            });
 
-    //         socket.on('removed', (data) => {
-    //             socket.disconnect()
-    //             t.assert.equal(data[0], bookId)
-    //             done()
-    //         })
+            const removeId = await utils.createBook(server, tokens[1], 'toBeRemoved')
+            await addCall
+            await utils.deleteBook(server, tokens[1], removeId)
+            const data = await removeCall
+            t.assert.equal(data[0], removeId)
+            socket.terminate()
+        })
 
-    //         let isFirst = true
-    //         let bookId
-    //         socket.on('addedOrChanged', async(books: IBook[]) => {
-    //             if (!isFirst) return
-    //             isFirst = false
-    //             bookId = await utils.createBook(server, tokens[0], 'toBeRemoved')
-    //             const myBook = await utils.getBook(server, tokens[0], bookId)
-    //             myBook.editors.push(userIds[1])
-    //             await utils.updateBook(server, tokens[0], myBook)
-    //             await utils.deleteBook(server, tokens[0], myBook._id)
-    //         })
-    //     })
+        it('should send an id to a user if they are an editor', async(t) => {
+            const socket = await utils.websocketConnect(server, tokens[1])
+            let removeResolve;
+            const removeCall = new Promise<IBook[]>(r => { removeResolve = r })
 
-    //     it('should send an id to a user if they are a viewer', (t, done) => {
-    //         let socket = utils.websocketConnect(server, 'books', tokens[1])
+            socket.on('message', ev => {
+                const {channel, namespace, data} = JSON.parse(ev.toString())
+                if (myNamespace !== namespace) return
+                if (channel === 'removed') return removeResolve(data)
+            });
 
-    //         socket.on('removed', (data) => {
-    //             socket.disconnect()
-    //             t.assert.equal(data[0], bookId)
-    //             done()
-    //         })
+            const bookId = await utils.createBook(server, tokens[0], 'toBeRemoved')
+            const myBook = await utils.getBook(server, tokens[0], bookId)
+            myBook.editors.push(userIds[1])
+            await utils.updateBook(server, tokens[0], myBook)
+            await utils.deleteBook(server, tokens[0], myBook._id)
+            const data = await removeCall
+            t.assert.equal(data[0], bookId)
+            socket.terminate()
+        })
 
-    //         let isFirst = true
-    //         let bookId
-    //         socket.on('addedOrChanged', async(books: IBook[]) => {
-    //             if (!isFirst) return
-    //             isFirst = false
-    //             bookId = await utils.createBook(server, tokens[0], 'toBeRemoved')
-    //             const myBook = await utils.getBook(server, tokens[0], bookId)
-    //             myBook.viewers.push(userIds[1])
-    //             await utils.updateBook(server, tokens[0], myBook)
-    //             await utils.deleteBook(server, tokens[0], myBook._id)
-    //         })
-    //     })
+        it('should send an id to a user if they are a viewer', async(t) => {
+            const socket = await utils.websocketConnect(server, tokens[1])
+            let removeResolve;
+            const removeCall = new Promise<IBook[]>(r => { removeResolve = r })
 
-    //     it('should send an id if item is no longer public', (t, done) => {
-    //         let socket = utils.websocketConnect(server, 'books', tokens[1])
+            socket.on('message', ev => {
+                const {channel, namespace, data} = JSON.parse(ev.toString())
+                if (myNamespace !== namespace) return
+                if (channel === 'removed') return removeResolve(data)
+            });
 
-    //         socket.on('removed', (data) => {
-    //             socket.disconnect()
-    //             t.assert.equal(data[0], bookId)
-    //             done()
-    //         })
+            const bookId = await utils.createBook(server, tokens[0], 'toBeRemoved')
+            const myBook = await utils.getBook(server, tokens[0], bookId)
+            myBook.viewers.push(userIds[1])
+            await utils.updateBook(server, tokens[0], myBook)
+            await utils.deleteBook(server, tokens[0], myBook._id)
+            const data = await removeCall
+            t.assert.equal(data[0], bookId)
+            socket.terminate()
+        })
 
-    //         let isFirst = true
-    //         let bookId
-    //         socket.on('addedOrChanged', async(books: IBook[]) => {
-    //             if (!isFirst) return
-    //             isFirst = false
-    //             bookId = await utils.createBook(server, tokens[0], 'toBeRemoved')
-    //             const myBook = await utils.getBook(server, tokens[0], bookId)
-    //             myBook.isPublic = true
-    //             await utils.updateBook(server, tokens[0], myBook)
-    //             await utils.deleteBook(server, tokens[0], myBook._id)
-    //         })
-    //     })
-    // })
+        it('should send an id if item is no longer public', async(t) => {
+            const socket = await utils.websocketConnect(server, tokens[1])
+            let removeResolve;
+            const removeCall = new Promise<IBook[]>(r => { removeResolve = r })
+
+            socket.on('message', ev => {
+                const {channel, namespace, data} = JSON.parse(ev.toString())
+                if (myNamespace !== namespace) return
+                if (channel === 'removed') return removeResolve(data)
+            });
+
+            const bookId = await utils.createBook(server, tokens[0], 'toBeRemoved')
+            const myBook = await utils.getBook(server, tokens[0], bookId)
+            myBook.isPublic = true
+            await utils.updateBook(server, tokens[0], myBook)
+            await utils.deleteBook(server, tokens[0], myBook._id)
+            const data = await removeCall
+            t.assert.equal(data[0], bookId)
+            socket.terminate()
+        })
+    })
 })
