@@ -32,28 +32,26 @@ export const buildSocketServer = (app: FastifyInstance) => {
         }))
 
         connection.on('message', (message) => {
-            app.log.warn(`Echo to ${user._id}: ${message}`);
-            // const {namespace, room, channel} = JSON.parse(message.toString())
-            // app.log.warn(app)
+            const {namespace, room, channel} = JSON.parse(message.toString())
 
-            // if (!namespace) return connection.send(JSON.stringify({
-            //     error: 'No namespace'
-            // }))
-            // if (!room) return connection.send(JSON.stringify({
-            //     error: 'No room'
-            // }))
-            
-            // switch(namespace) {
-            //     case 'pages':
-            //         wsFactory.pages.join(room, user._id, connection)
-            //         break;
-            //     case 'widgets':
-            //         wsFactory.widgets.join(room, user._id, connection)
-            //     default:
-            //         connection.send(JSON.stringify({
-            //             error: `The namespace: ${namespace}, does not exist`
-            //         }))
-            // }
+            if (!namespace) return connection.send(JSON.stringify({
+                error: 'No namespace'
+            }))
+            if (!room) return connection.send(JSON.stringify({
+                error: 'No room'
+            }))
+            switch(namespace) {
+                case 'pages':
+                    wsFactory.pages.join(room, user._id, connection)
+                    break;
+                case 'widgets':
+                    wsFactory.widgets.join(room, user._id, connection)
+                    break;
+                default:
+                    connection.send(JSON.stringify({
+                        error: `The namespace: ${namespace}, does not exist`
+                    }))
+            }
         });
     })
 
