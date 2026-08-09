@@ -31,26 +31,32 @@ export const buildSocketServer = (app: FastifyInstance) => {
             data: await wsFactory.books.getInitialState(user._id)
         }))
 
-        connection.on('message', (message) => {
-            const {namespace, room, channel} = JSON.parse(message.toString())
-
-            if (!namespace) return connection.send(JSON.stringify({
-                error: 'No namespace'
-            }))
-            if (!room) return connection.send(JSON.stringify({
-                error: 'No room'
-            }))
-            switch(namespace) {
-                case 'pages':
-                    wsFactory.pages.join(room, user._id, connection)
-                    break;
-                case 'widgets':
-                    wsFactory.widgets.join(room, user._id, connection)
-                    break;
-                default:
-                    connection.send(JSON.stringify({
-                        error: `The namespace: ${namespace}, does not exist`
-                    }))
+        connection.on('message', async(message) => {
+            try {
+                const {namespace, room, channel} = JSON.parse(message.toString())
+    
+                if (!namespace) return connection.send(JSON.stringify({
+                    error: 'No namespace'
+                }))
+                if (!room) return connection.send(JSON.stringify({
+                    error: 'No room'
+                }))
+                switch(namespace) {
+                    case 'pages':
+                        await wsFactory.pages.join(room, user._id, connection)
+                        break;
+                    case 'widgets':
+                        await wsFactory.widgets.join(room, user._id, connection)
+                        break;
+                    default:
+                        connection.send(JSON.stringify({
+                            error: `The namespace: ${namespace}, does not exist`
+                        }))
+                }
+            }
+            catch (err) {
+                console.log('in my error')
+                connection.send(JSON.stringify({error: err.toString()}))
             }
         });
     })

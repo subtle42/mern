@@ -312,116 +312,179 @@ describe('Widget Channel', () => {
             socket.terminate()
         })
 
-        // it('should return records if book is public', (t, done) => {
-        //     utils.getBook(server, tokens[0], bookId)
-        //     .then(book => {
-        //         book.editors = []
-        //         book.viewers = []
-        //         book.isPublic = true
-        //         return utils.updateBook(server, tokens[0], book)
-        //     })
-        //     .then(() => {
-        //         const socket = utils.websocketConnect(server, 'widgets', tokens[2])
-        //         socket.on('addedOrChanged', data => {
-        //             socket.disconnect()
-        //             t.assert.notEqual(data, undefined)
-        //             done()
-        //         })
-        //         socket.emit('join', pageId)
-        //     })
-        // })
+        it('should return records if book is public', async(t) => {
+            let bookResolve;
+            const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
+            let widgetResolve;
+            const widgetCall = new Promise<IWidget[]>(r => { widgetResolve = r })
+            const book = await utils.getBook(server, tokens[0], bookId)
+            book.editors = []
+            book.viewers = []
+            book.isPublic = true
+            await utils.updateBook(server, tokens[0], book)
+            
+            const socket = await utils.websocketConnect(server, tokens[2])
+            socket.on('message', ev => {
+                const {channel, namespace, data, error} = JSON.parse(ev.toString())
+                if (channel !== 'addedOrChanged') return
+                if (namespace === 'books') return bookResolve(data)
+                if (namespace === myNamespace) return widgetResolve(data)
+            })
+            await bookCall
+            socket.send(JSON.stringify({
+                namespace: myNamespace, channel: 'join', room: pageId
+            }))
+            const data = await widgetCall
+            t.assert.notEqual(data.find(w => w.pageId === pageId), undefined)
+            socket.terminate()
+        })
 
-        // it('should return an error if user tries to join a room that does not exist', (t, done) => {
-        //     const socket = utils.websocketConnect(server, 'widgets', tokens[2])
+        it('should return an error if user tries to join a room that does not exist', async(t) => {
+            let bookResolve;
+            const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
+            let widgetResolve;
+            const widgetCall = new Promise<string>(r => { widgetResolve = r })
 
-        //     socket.on('message', data => {
-        //         socket.disconnect()
-        //         t.assert.notEqual(data, undefined)
-        //         done()
-        //     })
-        //     socket.emit('join', 'badId')
-        // })
+            const socket = await utils.websocketConnect(server, tokens[2])
+
+            socket.on('message', ev => {
+                const {channel, namespace, data, error} = JSON.parse(ev.toString())
+                if (error) return widgetResolve(error)
+                if (channel !== 'addedOrChanged') return
+                if (namespace === 'books') return bookResolve(data)
+            })
+            await bookCall
+            socket.send(JSON.stringify({
+                namespace: myNamespace, channel: 'join', room: 'badid'
+            }))
+            const data = await widgetCall
+            t.assert.equal(data.length > 0, true)
+            socket.terminate()
+        })
     })
 
-    // describe('addedOrChanged channel', () => {
-    //     const widgetIds: string[] = []
+    describe('addedOrChanged channel', () => {
+        const widgetIds: string[] = []
 
-    //     before(async() => {
-    //         const id1 = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
-    //         const id2 = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
-    //         widgetIds.push(id1, id2)
-    //     })
+        before(async() => {
+            const id1 = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            const id2 = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            widgetIds.push(id1, id2)
+        })
 
-    //     it("should return all widgets in a page when joining a page's room", (t, done) => {
-    //         const socket = utils.websocketConnect(server, 'widgets', tokens[0])
-    //         socket.on('addedOrChanged', (data: IWidget[]) => {
-    //             socket.disconnect()
-    //             t.assert.notEqual(data.find(x => x._id === widgetIds[0]), undefined)
-    //             t.assert.notEqual(data.find(x => x._id === widgetIds[1]), undefined)
-    //             done()
-    //         })
-    //         socket.emit('join', pageId)
-    //     })
+        it("should return all widgets in a page when joining a page's room", async(t) => {
+            const socket = await utils.websocketConnect(server, tokens[0])
+            let bookResolve;
+            const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
+            let widgetResolve;
+            const widgetCall = new Promise<IWidget[]>(r => { widgetResolve = r })
 
-    //     it('should return a record when a widget is added', (t, done) => {
-    //         let first = true
-    //         const type = 'histogram'
-    //         const socket = utils.websocketConnect(server, 'widgets', tokens[0])
+            socket.on('message', ev => {
+                const {channel, namespace, data, error} = JSON.parse(ev.toString())
+                if (channel !== 'addedOrChanged') return
+                if (namespace === myNamespace) return widgetResolve(data)
+                if (namespace === 'books') return bookResolve(data)
+            })
+            await bookCall
+            socket.send(JSON.stringify({
+                namespace: myNamespace, channel: 'join', room: pageId
+            }))
+            const data = await widgetCall
+            t.assert.notEqual(data.find(x => x._id === widgetIds[0]), undefined)
+            t.assert.notEqual(data.find(x => x._id === widgetIds[1]), undefined)
+            socket.terminate()
+        })
 
-    //         socket.on('addedOrChanged', (data: IWidget[]) => {
-    //             if (first === true) {
-    //                 first = false
-    //                 utils.createWidget(server, tokens[0], pageId, sourceId, type)
-    //             } else {
-    //                 socket.disconnect()
-    //                 t.assert.equal(data[0].type, type)
-    //                 done()
-    //             }
-    //         })
-    //         socket.emit('join', pageId)
-    //     })
+        it('should return a record when a widget is added', async(t) => {
+            let first = true
+            const socket = await utils.websocketConnect(server, tokens[0])
+            let bookResolve;
+            const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
+            let widgetResolve;
+            const widgetCall = new Promise<IWidget[]>(r => { widgetResolve = r })
+            let secondResolve;
+            const secondCall = new Promise<IWidget[]>(r => { secondResolve = r })
 
-    //     it('should return a record when a widget is updated', (t, done) => {
-    //         let first = true
-    //         const type = 'histogram'
-    //         const socket = utils.websocketConnect(server, 'widgets', tokens[0])
+            socket.on('message', ev => {
+                const {channel, namespace, data, error} = JSON.parse(ev.toString())
+                if (channel !== 'addedOrChanged') return
+                if (namespace === 'books') return bookResolve(data)
+                if (namespace === 'sources') return
+                first ? widgetResolve(data) : secondResolve(data)
+                first = false
+            })
+            await bookCall
+            socket.send(JSON.stringify({
+                namespace: myNamespace, channel: 'join', room: pageId
+            }))
+            await widgetCall
+            const wId = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            const data = await secondCall
+            t.assert.notEqual(data.find(x => x._id === wId), undefined)
+            socket.terminate()
+        })
 
-    //         socket.on('addedOrChanged', (data: IWidget[]) => {
-    //             if (first === true) {
-    //                 first = false
-    //                 utils.getWidget(server, tokens[0], widgetIds[0])
-    //                 .then(widget => {
-    //                     widget.type = type
-    //                     return utils.updateWidget(server, tokens[0], widget)
-    //                 })
-    //             } else {
-    //                 socket.disconnect()
-    //                 t.assert.equal(data[0].type, type)
-    //                 done()
-    //             }
-    //         })
-    //         socket.emit('join', pageId)
-    //     })
-    // })
+        it('should return a record when a widget is updated', async(t) => {
+            let first = true
+            const socket = await utils.websocketConnect(server, tokens[0])
+            let bookResolve;
+            const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
+            let widgetResolve;
+            const widgetCall = new Promise<IWidget[]>(r => { widgetResolve = r })
+            let secondResolve;
+            const secondCall = new Promise<IWidget[]>(r => { secondResolve = r })
 
-    // describe('removed channel', () => {
-    //     it('should return the id of a deleted widget', (t, done) => {
-    //         let widgetId: string
-    //         let isFirst = true
-    //         const socket = utils.websocketConnect(server, 'widgets', tokens[0])
-            
-    //         socket.on('removed', (ids: string[]) => {
-    //             socket.disconnect()
-    //             t.assert.equal(ids[0], widgetId)
-    //             done()
-    //         })
-    //         socket.on('addedOrChanged', async() => {
-    //             if (!isFirst) return
-    //             isFirst = false
-    //             widgetId = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
-    //             await utils.deleteWidget(server, tokens[0], widgetId, pageId, bookId)
-    //         })
-    //         socket.emit('join', pageId)
-    //     })
-    // })
+            socket.on('message', ev => {
+                const {channel, namespace, data, error} = JSON.parse(ev.toString())
+                if (channel !== 'addedOrChanged') return
+                if (namespace === 'books') return bookResolve(data)
+                if (namespace === 'sources') return
+                first ? widgetResolve(data) : secondResolve(data)
+                first = false
+            })
+            await bookCall
+            socket.send(JSON.stringify({
+                namespace: myNamespace, channel: 'join', room: pageId
+            }))
+            await widgetCall
+            const myWidget = await utils.getWidget(server, tokens[0], widgetIds[0])
+            myWidget.type = 'histogram'
+            await utils.updateWidget(server, tokens[0], myWidget)
+            const data = await secondCall
+            t.assert.equal(data[0]._id, widgetIds[0])
+            t.assert.equal(data[0].type, 'histogram')
+            socket.terminate()
+        })
+    })
+
+    describe('removed channel', () => {
+        it('should return the id of a deleted widget', async(t) => {
+            let widgetId: string
+            const socket = await utils.websocketConnect(server, tokens[0])
+            let bookResolve;
+            const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
+            let widgetResolve;
+            const widgetCall = new Promise<IWidget[]>(r => { widgetResolve = r })
+            let removedResolve;
+            const removedCall = new Promise<IWidget[]>(r => { removedResolve = r })
+
+
+            socket.on('message', ev => {
+                const {channel, namespace, data, error} = JSON.parse(ev.toString())
+                if (channel === 'removed' && namespace === myNamespace) return removedResolve(data)
+                if (channel === 'addedOrChanged' && namespace === 'books') return bookResolve(data)
+                if (channel === 'addedOrChanged' && namespace === myNamespace) return widgetResolve(data)
+            })
+            await bookCall
+            socket.send(JSON.stringify({
+                namespace: myNamespace, channel: 'join', room: pageId
+            }))
+            await widgetCall
+            widgetId = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            await utils.deleteWidget(server, tokens[0], widgetId, pageId, bookId)
+            const data = await removedCall
+            t.assert.equal(data[0], widgetId)
+            socket.terminate()
+        })
+    })
 })

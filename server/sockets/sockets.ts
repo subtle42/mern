@@ -49,7 +49,7 @@ export abstract class WsBaseSocket<T> {
     async join(room: string, uId: string, client: WebSocket) {
         const myBook = await this.getBook(room)
                         
-        if (!this.getAcl(myBook).includes(uId)) {
+        if (myBook && !myBook.isPublic && !this.getAcl(myBook).includes(uId)) {
             return client.send(JSON.stringify({
                 error: `You do NOT have access to ${this.namespace}: ${room}`
             }))
