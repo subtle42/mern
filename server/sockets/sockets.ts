@@ -1,9 +1,4 @@
-import { Document, Model } from 'mongoose'
-import { ISharedModel } from '../dbModels'
-import * as auth from '../auth/auth.service'
-import { Namespace, Socket } from 'socket.io'
 import { FastifyInstance } from 'fastify'
-import { getWsServer } from '.'
 import { WebSocket } from '@fastify/websocket'
 import { IBook } from 'server/api/book/model'
 

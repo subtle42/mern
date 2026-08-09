@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "nodemon",
-    "test": "node --import tsx --test ./**/*.test.ts"
+    "test": "node --import tsx --test --experimental-test-coverage ./**/*.test.ts"
   },
   "author": "",
   "license": "ISC",
@@ -18,9 +18,7 @@
     "@types/ws": "^8.18.1",
     "fast-csv": "^5.0.2",
     "fastify": "^5.9.0",
-    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.24.1",
-    "socket.io": "^4.8.1",
     "typescript": "^5.8.3",
     "ws": "^8.21.0"
   },

@@ -1,4 +1,3 @@
-import config from '../server/config/environment'
 import { FastifyInstance } from 'fastify'
 import { buildMongoDb, buildServer } from './app'
 import mongoose from 'mongoose'
@@ -30,10 +29,6 @@ export const USERS: FakeUser[] = [{
     password: 'test3',
     name: 'Test3'
 }]
-
-export const getBaseUrl = (): string => {
-    return `${config.server.protocol}://${config.server.location}:${config.server.port}`
-}
 
 export const getUserIdFromToken = (app: FastifyInstance, tokens: string[]): string[] => {
     return tokens.map(token => app.jwt.verify<IUser>(token)._id)
@@ -118,7 +113,7 @@ export class TestEnv {
         },
         get: async(token: string, bookId: string) => {
             const res = await this.app.inject()
-                .get(`${getBaseUrl()}/api/pages/${bookId}`)
+                .get(`/api/pages/${bookId}`)
                 .headers({authorization: token})
             return JSON.parse(res.body) as IPage[]
         },

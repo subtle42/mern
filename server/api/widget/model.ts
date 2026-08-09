@@ -26,7 +26,11 @@ export const WidgetSchema = new Schema({
     },
     dimensions: { type: Array, required: true, default: [] },
     measures: { type: Array, required: true, default: [] },
-    type: { type: String, required: true },
+    type: {
+        type: String,
+        required: true,
+        enum: ['histogram', 'scatter', 'line', 'barGroup']
+    },
     xAxis: { type: AxisSchema, default: {} },
     yAxis: { type: AxisSchema, default: {} },
     other: { type: OtherSchema, default: {} }
