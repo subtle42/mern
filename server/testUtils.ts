@@ -56,18 +56,125 @@ export const testSetup = async() => {
     const userIds = getUserIdFromToken(server, tokens)
     await server.listen()
     await server.ready()
-    return {server, tokens, userIds, db}
+    return {server, tokens, userIds, utils: new TestEnv(server, db)}
 }
 
-export const testCleanup = async(server: FastifyInstance, db: MongoMemoryServer) => {
-    await mongoose.disconnect()
-    await db.stop({doCleanup: true})
-    await server.close()
-}
+export class TestEnv {
+    constructor(
+        private app: FastifyInstance,
+        private db: MongoMemoryServer
+    ) {}
 
-export const websocketConnect = (app:FastifyInstance, token: string) => {
-    // return new WebSocket(`ws://${getWsAddress(app)}/ws?token=${token}`);
-    return app.injectWS(`/ws?token=${token}`)
+    websocketConnect(token: string) {
+        return this.app.injectWS(`/ws?token=${token}`)
+    }
+
+    async cleanup() {
+        await mongoose.disconnect()
+        await this.db.stop({doCleanup: true})
+        await this.app.close()
+    }
+
+    readonly book = {
+        create: async(token: string, name: string) => {
+            const res = await this.app.inject()
+                .post(`/api/books`)
+                .body({ name })
+                .headers({authorization: token})
+            return res.body as string
+        },
+        update: async(token: string, item: IBook) => {
+            await this.app.inject()
+                .put(`/api/books`)
+                .body(item)
+                .headers({authorization: token})
+        },
+        get: async(token: string, id: string) => {
+            const res = await this.app.inject()
+                .get(`/api/books/${id}`)
+                .headers({authorization: token})
+            return JSON.parse(res.body) as IBook
+        },
+        remove: async(token: string, bookId: string) => {
+            await this.app.inject()
+                .delete(`/api/books/${bookId}`)
+                .headers({authorization: token})
+        }
+    }
+
+    readonly page = {
+        create: async(token: string, bookId: string, name: string) => {
+            const res = await this.app.inject()
+                .post(`/api/pages`)
+                .body({ name, bookId })
+                .headers({authorization: token})
+            return res.body as string
+        },
+        update: async(token: string, page: IPage) => {
+            await this.app.inject()
+                .put(`/api/pages`)
+                .headers({authorization: token})
+                .body(page)
+        },
+        get: async(token: string, bookId: string) => {
+            const res = await this.app.inject()
+                .get(`${getBaseUrl()}/api/pages/${bookId}`)
+                .headers({authorization: token})
+            return JSON.parse(res.body) as IPage[]
+        },
+        remove: async(token: string, pageId: string) => {
+            await this.app.inject()
+                .delete(`/api/pages/${pageId}`)
+                .headers({authorization: token})
+        }
+    }
+
+    readonly widget = {
+        create: async(token: string, pageId: string, sourceId: string, type: string) => {
+            const res = await this.app.inject()
+                .post('/api/widgets')
+                .body({pageId, sourceId, type})
+                .headers({authorization: token})
+            return res.body as string
+        },
+        update: async(token: string, widget: IWidget) => {
+            const res = await this.app.inject()
+                .put('/api/widgets')
+                .headers({authorization: token})
+                .body(widget)
+        },
+        get: async(token: string, widgetId: string) => {
+            const res = await this.app.inject()
+                .get(`/api/widgets/${widgetId}`)
+                .headers({authorization: token})
+            return JSON.parse(res.body) as IWidget
+        },
+        remove: async(token: string, widgetId: string, pageId: string, bookId: string) => {
+            const res = await this.app.inject()
+                .delete(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
+                .headers({authorization: token})
+        }
+    }
+
+    readonly source = {
+        create: async(token: string, filePath: string) => {
+            const formData = new FormData()
+            const blob = new Blob([readFileSync(filePath)], {type: 'plain/text'})
+            formData.append('myFile', blob, 'test-file.txt')
+
+            const res = await this.app.inject()
+                .post('/api/sources')
+                .payload(formData)
+                .headers({authorization: token})
+            return res.body as string
+        },
+        get: async(token: string, id: string) => {
+            const res = await this.app.inject()
+                .get(`/api/sources/${id}`)
+                .headers({authorization: token})
+            return JSON.parse(res.body) as ISource
+        }
+    }
 }
 
 export const getWsMessage = async<T>(socket: WebSocket, opts: {channel:string, namespace: string}): Promise<T> => {
@@ -79,112 +186,4 @@ export const getWsMessage = async<T>(socket: WebSocket, opts: {channel:string, n
             resolve(data)
         })
     })
-}
-
-export const createBook = async(app: FastifyInstance, token: string, name: string)=> {
-    const res = await app.inject()
-        .post(`/api/books`)
-        .body({ name })
-        .headers({authorization: token})
-    return res.body as string
-}
-
-export const updateBook = async(app: FastifyInstance, token: string, item: IBook) => {
-    await app.inject()
-        .put(`/api/books`)
-        .body(item)
-        .headers({authorization: token})
-}
-
-export const createPage = async(app: FastifyInstance, token: string, bookId: string, name: string) => {
-    const res = await app.inject()
-        .post(`/api/pages`)
-        .body({ name, bookId })
-        .headers({authorization: token})
-    return res.body as string
-}
-
-export const createSource = async(app: FastifyInstance, token: string, filePath: string) => {
-    const formData = new FormData()
-    const blob = new Blob([readFileSync(filePath)], {type: 'plain/text'})
-    formData.append('myFile', blob, 'test-file.txt')
-
-    const res = await app.inject()
-        .post('/api/sources')
-        .payload(formData)
-        .headers({authorization: token})
-    return res.body as string
-}
-
-// export const deleteSource = (token: string, sourceId: string): Promise<void> => {
-//     return axios.delete(`${getBaseUrl()}/api/sources/${sourceId}`, setHeader(token))
-//     .then(res => res.data as undefined)
-// }
-
-export const getSource = async(app: FastifyInstance, token: string, id: string) => {
-    const res = await app.inject()
-        .get(`/api/sources/${id}`)
-        .headers({authorization: token})
-    return JSON.parse(res.body) as ISource
-}
-
-export const getBook = async(app: FastifyInstance, token: string, id: string) => {
-    const res = await app.inject()
-        .get(`/api/books/${id}`)
-        .headers({authorization: token})
-    return JSON.parse(res.body) as IBook
-}
-
-export const getPages = async(app: FastifyInstance, token: string, bookId: string) => {
-    const res = await app.inject()
-        .get(`${getBaseUrl()}/api/pages/${bookId}`)
-        .headers({authorization: token})
-    return JSON.parse(res.body) as IPage[]
-}
-
-export const deleteBook = async(app: FastifyInstance, token: string, bookId: string) => {
-    await app.inject()
-        .delete(`/api/books/${bookId}`)
-        .headers({authorization: token})
-}
-
-export const updatePage = async(app: FastifyInstance, token: string, page: IPage) => {
-    await app.inject()
-        .put(`/api/pages`)
-        .headers({authorization: token})
-        .body(page)
-}
-
-export const deletePage = async(app: FastifyInstance, token: string, pageId: string) => {
-    await app.inject()
-        .delete(`/api/pages/${pageId}`)
-        .headers({authorization: token})
-}
-
-export const getWidget = async(app: FastifyInstance, token: string, widgetId: string) => {
-    const res = await app.inject()
-        .get(`/api/widgets/${widgetId}`)
-        .headers({authorization: token})
-    return JSON.parse(res.body) as IWidget
-}
-
-export const createWidget = async(app: FastifyInstance, token: string, pageId: string, sourceId: string, type: string) => {
-    const res = await app.inject()
-        .post('/api/widgets')
-        .body({pageId, sourceId, type})
-        .headers({authorization: token})
-    return res.body as string
-}
-
-export const updateWidget = async(app: FastifyInstance, token: string, widget: IWidget) => {
-    const res = await app.inject()
-        .put('/api/widgets')
-        .headers({authorization: token})
-        .body(widget)
-}
-
-export const deleteWidget = async(app: FastifyInstance, token: string, widgetId: string, pageId: string, bookId: string) => {
-    const res = await app.inject()
-        .delete(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
-        .headers({authorization: token})
 }

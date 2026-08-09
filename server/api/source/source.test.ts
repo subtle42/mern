@@ -1,23 +1,21 @@
 import {describe, before, after, it, beforeEach} from 'node:test'
 import { ISource } from 'common/models'
-import * as utils from '../../testUtils'
 import * as fs from 'fs'
-import * as path from 'path'
 import { FastifyInstance } from 'fastify'
-import { MongoMemoryServer } from 'mongodb-memory-server'
+import { TestEnv, testSetup } from 'server/testUtils'
 
 describe('Source API', () => {
     let server: FastifyInstance
-    let db: MongoMemoryServer
+    let utils: TestEnv
     let tokens: string[] = []
     let userIds: string[] = []
 
     before(async() => {
-        ({server, db, userIds, tokens} = await utils.testSetup())
+        ({server, utils, userIds, tokens} = await testSetup())
     })
 
     after(async() => {
-        await utils.testCleanup(server, db)
+        await utils.cleanup()
     })
 
     describe('POST /api/sources', () => {
@@ -47,11 +45,11 @@ describe('Source API', () => {
         let mySource: ISource
 
         before(async() => {
-            sourceId = await utils.createSource(server, tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
+            sourceId = await utils.source.create(tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
         })
 
         beforeEach(async() => {
-            mySource = await utils.getSource(server, tokens[0], sourceId)
+            mySource = await utils.source.get(tokens[0], sourceId)
         })
 
         it('should return an error if user is NOT logged in', async(t) => {
@@ -70,7 +68,7 @@ describe('Source API', () => {
                 .headers({authorization: tokens[1]})
                 .body(mySource)
             t.assert.notEqual(res.statusCode, 200)
-            const updated = await utils.getSource(server, tokens[0], sourceId)
+            const updated = await utils.source.get(tokens[0], sourceId)
             t.assert.notEqual(updated.title, mySource.title)
         })
 
@@ -84,7 +82,7 @@ describe('Source API', () => {
                 .headers({authorization: tokens[0]})
                 .body(mySource)
             t.assert.equal(res.statusCode, 200)
-            const updated = await utils.getSource(server, tokens[0], sourceId)
+            const updated = await utils.source.get(tokens[0], sourceId)
             t.assert.equal(updated.title, mySource.title)
         })
 
@@ -153,7 +151,7 @@ describe('Source API', () => {
         // let removedIds: string[] = []
 
         before(async() => {
-            sourceId = await utils.createSource(server, tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
+            sourceId = await utils.source.create(tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
         })
 
         it('should return an error if user is NOT logged in', async(t) => {

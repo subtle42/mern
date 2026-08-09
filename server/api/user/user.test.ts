@@ -1,7 +1,6 @@
 import { FastifyInstance } from 'fastify'
-import { MongoMemoryServer } from 'mongodb-memory-server'
 import { after, before, describe, it } from 'node:test'
-import { testCleanup, testSetup } from 'server/testUtils'
+import { TestEnv, testSetup } from 'server/testUtils'
 
 describe('User API', () => {
     const userName = 'test'
@@ -9,14 +8,14 @@ describe('User API', () => {
     const password = 'testPass'
     let server: FastifyInstance
     let token: string
-    let db!: MongoMemoryServer
+    let utils: TestEnv
 
     before(async() => {
-        ({server, db} = await testSetup())
+        ({server, utils} = await testSetup())
     })
 
     after(async () => {
-        await testCleanup(server, db)
+        await utils.cleanup()
     })
 
     describe('post /api/user', () => {

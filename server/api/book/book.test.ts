@@ -1,21 +1,20 @@
 import { IBook } from './model'
-import * as utils from '../../testUtils'
 import {describe, before, after, it, beforeEach} from 'node:test'
 import { FastifyInstance } from 'fastify'
-import { MongoMemoryServer } from 'mongodb-memory-server'
+import { getWsMessage, TestEnv, testSetup } from 'server/testUtils'
 
 describe('Book API', () => {
     let tokens: string[]
     let userIds: string[]
     let server: FastifyInstance
-    let db: MongoMemoryServer
+    let utils: TestEnv
 
     before(async() => {
-        ({server, db, userIds, tokens} = await utils.testSetup())
+        ({server, utils, userIds, tokens} = await testSetup())
     })
 
     after(async() => {
-        await utils.testCleanup(server, db)
+        await utils.cleanup()
     })
 
     describe('POST /api/books', () => {
@@ -34,7 +33,7 @@ describe('Book API', () => {
                 .headers({authorization: tokens[0]})
                 .body({ name: testName })
             t.assert.equal(res.statusCode, 200)
-            const book = await utils.getBook(server, tokens[0], res.body)
+            const book = await utils.book.get(tokens[0], res.body)
             t.assert.equal(book.name, testName)
             t.assert.equal(book.owner, userIds[0])
         })
@@ -45,11 +44,11 @@ describe('Book API', () => {
         let myBook: IBook
 
         before(async() => {
-            bookId = await utils.createBook(server, tokens[0], 'update book test')
+            bookId = await utils.book.create(tokens[0], 'update book test')
         })
 
         beforeEach(async() => {
-            myBook = await utils.getBook(server, tokens[0], bookId)
+            myBook = await utils.book.get(tokens[0], bookId)
         })
 
         it('should return an error if user is NOT logged in', async(t) => {
@@ -70,7 +69,7 @@ describe('Book API', () => {
                 .body(myBook)
 
             t.assert.notEqual(res.statusCode, 200)
-            const book = await utils.getBook(server, tokens[0], myBook._id)
+            const book = await utils.book.get(tokens[0], myBook._id)
             t.assert.notEqual(book.name, newName)
         })
 
@@ -99,7 +98,7 @@ describe('Book API', () => {
                 .headers({authorization: tokens[1]})
                 .body(myBook)
             t.assert.equal(res2.statusCode, 200)
-            const serverBook = await utils.getBook(server, tokens[1], myBook._id)
+            const serverBook = await utils.book.get(tokens[1], myBook._id)
             t.assert.equal(serverBook.name, newName)
         })
 
@@ -123,7 +122,7 @@ describe('Book API', () => {
                 .headers({authorization: tokens[1]})
                 .body(myBook)
             t.assert.notEqual(res.statusCode, 200)
-            const serverBook = await utils.getBook(server, tokens[0], myBook._id)
+            const serverBook = await utils.book.get(tokens[0], myBook._id)
             t.assert.equal(serverBook.owner, userIds[0])
         })
 
@@ -153,17 +152,17 @@ describe('Book API', () => {
         })
 
         it('should stop a delete if user is NOT the owner', async(t) => {
-            const bookId = await utils.createBook(server, tokens[0], 'wejkwflkjw')
+            const bookId = await utils.book.create(tokens[0], 'wejkwflkjw')
             const res = await server.inject()
                 .delete(`/api/books/${bookId}`)
                 .headers({authorization: tokens[1]})
             t.assert.notEqual(res.statusCode, 200)
-            const serverBook = await utils.getBook(server, tokens[0], bookId)
+            const serverBook = await utils.book.get(tokens[0], bookId)
             t.assert.notEqual(serverBook, undefined)
         })
 
         it('should return a success if user is the owner', async(t) => {
-            const bookId = await utils.createBook(server, tokens[1], 'aewrgtfefe')
+            const bookId = await utils.book.create(tokens[1], 'aewrgtfefe')
             const res = await server.inject()
                 .delete(`/api/books/${bookId}`)
                 .headers({authorization: tokens[1]})
@@ -177,19 +176,19 @@ describe('Book Socket', () => {
     let tokens: string[] = []
     let userIds: string[] = []
     let server: FastifyInstance
-    let db: MongoMemoryServer
+    let utils: TestEnv
 
     before(async() => {
-        ({ userIds, tokens, server, db } = await utils.testSetup())
+        ({ userIds, tokens, server, utils } = await testSetup())
     })
 
     after(async() => {
-        await utils.testCleanup(server, db)
+        await utils.cleanup()
     })
 
     describe('authentication', () => {
         it('should return an error if no token is provided', (t, done) => {
-            utils.websocketConnect(server, 'aaa')
+            utils.websocketConnect('aaa')
             .catch(err => done())
         })
     })
@@ -199,46 +198,46 @@ describe('Book Socket', () => {
 
         describe('initial response', () => {
             it('should send a list of all books that user owns', async(t) => {
-                const book1 = await utils.createBook(server, tokens[0], 'user1')
-                const book2 = await utils.createBook(server, tokens[1], 'user2')
-                const socket = await utils.websocketConnect(server, tokens[0])
-                const data = await utils.getWsMessage<IBook[]>(socket, socketOpts)
+                const book1 = await utils.book.create(tokens[0], 'user1')
+                const book2 = await utils.book.create(tokens[1], 'user2')
+                const socket = await utils.websocketConnect(tokens[0])
+                const data = await getWsMessage<IBook[]>(socket, socketOpts)
                 t.assert.equal(data[0]._id, book1)
                 t.assert.equal(data.length, 1)
                 socket.terminate()
             })
 
             it('should send books that a user can edit', async(t) => {
-                const bookId1 = await utils.createBook(server, tokens[1], 'book1')
-                const bookId2 = await utils.createBook(server, tokens[1], 'book3')
-                const socket = await utils.websocketConnect(server, tokens[0])
-                const msg = await utils.getWsMessage<IBook[]>(socket, socketOpts)
+                const bookId1 = await utils.book.create(tokens[1], 'book1')
+                const bookId2 = await utils.book.create(tokens[1], 'book3')
+                const socket = await utils.websocketConnect(tokens[0])
+                const msg = await getWsMessage<IBook[]>(socket, socketOpts)
                 socket.terminate()
 
                 t.assert.equal(msg.filter(d => d._id === bookId1).length, 0)
-                const book = await utils.getBook(server, tokens[1], bookId1)
+                const book = await utils.book.get(tokens[1], bookId1)
                 book.editors.push(userIds[0])
-                await utils.updateBook(server, tokens[1], book)
+                await utils.book.update(tokens[1], book)
 
-                const socket2 = await utils.websocketConnect(server, tokens[0])
-                const msg2 = await utils.getWsMessage<IBook[]>(socket2, socketOpts)
+                const socket2 = await utils.websocketConnect(tokens[0])
+                const msg2 = await getWsMessage<IBook[]>(socket2, socketOpts)
                 socket2.terminate()
                 t.assert.equal(msg2.filter(d => d._id === bookId1).length, 1)
             })
 
             it('should send books that a user can view', async(t) => {
-                const bookId = await utils.createBook(server, tokens[1], 'book3')
-                const emptySocket = await utils.websocketConnect(server, tokens[0])
-                const emptyData = await utils.getWsMessage<IBook[]>(emptySocket, socketOpts)
+                const bookId = await utils.book.create(tokens[1], 'book3')
+                const emptySocket = await utils.websocketConnect(tokens[0])
+                const emptyData = await getWsMessage<IBook[]>(emptySocket, socketOpts)
                 t.assert.equal(emptyData.filter(d => d._id === bookId).length, 0)
                 emptySocket.terminate()
 
-                const myBook = await utils.getBook(server, tokens[1], bookId)
+                const myBook = await utils.book.get(tokens[1], bookId)
                 myBook.viewers.push(userIds[0])
-                await utils.updateBook(server, tokens[1], myBook)
+                await utils.book.update(tokens[1], myBook)
 
-                const dataSocket = await utils.websocketConnect(server, tokens[0])
-                const withData = await utils.getWsMessage<IBook[]>(dataSocket, socketOpts)
+                const dataSocket = await utils.websocketConnect(tokens[0])
+                const withData = await getWsMessage<IBook[]>(dataSocket, socketOpts)
                 t.assert.equal(withData.filter(d => d._id === bookId).length, 1)
                 dataSocket.terminate()
             })
@@ -246,7 +245,7 @@ describe('Book Socket', () => {
 
         describe('secondary responses', () => {
             it('should send an item when it is added', async(t) => {
-                const socket = await utils.websocketConnect(server, tokens[2])
+                const socket = await utils.websocketConnect(tokens[2])
                 let isFirst = true
                 let firstResolve;
                 const firstCall = new Promise<IBook[]>(r => { firstResolve = r })
@@ -262,7 +261,7 @@ describe('Book Socket', () => {
                 })
 
                 t.assert.equal((await firstCall).length, 0)
-                const bookId = await utils.createBook(server, tokens[2], 'alwefjowie')
+                const bookId = await utils.book.create(tokens[2], 'alwefjowie')
                 const secondData = await secondCall
                 t.assert.equal(secondData.length, 1)
                 t.assert.equal(secondData[0]._id, bookId)
@@ -270,8 +269,8 @@ describe('Book Socket', () => {
             })
 
             it('should send an item when it is updated', async(t) => {
-                const bookId = await utils.createBook(server, tokens[2], 'woifjjw')
-                const socket = await utils.websocketConnect(server, tokens[2])
+                const bookId = await utils.book.create(tokens[2], 'woifjjw')
+                const socket = await utils.websocketConnect(tokens[2])
                 const updatedName = 'waeiouweofiuwqioefu'
                 let isFirst = true
                 let firstResolve;
@@ -289,13 +288,13 @@ describe('Book Socket', () => {
 
                 const myBook = (await firstCall).find(x => x._id === bookId)
                 myBook.name = updatedName
-                await utils.updateBook(server, tokens[2], myBook)
+                await utils.book.update(tokens[2], myBook)
                 t.assert.equal((await secondCall).find(x => x._id === bookId).name, updatedName)
                 socket.terminate()
             })
 
             it('should send an item if a user is added as an editor', async(t) => {
-                const socket = await utils.websocketConnect(server, tokens[1])
+                const socket = await utils.websocketConnect(tokens[1])
                 let isFirst = true
                 let firstResolve;
                 const firstCall = new Promise<IBook[]>(r => { firstResolve = r })
@@ -311,10 +310,10 @@ describe('Book Socket', () => {
                 });
 
                 await firstCall
-                const bookId = await utils.createBook(server, tokens[0], 'toShareAsEditor')
-                const book = await utils.getBook(server, tokens[0], bookId)
+                const bookId = await utils.book.create(tokens[0], 'toShareAsEditor')
+                const book = await utils.book.get(tokens[0], bookId)
                 book.editors.push(userIds[1])
-                await utils.updateBook(server, tokens[0], book)
+                await utils.book.update(tokens[0], book)
                 const data = await secondCall
                 t.assert.equal(data.length, 1)
                 t.assert.equal(data[0]._id, bookId)
@@ -322,7 +321,7 @@ describe('Book Socket', () => {
             })
 
             it('should send an item if a user is added as a viewer', async(t) => {
-                const socket = await utils.websocketConnect(server, tokens[1])
+                const socket = await utils.websocketConnect(tokens[1])
                 let isFirst = true
                 let firstResolve;
                 const firstCall = new Promise<IBook[]>(r => { firstResolve = r })
@@ -338,10 +337,10 @@ describe('Book Socket', () => {
                 });
 
                 await firstCall
-                const bookId = await utils.createBook(server, tokens[0], 'toShareAsViewer')
-                const book = await utils.getBook(server, tokens[0], bookId)
+                const bookId = await utils.book.create(tokens[0], 'toShareAsViewer')
+                const book = await utils.book.get(tokens[0], bookId)
                 book.viewers.push(userIds[1])
-                await utils.updateBook(server, tokens[0], book)
+                await utils.book.update(tokens[0], book)
                 const data = await secondCall
                 t.assert.equal(data.length, 1)
                 t.assert.equal(data[0]._id, bookId)
@@ -349,7 +348,7 @@ describe('Book Socket', () => {
             })
 
             it('should send an item if a book becomes public', async(t) => {
-                const socket = await utils.websocketConnect(server, tokens[1])
+                const socket = await utils.websocketConnect(tokens[1])
                 let isFirst = true
                 let firstResolve;
                 const firstCall = new Promise<IBook[]>(r => { firstResolve = r })
@@ -365,10 +364,10 @@ describe('Book Socket', () => {
                 });
 
                 await firstCall
-                const bookId = await utils.createBook(server, tokens[0], 'toGoPublic')
-                const book = await utils.getBook(server, tokens[0], bookId)
+                const bookId = await utils.book.create(tokens[0], 'toGoPublic')
+                const book = await utils.book.get(tokens[0], bookId)
                 book.isPublic = true
-                await utils.updateBook(server, tokens[0], book)
+                await utils.book.update(tokens[0], book)
                 const data = await secondCall
                 t.assert.equal(data.length, 1)
                 t.assert.equal(data[0]._id, bookId)
@@ -381,7 +380,7 @@ describe('Book Socket', () => {
         const myNamespace = 'books'
 
         it('should send an id if an item is deleted', async(t) => {
-            const socket = await utils.websocketConnect(server, tokens[1])
+            const socket = await utils.websocketConnect(tokens[1])
             let addResolve;
             const addCall = new Promise<IBook[]>(r => { addResolve = r })
             let removeResolve;
@@ -394,16 +393,16 @@ describe('Book Socket', () => {
                 if (channel === 'removed') return removeResolve(data)
             });
 
-            const removeId = await utils.createBook(server, tokens[1], 'toBeRemoved')
+            const removeId = await utils.book.create(tokens[1], 'toBeRemoved')
             await addCall
-            await utils.deleteBook(server, tokens[1], removeId)
+            await utils.book.remove(tokens[1], removeId)
             const data = await removeCall
             t.assert.equal(data[0], removeId)
             socket.terminate()
         })
 
         it('should send an id to a user if they are an editor', async(t) => {
-            const socket = await utils.websocketConnect(server, tokens[1])
+            const socket = await utils.websocketConnect(tokens[1])
             let removeResolve;
             const removeCall = new Promise<IBook[]>(r => { removeResolve = r })
 
@@ -413,18 +412,18 @@ describe('Book Socket', () => {
                 if (channel === 'removed') return removeResolve(data)
             });
 
-            const bookId = await utils.createBook(server, tokens[0], 'toBeRemoved')
-            const myBook = await utils.getBook(server, tokens[0], bookId)
+            const bookId = await utils.book.create(tokens[0], 'toBeRemoved')
+            const myBook = await utils.book.get(tokens[0], bookId)
             myBook.editors.push(userIds[1])
-            await utils.updateBook(server, tokens[0], myBook)
-            await utils.deleteBook(server, tokens[0], myBook._id)
+            await utils.book.update(tokens[0], myBook)
+            await utils.book.remove(tokens[0], myBook._id)
             const data = await removeCall
             t.assert.equal(data[0], bookId)
             socket.terminate()
         })
 
         it('should send an id to a user if they are a viewer', async(t) => {
-            const socket = await utils.websocketConnect(server, tokens[1])
+            const socket = await utils.websocketConnect(tokens[1])
             let removeResolve;
             const removeCall = new Promise<IBook[]>(r => { removeResolve = r })
 
@@ -434,18 +433,18 @@ describe('Book Socket', () => {
                 if (channel === 'removed') return removeResolve(data)
             });
 
-            const bookId = await utils.createBook(server, tokens[0], 'toBeRemoved')
-            const myBook = await utils.getBook(server, tokens[0], bookId)
+            const bookId = await utils.book.create(tokens[0], 'toBeRemoved')
+            const myBook = await utils.book.get(tokens[0], bookId)
             myBook.viewers.push(userIds[1])
-            await utils.updateBook(server, tokens[0], myBook)
-            await utils.deleteBook(server, tokens[0], myBook._id)
+            await utils.book.update(tokens[0], myBook)
+            await utils.book.remove(tokens[0], myBook._id)
             const data = await removeCall
             t.assert.equal(data[0], bookId)
             socket.terminate()
         })
 
         it('should send an id if item is no longer public', async(t) => {
-            const socket = await utils.websocketConnect(server, tokens[1])
+            const socket = await utils.websocketConnect(tokens[1])
             let removeResolve;
             const removeCall = new Promise<IBook[]>(r => { removeResolve = r })
 
@@ -455,11 +454,11 @@ describe('Book Socket', () => {
                 if (channel === 'removed') return removeResolve(data)
             });
 
-            const bookId = await utils.createBook(server, tokens[0], 'toBeRemoved')
-            const myBook = await utils.getBook(server, tokens[0], bookId)
+            const bookId = await utils.book.create(tokens[0], 'toBeRemoved')
+            const myBook = await utils.book.get(tokens[0], bookId)
             myBook.isPublic = true
-            await utils.updateBook(server, tokens[0], myBook)
-            await utils.deleteBook(server, tokens[0], myBook._id)
+            await utils.book.update(tokens[0], myBook)
+            await utils.book.remove(tokens[0], myBook._id)
             const data = await removeCall
             t.assert.equal(data[0], bookId)
             socket.terminate()

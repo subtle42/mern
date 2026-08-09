@@ -1,30 +1,29 @@
 import { after, before, beforeEach, describe, it } from 'node:test'
-import * as utils from '../../testUtils'
 import { FastifyInstance } from 'fastify'
-import { MongoMemoryServer } from 'mongodb-memory-server'
 import { IBook } from '../book/model'
 import { IPage } from './model'
+import { getUserIdFromToken, TestEnv, testSetup } from 'server/testUtils'
 
 describe('Page API', () => {
     let bookId: string
     let tokens: string[]
     let userIds: string[]
     let server: FastifyInstance
-    let db: MongoMemoryServer
+    let utils: TestEnv
 
     before(async() => {
-        ({server, db, userIds, tokens} = await utils.testSetup())
-        bookId = await utils.createBook(server, tokens[0], 'myBook')
+        ({server, utils, userIds, tokens} = await testSetup())
+        bookId = await utils.book.create(tokens[0], 'myBook')
     })
 
     after(async() => {
-        await utils.testCleanup(server, db)
+        await utils.cleanup()
     })
 
     describe('POST /api/pages', () => {
         let myBook: IBook
         beforeEach(async() => {
-            myBook = await utils.getBook(server, tokens[0], bookId)
+            myBook = await utils.book.get(tokens[0], bookId)
         })
 
         it('should return an error if the user does not have edit access', async(t) => {
@@ -52,7 +51,7 @@ describe('Page API', () => {
 
         it('should return a success if user has edit access', async(t) => {
             myBook.editors.push(userIds[1])
-            await utils.updateBook(server, tokens[0], myBook)
+            await utils.book.update(tokens[0], myBook)
             const res = await server.inject()
                 .post('/api/pages')
                 .headers({authorization: tokens[0]})
@@ -79,8 +78,8 @@ describe('Page API', () => {
         let myPages: IPage[]
 
         beforeEach(async() => {
-            myBook = await utils.getBook(server, tokens[0], bookId)
-            myPages = await utils.getPages(server, tokens[0], bookId)
+            myBook = await utils.book.get(tokens[0], bookId)
+            myPages = await utils.page.get(tokens[0], bookId)
         })
 
         it('should return an error if user is NOT logged in', async(t) => {
@@ -106,9 +105,9 @@ describe('Page API', () => {
             const myPage = myPages[0]
             t.assert.notEqual(myPage, undefined)
 
-            const userId = utils.getUserIdFromToken(server, [tokens[1]])[0]
+            const userId = getUserIdFromToken(server, [tokens[1]])[0]
             myBook.editors.push(userId)
-            await utils.updateBook(server, tokens[0], myBook)
+            await utils.book.update(tokens[0], myBook)
             const res = await server.inject()
                 .put('/api/pages')
                 .headers({authorization: tokens[1]})
@@ -145,8 +144,8 @@ describe('Page API', () => {
         let myPages: IPage[]
 
         beforeEach(async() => {
-            myBook = await utils.getBook(server, tokens[0], bookId)
-            myPages = await utils.getPages(server, tokens[0], bookId)
+            myBook = await utils.book.get(tokens[0], bookId)
+            myPages = await utils.page.get(tokens[0], bookId)
         })
 
         it('should return a failure if user is not logged in', async(t) => {
@@ -165,23 +164,23 @@ describe('Page API', () => {
         })
 
         it('should return a success if the user is the owner of the parent book', async(t) => {
-            const pageId = await utils.createPage(server, tokens[0], bookId, 'to remove')
+            const pageId = await utils.page.create(tokens[0], bookId, 'to remove')
             const res = await server.inject()
                 .delete(`/api/pages/${pageId}`)
                 .headers({authorization: tokens[0]})
             t.assert.equal(res.statusCode, 200)
-            const pages = await utils.getPages(server, tokens[0], bookId)
+            const pages = await utils.page.get(tokens[0], bookId)
             t.assert.equal(pages.find(p => p._id === pageId), undefined)
         })
 
         it('should return a success if the user is an editor of the parent book', async(t) => {
             t.assert.equal(myBook.editors.includes(userIds[1]), true)
-            const pageId = await utils.createPage(server, tokens[0], bookId, 'editor remove')
+            const pageId = await utils.page.create(tokens[0], bookId, 'editor remove')
             const res = await server.inject()
                 .delete(`/api/pages/${pageId}`)
                 .headers({authorization: tokens[1]})
             t.assert.equal(res.statusCode, 200)
-            const pages = await utils.getPages(server, tokens[0], bookId)
+            const pages = await utils.page.get(tokens[0], bookId)
             t.assert.equal(pages.find(p => p._id === pageId), undefined)
         })
     })
@@ -191,15 +190,15 @@ describe('Page Socket', () => {
     let tokens: string[]
     let userIds: string[]
     let server: FastifyInstance
-    let db: MongoMemoryServer
+    let utils: TestEnv
     const myNamespace = 'pages'
 
     before(async() => {
-        ({server, db, userIds, tokens} = await utils.testSetup())
+        ({server, utils, userIds, tokens} = await testSetup())
     })
 
     after(async() => {
-        await utils.testCleanup(server, db)
+        await utils.cleanup()
     })
 
     describe('athorization', () => {
@@ -208,17 +207,17 @@ describe('Page Socket', () => {
         let page: IPage[]
         let book: IBook
         before(async() => {
-            bookId = await utils.createBook(server, tokens[0], 'authbook')
-            pageId = await utils.createPage(server, tokens[0], bookId, 'authpage')
+            bookId = await utils.book.create(tokens[0], 'authbook')
+            pageId = await utils.page.create(tokens[0], bookId, 'authpage')
         })
 
         beforeEach(async() => {
-            book = await utils.getBook(server, tokens[0], bookId)
-            page = await utils.getPages(server, tokens[0], bookId)
+            book = await utils.book.get(tokens[0], bookId)
+            page = await utils.page.get(tokens[0], bookId)
         })
 
         it('should NOT let you join a room if you do NOT have access to the parent book', async(t) => {
-            const socket = await utils.websocketConnect(server, tokens[1])
+            const socket = await utils.websocketConnect(tokens[1])
             let bookResolve;
             const bookCall = new Promise<IPage[]>(r => { bookResolve = r })
             let errResolve;
@@ -240,7 +239,7 @@ describe('Page Socket', () => {
         })
 
         it('should return records if user is the owner of the book', async(t) => {
-            const socket = await utils.websocketConnect(server, tokens[0])
+            const socket = await utils.websocketConnect(tokens[0])
             let bookResolve;
             const bookCall = new Promise<IPage[]>(r => { bookResolve = r })
             let pageResolve;
@@ -264,9 +263,9 @@ describe('Page Socket', () => {
         // it.todo('should return records if user has edit access to the book', (t, done) => {
         //     book.editors.push(userIds[1])
 
-        //     utils.updateBook(server, tokens[0], book)
+        //     utils.book.update(tokens[0], book)
         //     .then(() => {
-        //         const socket = utils.websocketConnect(server, 'pages', tokens[1])
+        //         const socket = utils.websocketConnect('pages', tokens[1])
         //         socket.emit('join', bookId)
         //         socket.on('addedOrChanged', data => {
         //             socket.disconnect()
@@ -279,9 +278,9 @@ describe('Page Socket', () => {
         //     book.editors = []
         //     book.viewers.push(userIds[1])
 
-        //     utils.updateBook(server, tokens[0], book)
+        //     utils.book.update(tokens[0], book)
         //     .then(() => {
-        //         const socket = utils.websocketConnect(server, 'pages', tokens[1])
+        //         const socket = utils.websocketConnect('pages', tokens[1])
         //         socket.emit('join', bookId)
         //         socket.on('addedOrChanged', data => {
         //             socket.disconnect()
@@ -296,9 +295,9 @@ describe('Page Socket', () => {
         //     t.assert.equal(book.viewers.indexOf(userIds[2]), -1)
         //     book.isPublic = true
 
-        //     utils.updateBook(server, tokens[0], book)
+        //     utils.book.update(tokens[0], book)
         //     .then(() => {
-        //         const socket = utils.websocketConnect(server, 'pages', tokens[2])
+        //         const socket = utils.websocketConnect('pages', tokens[2])
         //         socket.emit('join', bookId)
         //         socket.on('addedOrChanged', data => {
         //             socket.disconnect()
@@ -308,7 +307,7 @@ describe('Page Socket', () => {
         // })
 
         // it.todo('should return an error if user tried to join a room that does not exist', (t, done) => {
-        //     const socket = utils.websocketConnect(server, 'pages', tokens[2])
+        //     const socket = utils.websocketConnect('pages', tokens[2])
         //     socket.emit('join', 'badid')
         //     socket.on('message', data => {
         //         socket.disconnect()
@@ -321,14 +320,14 @@ describe('Page Socket', () => {
     //     let bookId: string
 
     //     before(() => {
-    //         return utils.createBook(server, tokens[0], 'kwuheiwnecuiawe')
+    //         return utils.book.create(tokens[0], 'kwuheiwnecuiawe')
     //         .then(id => bookId = id)
     //     })
 
     //     it("should return all pages in a book when joining a book's room", (t, done) => {
-    //         utils.createPage(server, tokens[0], bookId, 'jvoairjr')
+    //         utils.page.create(tokens[0], bookId, 'jvoairjr')
     //         .then(pageId => {
-    //             const socket = utils.websocketConnect(server, 'pages', tokens[0])
+    //             const socket = utils.websocketConnect('pages', tokens[0])
     //             socket.emit('join', bookId)
     //             socket.on('addedOrChanged', (data: IPage[]) => {
     //                 socket.disconnect()
@@ -341,12 +340,12 @@ describe('Page Socket', () => {
     //     it('should return a record when a page is added', (t, done) => {
     //         const pageName: string = 'awleoivjwerwerv'
     //         let isFirst: boolean = true
-    //         const socket = utils.websocketConnect(server, 'pages', tokens[0])
+    //         const socket = utils.websocketConnect('pages', tokens[0])
     //         socket.emit('join', bookId)
     //         socket.on('addedOrChanged', (data: IPage[]) => {
     //             if (isFirst) {
     //                 isFirst = false
-    //                 utils.createPage(server, tokens[0], bookId, pageName)
+    //                 utils.page.create(tokens[0], bookId, pageName)
     //             } else {
     //                 socket.disconnect()
     //                 t.assert.equal(data[0].name, pageName)
@@ -359,18 +358,18 @@ describe('Page Socket', () => {
     //         const updateName: string = 'im different'
     //         let isFirst: boolean = true
 
-    //         utils.getPages(server, tokens[0], bookId)
+    //         utils.page.get(tokens[0], bookId)
     //         .then(pages => pages[0])
     //         .then(page => {
     //             t.assert.notEqual(page.name, updateName)
     //             page.name = updateName
 
-    //             const socket = utils.websocketConnect(server, 'pages', tokens[0])
+    //             const socket = utils.websocketConnect('pages', tokens[0])
     //             socket.emit('join', bookId)
     //             socket.on('addedOrChanged', (data: IPage[]) => {
     //                 if (isFirst) {
     //                     isFirst = false
-    //                     utils.updatePage(server, tokens[0], page)
+    //                     utils.updatePage(tokens[0], page)
     //                 } else {
     //                     socket.disconnect()
     //                     t.assert.equal(data[0].name, updateName)
@@ -385,13 +384,13 @@ describe('Page Socket', () => {
     //     let bookId: string
 
     //     before(async() => {
-    //         bookId = await utils.createBook(server, tokens[0], 'aweaowijecaec')
+    //         bookId = await utils.book.create(tokens[0], 'aweaowijecaec')
     //     })
 
     //     it('should return the id of a deleted page', (t, done) => {
     //         let pageId: string
 
-    //         const socket = utils.websocketConnect(server, 'pages', tokens[0])
+    //         const socket = utils.websocketConnect('pages', tokens[0])
     //         socket.emit('join', bookId)
     //         socket.on('removed', (data: string) => {
     //             socket.disconnect()
@@ -402,9 +401,9 @@ describe('Page Socket', () => {
     //         socket.on('addedOrChanged', () => {
     //             if (!isFirst) return
     //             isFirst = false
-    //             utils.createPage(server, tokens[0], bookId, 'myPage')
+    //             utils.page.create(tokens[0], bookId, 'myPage')
     //             .then(id => pageId = id)
-    //             .then(() => utils.deletePage(server, tokens[0], pageId))
+    //             .then(() => utils.deletePage(tokens[0], pageId))
     //         })
     //     })
     // })

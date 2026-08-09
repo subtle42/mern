@@ -1,29 +1,28 @@
 import {describe, before, after, it, beforeEach} from 'node:test'
-import * as utils from '../../testUtils'
 import { FastifyInstance } from 'fastify'
-import { MongoMemoryServer } from 'mongodb-memory-server'
 import { IWidget } from './model'
 import { IBook } from '../book/model'
+import { TestEnv, testSetup } from 'server/testUtils'
 
 describe('Widget API', () => {
     let tokens: string[]
     let userIds: string[]
     let server: FastifyInstance
-    let db: MongoMemoryServer
     let bookId: string
     let pageId: string
     let sourceId: string
+    let utils: TestEnv
 
     before(async() => {
-        ({server, db, userIds, tokens} = await utils.testSetup())
+        ({server, utils, userIds, tokens} = await testSetup())
 
-        bookId = await utils.createBook(server, tokens[0], 'top book')
-        pageId = await utils.createPage(server, tokens[0], bookId, 'top page')
-        sourceId = await utils.createSource(server, tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
+        bookId = await utils.book.create(tokens[0], 'top book')
+        pageId = await utils.page.create(tokens[0], bookId, 'top page')
+        sourceId = await utils.source.create(tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
     })
 
     after(async() => {
-        await utils.testCleanup(server, db)
+        await utils.cleanup()
     })
 
     describe('POST /api/widgets', () => {
@@ -63,9 +62,9 @@ describe('Widget API', () => {
         })
 
         it('should return a success if the user has edit access to the book', async(t) => {
-            const myBook = await utils.getBook(server, tokens[0], bookId)
+            const myBook = await utils.book.get(tokens[0], bookId)
             myBook.editors.push(userIds[1])
-            await utils.updateBook(server, tokens[0], myBook)
+            await utils.book.update(tokens[0], myBook)
 
             const res = await server.inject()
                 .post('/api/widgets')
@@ -85,11 +84,11 @@ describe('Widget API', () => {
         let widget: IWidget
 
         before(async() => {
-            widgetId = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            widgetId = await utils.widget.create(tokens[0], pageId, sourceId, 'histogram')
         })
 
         beforeEach(async() => {
-            widget = await utils.getWidget(server, tokens[0], widgetId)
+            widget = await utils.widget.get(tokens[0], widgetId)
         })
 
         it('should return an error if user is NOT logged in', async(t) => {
@@ -108,7 +107,7 @@ describe('Widget API', () => {
                 .headers({authorization: tokens[2]})
                 .body(widget)
             t.assert.notEqual(res.statusCode, 200)
-            const data = await utils.getWidget(server, tokens[0], widgetId)
+            const data = await utils.widget.get(tokens[0], widgetId)
             t.assert.equal(data.dimensions.filter(x => x === test).length, 0)
         })
 
@@ -121,7 +120,7 @@ describe('Widget API', () => {
                 .headers({authorization: tokens[0]})
                 .body(widget)
             t.assert.equal(res.statusCode, 200)
-            const data = await utils.getWidget(server, tokens[0], widgetId)
+            const data = await utils.widget.get(tokens[0], widgetId)
             t.assert.equal(data.dimensions.filter(x => x === test).length, 1)
         })
 
@@ -134,7 +133,7 @@ describe('Widget API', () => {
                 .headers({authorization: tokens[1]})
                 .body(widget)
             t.assert.equal(res.statusCode, 200)
-            const data = await utils.getWidget(server, tokens[0], widgetId)
+            const data = await utils.widget.get(tokens[0], widgetId)
             t.assert.equal(data.dimensions.filter(x => x === test).length, 1)
         })
     })
@@ -142,7 +141,7 @@ describe('Widget API', () => {
     describe('DELETE /api/widgets', () => {
         let book: IBook
         before(async() => {
-            book = await utils.getBook(server, tokens[0], bookId)
+            book = await utils.book.get(tokens[0], bookId)
         })
 
         it('should return an error if user is NOT logged in', async(t) => {
@@ -155,34 +154,34 @@ describe('Widget API', () => {
             t.assert.notEqual(book.owner, userIds[2])
             t.assert.equal(book.editors.includes(userIds[2]), false)
 
-            const widgetId = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            const widgetId = await utils.widget.create(tokens[0], pageId, sourceId, 'histogram')
             const res = await server.inject()
                 .delete(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
                 .headers({authorization: tokens[2]})
             t.assert.notEqual(res.statusCode, 200)
-            const data = await utils.getWidget(server, tokens[0], widgetId)
+            const data = await utils.widget.get(tokens[0], widgetId)
             t.assert.equal(data._id, widgetId)
         })
 
         it('should return a success if the user has owner access', async(t) => {
             t.assert.equal(book.owner, userIds[0])
-            const widgetId = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            const widgetId = await utils.widget.create(tokens[0], pageId, sourceId, 'histogram')
             const res = await server.inject()
                 .delete(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
                 .headers({authorization: tokens[0]})
             t.assert.equal(res.statusCode, 200)
-            const data: any = await utils.getWidget(server, tokens[0], widgetId)
+            const data: any = await utils.widget.get(tokens[0], widgetId)
             t.assert.notEqual(data.statusCode, 200)
         })
 
         it('should return a success if the user has edit access', async(t) => {
             t.assert.equal(book.editors.includes(userIds[1]), true)
-            const widgetId = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            const widgetId = await utils.widget.create(tokens[0], pageId, sourceId, 'histogram')
             const res = await server.inject()
                 .delete(`/api/widgets/${widgetId}/${pageId}/${bookId}`)
                 .headers({authorization: tokens[1]})
             t.assert.equal(res.statusCode, 200)
-            const data: any = await utils.getWidget(server, tokens[0], widgetId)
+            const data: any = await utils.widget.get(tokens[0], widgetId)
             t.assert.notEqual(data.statusCode, 200)
         })
     })
@@ -195,25 +194,25 @@ describe('Widget Channel', () => {
     let sourceId: string
     let userIds: string[]
     let server: FastifyInstance
-    let db: MongoMemoryServer
+    let utils: TestEnv
     const myNamespace = 'widgets'
 
     before(async() => {
-        ({server, db, userIds, tokens} = await utils.testSetup())
+        ({server, utils, userIds, tokens} = await testSetup())
 
-        bookId = await utils.createBook(server, tokens[0], 'top book')
-        pageId = await utils.createPage(server, tokens[0], bookId, 'top page')
-        sourceId = await utils.createSource(server, tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
-        await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+        bookId = await utils.book.create(tokens[0], 'top book')
+        pageId = await utils.page.create(tokens[0], bookId, 'top page')
+        sourceId = await utils.source.create(tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
+        await utils.widget.create(tokens[0], pageId, sourceId, 'histogram')
     })
 
     after(() => {
-        return utils.testCleanup(server, db)
+        return utils.cleanup()
     })
 
     describe('authorization', () => {
         it('should NOT let you join a room if user does NOT have access to the parent book', async(t) => {
-            const socket = await utils.websocketConnect(server, tokens[2])
+            const socket = await utils.websocketConnect(tokens[2])
             let bookResolve;
             const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
             let errResolve;
@@ -235,7 +234,7 @@ describe('Widget Channel', () => {
         })
 
         it('should return records if user is the owner of the book', async(t) => {
-            const socket = await utils.websocketConnect(server, tokens[0])
+            const socket = await utils.websocketConnect(tokens[0])
             let bookResolve;
             const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
             let widgetResolve;
@@ -261,13 +260,13 @@ describe('Widget Channel', () => {
             const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
             let widgetResolve;
             const widgetCall = new Promise<IWidget[]>(r => { widgetResolve = r })
-            const book = await utils.getBook(server, tokens[0], bookId)
+            const book = await utils.book.get(tokens[0], bookId)
             book.editors.push(userIds[1])
             book.viewers = []
             book.isPublic = false
-            await utils.updateBook(server, tokens[0], book)
+            await utils.book.update(tokens[0], book)
             
-            const socket = await utils.websocketConnect(server, tokens[1])
+            const socket = await utils.websocketConnect(tokens[1])
             socket.on('message', ev => {
                 const {channel, namespace, data, error} = JSON.parse(ev.toString())
                 if (channel !== 'addedOrChanged') return
@@ -289,13 +288,13 @@ describe('Widget Channel', () => {
             const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
             let widgetResolve;
             const widgetCall = new Promise<IWidget[]>(r => { widgetResolve = r })
-            const book = await utils.getBook(server, tokens[0], bookId)
+            const book = await utils.book.get(tokens[0], bookId)
             book.editors = []
             book.viewers = [userIds[2]]
             book.isPublic = false
-            await utils.updateBook(server, tokens[0], book)
+            await utils.book.update(tokens[0], book)
             
-            const socket = await utils.websocketConnect(server, tokens[2])
+            const socket = await utils.websocketConnect(tokens[2])
             socket.on('message', ev => {
                 const {channel, namespace, data, error} = JSON.parse(ev.toString())
                 if (channel !== 'addedOrChanged') return
@@ -317,13 +316,13 @@ describe('Widget Channel', () => {
             const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
             let widgetResolve;
             const widgetCall = new Promise<IWidget[]>(r => { widgetResolve = r })
-            const book = await utils.getBook(server, tokens[0], bookId)
+            const book = await utils.book.get(tokens[0], bookId)
             book.editors = []
             book.viewers = []
             book.isPublic = true
-            await utils.updateBook(server, tokens[0], book)
+            await utils.book.update(tokens[0], book)
             
-            const socket = await utils.websocketConnect(server, tokens[2])
+            const socket = await utils.websocketConnect(tokens[2])
             socket.on('message', ev => {
                 const {channel, namespace, data, error} = JSON.parse(ev.toString())
                 if (channel !== 'addedOrChanged') return
@@ -345,7 +344,7 @@ describe('Widget Channel', () => {
             let widgetResolve;
             const widgetCall = new Promise<string>(r => { widgetResolve = r })
 
-            const socket = await utils.websocketConnect(server, tokens[2])
+            const socket = await utils.websocketConnect(tokens[2])
 
             socket.on('message', ev => {
                 const {channel, namespace, data, error} = JSON.parse(ev.toString())
@@ -367,13 +366,13 @@ describe('Widget Channel', () => {
         const widgetIds: string[] = []
 
         before(async() => {
-            const id1 = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
-            const id2 = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            const id1 = await utils.widget.create(tokens[0], pageId, sourceId, 'histogram')
+            const id2 = await utils.widget.create(tokens[0], pageId, sourceId, 'histogram')
             widgetIds.push(id1, id2)
         })
 
         it("should return all widgets in a page when joining a page's room", async(t) => {
-            const socket = await utils.websocketConnect(server, tokens[0])
+            const socket = await utils.websocketConnect(tokens[0])
             let bookResolve;
             const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
             let widgetResolve;
@@ -397,7 +396,7 @@ describe('Widget Channel', () => {
 
         it('should return a record when a widget is added', async(t) => {
             let first = true
-            const socket = await utils.websocketConnect(server, tokens[0])
+            const socket = await utils.websocketConnect(tokens[0])
             let bookResolve;
             const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
             let widgetResolve;
@@ -418,7 +417,7 @@ describe('Widget Channel', () => {
                 namespace: myNamespace, channel: 'join', room: pageId
             }))
             await widgetCall
-            const wId = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
+            const wId = await utils.widget.create(tokens[0], pageId, sourceId, 'histogram')
             const data = await secondCall
             t.assert.notEqual(data.find(x => x._id === wId), undefined)
             socket.terminate()
@@ -426,7 +425,7 @@ describe('Widget Channel', () => {
 
         it('should return a record when a widget is updated', async(t) => {
             let first = true
-            const socket = await utils.websocketConnect(server, tokens[0])
+            const socket = await utils.websocketConnect(tokens[0])
             let bookResolve;
             const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
             let widgetResolve;
@@ -447,9 +446,9 @@ describe('Widget Channel', () => {
                 namespace: myNamespace, channel: 'join', room: pageId
             }))
             await widgetCall
-            const myWidget = await utils.getWidget(server, tokens[0], widgetIds[0])
+            const myWidget = await utils.widget.get(tokens[0], widgetIds[0])
             myWidget.type = 'histogram'
-            await utils.updateWidget(server, tokens[0], myWidget)
+            await utils.widget.update(tokens[0], myWidget)
             const data = await secondCall
             t.assert.equal(data[0]._id, widgetIds[0])
             t.assert.equal(data[0].type, 'histogram')
@@ -460,7 +459,7 @@ describe('Widget Channel', () => {
     describe('removed channel', () => {
         it('should return the id of a deleted widget', async(t) => {
             let widgetId: string
-            const socket = await utils.websocketConnect(server, tokens[0])
+            const socket = await utils.websocketConnect(tokens[0])
             let bookResolve;
             const bookCall = new Promise<IBook[]>(r => { bookResolve = r })
             let widgetResolve;
@@ -480,8 +479,8 @@ describe('Widget Channel', () => {
                 namespace: myNamespace, channel: 'join', room: pageId
             }))
             await widgetCall
-            widgetId = await utils.createWidget(server, tokens[0], pageId, sourceId, 'histogram')
-            await utils.deleteWidget(server, tokens[0], widgetId, pageId, bookId)
+            widgetId = await utils.widget.create(tokens[0], pageId, sourceId, 'histogram')
+            await utils.widget.remove(tokens[0], widgetId, pageId, bookId)
             const data = await removedCall
             t.assert.equal(data[0], widgetId)
             socket.terminate()
