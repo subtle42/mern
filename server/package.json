@@ -36,6 +36,6 @@
       "node_modules"
     ],
     "ext": "ts",
-    "exec": "ts-node app.ts"
+    "exec": "ts-node index.ts"
   }
 }

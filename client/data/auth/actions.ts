@@ -1,11 +1,8 @@
 import axios, { AxiosPromise } from 'axios'
 import { store } from '../store'
-import pageActions from '../pages/actions'
-import { Socket } from 'socket.io-client'
 import { IUser } from '@mern/server/api/user/model'
 import { myBookActions } from '../books/actions'
-import { myWidgetActions } from '../widgets/actions'
-import { mySourceActions } from '../sources/actions'
+import { connnect, disconnect } from '../socket'
 
 class AuthActions {
     private nameSpace = 'auth'
@@ -54,29 +51,15 @@ class AuthActions {
     private async loadConnections (token: string): Promise<void> {
         await this.setToken(token)
         await this.me()
-        const tmp = new WebSocket(`ws://localhost:3333/ws?token=${token}`);
-        tmp.onclose = (ev) => console.log('closing', ev)
-        tmp.onerror = (ev) => console.error('error', ev)
-        tmp.onopen = ev => console.log('opening', ev)
-        tmp.onmessage = (ev) => {
-            const {namespace, channel, data} = JSON.parse(ev.data)
-            console.log('message', namespace, channel, data)
-            tmp.send(JSON.stringify({namespace, room:'ssssssss', channel}))
-        }
+        connnect(token)
+        const unsub = store.subscribe(() => {
+            const books = store.getState().books.list
+            if (books.length === 0) return
+            unsub()
+            myBookActions.select(books[0]._id)
+        })
         
         return undefined
-        // return this.setToken(token)
-        // .then(() => this.me())
-        // .then(() => myBookActions.connect(token))
-        // .then(() => pageActions.connect(token))
-        // .then(() => myWidgetActions.connect(token))
-        // .then(() => mySourceActions.connect(token))
-        // .then(() => mySourceActions.joinRoom(this.store.getState().auth.me._id))
-        // .then(() => myBookActions.joinRoom(this.store.getState().auth.me._id))
-        // .then(() => {
-        //     if (store.getState().books.list.length === 0) return
-        //     return myBookActions.select(store.getState().books.list[0]._id)
-        // })
     }
 
     login (email: string, password: string): Promise<void> {
@@ -115,18 +98,12 @@ class AuthActions {
     logout (): Promise<void> {
         return axios.get('/auth/logout')
         .then(() => this._logout())
-        .then(() => Promise.all([
-            myBookActions.disconnect()
-        ]))
         .then(() => {
             axios.defaults.headers.common['Authorization'] = undefined
             this.deleteAuthCookie()
+            this.setUser(undefined)
+            disconnect()
         })
-        .then(() => this.setUser(undefined))
-        .then(() => myBookActions.disconnect())
-        .then(() => pageActions.disconnect())
-        .then(() => myWidgetActions.disconnect())
-        .then(() => mySourceActions.disconnect())
     }
 
     private deleteAuthCookie () {
@@ -150,7 +127,7 @@ class AuthActions {
         return this.sendDispatch('set_token', token)
     }
 
-    private setSocket (socket: Socket|undefined): Promise<void> {
+    private setSocket (socket: any): Promise<void> {
         return this.sendDispatch('set_socket', socket)
     }
 

@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { store } from '../store'
 import BaseActions from '../baseActions'
-import pageActions from '../pages/actions'
 import { IBook } from '@mern/server/api/book/model'
+import { joinRoom } from '../socket'
 
 class BookActions extends BaseActions {
     constructor (store) {
@@ -11,7 +11,7 @@ class BookActions extends BaseActions {
 
     select (id: string) {
         return this._select(id)
-        .then(() => pageActions.joinRoom(id))
+        .then(() => joinRoom('pages', id))
     }
 
     create (input: string): Promise<string> {

@@ -12,7 +12,6 @@ import { buildBookSocket } from './api/book/socket'
 import { buildPageSocket } from './api/page/socket'
 import { buildSourceSocket } from './api/source/socket'
 import { buildWidgetSocket } from './api/widget/socket'
-import * as testUtils from './testUtils'
 
 
 
@@ -90,7 +89,6 @@ export const buildServer = async(isTest?: boolean) => {
     })
     await myFastServer.register(fastifyWebsocket)
 
-    // buildWsServer(myFastServer)
     buildBookSocket(myFastServer)
     buildPageSocket(myFastServer)
     buildSourceSocket(myFastServer)
@@ -113,41 +111,3 @@ export const buildServer = async(isTest?: boolean) => {
 
     return myFastServer
 }
-
-
-
-// let myIO = new Server()
-// global.myIO = myIO
-
-// myIO.on('connection', socket => {
-//     socket.emit('message', socket.id)
-// })
-// socketAuth(myIO);
-
-buildMongoDb()
-.then(() => buildServer())
-.then(async(server) => {
-    const token = await testUtils.createUserAndLogin(server, {
-        email: 'test@test.com',
-        name: 'test',
-        password: 'test'
-    })
-    await testUtils.createBook(server, token, 'testbook')
-    server.listen({port: 3333})
-})
-.catch(err => console.error(err))
-
-
-// app.use('/index', express.static(path.join(__dirname, '../client/index.html')))
-// app.use('/.dist', express.static(path.join(__dirname, '../client/.dist')))
-// app.use('/api/health', (req, res) => {
-//     res.json('ok')
-// })
-
-// app.use('/', express.static(path.join(__dirname, '../client/.dist')))
-// app.use('/{*any}', (req: express.Request, res) => {
-//     console.log(`Redirecting: ${req.method}: ${req.originalUrl}`)
-//     return res.redirect('/index')
-// })
-
-// Used for integration testing, to not start server multiple times

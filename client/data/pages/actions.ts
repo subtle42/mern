@@ -2,7 +2,7 @@ import axios from 'axios'
 import { store } from '../store'
 import BaseActions from '../baseActions'
 import { IPage } from '@mern/server/api/page/model'
-import { myWidgetActions } from '../widgets/actions'
+import { joinRoom } from '../socket'
 
 class PageActions extends BaseActions {
     constructor (store) {
@@ -11,7 +11,7 @@ class PageActions extends BaseActions {
 
     select (id: string) {
         return this._select(id)
-        .then(() => myWidgetActions.joinRoom(id))
+        .then(() => joinRoom('widgets', id))
     }
 
     create (input: string): Promise<string> {

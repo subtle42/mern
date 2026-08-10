@@ -1,8 +1,7 @@
-import { Socket } from 'socket.io-client'
+
+
 
 export default abstract class BaseActions {
-    private isNewList: boolean = true
-
     constructor (
         protected store,
         private nameSpace: string
@@ -17,26 +16,6 @@ export default abstract class BaseActions {
         }))
     }
 
-    private addedOrChanged (items: any[]): Promise<void> {
-        return this.sendDispatch(`addedOrChanged`, items)
-    }
-
-    private remove (items: any[]): Promise<void> {
-        return this.sendDispatch(`remove`, items)
-    }
-
-    private storeSocket (socket): Promise<void> {
-        return this.sendDispatch(`storeSocket`, socket)
-    }
-
-    disconnect (): Promise<void> {
-        let mySocket: Socket = this.store.getState()[this.nameSpace].socket
-        if (mySocket) {
-            mySocket.disconnect()
-        }
-
-        return this.sendDispatch(`disconnect`, undefined)
-    }
 
     protected _select (id: string): Promise<void> {
         return this.sendDispatch(`select`, id)
@@ -46,57 +25,4 @@ export default abstract class BaseActions {
     abstract create (item: any): Promise<any>
     abstract update (item: any): Promise<any>
     abstract delete (item: any): Promise<void>
-
-    /**
-     * Connect to socket channel
-     * @param auth
-     */
-    connect (auth: string): Promise<void> {
-        if (this.store.getState()[this.nameSpace].socket) {
-            return Promise.reject(`Already connected to ${this.nameSpace}`)
-        }
-
-        return import('socket.io-client')
-        .then(io => io.connect(`/${this.nameSpace}`, {
-            query: {
-                token: auth
-            }
-        }))
-        .then(nsp => nsp.on('message', (msg) => console.log(msg))
-            .on('addedOrChanged', (items: any[]) => {
-                if (this.isNewList) {
-                    this.isNewList = false
-                    return this.addedOrChanged(items)
-                    .then(() => this.select(items[0] ? items[0]._id : ''))
-                } else {
-                    return this.addedOrChanged(items)
-                }
-            })
-            .on('removed', (items) => this.remove(items))
-            .on('error', (err) => console.error(err))
-        )
-        .then(nsp => this.storeSocket(nsp))
-        .catch(err => {
-            console.error('bad ws', err)
-            return Promise.reject(err)
-        })
-    }
-
-    /**
-     * Join different room on channel
-     * @param room
-     */
-    joinRoom (room: string): Promise<void> {
-        if (!this.store.getState()[this.nameSpace].socket) {
-            return Promise.reject(`Cannot join room in ${this.nameSpace} channel. No socket connection`)
-        }
-
-        this.isNewList = true
-        return this.sendDispatch('joinRoom', room)
-        .then(() => {
-            let myState = this.store.getState()
-            let mySocket: Socket = myState[this.nameSpace].socket
-            mySocket.emit('join', room)
-        })
-    }
 }
