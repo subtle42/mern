@@ -12,8 +12,8 @@ import {
     DropdownMenu,
     DropdownItem } from 'reactstrap'
 import { useBooks, useUser, useSelected } from '../_common/hooks'
-import { myAuthActions } from '../../data/auth/actions'
 import { selectBook } from '../../data/books/actions'
+import { logout } from '../../data/auth/actions'
 
 interface NavProps {}
 
@@ -67,7 +67,7 @@ export const MainNavBar: React.FunctionComponent<NavProps> = (props: NavProps) =
             <NavItem key={3}>
                 <div className='nav-link'>
                 { user
-                    ? <Link onClick={() => myAuthActions.logout()} to='/about'>Logout</Link>
+                    ? <Link onClick={() => logout()} to='/about'>Logout</Link>
                     : <Link to='/login'>Login</Link>
                 }
                 </div>

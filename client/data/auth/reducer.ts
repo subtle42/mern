@@ -1,8 +1,10 @@
-import AuthStore from './model'
-import { Socket } from 'socket.io-client'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { IUser } from '@mern/server/api/user/model'
 
+class AuthStore {
+    token?: string
+    me?: IUser
+}
 
 export const AuthSlice = createSlice({
     name: 'auth',
@@ -14,11 +16,10 @@ export const AuthSlice = createSlice({
         set_user: (state, {payload}: PayloadAction<IUser>) => {
             return { ...state, me: payload }
         },
-        set_socket: (state, {payload}: PayloadAction<Socket>) => {
-            return { ...state, socket: payload }
-        },
         logout: () => {
             return new AuthStore()
         }
     }
 })
+
+export const authCmds = AuthSlice.actions

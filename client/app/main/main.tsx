@@ -6,12 +6,12 @@ import { RegisterPage } from '../logon/register'
 import { MainNavBar } from '../nav/nav'
 import { AlertComponent } from '../_common/alert'
 import { AboutPage } from './about'
-import { myAuthActions } from '../../data/auth/actions'
+import { preloadUser } from '../../data/auth/actions'
 
 interface Props {}
 
 export const Main: React.FunctionComponent<Props> = (props: Props) => {
-    myAuthActions.preloadUser()
+    preloadUser()
 
     return <Router>
         <div>

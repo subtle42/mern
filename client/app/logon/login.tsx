@@ -11,8 +11,8 @@ import { FormCtrlGroup, FormControl } from '../_common/validation'
 import * as Validators from '../_common/validators'
 import * as utils from '../_common/utils'
 import { OnEnter } from '../_common/onEnter'
-import { myAuthActions } from '../../data/auth/actions'
 import { myNotifActions } from '../../data/notifications/actions'
+import { localLogin } from '../../data/auth/actions'
 
 interface Props {}
 
@@ -31,29 +31,29 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
 
     const tryLogin = () => {
         const { email, password } = rules.value
-        myAuthActions.login(email, password)
+        localLogin(email, password)
         .then(() => setLoginSuccess(true))
         .catch(err => myNotifActions.error(err.response.data))
     }
 
-    const openPopup = () => {
-        const width = 600
-        const height = 600
-        const left = (window.innerWidth / 2) - (width / 2)
-        const top = (window.innerHeight / 2) - (height / 2)
+    // const openPopup = () => {
+    //     const width = 600
+    //     const height = 600
+    //     const left = (window.innerWidth / 2) - (width / 2)
+    //     const top = (window.innerHeight / 2) - (height / 2)
 
-        let popup: Window
-        myAuthActions.waitFor3rdPartyAuth(() => {
-            popup.close()
-            setLoginSuccess(true)
-        })
-        .then(socketId => popup = window.open(`/auth/google?socketId=${socketId}`, '',
-            `toolbar=no, location=no, directories=no, status=no, menubar=no,
-            scrollbars=no, resizable=no, copyhistory=no, width=${width},
-            height=${height}, top=${top}, left=${left}`
-        ) as Window)
-        .catch(err => myNotifActions.error(err))
-    }
+    //     let popup: Window
+    //     myAuthActions.waitFor3rdPartyAuth(() => {
+    //         popup.close()
+    //         setLoginSuccess(true)
+    //     })
+    //     .then(socketId => popup = window.open(`/auth/google?socketId=${socketId}`, '',
+    //         `toolbar=no, location=no, directories=no, status=no, menubar=no,
+    //         scrollbars=no, resizable=no, copyhistory=no, width=${width},
+    //         height=${height}, top=${top}, left=${left}`
+    //     ) as Window)
+    //     .catch(err => myNotifActions.error(err))
+    // }
 
     if (loginSuccess) {
         return <Redirect to='main'/>
@@ -103,9 +103,9 @@ export const LoginPage: React.FunctionComponent<Props> = (props: Props) => {
                 onClick={() => tryLogin()}>
                 Sign in
             </Button>
-            <a onClick={() => openPopup()}>
+            {/* <a onClick={() => openPopup()}>
                 Google+
-            </a>
+            </a> */}
         </Col>
         </FormGroup>
         </Col></FormGroup>

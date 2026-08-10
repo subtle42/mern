@@ -1,9 +1,7 @@
 import { PayloadAction } from "@reduxjs/toolkit"
-import { Socket } from "socket.io-client"
 
 export class GenericStore {
     list: any[] = []
-    socket?: Socket
     selected?: any
 }
 
@@ -33,9 +31,6 @@ export const factory = {
         state = { ...state }
         state.list = state.list.filter(item => payload.indexOf(item._id) === -1)
         return state
-    },
-    storeSocket: (state, {payload}: PayloadAction<Socket>) => {
-        return { ...state, socket: payload }
     },
     disconnect: (state, {payload}: PayloadAction<void>) => {
         return new GenericStore() as any

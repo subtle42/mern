@@ -9,8 +9,8 @@ import Button from 'reactstrap/lib/Button'
 import { FormCtrlGroup, FormControl } from '../_common/validation'
 import * as Validators from '../_common/validators'
 import * as utils from '../_common/utils'
-import { myAuthActions } from '../../data/auth/actions'
 import { myNotifActions } from '../../data/notifications/actions'
+import { createUser } from '../../data/auth/actions'
 
 interface Props {}
 
@@ -34,8 +34,8 @@ export const RegisterPage: React.FunctionComponent<Props> = (props: Props) => {
         ])
     }))
 
-    const createUser = () => {
-        myAuthActions.create(rules.value as any)
+    const myCreateUser = () => {
+        createUser(rules.value as any)
         .then(() => myNotifActions.notify('success', 'Register Successful'))
         .then(() => setRegisterSuccess(true))
         .catch(err => myNotifActions.notify('danger', err.message))
@@ -97,7 +97,7 @@ export const RegisterPage: React.FunctionComponent<Props> = (props: Props) => {
                 <Button disabled={!rules.valid}
                     className='pull-right'
                     type='button'
-                    onClick={() => createUser()}>
+                    onClick={() => myCreateUser()}>
                     Submit
                 </Button>
             </Col>
