@@ -1,6 +1,13 @@
-import WidgetStore from './model'
-import { factory } from '../baseReducer'
+import { factory, GenericStore } from '../baseReducer'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { IWidget } from '@mern/server/api/widget/model'
+
+
+class WidgetStore extends GenericStore {
+    list: IWidget[] = []
+    sizes: {} = {}
+    data: {[key: string]: any[]} = {}
+}
 
 export const WidgetSlice = createSlice({
     name: 'widgets',

@@ -1,76 +1,69 @@
 import { store } from '../store'
-import BaseActions from '../baseActions'
 import axios from 'axios'
-import { ISource } from '@mern/server/api/source/model'
 import { IWidget } from '@mern/server/api/widget/model'
 import { myDataActions } from '../data/actions'
+import { widgetCmds } from './reducer'
 
-class WidgetActions extends BaseActions {
-    constructor (store) {
-        super(store, 'widgets')
-    }
 
-    select () {
-        console.warn('This does nothing')
-        return Promise.resolve()
-    }
-
-    createMultiple (sourceId: string, types: string[]) {
-        return axios.post('/api/widgets/multiple', {
-            pageId: store.getState().pages.selected,
-            sourceId,
-            types
-        })
-    }
-
-    create (config: {source: ISource, type: string}): Promise<void> {
-        return axios.post(`/api/widgets`, {
-            pageId: store.getState().pages.selected,
-            sourceId: config.source._id,
-            type: config.type
-        })
-        .then(res => undefined)
-    }
-    delete (id: string): Promise<void> {
-        const pageId = store.getState().pages.selected
-        const bookId = store.getState().books.selected
-        return axios.delete(`/api/widgets/${id}/${pageId}/${bookId}`)
-        .then(res => res.data as undefined)
-    }
-    update (widget: IWidget): Promise<void> {
-        return axios.put(`/api/widgets`, widget)
-        .then(res => res.data as undefined)
-    }
-    setSize (id: string, width: number, height: number): void {
-        this.sendDispatch('setSize', { id: id, size: { width, height } })
-    }
-    query (widget: IWidget): Promise<void> {
-        return myDataActions.query(widget, this.getFilter(widget))
-    }
-
-    private getFilter (widget: IWidget): object {
-        const myFilters = store.getState().sources.filters[widget.sourceId]
-        const toSend = {}
-
-        if (!myFilters) return toSend
-
-        Object.keys(myFilters).forEach(key => {
-            if (widget.dimensions.find(d => d === key)) return
-            toSend[key] = myFilters[key]
-        })
-        return toSend
-    }
-
-    runQueries (sourceId: string) {
-        const calls = store.getState().widgets.list
-        .filter(w => w.sourceId === sourceId)
-        .map(w => this.query(w))
-
-        return Promise.all(calls)
-        .then(() => undefined)
-        .catch(err => console.error(err))
-    }
+export const createManyWidgets = async(sourceId: string, types: string[]) => {
+    const res = await axios.post<void>('/api/widgets/multiple', {
+        pageId: store.getState().pages.selected,
+        sourceId,
+        types
+    })
+    return res.data
 }
 
-export const myWidgetActions = new WidgetActions(store)
+export const createWidget = async(sourceId: string, type: string) => {
+    const res = await axios.post<void>(`/api/widgets`, {
+        pageId: store.getState().pages.selected,
+        sourceId,
+        type
+    })
+    return res.data
+}
 
+export const deleteWidget = async(id: string) => {
+    const pageId = store.getState().pages.selected
+    const bookId = store.getState().books.selected
+    const res = await axios.delete<void>(`/api/widgets/${id}/${pageId}/${bookId}`)
+    return res.data
+}
+
+export const updateWidget = async(widget: IWidget) => {
+    const res = await axios.put<void>(`/api/widgets`, widget)
+    return res.data
+}
+
+export const setWidgetSize = (id: string, width: number, height: number) => {
+    store.dispatch(widgetCmds.setSize({
+        id, size: { width, height }
+    }));
+}
+
+const getFilter = (widget: IWidget): object => {
+    const myFilters = store.getState().sources.filters[widget.sourceId]
+    const toSend = {}
+
+    if (!myFilters) return toSend
+
+    Object.keys(myFilters).forEach(key => {
+        if (widget.dimensions.find(d => d === key)) return
+        toSend[key] = myFilters[key]
+    })
+    return toSend
+}
+
+export const queryWidget = async(widget: IWidget) => {
+    return myDataActions.query(widget, getFilter(widget))
+}
+
+export const runWidgetQueries = async(sourceId: string) => {
+    const calls = store.getState().widgets.list
+        .filter(w => w.sourceId === sourceId)
+        .map(w => queryWidget(w))
+
+    return Promise.all(calls)
+        .then(() => undefined)
+        .catch(err => console.error(err))
+}

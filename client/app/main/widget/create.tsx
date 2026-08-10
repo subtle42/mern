@@ -7,8 +7,8 @@ import FontAwesome from 'react-fontawesome'
 import SwipeableViews from 'react-swipeable-views'
 import './style.css'
 import { ISource } from '@mern/server/api/source/model'
-import { myWidgetActions } from '../../../data/widgets/actions'
 import { myNotifActions } from '../../../data/notifications/actions'
+import { createManyWidgets } from '../../../data/widgets/actions'
 
 interface Props {}
 
@@ -19,7 +19,7 @@ export const WidgetCreateButton: React.FunctionComponent<Props> = (props: Props)
     const pages = usePages()
 
     const close = (chartTypes: string[]) => {
-        myWidgetActions.createMultiple(source?._id, chartTypes)
+        createManyWidgets(source?._id, chartTypes)
         .then(() => myNotifActions.success('Created widget'))
         .then(() => setOpen(false))
         .catch(err => myNotifActions.error(err.message))

@@ -16,8 +16,8 @@ import { FilterBadge } from './filterBadge'
 import { IWidget } from '@mern/server/api/widget/model'
 import { ISource, ISourceColumn } from '@mern/server/api/source/model'
 import { store } from '../../../data/store'
-import { myWidgetActions } from '../../../data/widgets/actions'
 import { myNotifActions } from '../../../data/notifications/actions'
+import { deleteWidget, queryWidget, setWidgetSize, updateWidget } from '../../../data/widgets/actions'
 
 interface Props {
     _id: string
@@ -42,7 +42,7 @@ export class Widget extends React.Component<Props, State> {
         let source:ISource|undefined = undefined
         if (widget) {
             source = storeState.sources.list.filter(s => s._id === widget.sourceId)[0] as ISource
-            myWidgetActions.query(widget)
+            queryWidget(widget)
             .catch(err => console.warn(err))
         }
 
@@ -57,7 +57,7 @@ export class Widget extends React.Component<Props, State> {
         const height = this.myRef.current.offsetHeight - 58
         if (!this.state.widgetConfig) return
         if (this.state.width === width && this.state.height === height) return
-        myWidgetActions.setSize(this.state.widgetConfig._id, width, height)
+        setWidgetSize(this.state.widgetConfig._id, width, height)
     }
 
     componentDidMount () {
@@ -66,7 +66,7 @@ export class Widget extends React.Component<Props, State> {
         this.unsubscribe = store.subscribe(() => {
             let newValue = store.getState().widgets.list.filter(w => w._id === this.props._id)[0]
             if (this.state.widgetConfig !== newValue) {
-                myWidgetActions.query(newValue)
+                queryWidget(newValue)
                 .catch(err => console.warn(err))
                 this.setState({
                     widgetConfig: newValue
@@ -89,7 +89,7 @@ export class Widget extends React.Component<Props, State> {
     }
 
     removeWidget () {
-        myWidgetActions.delete(this.props._id)
+        deleteWidget(this.props._id)
         .then(() => myNotifActions.success('Widget removed'))
         .catch(err => myNotifActions.error(err.message))
     }
@@ -111,8 +111,8 @@ export class Widget extends React.Component<Props, State> {
                             dimensions:[this.state.widgetConfig.dimensions[0], col.ref]
                         }
                         // this.state.widgetConfig.dimensions[1] = col.ref
-                        myWidgetActions.update(tmp)
-                        .then(() => myWidgetActions.query(tmp))
+                        updateWidget(tmp)
+                        .then(() => queryWidget(tmp))
                     }}/>
             </div>
         }
@@ -148,8 +148,8 @@ export class Widget extends React.Component<Props, State> {
                     const newDims = [...this.state.widgetConfig.dimensions]
                     newDims[0] = col.ref
                     const tmp = {...this.state.widgetConfig, dimensions:newDims}
-                    myWidgetActions.update(tmp)
-                    .then(() =>  myWidgetActions.query(tmp))
+                    updateWidget(tmp)
+                    .then(() =>  queryWidget(tmp))
                 }}/>
         </div>
     }
@@ -160,8 +160,8 @@ export class Widget extends React.Component<Props, State> {
         // }
         alert('in fn')
         const tmp = {...this.state.widgetConfig, measures: [col.ref]}
-        myWidgetActions.update(tmp)
-        .then(() => myWidgetActions.query(tmp))
+        updateWidget(tmp)
+        .then(() => queryWidget(tmp))
         .catch(err => myNotifActions.success(err.message))
     }
 

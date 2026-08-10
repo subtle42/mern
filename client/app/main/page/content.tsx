@@ -5,8 +5,8 @@ import ReactGridLayout from 'react-grid-layout'
 import {Widget} from '../widget/widget'
 import { usePage } from '../../_common/hooks'
 import { store } from '../../../data/store'
-import { myWidgetActions } from '../../../data/widgets/actions'
 import { updatePage } from '../../../data/pages/actions'
+import { setWidgetSize } from '../../../data/widgets/actions'
 
 interface Props {}
 
@@ -37,7 +37,7 @@ export const PageContent: React.FunctionComponent<Props> = (props: Props) => {
             newItem: ReactGridLayout.Layout,
             placeholder: ReactGridLayout.Layout,
             event, element) => {
-            myWidgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 81)
+            setWidgetSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 81)
             updatePage(Object.assign({}, page, { layout }))
         },
         onResize: (layout: ReactGridLayout.Layout[],
@@ -45,7 +45,7 @@ export const PageContent: React.FunctionComponent<Props> = (props: Props) => {
             newItem: ReactGridLayout.Layout,
             placeholder: ReactGridLayout.Layout,
             event, element) => {
-            myWidgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 81)
+            setWidgetSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 81)
         }
     }
 

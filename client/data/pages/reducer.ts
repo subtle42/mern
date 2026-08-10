@@ -1,7 +1,11 @@
-import { factory } from '../baseReducer'
-import PageStore from './model'
+import { IPage } from '@mern/server/api/page/model'
+import { factory, GenericStore } from '../baseReducer'
 import { createSlice } from '@reduxjs/toolkit'
 
+class PageStore extends GenericStore {
+    list: IPage[] = []
+    selected?: string
+}
 
 export const PageSlice = createSlice({
     name: 'pages',

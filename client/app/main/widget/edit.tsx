@@ -22,8 +22,8 @@ import * as Validators from '../../_common/validators'
 import * as utils from '../../_common/utils'
 import { useWidget } from '../../_common/hooks'
 import { chartFormStrategy } from './edit/chartFormStrategy'
-import { myWidgetActions } from '../../../data/widgets/actions'
 import { myNotifActions } from '../../../data/notifications/actions'
+import { updateWidget } from '../../../data/widgets/actions'
 
 interface Props {
     id: string
@@ -189,7 +189,7 @@ export const EditButton: React.FunctionComponent<Props> = (props: Props) => {
     }
 
     const save = () => {
-        myWidgetActions.update(Object.assign({}, config, rules.value))
+        updateWidget(Object.assign({}, config, rules.value))
         .then(() => myNotifActions.success('Updated widget'))
         .then(() => setOpen(false))
         .catch(err => myNotifActions.error(err.message))
