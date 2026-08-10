@@ -12,10 +12,10 @@ import FontAwesome from 'react-fontawesome'
 
 import Modal from 'reactstrap/lib/Modal'
 import { OnEnter } from '../../_common/onEnter'
-import myPageActions from '../../../data/pages/actions'
 import { myNotifActions } from '../../../data/notifications/actions'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { handleRegister, MyInput } from '../utils'
+import { createPage, selectPage } from '../../../data/pages/actions'
 
 interface Props {}
 type Inputs = {
@@ -50,8 +50,8 @@ export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) =
     const runSubmit:SubmitHandler<Inputs> = (data) => {
         const title: string = data.title
         console.log('title', title)
-        myPageActions.create(title)
-        .then(pageId => myPageActions.select(pageId))
+        createPage(title)
+        .then(pageId => selectPage(pageId))
         .then(() => myNotifActions.notify('success', `Created page: ${title}`))
         .then(() => setOpen(false))
         .catch(err => myNotifActions.notify('danger', err.message))
@@ -61,8 +61,8 @@ export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) =
         if (event) event.stopPropagation()
 
         const title: string = getValues().title
-        myPageActions.create(title)
-        .then(pageId => myPageActions.select(pageId))
+        createPage(title)
+        .then(pageId => selectPage(pageId))
         .then(() => myNotifActions.notify('success', `Created page: ${title}`))
         .then(() => setOpen(false))
         .catch(err => myNotifActions.notify('danger', err.message))

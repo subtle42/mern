@@ -1,8 +1,8 @@
 import axios, { AxiosPromise } from 'axios'
 import { store } from '../store'
 import { IUser } from '@mern/server/api/user/model'
-import { myBookActions } from '../books/actions'
 import { connnect, disconnect } from '../socket'
+import { selectBook } from '../books/actions'
 
 class AuthActions {
     private nameSpace = 'auth'
@@ -56,7 +56,7 @@ class AuthActions {
             const books = store.getState().books.list
             if (books.length === 0) return
             unsub()
-            myBookActions.select(books[0]._id)
+            selectBook(books[0]._id)
         })
         
         return undefined

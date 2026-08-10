@@ -1,35 +1,26 @@
 import axios from 'axios'
 import { store } from '../store'
-import BaseActions from '../baseActions'
 import { IBook } from '@mern/server/api/book/model'
 import { joinRoom } from '../socket'
+import { bookCmds } from './reducer'
 
-class BookActions extends BaseActions {
-    constructor (store) {
-        super(store, 'books')
-    }
 
-    select (id: string) {
-        return this._select(id)
-        .then(() => joinRoom('pages', id))
-    }
-
-    create (input: string): Promise<string> {
-        return axios.post(`/api/books`, {
-            name: input
-        })
-        .then(res => res.data as string)
-    }
-
-    delete (book: IBook): Promise<void> {
-        return axios.delete(`/api/books/${book._id}`)
-        .then(res => res.data as undefined)
-    }
-
-    update (book: IBook): Promise<void> {
-        return axios.put(`/api/books`, book)
-        .then(res => res.data as undefined)
-    }
+export const selectBook = (id: string) => {
+    store.dispatch(bookCmds.select(id))
+    joinRoom('pages', id)
 }
 
-export const myBookActions = new BookActions(store)
+export const createBook = (name: string) => {
+    return axios.post<string>(`/api/books`, { name })
+    .then(res => res.data)
+}
+
+export const deleteBook = (id: string) => {
+    return axios.delete<void>(`/api/books/${id}`)
+    .then(res => res.data)
+}
+
+export const updateBook = (book: IBook) => {
+    return axios.put<void>(`/api/books`, book)
+    .then(res => res.data)
+}

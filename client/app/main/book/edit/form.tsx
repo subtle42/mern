@@ -13,10 +13,10 @@ import Button from 'reactstrap/lib/Button'
 import { useBook } from '../../../_common/hooks'
 import { useForm } from 'react-hook-form'
 import { FormFeedback } from 'reactstrap'
-import { myBookActions } from '../../../../data/books/actions'
 import { myNotifActions } from '../../../../data/notifications/actions'
 import { handleAsync, handleRegister, MyInput } from '../../utils'
 import { IBook } from '@mern/server/api/book/model'
+import { updateBook } from '../../../../data/books/actions'
 
 
 
@@ -36,7 +36,7 @@ export const BookEditForm: React.FunctionComponent<Props> = (props: Props) => {
 
     const save = (async(data) => {
         const tmp = Object.assign({}, book, data)
-        await myBookActions.update(tmp)
+        await updateBook(tmp)
         myNotifActions.success(`Updated book: ${tmp.name}`)
         props.onDone()
     })

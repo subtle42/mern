@@ -8,3 +8,5 @@ export const PageSlice = createSlice({
     initialState: new PageStore(),
     reducers: factory
 })
+
+export const pageCmds = PageSlice.actions

@@ -12,8 +12,8 @@ import {
     DropdownMenu,
     DropdownItem } from 'reactstrap'
 import { useBooks, useUser, useSelected } from '../_common/hooks'
-import { myBookActions } from '../../data/books/actions'
 import { myAuthActions } from '../../data/auth/actions'
+import { selectBook } from '../../data/books/actions'
 
 interface NavProps {}
 
@@ -37,7 +37,7 @@ export const MainNavBar: React.FunctionComponent<NavProps> = (props: NavProps) =
                         return <DropdownItem
                         key={index}
                         toggle={false}
-                        onClick={() => myBookActions.select(book._id)}>
+                        onClick={() => selectBook(book._id)}>
                         {book.name}
                     </DropdownItem>
                     })}

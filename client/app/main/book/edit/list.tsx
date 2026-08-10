@@ -10,9 +10,9 @@ import ModalFooter from 'reactstrap/lib/ModalFooter'
 import { ConfirmModal } from '../../../_common/confirmation'
 import { useBooks } from '../../../_common/hooks'
 import { IBook } from '@mern/server/api/book/model'
-import { myBookActions } from '../../../../data/books/actions'
 import { myNotifActions } from '../../../../data/notifications/actions'
 import { store } from '../../../../data/store'
+import { deleteBook } from '../../../../data/books/actions'
 
 interface Props {
     onEdit: (book: IBook) => void
@@ -23,7 +23,7 @@ export const BookList: React.FunctionComponent<Props> = (props: Props) => {
     const books = useBooks()
 
     const remove = (book: IBook) => {
-        myBookActions.delete(book)
+        deleteBook(book._id)
         .then(() => myNotifActions.success(`Removed book: ${book.name}`))
         .catch(err => myNotifActions.error(err.message))
     }

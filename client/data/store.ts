@@ -22,14 +22,14 @@ const allSlices = combineSlices(
 )
 
 // Should reset the store
-const rootReducer = (state: any, action: PayloadAction<void>) => {
-    if (action.type === 'RESET') {
-        state = undefined
-    }
-    return allSlices(state, action)
-}
+// const rootReducer = (state: any, action: PayloadAction<void>) => {
+//     if (action.type === 'RESET') {
+//         state = undefined
+//     }
+//     return allSlices(state, action)
+// }
 
 export const store = configureStore({
-    reducer: rootReducer,
+    reducer: allSlices,
     middleware: () => new Tuple(promiseMiddleware as any)
 })

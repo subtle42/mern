@@ -20,11 +20,11 @@ import FontAwesome from 'react-fontawesome'
 import { usePages } from '../../_common/hooks'
 import './page.css'
 import { store } from '../../../data/store'
-import myPageActions from '../../../data/pages/actions'
 import { IPage } from '@mern/server/api/page/model'
 import { myNotifActions } from '../../../data/notifications/actions'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { handleRegister, hasErorrs, MyInput } from '../utils'
+import { updatePage } from '../../../data/pages/actions'
 
 interface Props {
     _id?: string
@@ -69,7 +69,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
         if (hasErorrs(errors)) return
         const data = getValues()
         const page = store.getState().pages.list.find(page => page._id === props._id) as IPage
-        myPageActions.update({...page, ...data})
+        updatePage({...page, ...data})
         .then(() => myNotifActions.notify('success', 'Page updated'))
         .then(() => setOpen(false))
         .catch(err => myNotifActions.notify('danger', err.message))

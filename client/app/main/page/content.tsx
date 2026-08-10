@@ -5,8 +5,8 @@ import ReactGridLayout from 'react-grid-layout'
 import {Widget} from '../widget/widget'
 import { usePage } from '../../_common/hooks'
 import { store } from '../../../data/store'
-import myPageActions from '../../../data/pages/actions'
 import { myWidgetActions } from '../../../data/widgets/actions'
+import { updatePage } from '../../../data/pages/actions'
 
 interface Props {}
 
@@ -30,7 +30,7 @@ export const PageContent: React.FunctionComponent<Props> = (props: Props) => {
     const defaultLayoutConfig = {
         draggableHandle: '.card-title',
         onDragStop: (layout: ReactGridLayout.Layout[]) => {
-            myPageActions.update(Object.assign({}, page, { layout }))
+            updatePage(Object.assign({}, page, { layout }))
         },
         onResizeStop: (layout: ReactGridLayout.Layout[],
             oldItem: ReactGridLayout.Layout,
@@ -38,7 +38,7 @@ export const PageContent: React.FunctionComponent<Props> = (props: Props) => {
             placeholder: ReactGridLayout.Layout,
             event, element) => {
             myWidgetActions.setSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 81)
-            myPageActions.update(Object.assign({}, page, { layout }))
+            updatePage(Object.assign({}, page, { layout }))
         },
         onResize: (layout: ReactGridLayout.Layout[],
             oldItem: ReactGridLayout.Layout,

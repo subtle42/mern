@@ -8,3 +8,5 @@ export const BookSlice = createSlice({
     initialState: new BookStore(),
     reducers: factory
 })
+
+export const bookCmds = BookSlice.actions

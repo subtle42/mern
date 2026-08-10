@@ -14,10 +14,10 @@ import { FormControl, FormCtrlGroup } from '../../_common/validation'
 import * as Validators from '../../_common/validators'
 import * as utils from '../../_common/utils'
 import { OnEnter } from '../../_common/onEnter'
-import { myBookActions } from '../../../data/books/actions'
 import { myNotifActions } from '../../../data/notifications/actions'
 import { RegisterOptions, SubmitHandler, useForm } from 'react-hook-form'
 import { handleRegister, hasErorrs } from '../utils'
+import { createBook, selectBook } from '../../../data/books/actions'
 
 interface Props {}
 type Inputs = {
@@ -40,8 +40,8 @@ export const CreateBookButton: React.FunctionComponent<Props> = (prop: Props) =>
 
 
     const save:SubmitHandler<Inputs> = (data) => {
-        myBookActions.create(data.title)
-        .then(bookId => myBookActions.select(bookId))
+        createBook(data.title)
+        .then(bookId => selectBook(bookId))
         .then(() => myNotifActions.notify('success', `Created Book`))
         .then(() => setOpen(false))
         .catch(err => myNotifActions.notify('danger', err.message))

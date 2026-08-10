@@ -29,11 +29,11 @@ export const disconnect = () => {
 
 type Namespace = 'books' | 'pages' | 'widgets' | 'sources'
 
-export const joinRoom = async(namespace: Namespace, room: string) => {
+export const joinRoom = (namespace: Namespace, room: string) => {
     if (!hiddenWs || hiddenWs.readyState !== hiddenWs.OPEN) {
         return console.warn('No socket connection')
     }
-    await store.dispatch({
+    store.dispatch({
         type: `${namespace}/joinRoom`,
         payload: undefined
     })

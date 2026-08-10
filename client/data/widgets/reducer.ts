@@ -20,3 +20,5 @@ export const WidgetSlice = createSlice({
         }
     }
 })
+
+export const widgetCmds = WidgetSlice.actions

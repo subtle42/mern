@@ -13,8 +13,8 @@ import { CreatePageButton } from '../page/create'
 import { Redirect } from 'react-router'
 import { IPage } from '@mern/server/api/page/model'
 import { IUser } from '@mern/server/api/user/model'
-import myPageActions from '../../../data/pages/actions'
 import { usePages, useSelected, useUser } from '../../_common/hooks'
+import { selectPage } from '../../../data/pages/actions'
 
 // interface Props {
 //     pages: IPage[],
@@ -34,7 +34,7 @@ export const ContentComponent: React.FunctionComponent<void> = () => {
     // Select first page if selected page does NOT exist
     if (pages.length > 0
         && !pages.find(page => page._id === selected)) {
-        myPageActions.select(pages[0]._id)
+        selectPage(pages[0]._id)
     }
 
     const isSelected = (page: IPage): boolean => {
@@ -53,7 +53,7 @@ export const ContentComponent: React.FunctionComponent<void> = () => {
         return pages.map((page, index) => {
             return <NavItem key={index}
                 style={{ cursor: 'pointer' }}
-                onClick={() => myPageActions.select(page._id) }>
+                onClick={() => selectPage(page._id) }>
                 <NavLink active={isSelected(page)}
                     style={{ padding: 8 }}>
                     {page.name}
