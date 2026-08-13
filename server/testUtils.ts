@@ -45,8 +45,8 @@ export const createAllUsers = (app: FastifyInstance) => {
 }
 
 export const testSetup = async() => {
-    const db = await buildMongoDb()
-    const server = await buildServer(true)
+    // const db = await buildMongoDb()
+    const {server, db} = await buildServer(true)
     const tokens = await createAllUsers(server)
     const userIds = getUserIdFromToken(server, tokens)
     await server.listen()

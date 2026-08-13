@@ -74,6 +74,13 @@ export const buildServer = async(isTest?: boolean) => {
         })
         await myFastServer.register(import('@fastify/swagger-ui'))
     }
+
+    const mongo = await buildMongoDb();
+    console.log('mongo uri', mongo.getUri())
+    await myFastServer.register(await import('@fastify/mongodb'), {
+        url: mongo.getUri(),
+        forceClose: true
+    })
     await myFastServer.register(import('@fastify/multipart'))
     await myFastServer.register(import('@fastify/jwt'), {
         secret: config.shared.secret,
@@ -109,5 +116,5 @@ export const buildServer = async(isTest?: boolean) => {
         writeFileSync('swagger.json', JSON.stringify(swaggerData))
     }
 
-    return myFastServer
+    return {server: myFastServer, db: mongo}
 }

@@ -1,20 +1,18 @@
-import { MongoClient } from 'mongodb'
 import config from '../../config/environment'
+import { FastifyMongoObject, mongodb } from '@fastify/mongodb'
+import { MongoClient } from 'mongodb'
 
-export const columnInspectFactory: {[key: string]: (name: string, colRef: string) => Promise<any>} = {
+
+
+export const columnInspectFactory: {[key: string]: (client: MongoClient, name: string, colRef: string) => Promise<any>} = {
     text: () => Promise.resolve({}),
-    group: (name: string, colRef: string) => {
-        return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
-        .then(client => {
-            const db = client.db(config.db.mongoose.data.dbname)
-            return db.collection(name).distinct(colRef, {})
-            .then(data => ({ types: data }))
-            .finally(() => client.close())
-        })
+    group: (client, name, colRef) => {
+        const db = client.db(config.db.mongoose.data.dbname)
+        return db.collection(name).distinct(colRef, {})
+        .then(data => ({ types: data }))
     },
-    number: (name: string, colRef: string) => {
-        return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
-        .then(client => {
+    number: (client, name, colRef) => {
+        // return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
             const db = client.db(config.db.mongoose.data.dbname)
             return db.collection(name).aggregate([{
                 $group: {
@@ -25,12 +23,9 @@ export const columnInspectFactory: {[key: string]: (name: string, colRef: string
             }])
             .toArray()
             .then(data => data[0])
-            .finally(() => client.close())
-        })
     },
-    datetime: (name: string, colRef: string) => {
-        return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
-        .then(client => {
+    datetime: (client, name, colRef) => {
+        // return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
             const db = client.db(config.db.mongoose.data.dbname)
             return db.collection(name).aggregate([{
                 $group: {
@@ -41,8 +36,6 @@ export const columnInspectFactory: {[key: string]: (name: string, colRef: string
             }])
             .toArray()
             .then(data => data[0])
-            .finally(() => client.close())
-        })
     }
 }
 

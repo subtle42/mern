@@ -47,7 +47,7 @@ export const buildSourceApis = (app: FastifyInstance) => {
                 200: {type: 'string'}
             }
         }
-    }, ctrl.create)
+    }, ctrl.create(app.mongo))
 
     app.put('', {
         onRequest: [isAuthenticated],
@@ -75,7 +75,7 @@ export const buildSourceApis = (app: FastifyInstance) => {
         schema: {
             tags: ['Sources'],
         }
-    }, ctrl.query)
+    }, ctrl.query(app.mongo))
 
     app.log.info('done')
 }

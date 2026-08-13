@@ -1,6 +1,5 @@
 import { Source } from './model'
 import { getSourceSocket } from './socket'
-import { MongoClient } from 'mongodb'
 import { createReadStream, createWriteStream, statSync } from 'fs'
 import { ISourceColumn, ColumnType, IQuery, ISource } from 'common/models'
 // import { ISourceModel, MyRequest } from '../../dbModels'
@@ -10,6 +9,7 @@ import { columnInsertEtlFactory, columnInspectFactory } from './factories'
 import { Widget } from '../widget/model';
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { pipeline } from 'stream/promises'
+import { FastifyMongoObject } from '@fastify/mongodb'
 // const csv = require('fast-csv')
 
 const parseCSV  = async(fileName: string): Promise<string[][]> => {
@@ -73,7 +73,7 @@ const getSingleColumnType = (data: any[]): ColumnType => {
     return response
 }
 
-const importData = (rows: Array<any[]>, columnTypes: ColumnType[]): Promise<string> => {
+const importData = (mongo: FastifyMongoObject, rows: Array<any[]>, columnTypes: ColumnType[]): Promise<string> => {
     let name = 'mern_' + new Date().getTime()
 
     const toInsert = rows.map(row => {
@@ -84,7 +84,9 @@ const importData = (rows: Array<any[]>, columnTypes: ColumnType[]): Promise<stri
         return item
     })
 
-    return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
+    
+    // return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
+    return mongo.client.connect()
     .then(client => {
         const db = client.db(config.db.mongoose.data.dbname)
         return db.createCollection(name)
@@ -164,30 +166,30 @@ export const remove = async(
     res.send()
 }
 
-export const create = async(
+export const create = (mongo: FastifyMongoObject) => async(
     req: FastifyRequest<{Body: Omit<ISource, '_id'>}>,
     res: FastifyReply<{Reply: string}>
 ) => {
     // let fileData: string[][] = []
     // let headers: string[] = []
     // let columnTypes: ColumnType[] = []
-
     const myFile = await req.file()
     if (!myFile) throw new Error('No file')
 
-    await pipeline(myFile.file, createWriteStream(`./uploads/${myFile.filename}`))
+        await pipeline(myFile.file, createWriteStream(`./uploads/${myFile.filename}`))
 
     const data = await parseCSV(`./uploads/${myFile.filename}`)
     const headers = data[0]
     const fileData = data
     fileData.splice(0, 1)
     const columnTypes = await getColumnTypes(data)
-    const collectionName = await importData(fileData, columnTypes)
+    const collectionName = await importData(mongo, fileData, columnTypes)
     const mySource = await buildSourceObject(myFile.fieldname, req.user._id, headers, columnTypes, collectionName, fileData.length)
-
+    const myClient = await mongo.client.connect() as any
     const metaData = await Promise.all(
-        mySource.get('columns').map(col => columnInspectFactory[col.type](mySource.location, col.ref))
+        mySource.get('columns').map(col => columnInspectFactory[col.type](myClient, mySource.location, col.ref))
     )
+    myClient.close()
     mySource.set('columns', mySource.get('columns').map((col, index) => {
         if (metaData[index].types && metaData[index].types.length > 20) {
             return Object.assign(col, { type: 'text' })
@@ -237,7 +239,7 @@ export const create = async(
     // }))
 }
 
-export const query = async(
+export const query = (mongo: FastifyMongoObject) => async(
     req: FastifyRequest<{Body: IQuery}>,
     res: FastifyReply<{Reply: any[]}>
 ) => {
@@ -245,9 +247,9 @@ export const query = async(
 
     const mySource = await Source.findById(myQuery.sourceId)
     const query = isHistoQuery(mySource, myQuery)
-        ? await buildHistogramQuery(mySource, myQuery)
+        ? await buildHistogramQuery(mongo, mySource, myQuery)
         : await buildMongoQuery(mySource, myQuery)
-    const queryResults = await runMongoQuery(mySource, query)
+    const queryResults = await runMongoQuery(mongo, mySource, query)
     res.send(queryResults)
 }
 
@@ -284,7 +286,7 @@ const addFiltersToQuery = (source: ISource, input: IQuery, output: any[]) => {
     })
 }
 
-const buildHistogramQuery = (source: ISource, input: IQuery): Promise<any> => {
+const buildHistogramQuery = (mongo: FastifyMongoObject, source: ISource, input: IQuery): Promise<any> => {
     const colRef = input.dimensions[0]
     const output = []
     addFiltersToQuery(source, input, output)
@@ -296,7 +298,8 @@ const buildHistogramQuery = (source: ISource, input: IQuery): Promise<any> => {
         }
     })
 
-    return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
+    // return MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
+    return mongo.client.connect()
     .then(client => {
         const db = client.db(config.db.mongoose.data.dbname)
         return db.collection(source.location).aggregate(output)
@@ -384,9 +387,10 @@ const buildMongoQuery = (source: ISource, input: IQuery): any[] => {
     return output
 }
 
-const runMongoQuery = async(source: ISource, query: any[]): Promise<any[]> => {
+const runMongoQuery = async(mongo: FastifyMongoObject, source: ISource, query: any[]): Promise<any[]> => {
     if (query.length === 0) return Promise.resolve([])
-    const client = await MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
+    // const client = await MongoClient.connect(`mongodb://${config.db.mongoose.data.host}:${config.db.mongoose.data.port}`)
+    const client = await mongo.client.connect()
     const db = client.db(config.db.mongoose.data.dbname)
     
     return db.collection(source.location).aggregate(query)

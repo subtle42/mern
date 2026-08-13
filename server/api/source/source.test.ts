@@ -35,7 +35,6 @@ describe('Source API', () => {
                 .post('/api/sources')
                 .payload(formData)
                 .headers({authorization: tokens[0]})
-            console.log('mybody', res.body)
             t.assert.equal(res.statusCode, 200)
         })
     })

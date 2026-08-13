@@ -3,9 +3,10 @@ import { createUserAndLogin } from "./testUtils"
 
 
 
-buildMongoDb()
-.then(() => buildServer())
-.then(async(server) => {
+// buildMongoDb()
+// .then(() => buildServer())
+buildServer()
+.then(async({server, db}) => {
     const token = await createUserAndLogin(server, {
         email: 'test@test.com',
         name: 'test',
