@@ -119,7 +119,7 @@ export const remove = async(
     myBook.hasEditAccess(req.user._id)
     const myPage = await Page.findById(pageId).exec()
 
-    myPage.layout = myPage.layout.filter(item => item.i !== widgetId)
+    myPage.layout = myPage.layout.filter(item => item.i !== widgetId) as any
     await myPage.updateOne(myPage).exec()
     await Widget.findByIdAndDelete(widgetId).exec()
 

@@ -1,15 +1,19 @@
 import { Schema, model, InferSchemaType, Document, ObjectId } from 'mongoose'
 
 const AxisSchema = new Schema({
-    show: { type: Boolean, default: true },
+    show: { type: Boolean, default: true, required: true },
     max: Number,
     min: Number,
     ticks: Number
+}, {
+    _id: false
 })
 
 const OtherSchema = new Schema({
     ticks: Number,
     showLegend: Boolean
+}, {
+    _id: false
 })
 
 export const WidgetSchema = new Schema({
@@ -24,16 +28,19 @@ export const WidgetSchema = new Schema({
         required:true,
         default: { top: 5, bottom: 20, left: 35, right: 10 }
     },
-    dimensions: { type: Array, required: true, default: [] },
-    measures: { type: Array, required: true, default: [] },
+    dimensions: { type: [{type: Number, required: true}], required: true, default: [] },
+    measures: { type: [{type: String, required: true}], required: true, default: [] },
     type: {
         type: String,
         required: true,
         enum: ['histogram', 'scatter', 'line', 'barGroup']
     },
-    xAxis: { type: AxisSchema, default: {} },
-    yAxis: { type: AxisSchema, default: {} },
-    other: { type: OtherSchema, default: {} }
+    xAxis: { 
+        type: AxisSchema,
+        required: true
+    },
+    yAxis: { type: AxisSchema, default: {}, required: true },
+    other: { type: OtherSchema, default: {}, required: true }
 })
 
 export const Widget = model('Widget', WidgetSchema)

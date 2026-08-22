@@ -12,6 +12,7 @@ import { buildBookSocket } from './api/book/socket'
 import { buildPageSocket } from './api/page/socket'
 import { buildSourceSocket } from './api/source/socket'
 import { buildWidgetSocket } from './api/widget/socket'
+import { runBuildTypes } from './buildTypes';
 
 
 
@@ -113,7 +114,11 @@ export const buildServer = async(isTest?: boolean) => {
     
     if (!isTest) {
         const swaggerData = await myFastServer.swagger()
-        writeFileSync('swagger.json', JSON.stringify(swaggerData))
+        let data = JSON.stringify(swaggerData)
+        // data = data.replace(/"null",/g, '')
+        // data = data.replace(/,"null"/g, '')
+        writeFileSync('swagger.json', data)
+        await runBuildTypes()
     }
 
     return {server: myFastServer, db: mongo}
