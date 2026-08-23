@@ -10,14 +10,11 @@ import FormFeedback from 'reactstrap/lib/FormFeedback'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
 import Button from 'reactstrap/lib/Button'
 
-import { FormControl, FormCtrlGroup } from '../../_common/validation'
-import * as Validators from '../../_common/validators'
-import * as utils from '../../_common/utils'
 import { OnEnter } from '../../_common/onEnter'
-import { myNotifActions } from '../../../data/notifications/actions'
-import { RegisterOptions, SubmitHandler, useForm } from 'react-hook-form'
+import { SubmitHandler, useForm } from 'react-hook-form'
 import { handleRegister, hasErorrs } from '../utils'
 import { createBook, selectBook } from '../../../data/books/actions'
+import { myNotifActions } from '../../../data/notifications/actions'
 
 interface Props {}
 type Inputs = {
@@ -39,12 +36,11 @@ export const CreateBookButton: React.FunctionComponent<Props> = (prop: Props) =>
     }))
 
 
-    const save:SubmitHandler<Inputs> = (data) => {
-        createBook(data.title)
-        .then(bookId => selectBook(bookId))
-        .then(() => myNotifActions.notify('success', `Created Book`))
-        .then(() => setOpen(false))
-        .catch(err => myNotifActions.notify('danger', err.message))
+    const save:SubmitHandler<Inputs> = async(data) => {
+        const bookId = await createBook(data.title)
+        selectBook(bookId)
+        myNotifActions.notify('success', `Created Book`)
+        setOpen(false)
     }
 
     const myToggle = () => {
