@@ -16,6 +16,12 @@ const OtherSchema = new Schema({
     _id: false
 })
 
+const MeasureSchena = new Schema({
+    ref: {type: String, required: true}
+}, {
+    _id: false
+})
+
 export const WidgetSchema = new Schema({
     pageId: { type: String, required: true },
     sourceId: { type: String, required: true },
@@ -28,8 +34,8 @@ export const WidgetSchema = new Schema({
         required:true,
         default: { top: 5, bottom: 20, left: 35, right: 10 }
     },
-    dimensions: { type: [{type: Number, required: true}], required: true, default: [] },
-    measures: { type: [{type: String, required: true}], required: true, default: [] },
+    dimensions: { type: [{type: String, required: true}], required: true, default: [] },
+    measures: { type: [{type: MeasureSchena, required: true}], required: true, default: [] },
     type: {
         type: String,
         required: true,

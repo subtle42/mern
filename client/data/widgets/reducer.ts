@@ -1,6 +1,7 @@
+import { IWidget } from '../../app/mySchemas'
 import { factory, GenericStore } from '../baseReducer'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { IWidget } from '@mern/server/api/widget/model'
+// import { IWidget } from '@mern/server/api/widget/model'
 
 
 class WidgetStore extends GenericStore {

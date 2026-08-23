@@ -20,23 +20,25 @@ import FontAwesome from 'react-fontawesome'
 import { usePages } from '../../_common/hooks'
 import './page.css'
 import { store } from '../../../data/store'
-import { IPage } from '@mern/server/api/page/model'
+// import { IPage } from '@mern/server/api/page/model'
 import { myNotifActions } from '../../../data/notifications/actions'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { handleRegister, hasErorrs, MyInput } from '../utils'
 import { updatePage } from '../../../data/pages/actions'
+import { ajvResolver } from '@hookform/resolvers/ajv'
+import { IPage} from '../../mySchemas'
+import {swagger} from '../../swagger'
 
 interface Props {
     _id?: string
 }
 
-type FormInputs = Omit<IPage, 'bookId' | 'layout' | '_id'>
-
 
 export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) => {
-    const {register, handleSubmit, getValues, reset, formState: {errors, isDirty}} = useForm<FormInputs>({
+    const {register, handleSubmit, getValues, reset, formState: {errors, isDirty}} = useForm<IPage>({
         mode: 'onChange',
         reValidateMode: 'onChange',
+        resolver: ajvResolver(swagger.components.schemas.Page as any),
         defaultValues: {
             name: '',
             isDraggable: false,
@@ -56,7 +58,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
     const pages = usePages()
 
     const open = () => {
-        const toEdit = store.getState().pages.list.find(page => page._id === props._id)
+        const toEdit = store.getState().pages.list.find(page => page._id === props._id) as IPage
         if (!toEdit) {
             console.warn(`Unable to find page: ${props._id}`)
             return

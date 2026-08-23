@@ -21,7 +21,7 @@ export const runBuildTypes = async() => {
 
     Object.keys(schemas).forEach(key => {
         pageData += `export type I${key} = Omit<components['schemas']['${key}'], '__v'>\n`
-        pageData += `export const ${key}Schema =  swagger.components['schemas']['${key}'] as JSONSchemaType<I${key}>\n`
+        // pageData += `export const ${key}Schema =  swagger.components['schemas']['${key}'] as JSONSchemaType<I${key}>\n`
     })
     writeFileSync('../client/app/mySchemas.ts', pageData)
 }

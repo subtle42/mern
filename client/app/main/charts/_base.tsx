@@ -6,7 +6,7 @@ import { format } from 'd3-format'
 import { select } from 'd3-selection'
 import { brushX } from 'd3-brush'
 import './style.css'
-import { IWidget } from '@mern/server/api/widget/model'
+import { IWidget } from '../../mySchemas'
 import { mySourceActions } from '../../../data/sources/actions'
 import { store } from '../../../data/store'
 

@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { store } from '../store'
-import { IPage } from '@mern/server/api/page/model'
 import { joinRoom } from '../socket'
 import { pageCmds } from './reducer'
+import { IPage } from '../../app/mySchemas'
 
 
 export const selectPage = (id: string) => {

@@ -1,4 +1,4 @@
-import { IPage } from '@mern/server/api/page/model'
+import { IPage } from '../../app/mySchemas'
 import { factory, GenericStore } from '../baseReducer'
 import { createSlice } from '@reduxjs/toolkit'
 
