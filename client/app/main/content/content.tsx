@@ -11,10 +11,9 @@ import { EditSourceButton } from '../source/edit'
 import { PageContent } from '../page/content'
 import { CreatePageButton } from '../page/create'
 import { Redirect } from 'react-router'
-import { IPage } from '@mern/server/api/page/model'
-import { IUser } from '@mern/server/api/user/model'
 import { usePages, useSelected, useUser } from '../../_common/hooks'
 import { selectPage } from '../../../data/pages/actions'
+import { IPage } from '../../mySchemas'
 
 // interface Props {
 //     pages: IPage[],

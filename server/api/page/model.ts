@@ -1,6 +1,33 @@
 import { model, Schema, InferSchemaType, Document} from 'mongoose'
 
 
+const layoutSchema = new Schema({
+    i: {type: String, required: true},
+    x: {type: Number, required: true},
+    y: {type: Number, required: true},
+    w: {type: Number, required: true},
+    h: {type: Number, required: true},
+    // isDraggable?: boolean | undefined;
+
+    /**
+     * If false, will not be resizable. Overrides `static`.
+     */
+    // isResizable?: boolean | undefined;
+
+    /**
+     * By default, a handle is only shown on the bottom-right (southeast) corner.
+     * Note that resizing from the top or left is generally not intuitive.
+     */
+    // resizeHandles?: ResizeHandle[] | undefined;
+
+    /**
+     * If true and draggable, item will be moved only within grid.
+     */
+    // isBounded?: boolean | undefined;
+}, {
+    _id: false
+})
+
 export const pageSchema = new Schema({
     bookId: { type: String, required: true },
     name: { type: String, required: true },
@@ -24,30 +51,7 @@ export const pageSchema = new Schema({
         required: true
     },
     cols: { type: Number, min: 1, max: 60, default: 3, required: true },
-    layout: { type: [{
-        i: {type: String, required: true},
-        x: {type: Number, required: true},
-        y: {type: Number, required: true},
-        w: {type: Number, required: true},
-        h: {type: Number, required: true},
-        // isDraggable?: boolean | undefined;
-
-        /**
-         * If false, will not be resizable. Overrides `static`.
-         */
-        // isResizable?: boolean | undefined;
-
-        /**
-         * By default, a handle is only shown on the bottom-right (southeast) corner.
-         * Note that resizing from the top or left is generally not intuitive.
-         */
-        // resizeHandles?: ResizeHandle[] | undefined;
-
-        /**
-         * If true and draggable, item will be moved only within grid.
-         */
-        // isBounded?: boolean | undefined;
-    }], default: [], required: true }
+    layout: { type: [layoutSchema], default: [], required: true }
 })
 
 

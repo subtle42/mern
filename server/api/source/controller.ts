@@ -101,7 +101,7 @@ const importData = (mongo: FastifyMongoObject, rows: Array<any[]>, columnTypes: 
             }
             return name
         })
-        .finally(() => client.close())
+        // .finally(() => client.close())
     })
 }
 
@@ -189,7 +189,7 @@ export const create = (mongo: FastifyMongoObject) => async(
     const metaData = await Promise.all(
         mySource.get('columns').map(col => columnInspectFactory[col.type](myClient, mySource.location, col.ref))
     )
-    myClient.close()
+    // myClient.close()
     mySource.set('columns', mySource.get('columns').map((col, index) => {
         if (metaData[index].types && metaData[index].types.length > 20) {
             return Object.assign(col, { type: 'text' })
@@ -308,7 +308,7 @@ const buildHistogramQuery = (mongo: FastifyMongoObject, source: ISource, input: 
             min: 0,
             max: 0
         })
-        .finally(() => client.close())
+        // .finally(() => client.close())
     })
     .then(metaData => {
         const { min, max } = metaData
@@ -396,7 +396,7 @@ const runMongoQuery = async(mongo: FastifyMongoObject, source: ISource, query: a
     return db.collection(source.location).aggregate(query)
         // .limit(500)
         .toArray()
-        .finally(() => client.close())
+        // .finally(() => client.close())
 }
 
 export const getMySources = async(

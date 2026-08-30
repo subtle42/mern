@@ -43,6 +43,7 @@ export const WidgetSchema = new Schema({
     },
     xAxis: { 
         type: AxisSchema,
+        default: {},
         required: true
     },
     yAxis: { type: AxisSchema, default: {}, required: true },
