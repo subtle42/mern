@@ -50,13 +50,17 @@ export class Widget extends React.Component<Props, State> {
             widgetConfig: widget,
             source: source
         })
+        
     }
 
     componentDidUpdate () {
         const width = this.myRef.current.offsetWidth
-        const height = this.myRef.current.offsetHeight - 58
+        const height = this.myRef.current.offsetHeight - 65
         if (!this.state.widgetConfig) return
         if (this.state.width === width && this.state.height === height) return
+        // this is needed so that the widget wont mess up on resize stop
+        const tmp = store.getState().widgets.sizes[this.props._id]
+        if (tmp) return
         setWidgetSize(this.state.widgetConfig._id, width, height)
     }
 

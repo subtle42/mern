@@ -1,8 +1,8 @@
 import { store } from '../store'
 import axios from 'axios'
-import { IWidget } from '@mern/server/api/widget/model'
 import { myDataActions } from '../data/actions'
 import { widgetCmds } from './reducer'
+import { IWidget } from '../../app/mySchemas'
 
 
 export const createManyWidgets = async(sourceId: string, types: string[]) => {

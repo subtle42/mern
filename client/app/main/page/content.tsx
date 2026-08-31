@@ -1,80 +1,65 @@
 import 'react-grid-layout/css/styles.css'
 
 import * as React from 'react'
-import ReactGridLayout from 'react-grid-layout'
-import {Widget} from '../widget/widget'
+import ReactGridLayout, { Layout, GridLayoutProps, useGridLayout, useContainerWidth } from 'react-grid-layout'
+import { calcGridCellDimensions } from 'react-grid-layout/core'
+import {Widget, WidgetFn} from '../widget/widget'
 import { usePage } from '../../_common/hooks'
 import { store } from '../../../data/store'
 import { updatePage } from '../../../data/pages/actions'
-import { setWidgetSize } from '../../../data/widgets/actions'
+import { queryWidget, setWidgetSize } from '../../../data/widgets/actions'
 
 interface Props {}
 
-const useWindowWidth = (): number => {
-    const [width, setWidth] = React.useState(window.innerWidth)
-
-    React.useEffect(() => {
-        const handleResize = () => setWidth(window.innerWidth)
-        window.addEventListener('resize', handleResize)
-        return () => window.removeEventListener('resize', handleResize)
-    })
-
-    return width
-}
-
 export const PageContent: React.FunctionComponent<Props> = (props: Props) => {
     const page = usePage(store.getState().pages.selected || '')
-    const width = useWindowWidth()
-
-    // Not using the onLayoutChange due to it trigger on layout load
-    const defaultLayoutConfig = {
-        draggableHandle: '.card-title',
-        onDragStop: (layout: ReactGridLayout.Layout[]) => {
-            updatePage(Object.assign({}, page, { layout }))
-        },
-        onResizeStop: (layout: ReactGridLayout.Layout[],
-            oldItem: ReactGridLayout.Layout,
-            newItem: ReactGridLayout.Layout,
-            placeholder: ReactGridLayout.Layout,
-            event, element) => {
-            setWidgetSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 81)
-            updatePage(Object.assign({}, page, { layout }))
-        },
-        onResize: (layout: ReactGridLayout.Layout[],
-            oldItem: ReactGridLayout.Layout,
-            newItem: ReactGridLayout.Layout,
-            placeholder: ReactGridLayout.Layout,
-            event, element) => {
-            setWidgetSize(oldItem.i, element.parentElement.offsetWidth, element.parentElement.offsetHeight - 81)
-        }
-    }
-
-    // const ReactGridLayout = Loadable({
-    //     loader: () => import('react-grid-layout'),
-    // })
-
-    // const Widget = Loadable({
-    //     loader: () => import('../widget/widget')
-    //         .then(mod => mod.Widget),
-    // }) as any
-
-    const asdf = Object.assign({}, defaultLayoutConfig, page) as any
+    const { width, containerRef, mounted } = useContainerWidth();
+    const {cellWidth, cellHeight} = calcGridCellDimensions({
+        cols:4,
+        rowHeight:150,
+        width: width,
+        margin: [10,10],
+        containerPadding: [10, 10]
+    })
 
     const buildGrid = (): JSX.Element => {
         if (!page) return <div />
 
         return <ReactGridLayout className='layout'
+            {...page}
+            gridConfig={{
+                cols: 4,
+                rowHeight: 150,
+                margin: [10,10],
+                containerPadding: [10, 10]
+            }}
             width={width}
-            {...asdf}>
+            dragConfig={{handle: '.card-title'}}
+            onDragStop={(layout) => updatePage(Object.assign({}, page, { layout }))}
+            onResizeStop={(layout, oldItem, newItem, placeholder, ev, element) => {
+                if (!oldItem) throw Error('no old item')
+                if (!element) throw Error('no element')
+                setWidgetSize(oldItem.i, (cellWidth*newItem.w)-10, cellHeight*newItem.h-81)
+                updatePage(Object.assign({}, page, { layout }))
+            }}
+            onResize={(layout, oldItem, newItem, placeholder, ev, element) => {
+                if (!oldItem) throw Error('no old item')
+                if (!element) throw Error('no element')
+                setWidgetSize(oldItem.i, element.parentElement.offsetWidth-10, element.parentElement.offsetHeight - 91)
+            }}
+        >
             {page.layout.map((layoutItem) => {
                 return <div
                     style={{ zIndex: 100 - layoutItem.y - layoutItem.x }}
                     key={layoutItem.i} >
+                        {/* <WidgetFn _id={layoutItem.i} /> */}
                     <Widget _id={layoutItem.i} />
                 </div>
             })}
         </ReactGridLayout>
     }
 
-    return buildGrid()
+    return <div ref={containerRef}>
+        {mounted && buildGrid()}
+    </div>
 }

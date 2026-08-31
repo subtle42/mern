@@ -1,4 +1,4 @@
-import { IWidget } from '@mern/server/api/widget/model'
+import { IWidget } from '../../app/mySchemas'
 import { store } from '../store'
 import axios from 'axios'
 // import { IWidget, IQuery } from 'common/models'

@@ -1,11 +1,8 @@
 import * as React from 'react'
 import { store } from '../../data/store'
-import { IBook } from '@mern/server/api/book/model'
-import { IPage } from '@mern/server/api/page/model'
-import { IWidget } from '@mern/server/api/widget/model'
-import { ISource } from '@mern/server/api/source/model'
-import { IUser } from '@mern/server/api/user/model'
 import { NotificationModel } from '../../data/notifications/reducer'
+import { IBook, IPage, ISource, IWidget } from '../mySchemas'
+import { IUser } from '@mern/server/api/user/model'
 
 const _useList = (namespace: string) => {
     const [data, setData] = React.useState(
@@ -80,6 +77,23 @@ export const useWidgets = (): IWidget[] => {
 
 export const useWidget = (id: string): IWidget => {
     return _useItem('widgets', id)
+}
+
+export const useData = (id: string): any[] => {
+    const [data, setData] = React.useState(
+        store.getState().data.results[id] || []
+    )
+
+    React.useEffect(() => {
+        const unsubscribe = store.subscribe(() => {
+            const newData = store.getState().data.results[id]
+            if (newData === data) return
+            setData(newData)
+        })
+        return () => unsubscribe()
+    }, ['data', id])
+
+    return data
 }
 
 export const useSources = (): ISource[] => {
