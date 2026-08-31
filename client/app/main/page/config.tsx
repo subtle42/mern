@@ -41,12 +41,6 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
         resolver: ajvResolver(swagger.components.schemas.Page as any),
         defaultValues: {
             name: '',
-            isDraggable: false,
-            isResizable: false,
-            preventCollision: false,
-            margin: [0,0],
-            containerPadding: [0,0],
-            cols: 1
         },
     })
     const [isOpen, setOpen] = React.useState(false)
@@ -70,6 +64,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
     const close = () => {
         if (hasErorrs(errors)) return
         const data = getValues()
+        console.log('page', data)
         const page = store.getState().pages.list.find(page => page._id === props._id) as IPage
         updatePage({...page, ...data})
         .then(() => myNotifActions.notify('success', 'Page updated'))
@@ -107,14 +102,15 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                             type='number'
                             min={1}
                             max={30}
-                            register={() => register('cols', handleRegister({
+                            register={() => register('gridConfig.cols', handleRegister({
                                 required: true,
+                                valueAsNumber: true,
                                 min: 1,
                                 max: 30
                             }))}
-                            invalid={!!errors.cols} 
+                            invalid={!!errors.gridConfig?.cols} 
                         />
-                        <FormFeedback>{errors.cols?.message}</FormFeedback>
+                        <FormFeedback>{errors.gridConfig?.cols?.message}</FormFeedback>
                     </FormGroup>
                 </Col>
             </Row>
@@ -131,14 +127,15 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                                     type='number'
                                     min={0}
                                     max={100}
-                                    register={() => register(`margin.0`, handleRegister({
+                                    register={() => register('gridConfig.margin.0', handleRegister({
                                         required: true,
                                         min: 0,
+                                valueAsNumber: true,
                                         max: 100
                                     }))}
-                                    invalid={errors.margin ? !!errors.margin[0]?.message : false}
+                                    invalid={errors.gridConfig?.margin ? !!errors.gridConfig?.margin[0]?.message : false}
                                 />
-                                <FormFeedback>{errors.margin && errors.margin[0]?.message}</FormFeedback>
+                                <FormFeedback>{errors.gridConfig?.margin && errors.gridConfig?.margin[0]?.message}</FormFeedback>
                             </Col>
                             <Col xs={6}>
                                 <Label>Vertical</Label>
@@ -146,14 +143,15 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                                     type='number'
                                     min={0}
                                     max={100}
-                                    register={() => register(`margin.1`, handleRegister({
+                                    register={() => register('gridConfig.margin.1', handleRegister({
                                         required: true,
                                         min: 0,
+                                valueAsNumber: true,
                                         max: 100
                                     }))}
-                                    invalid={errors.margin ? !!errors.margin[1]?.message : false}
+                                    invalid={errors.gridConfig?.margin ? !!errors.gridConfig?.margin[1]?.message : false}
                                 />
-                                <FormFeedback>{errors.margin && errors.margin[0]?.message}</FormFeedback>
+                                <FormFeedback>{errors.gridConfig?.margin && errors.gridConfig?.margin[0]?.message}</FormFeedback>
                             </Col>
                         </Row>
                     </Card>
@@ -170,14 +168,15 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                                     type='number'
                                     min={0}
                                     max={100}
-                                    register={() => register('containerPadding.0', handleRegister({
+                                    register={() => register('gridConfig.containerPadding.0', handleRegister({
                                         required: true,
                                         min: 0,
+                                valueAsNumber: true,
                                         max: 100
                                     }))}
-                                    invalid={errors.containerPadding ? !!errors.containerPadding[0]?.message : false} 
+                                    invalid={errors.gridConfig?.containerPadding ? !!errors.gridConfig?.containerPadding[0]?.message : false} 
                                 />
-                                <FormFeedback>{errors.containerPadding && errors.containerPadding[0]?.message}</FormFeedback>
+                                <FormFeedback>{errors.gridConfig?.containerPadding && errors.gridConfig?.containerPadding[0]?.message}</FormFeedback>
                             </Col>
                             <Col xs={6}>
                                 <Label>Vertical</Label>
@@ -185,14 +184,15 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                                     type='number'
                                     min={0}
                                     max={100}
-                                    register={() => register('containerPadding.1', handleRegister({
+                                    register={() => register('gridConfig.containerPadding.1', handleRegister({
                                         required: true,
                                         min: 0,
+                                valueAsNumber: true,
                                         max: 100
                                     }))}
-                                    invalid={errors.containerPadding ? !!errors.containerPadding[1]?.message : false} 
+                                    invalid={errors.gridConfig?.containerPadding ? !!errors.gridConfig?.containerPadding[1]?.message : false} 
                                 />
-                                <FormFeedback>{errors.containerPadding && errors.containerPadding[1]?.message}</FormFeedback>
+                                <FormFeedback>{errors.gridConfig?.containerPadding && errors.gridConfig?.containerPadding[1]?.message}</FormFeedback>
                             </Col>
                         </Row>
                     </Card>
@@ -203,7 +203,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                    <FormGroup switch>
                         <MyInput id='isDraggable'
                             type='switch'
-                            register={() => register('isDraggable')}
+                            register={() => register('dropConfig.enabled')}
                         />
                         <Label>Draggable</Label>
                         <FontAwesome
@@ -221,7 +221,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                     <FormGroup switch>
                         <MyInput
                             type='switch'
-                            register={() => register('isResizable')}
+                            register={() => register('resizeConfig.enabled')}
                         />
                         <Label>Resizable</Label>
                         <FontAwesome
@@ -236,7 +236,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                     </FormGroup>
                 </Col>
                 <Col xs={4} style={{ paddingLeft: 0 }}>
-                    <FormGroup switch>
+                    {/* <FormGroup switch>
                         <MyInput
                             type='switch'
                             register={() => register('preventCollision')}
@@ -251,7 +251,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                                 target='rearrangeable-tip'>
                                 Grid items won't change position when being dragged over.
                             </Tooltip>
-                    </FormGroup>
+                    </FormGroup> */}
                 </Col>
             </Row>
         </div>

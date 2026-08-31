@@ -1,41 +1,21 @@
 import { model, Schema, InferSchemaType, Document} from 'mongoose'
 
 
-const layoutSchema = new Schema({
+const LayoutSchema = new Schema({
     i: {type: String, required: true},
-    x: {type: Number, required: true},
-    y: {type: Number, required: true},
-    w: {type: Number, required: true},
-    h: {type: Number, required: true},
-    // isDraggable?: boolean | undefined;
-
-    /**
-     * If false, will not be resizable. Overrides `static`.
-     */
-    // isResizable?: boolean | undefined;
-
-    /**
-     * By default, a handle is only shown on the bottom-right (southeast) corner.
-     * Note that resizing from the top or left is generally not intuitive.
-     */
-    // resizeHandles?: ResizeHandle[] | undefined;
-
-    /**
-     * If true and draggable, item will be moved only within grid.
-     */
-    // isBounded?: boolean | undefined;
+    x: {type: Number, min: 0, required: true},
+    y: {type: Number, min: 0, required: true},
+    w: {type: Number, min: 1, required: true},
+    h: {type: Number, min: 1, required: true},
 }, {
     _id: false
 })
 
-export const pageSchema = new Schema({
-    bookId: { type: String, required: true },
-    name: { type: String, required: true },
-    isDraggable: { type: Boolean, required: true, default: true },
-    isResizable: { type: Boolean, required: true, default: true },
-    preventCollision: { type: Boolean, required: true, default: false },
+const GridConfigSchema = new Schema({
+    cols: {type: Number, min: 1, max: 100, default: 3, required: true},
+    rowHeight: {type: Number, min: 100, max:1000, default: 150, required: true},
     margin: {
-        type: [{ type: Number, required: true }],
+        type: [{type: Number, required: true}],
         validate: [(val: number[]) => {
             return val.length === 2
         }, 'Margins must be an array of 2.'],
@@ -43,15 +23,36 @@ export const pageSchema = new Schema({
         required: true
     },
     containerPadding: {
-        type: [{ type: Number, required: true }],
+        type: [{type: Number, required: true}],
         validate: [(val: number[]) => {
             return val.length === 2
         }, 'Conatiner padding must be an array of 2.'],
-        default: [60, 10],
+        default: [10, 10],
         required: true
-    },
-    cols: { type: Number, min: 1, max: 60, default: 3, required: true },
-    layout: { type: [layoutSchema], default: [], required: true }
+    }
+}, {
+    _id: false,
+})
+
+const ResizeConfigSchema = new Schema({
+    enabled: {type: Boolean, default: true, required: true}
+}, {
+    _id: false
+})
+
+const DropConfigSchema = new Schema({
+    enabled: {type: Boolean, default: true, required: true}
+}, {
+    _id: false
+})
+
+export const pageSchema = new Schema({
+    bookId: { type: String, required: true },
+    name: { type: String, required: true },
+    layout: { type: [LayoutSchema], default: [], required: true },
+    gridConfig: { type: GridConfigSchema, default: () => ({}),  required: true },
+    resizeConfig: { type: ResizeConfigSchema, default: () => ({}), required: true },
+    dropConfig: { type: DropConfigSchema, default: () => ({}), required: true }
 })
 
 
