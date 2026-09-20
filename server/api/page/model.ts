@@ -1,4 +1,4 @@
-import { model, Schema, InferSchemaType, Document} from 'mongoose'
+import { model, Schema, InferSchemaType, Document, SchemaType } from 'mongoose'
 
 
 const LayoutSchema = new Schema({
@@ -15,23 +15,27 @@ const GridConfigSchema = new Schema({
     cols: {type: Number, min: 1, max: 100, default: 3, required: true},
     rowHeight: {type: Number, min: 100, max:1000, default: 150, required: true},
     margin: {
-        type: [{type: Number, required: true}],
+        type: [{type: Number, min: 0, max: 500, required: true}],
         validate: [(val: number[]) => {
             return val.length === 2
         }, 'Margins must be an array of 2.'],
+        minItems: 2,
+        maxItems: 2,
         default: [10, 10],
         required: true
     },
     containerPadding: {
-        type: [{type: Number, required: true}],
+        type: [{type: Number, min: 0, max: 500, required: true}],
         validate: [(val: number[]) => {
             return val.length === 2
         }, 'Conatiner padding must be an array of 2.'],
+        minItems: 2,
+        maxItems: 2,
         default: [10, 10],
         required: true
     }
 }, {
-    _id: false,
+    _id: false
 })
 
 const ResizeConfigSchema = new Schema({
@@ -53,6 +57,8 @@ export const pageSchema = new Schema({
     gridConfig: { type: GridConfigSchema, default: () => ({}),  required: true },
     resizeConfig: { type: ResizeConfigSchema, default: () => ({}), required: true },
     dropConfig: { type: DropConfigSchema, default: () => ({}), required: true }
+}, {
+    versionKey: false,
 })
 
 

@@ -13,11 +13,11 @@ import { BarGrouped } from '../charts/barGrouped'
 import { Scatter } from '../charts/scatter'
 import { Line } from '../charts/line'
 import { FilterBadge } from './filterBadge'
-import { IWidget } from '@mern/server/api/widget/model'
 import { ISource, ISourceColumn } from '@mern/server/api/source/model'
 import { store } from '../../../data/store'
 import { myNotifActions } from '../../../data/notifications/actions'
 import { deleteWidget, queryWidget, setWidgetSize, updateWidget } from '../../../data/widgets/actions'
+import { IWidget } from '../../mySchemas'
 
 interface Props {
     _id: string
@@ -34,6 +34,7 @@ class State {
 export class Widget extends React.Component<Props, State> {
     state = new State()
     unsubscribe!: Function
+    unsubList: Function[] = []
     myRef: any = React.createRef()
 
     getInitalState () {
@@ -54,42 +55,38 @@ export class Widget extends React.Component<Props, State> {
     }
 
     componentDidUpdate () {
-        const width = this.myRef.current.offsetWidth
-        const height = this.myRef.current.offsetHeight - 65
-        if (!this.state.widgetConfig) return
-        if (this.state.width === width && this.state.height === height) return
-        // this is needed so that the widget wont mess up on resize stop
-        const tmp = store.getState().widgets.sizes[this.props._id]
-        if (tmp) return
-        setWidgetSize(this.state.widgetConfig._id, width, height)
+        setTimeout(() => {
+            const width = this.myRef.current.offsetWidth
+            const height = this.myRef.current.offsetHeight - 65
+            if (!this.state.widgetConfig) return
+            if (this.state.width === width && this.state.height === height) return
+            // this is needed so that the widget wont mess up on resize stop
+            const tmp = store.getState().widgets.sizes[this.props._id]
+            if (tmp) return
+            setWidgetSize(this.state.widgetConfig._id, width, height)
+        }, 200)
     }
 
     componentDidMount () {
         this.getInitalState()
 
-        this.unsubscribe = store.subscribe(() => {
-            let newValue = store.getState().widgets.list.filter(w => w._id === this.props._id)[0]
-            if (this.state.widgetConfig !== newValue) {
-                queryWidget(newValue)
-                .catch(err => console.warn(err))
-                this.setState({
-                    widgetConfig: newValue
-                })
-            }
+        this.unsubList.push(store.subscribe(() => {
+            const newValue = store.getState().widgets.list.filter(w => w._id === this.props._id)[0]
+            if (this.state.widgetConfig === newValue) return
+            queryWidget(newValue).catch(err => console.warn(err))
+            this.setState({ widgetConfig: newValue })
+        }))
 
+        this.unsubList.push(store.subscribe(() => {
             if (!this.state.widgetConfig) return
-
             let newSource = store.getState().sources.list.filter(s => s._id === this.state.widgetConfig.sourceId)[0]
-            if (this.state.source !== newSource) {
-                this.setState({
-                    source: newSource
-                })
-            }
-        })
+            if (this.state.source === newSource) return
+            this.setState({ source: newSource })
+        }))
     }
 
     componentWillUnmount () {
-        this.unsubscribe && this.unsubscribe()
+        this.unsubList.forEach(unsub => unsub())
     }
 
     removeWidget () {

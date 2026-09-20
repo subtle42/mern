@@ -1,9 +1,9 @@
 import 'react-grid-layout/css/styles.css'
 
 import * as React from 'react'
-import ReactGridLayout, { Layout, GridLayoutProps, useGridLayout, useContainerWidth } from 'react-grid-layout'
+import ReactGridLayout, { useContainerWidth } from 'react-grid-layout'
 import { calcGridCellDimensions } from 'react-grid-layout/core'
-import {Widget, WidgetFn} from '../widget/widget'
+import {Widget} from '../widget/widget'
 import { usePage } from '../../_common/hooks'
 import { store } from '../../../data/store'
 import { updatePage } from '../../../data/pages/actions'
@@ -31,7 +31,7 @@ export const PageContent: React.FunctionComponent<Props> = (props: Props) => {
                 cols: 4,
                 rowHeight: 150,
                 margin: [10,10],
-                containerPadding: [10, 10]
+                containerPadding: [10, 10],
             }}
             width={width}
             dragConfig={{handle: '.card-title'}}
@@ -39,7 +39,7 @@ export const PageContent: React.FunctionComponent<Props> = (props: Props) => {
             onResizeStop={(layout, oldItem, newItem, placeholder, ev, element) => {
                 if (!oldItem) throw Error('no old item')
                 if (!element) throw Error('no element')
-                setWidgetSize(oldItem.i, (cellWidth*newItem.w)-10, cellHeight*newItem.h-81)
+                setWidgetSize(oldItem.i, (cellWidth*newItem.w)-10, cellHeight*newItem.h-71)
                 updatePage(Object.assign({}, page, { layout }))
             }}
             onResize={(layout, oldItem, newItem, placeholder, ev, element) => {

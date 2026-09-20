@@ -84,11 +84,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                     <FormGroup>
                         <Label>Name</Label>
                         <MyInput
-                            register={() => register('name', handleRegister({
-                                required: true,
-                                minLength: 3,
-                                maxLength: 15
-                            }))}
+                            register={() => register('name')}
                             placeholder='Enter Name'
                             invalid={!!errors.name}
                         />
@@ -102,12 +98,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                             type='number'
                             min={1}
                             max={30}
-                            register={() => register('gridConfig.cols', handleRegister({
-                                required: true,
-                                valueAsNumber: true,
-                                min: 1,
-                                max: 30
-                            }))}
+                            register={() => register('gridConfig.cols', handleRegister({valueAsNumber: true}))}
                             invalid={!!errors.gridConfig?.cols} 
                         />
                         <FormFeedback>{errors.gridConfig?.cols?.message}</FormFeedback>
@@ -130,7 +121,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                                     register={() => register('gridConfig.margin.0', handleRegister({
                                         required: true,
                                         min: 0,
-                                valueAsNumber: true,
+                                        valueAsNumber: true,
                                         max: 100
                                     }))}
                                     invalid={errors.gridConfig?.margin ? !!errors.gridConfig?.margin[0]?.message : false}
@@ -146,7 +137,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                                     register={() => register('gridConfig.margin.1', handleRegister({
                                         required: true,
                                         min: 0,
-                                valueAsNumber: true,
+                                        valueAsNumber: true,
                                         max: 100
                                     }))}
                                     invalid={errors.gridConfig?.margin ? !!errors.gridConfig?.margin[1]?.message : false}
@@ -171,7 +162,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
                                     register={() => register('gridConfig.containerPadding.0', handleRegister({
                                         required: true,
                                         min: 0,
-                                valueAsNumber: true,
+                                        valueAsNumber: true,
                                         max: 100
                                     }))}
                                     invalid={errors.gridConfig?.containerPadding ? !!errors.gridConfig?.containerPadding[0]?.message : false} 

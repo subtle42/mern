@@ -2,12 +2,15 @@ import * as ctrl from './controller'
 import { FastifyInstance } from 'fastify'
 import { isAuthenticated } from '../../auth/auth.service'
 import { Page, pageSchema } from './model'
+import { myJsonTransform } from '../utils'
 
 
 
 export const buildPageApis = (app: FastifyInstance) => {
     app.log.info('buidling page apis...')
-    app.addSchema({...pageSchema.toJSONSchema(), '$id': 'Page'})
+    // app.addSchema({...pageSchema.toJSONSchema(), '$id': 'Page'})
+    app.addSchema({...myJsonTransform(pageSchema), '$id': 'Page'})
+
 
     app.get('/:bookId', {
         onRequest: [isAuthenticated],
