@@ -2,11 +2,13 @@ import * as ctrl from './controller'
 import { isAuthenticated } from '../../auth/auth.service'
 import { FastifyInstance } from 'fastify'
 import { SourceSchema } from './model'
+import { myJsonTransform } from '../utils'
 
 
 export const buildSourceApis = (app: FastifyInstance) => {
     app.log.info('building source apis...')
-    app.addSchema({...SourceSchema.toJSONSchema(), '$id': 'Source'})
+    // app.addSchema({...SourceSchema.toJSONSchema(), '$id': 'Source'})
+    app.addSchema({...myJsonTransform(SourceSchema), '$id': 'Source'})
 
     app.get('/:id', {
         onRequest: [isAuthenticated],

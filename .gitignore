@@ -6,3 +6,5 @@ uploads
 .nyc_output
 .errorShots
 swagger.json
+/client/app/myTypes.ts
+/client/app/mySchemas.ts

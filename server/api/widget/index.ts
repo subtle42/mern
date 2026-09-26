@@ -3,11 +3,14 @@ import * as ctrl from './controller'
 import { FastifyInstance } from 'fastify'
 import { isAuthenticated } from '../../auth/auth.service'
 import { WidgetSchema } from './model'
+import { myJsonTransform } from '../utils'
 
 
 export const buildWidgetApis = (app: FastifyInstance) => {
     app.log.info('building widget apis...')
-    app.addSchema({...WidgetSchema.toJSONSchema(), '$id': 'Widget'})
+    // app.addSchema({...WidgetSchema.toJSONSchema(), '$id': 'Widget'})
+    app.addSchema({...myJsonTransform(WidgetSchema), '$id': 'Widget'})
+    
 
     app.post('', {
         onRequest: [isAuthenticated],
@@ -59,7 +62,7 @@ export const buildWidgetApis = (app: FastifyInstance) => {
         onRequest: [isAuthenticated],
         schema: {
             tags: ['Widget'],
-            body: WidgetSchema.toJSONSchema(),
+            body: {'$ref': 'Widget'},
             response: {
                 200: {type: 'string'}
             }
@@ -71,7 +74,7 @@ export const buildWidgetApis = (app: FastifyInstance) => {
         schema: {
             tags: ['Widget'],
             response: {
-                200: WidgetSchema.toJSONSchema()
+                200: {'$ref': 'Widget'}
             }
         },
     }, ctrl.get)

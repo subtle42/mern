@@ -2,10 +2,14 @@ import * as ctrl from './controller'
 import { FastifyInstance } from 'fastify'
 import { isAdmin, isAuthenticated } from '../../auth/auth.service'
 import { UserSchema } from './model'
+import { myJsonTransform } from '../utils'
 
 
 export const buildUserApis = (app: FastifyInstance) => {
     app.log.info('building user apis...')
+    app.addSchema({...myJsonTransform(UserSchema), '$id': 'User'})
+    
+
 
     app.get('/public', {
         onRequest: [isAuthenticated],
@@ -13,7 +17,7 @@ export const buildUserApis = (app: FastifyInstance) => {
             description: `Get the public infoformation about a user's profile`,
             tags: ['Users'],
             response: {
-                200: UserSchema.toJSONSchema()
+                200: {'$ref': 'User'}
             }
         }
     }, ctrl.getPublic)

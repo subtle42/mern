@@ -2,11 +2,13 @@ import { FastifyInstance } from 'fastify'
 import { bookSchema } from './model'
 import { isAuthenticated } from '../../auth/auth.service'
 import * as ctrl from './controller'
+import { myJsonTransform } from '../utils'
 
 
 export const buildBookApis = (app: FastifyInstance) => {
     app.log.info('building book apis...')
-    app.addSchema({...bookSchema.toJSONSchema(), '$id': 'Book'})
+    // app.addSchema({...bookSchema.toJSONSchema(), '$id': 'Book'})
+    app.addSchema({...myJsonTransform(bookSchema), '$id': 'Book'})
 
     app.get('', {
         onRequest: [isAuthenticated],

@@ -52,7 +52,7 @@ const DropConfigSchema = new Schema({
 
 export const pageSchema = new Schema({
     bookId: { type: String, required: true },
-    name: { type: String, required: true },
+    name: { type: String, required: true, minLength: 3 },
     layout: { type: [LayoutSchema], default: [], required: true },
     gridConfig: { type: GridConfigSchema, default: () => ({}),  required: true },
     resizeConfig: { type: ResizeConfigSchema, default: () => ({}), required: true },

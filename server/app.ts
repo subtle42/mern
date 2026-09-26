@@ -28,7 +28,7 @@ export const buildMongoDb = async() => {
 export const buildServer = async(isTest?: boolean) => {
     const myFastServer = fastify(isTest ? undefined : {
         logger: {
-            level: 'info',
+            level: 'warn',
             transport: {
                 target: 'pino-pretty',
                 options: {
