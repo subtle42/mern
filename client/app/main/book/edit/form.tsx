@@ -17,6 +17,7 @@ import { myNotifActions } from '../../../../data/notifications/actions'
 import { handleAsync, handleRegister, MyInput } from '../../utils'
 import { IBook } from '@mern/server/api/book/model'
 import { updateBook } from '../../../../data/books/actions'
+import { BookResolver } from '../../../mySchemas'
 
 
 
@@ -29,6 +30,7 @@ interface Props {
 export const BookEditForm: React.FunctionComponent<Props> = (props: Props) => {
     const book = useBook(props._id)
     const {register, handleSubmit, formState: {isValid, errors}} = useForm<IBook>({
+        resolver: BookResolver,
         defaultValues: book,
         mode: 'onChange',
         reValidateMode: 'onChange'
@@ -48,11 +50,7 @@ export const BookEditForm: React.FunctionComponent<Props> = (props: Props) => {
                 <FormGroup>
                     <Label>Name</Label>
                     <MyInput type='text'
-                        register={() => register('name', handleRegister({
-                            required: true,
-                            minLength:3,
-                            maxLength: 20
-                        }))}
+                        register={() => register('name')}
                         placeholder='Book Name'
                         invalid={!!errors.name}
                     />

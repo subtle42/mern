@@ -26,8 +26,7 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 import { handleRegister, hasErorrs, MyInput } from '../utils'
 import { updatePage } from '../../../data/pages/actions'
 import { ajvResolver } from '@hookform/resolvers/ajv'
-import { IPage} from '../../mySchemas'
-import {swagger} from '../../swagger'
+import { IPage, PageResolver} from '../../mySchemas'
 
 interface Props {
     _id?: string
@@ -38,7 +37,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
     const {register, handleSubmit, getValues, reset, formState: {errors, isDirty}} = useForm<IPage>({
         mode: 'onChange',
         reValidateMode: 'onChange',
-        resolver: ajvResolver(swagger.components.schemas.Page as any),
+        resolver: PageResolver,
         defaultValues: {
             name: '',
         },
