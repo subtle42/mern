@@ -44,7 +44,7 @@ export const BookEditForm: React.FunctionComponent<Props> = (props: Props) => {
     })
 
 
-    const getForm = (): JSX.Element => {
+    const getForm = (): React.JSX.Element => {
         return <Row>
             <Col xs={6}>
                 <FormGroup>

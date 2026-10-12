@@ -1,5 +1,9 @@
-import { store } from 'data/store'
-import { IPage, IBook } from 'common/models'
+import { IPage } from "./app/mySchemas"
+import { store } from "./data/store"
+// import { GlobalRegistrator } from '@happy-dom/global-registrator';
+
+// GlobalRegistrator.register()
+
 
 const addItemToStore = (namespace: string, item) => {
     store.dispatch({

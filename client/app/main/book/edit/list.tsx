@@ -13,6 +13,7 @@ import { IBook } from '@mern/server/api/book/model'
 import { myNotifActions } from '../../../../data/notifications/actions'
 import { store } from '../../../../data/store'
 import { deleteBook } from '../../../../data/books/actions'
+import { JsxElement } from 'typescript'
 
 interface Props {
     onEdit: (book: IBook) => void
@@ -28,7 +29,7 @@ export const BookList: React.FunctionComponent<Props> = (props: Props) => {
         .catch(err => myNotifActions.error(err.message))
     }
 
-    const getDeleteButton = (book: IBook): JSX.Element => {
+    const getDeleteButton = (book: IBook): React.JSX.Element => {
         if (book.owner !== store.getState().auth.me?._id) return <div/>
         return <ConfirmModal header='Delete Source'
             message={`Are you sure you want to delete: ${book.name}?`}>
@@ -42,7 +43,7 @@ export const BookList: React.FunctionComponent<Props> = (props: Props) => {
         </ConfirmModal>
     }
 
-    const getEditButton = (book: IBook): JSX.Element => {
+    const getEditButton = (book: IBook): React.JSX.Element => {
         const userId = store.getState().auth.me?._id
         if (book.owner !== userId || book.editors.indexOf(userId) !== -1) return <div />
         return <Button outline
@@ -54,9 +55,10 @@ export const BookList: React.FunctionComponent<Props> = (props: Props) => {
         </Button>
     }
 
-    const getListOfBooks = (): JSX.Element => {
+    const getListOfBooks = (): React.JSX.Element => {
         return <ListGroup>
             {books.map((book, index) => <ListGroupItem
+                role="bookItem"
                 action
                 key={index}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>

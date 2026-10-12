@@ -50,5 +50,8 @@
     ],
     "sourceMap": true,
     "instrument": true
+  },
+  "devDependencies": {
+    "jsdom": "^30.1.2"
   }
 }
