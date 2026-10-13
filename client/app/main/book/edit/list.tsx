@@ -13,7 +13,7 @@ import { IBook } from '@mern/server/api/book/model'
 import { myNotifActions } from '../../../../data/notifications/actions'
 import { store } from '../../../../data/store'
 import { deleteBook } from '../../../../data/books/actions'
-import { JsxElement } from 'typescript'
+
 
 interface Props {
     onEdit: (book: IBook) => void
@@ -23,10 +23,9 @@ interface Props {
 export const BookList: React.FunctionComponent<Props> = (props: Props) => {
     const books = useBooks()
 
-    const remove = (book: IBook) => {
-        deleteBook(book._id)
-        .then(() => myNotifActions.success(`Removed book: ${book.name}`))
-        .catch(err => myNotifActions.error(err.message))
+    const remove = async(book: IBook) => {
+        await deleteBook(book._id)
+        myNotifActions.success(`Removed book: ${book.name}`)
     }
 
     const getDeleteButton = (book: IBook): React.JSX.Element => {
@@ -34,6 +33,7 @@ export const BookList: React.FunctionComponent<Props> = (props: Props) => {
         return <ConfirmModal header='Delete Source'
             message={`Are you sure you want to delete: ${book.name}?`}>
             <Button outline
+                role="delete"
                 disabled={books.filter(b => b.owner).length === 1}
                 onClick={() => remove(book)}
                 color='danger'

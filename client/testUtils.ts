@@ -4,8 +4,7 @@ import { store } from "./data/store"
 
 const addItemToStore = (namespace: string, item) => {
     store.dispatch({
-        type: 'addedOrChanged',
-        namespace,
+        type: `${namespace}/addedOrChanged`,
         payload: [item]
     })
 }
@@ -28,9 +27,8 @@ export const addBookToStore = (item) => {
 
 export const setUser = (item) => {
     store.dispatch({
-        type: 'set_user',
+        type: 'auth/set_user',
         payload: item,
-        namespace: 'auth'
     })
 }
 
