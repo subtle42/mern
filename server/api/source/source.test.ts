@@ -2,8 +2,7 @@ import {describe, before, after, it, beforeEach} from 'node:test'
 import { ISource } from 'common/models'
 import * as fs from 'fs'
 import { FastifyInstance } from 'fastify'
-import { getTestFile, TestEnv, testSetup } from 'server/testUtils'
-import * as path from 'path'
+import { TestEnv, testSetup } from 'server/testUtils'
 
 describe('Source API', () => {
     let server: FastifyInstance
@@ -45,7 +44,7 @@ describe('Source API', () => {
         let mySource: ISource
 
         before(async() => {
-            sourceId = await utils.source.create(tokens[0], getTestFile('../integration/data/2012_SAT_Results.csv'))
+            sourceId = await utils.source.create(tokens[0], '../integration/data/2012_SAT_Results.csv')
         })
 
         beforeEach(async() => {
@@ -151,7 +150,7 @@ describe('Source API', () => {
         // let removedIds: string[] = []
 
         before(async() => {
-            sourceId = await utils.source.create(tokens[0], getTestFile('../integration/data/2012_SAT_Results.csv'))
+            sourceId = await utils.source.create(tokens[0], '../integration/data/2012_SAT_Results.csv')
         })
 
         it('should return an error if user is NOT logged in', async(t) => {
