@@ -3,6 +3,7 @@ import { ISource } from 'common/models'
 import * as fs from 'fs'
 import { FastifyInstance } from 'fastify'
 import { TestEnv, testSetup } from 'server/testUtils'
+import * as path from 'path'
 
 describe('Source API', () => {
     let server: FastifyInstance
@@ -28,7 +29,7 @@ describe('Source API', () => {
 
         it('should return a string', async(t) => {
             const formData = new FormData()
-            const blob = new Blob([fs.readFileSync('../integration/data/2012_SAT_RESULTS.csv')], {type: 'plain/text'})
+            const blob = new Blob([fs.readFileSync(path.join(__dirname, '../../../integration/data/2012_SAT_RESULTS.csv'))], {type: 'plain/text'})
             formData.append('file', blob, '2012_SAT_RESULTS.csv')
 
             const res = await server.inject()
@@ -44,7 +45,7 @@ describe('Source API', () => {
         let mySource: ISource
 
         before(async() => {
-            sourceId = await utils.source.create(tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
+            sourceId = await utils.source.create(tokens[0], path.join(__dirname, '../../../integration/data/2012_SAT_RESULTS.csv'))
         })
 
         beforeEach(async() => {

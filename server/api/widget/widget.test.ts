@@ -3,6 +3,7 @@ import { FastifyInstance } from 'fastify'
 import { IWidget } from './model'
 import { IBook } from '../book/model'
 import { TestEnv, testSetup } from 'server/testUtils'
+import * as path from 'path'
 
 describe('Widget API', () => {
     let tokens: string[]
@@ -18,7 +19,7 @@ describe('Widget API', () => {
 
         bookId = await utils.book.create(tokens[0], 'top book')
         pageId = await utils.page.create(tokens[0], bookId, 'top page')
-        sourceId = await utils.source.create(tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
+        sourceId = await utils.source.create(tokens[0], path.join(__dirname, '../../../integration/data/2012_SAT_RESULTS.csv'))
     })
 
     after(async() => {
