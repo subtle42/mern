@@ -70,7 +70,7 @@ describe('Edit book list component', () => {
     describe('delete button', () => {
         it('should make a rest call', async() => {
             mockServer.use(
-                http.delete(`/api/books/${1}`, () => new HttpResponse(undefined))
+                http.delete(`/api/books/1`, () => new HttpResponse(undefined))
             )
             const btn = await screen.findByRole('delete')
             fireEvent.click(btn)

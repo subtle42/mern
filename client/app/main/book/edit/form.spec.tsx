@@ -1,10 +1,11 @@
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { afterEach, beforeEach, describe, it, expect, vi, Mock, afterAll, beforeAll } from 'vitest';
+import { render, screen, cleanup } from '@testing-library/react';
 import { setupServer } from 'msw/node'
-import { http, HttpResponse } from 'msw'
 
 import { addBookToStore, setUser } from '../../../../testUtils'
-import { afterEach, beforeEach, describe, it, expect, vi, Mock, afterAll, beforeAll } from 'vitest';
 import { BookEditForm } from './form'
+
+
 
 describe('Book Form Component', () => {
     let onDoneMock: Mock
@@ -52,10 +53,8 @@ describe('Book Form Component', () => {
 
     describe('list', () => {
         it('should show work', async() => {
-            const tmp = (await screen.findByDisplayValue('test1')).nodeValue
-            expect(tmp).not.equal(null)
-            // const count = (await screen.findAllByRole("bookItem")).length
-            // expect(count).toEqual(2)
+            const tmp = await screen.findByPlaceholderText<HTMLInputElement>('Book Name')
+            expect(tmp.value).toEqual('test1')
         })
     })
 })
