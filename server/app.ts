@@ -3,7 +3,6 @@ import * as mongoose from 'mongoose'
 import fastify, { FastifyRequest } from 'fastify'
 import fastSwagger from '@fastify/swagger'
 import fastifyWebsocket from '@fastify/websocket';
-import { writeFileSync } from 'fs'
 
 import * as path from 'path'
 import { MongoMemoryServer } from 'mongodb-memory-server'
@@ -13,6 +12,7 @@ import { buildPageSocket } from './api/page/socket'
 import { buildSourceSocket } from './api/source/socket'
 import { buildWidgetSocket } from './api/widget/socket'
 import { runBuildTypes } from './buildTypes';
+import { writeFile } from 'fs/promises';
 
 
 
@@ -25,8 +25,12 @@ export const buildMongoDb = async() => {
     return mongod
 }
 
-export const buildServer = async(isTest?: boolean) => {
-    const myFastServer = fastify(isTest ? undefined : {
+export const buildServer = async(opts: Partial<{
+    noDb: boolean,
+    debug: boolean,
+    serveSwagger: boolean
+}> = {}) => {
+    const myFastServer = fastify(!opts.debug ? undefined : {
         logger: {
             level: 'warn',
             transport: {
@@ -38,50 +42,52 @@ export const buildServer = async(isTest?: boolean) => {
             }
         },
     })
-    if (!isTest) {
-        await myFastServer.register(import('@fastify/static'), {
-            root: path.join(__dirname, 'static')
-        })
-        await myFastServer.register(fastSwagger, {
-            openapi: {
-                openapi: '3.1.0',
-                info: {
-                    title: 'MERN swagger',
-                    description: 'Testing the Fastify swagger API',
-                    version: '0.1.0'
-                },
-                security: [{bearerAuth: []}],
-                servers: [{
-                    url: 'http://localhost:3333',
-                    description: 'The localhost for development'
-                }],
-                components: {
-                    securitySchemes: {
-                        bearerAuth: {
-                            type: 'http',
-                            scheme: 'bearer',
-                            bearerFormat: 'JWT',
-                            description: 'Enter your JWT token to authenticate'
-                        }
+    await myFastServer.register(import('@fastify/static'), {
+        root: path.join(__dirname, 'static')
+    })
+    await myFastServer.register(fastSwagger, {
+        openapi: {
+            openapi: '3.1.0',
+            info: {
+                title: 'MERN swagger',
+                description: 'Testing the Fastify swagger API',
+                version: '0.1.0'
+            },
+            security: [{bearerAuth: []}],
+            servers: [{
+                url: 'http://localhost:3333',
+                description: 'The localhost for development'
+            }],
+            components: {
+                securitySchemes: {
+                    bearerAuth: {
+                        type: 'http',
+                        scheme: 'bearer',
+                        bearerFormat: 'JWT',
+                        description: 'Enter your JWT token to authenticate'
                     }
                 }
-            },
-            refResolver: {
-                buildLocalReference(json, baseUri, fragment, i) {
-                    if (json.$id) return json.$id as string
-                    return `def-${i}`
-                }
             }
-        })
+        },
+        refResolver: {
+            buildLocalReference(json, baseUri, fragment, i) {
+                if (json.$id) return json.$id as string
+                return `def-${i}`
+            }
+        }
+    })
+    if (opts.serveSwagger) {
         await myFastServer.register(import('@fastify/swagger-ui'))
     }
 
-    const mongo = await buildMongoDb();
-    console.log('mongo uri', mongo.getUri())
-    await myFastServer.register(await import('@fastify/mongodb'), {
-        url: mongo.getUri(),
-        forceClose: true
-    })
+    if (!opts.noDb) {
+        var mongo = await buildMongoDb();
+        console.log('mongo uri', mongo.getUri())
+        await myFastServer.register(await import('@fastify/mongodb'), {
+            url: mongo.getUri(),
+            forceClose: true
+        })
+    }
     await myFastServer.register(import('@fastify/multipart'))
     await myFastServer.register(import('@fastify/jwt'), {
         secret: config.shared.secret,
@@ -112,14 +118,9 @@ export const buildServer = async(isTest?: boolean) => {
 
     await myFastServer.ready()
     
-    if (!isTest) {
-        const swaggerData = await myFastServer.swagger()
-        let data = JSON.stringify(swaggerData)
-        // data = data.replace(/"null",/g, '')
-        // data = data.replace(/,"null"/g, '')
-        writeFileSync('swagger.json', data)
-        await runBuildTypes()
-    }
+    const swaggerData = await myFastServer.swagger()
+    await writeFile('swagger.json', JSON.stringify(swaggerData))
+    await runBuildTypes()
 
-    return {server: myFastServer, db: mongo}
+    return {server: myFastServer, db: opts.noDb ? undefined : mongo}
 }

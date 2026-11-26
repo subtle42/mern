@@ -5,6 +5,9 @@ import path from 'path';
 
 export default defineConfig({
     plugins: [react()],
+    build: {
+        outDir: '../server/static', // Changes the output folder from 'dist' to 'build'
+    },
     test: {
         environment: 'jsdom',
         globals: true, // Enables describe, test, expect globally without explicit imports

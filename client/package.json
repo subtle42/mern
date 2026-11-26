@@ -9,6 +9,7 @@
   "scripts": {
     "build:types": "openapi-typescript ../server/swagger.json -o ./baseTypes.ts",
     "start": "vite",
+    "build": "vite build",
     "test": "vitest run app/main/book/edit/*.spec.*"
   },
   "dependencies": {

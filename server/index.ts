@@ -1,5 +1,5 @@
 import { readFileSync } from "fs"
-import { buildMongoDb, buildServer } from "./app"
+import { buildServer } from "./app"
 import { createUserAndLogin } from "./testUtils"
 
 

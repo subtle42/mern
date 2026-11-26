@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "nodemon",
+    "build": "ts-node buildSwagger.ts",
     "test": "node --import tsx --test ./**/*.test.ts",
     "dev": "npx tsx watch buildTypes.ts"
   },
