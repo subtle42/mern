@@ -38,9 +38,5 @@
     ],
     "sourceMap": true,
     "instrument": true
-  },
-  "allowScripts": {
-    "mongodb-memory-server@11.2.0": true,
-    "esbuild@0.28.2": true
   }
 }
