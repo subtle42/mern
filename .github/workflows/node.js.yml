@@ -65,7 +65,7 @@ jobs:
       - name: ZAP API Scan
         uses: zaproxy/action-api-scan@v0.7.0 # Check GitHub Marketplace for latest version
         with:
-          target: 'https://localhost:3333/documentation/yaml'
+          target: './server/swagger.json'
           format: 'openapi'
           fail_action: true # Fails the workflow if ZAP finds alerts
           allow_issue_writing: false
