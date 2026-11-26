@@ -3,6 +3,8 @@
 
 name: Node.js CI
 
+env:
+  NODE_VER: 26
 
 on:
   push:
@@ -11,17 +13,27 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
-
+  vulnerability-scan:
     runs-on: ubuntu-latest
-    env:
-      NODE_VER: 26
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ env.NODE_VER }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VER }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run test:server
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ env.NODE_VER }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VER }}
+          cache: 'npm'
+      - name: Run dependency audit
+        run: npm audit --audit-level=high
+
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ env.NODE_VER }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VER }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test

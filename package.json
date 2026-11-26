@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "run-p dev:*",
-    "build:server": "npm run build -w server",
-    "test:server": "npm run test -w server"
+    "test": "npm run test --workspaces",
+    "build": "npm run build --workspaces"
   },
   "author": "",
   "workspaces": [
@@ -39,5 +38,9 @@
     ],
     "sourceMap": true,
     "instrument": true
+  },
+  "allowScripts": {
+    "mongodb-memory-server@11.2.0": true,
+    "esbuild@0.28.2": true
   }
 }
