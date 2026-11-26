@@ -10,7 +10,8 @@
     "build:types": "openapi-typescript ../server/swagger.json -o ./baseTypes.ts",
     "start": "vite",
     "build": "vite build",
-    "test": "vitest run app/main/book/edit/*.spec.*"
+    "test": "vitest run app/main/book/edit/*.spec.*",
+    "test:pipeline": "vitest run app/main/book/edit/*.spec.* --reporter=junit --outputFile=./junit.xml"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.0",

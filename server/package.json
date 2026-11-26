@@ -5,6 +5,7 @@
     "start": "nodemon",
     "build": "ts-node buildSwagger.ts",
     "test": "node --import tsx --test ./**/*.test.ts",
+    "test:pipeline": "node --import tsx --test-reporter=junit --test-reporter-destination=junit.xml --test ./**/*.test.ts",
     "dev": "npx tsx watch buildTypes.ts"
   },
   "author": "",

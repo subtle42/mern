@@ -10,3 +10,4 @@ swagger.json
 /client/app/myTypes.ts
 /client/app/mySchemas.ts
 server/static
+junit.xml

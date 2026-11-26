@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "test": "npm run test --workspaces",
+    "test:pipeline": "npm run test:pipeline --workspaces",
     "build": "npm run build --workspaces"
   },
   "author": "",
