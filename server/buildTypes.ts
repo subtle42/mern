@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, copyFileSync } from 'fs'
 import openToTs from 'openapi-typescript'
-import myTypes from './swagger.json'
+// import myTypes from './swagger.json'
 import * as ts from 'typescript'
 
 export const runBuildTypes = async() => {
@@ -12,6 +12,8 @@ export const runBuildTypes = async() => {
     console.log('copying swagger...')
     copyFileSync('./swagger.json', '../client/app/swagger.json')
     console.log('done copying swagger...')
+
+    const myTypes = JSON.parse(readFileSync('./swagger.json', 'utf-8'))
 
     const schemas = myTypes['components']['schemas']
     let pageData = `import {components} from './myTypes'\n`

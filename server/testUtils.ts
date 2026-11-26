@@ -9,6 +9,7 @@ import { IPage } from './api/page/model'
 import { IWidget } from './api/widget/model'
 import { ISource } from './api/source/model'
 import { WebSocket } from '@fastify/websocket'
+import * as path from 'path'
 
 interface FakeUser {
     email: string
@@ -170,6 +171,10 @@ export class TestEnv {
             return JSON.parse(res.body) as ISource
         }
     }
+}
+
+export const getTestFile = (name: string): string => {
+    return path.join(process.env.GITHUB_WORKSPACE || process.cwd(), name)
 }
 
 export const getWsMessage = async<T>(socket: WebSocket, opts: {channel:string, namespace: string}): Promise<T> => {
