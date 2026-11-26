@@ -1,4 +1,4 @@
-import { IPage } from "./app/mySchemas"
+import { IBook, IPage } from "./app/mySchemas"
 import { store } from "./data/store"
 
 
@@ -21,7 +21,7 @@ export const setSelectedBook = (id: string) => {
     setSelected('books', id)
 }
 
-export const addBookToStore = (item) => {
+export const addBookToStore = (item: IBook) => {
     addItemToStore('books', item)
 }
 

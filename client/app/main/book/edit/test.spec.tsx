@@ -17,12 +17,20 @@ describe('Edit book list component', () => {
 
     beforeEach(() => {
         addBookToStore({
-            _id: 1,
+            _id: '1',
+            isPublic: false,
+            name: '',
+            pages: [],
+            viewers: [],
             owner: 'asdf',
             editors: ['c', 'd']
         })
         addBookToStore({
-            _id: 2,
+            _id: '2',
+            isPublic: false,
+            name: '',
+            pages: [],
+            viewers: [],
             owner: 'b',
             editors: ['e']
         })
