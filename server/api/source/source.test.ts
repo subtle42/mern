@@ -29,7 +29,7 @@ describe('Source API', () => {
 
         it('should return a string', async(t) => {
             const formData = new FormData()
-            const blob = new Blob([fs.readFileSync(getTestFile('../integration/data/2012_SAT_Results.csv'))], {type: 'plain/text'})
+            const blob = new Blob([fs.readFileSync('../integration/data/2012_SAT_Results.csv')], {type: 'plain/text'})
             formData.append('file', blob, '2012_SAT_Results.csv')
 
             const res = await server.inject()
