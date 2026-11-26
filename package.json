@@ -4,24 +4,13 @@
   "description": "",
   "scripts": {
     "start": "run-p dev:*",
-    "dev:client": "webpack --watch --mode=development",
-    "dev:server": "nodemon --exec ts-node ./server/app.ts",
-    "integration": "mocha --opts ./mocha.opts 'integration/**/*.spec.*' --watch",
-    "e2e": "wdio",
-    "lint": "tslint -c tslint.json -p tsconfig.json",
-    "coverage": "nyc --all run-s 'build:test:*'",
-    "docs": "typedoc --exclude '**/*.spec.*' --out ./docs ./client/data ./server ./common",
-    "build:code": "run-p build:code:*",
-    "build:code:client": "webpack --mode=production",
-    "build:code:server": "tsc -p server",
-    "build:test:unit": "run-s 'test:*'",
-    "build:test:integration": "mocha --opts ./mocha.opts 'integration/**/*.spec.*' --exit"
+    "build:server": "npm run build -w server",
+    "test:server": "npm run test -w server"
   },
   "author": "",
   "workspaces": [
     "server",
-    "client",
-    "e2e"
+    "client"
   ],
   "license": "ISC",
   "nyc": {
