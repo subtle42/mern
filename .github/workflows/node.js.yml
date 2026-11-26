@@ -8,28 +8,15 @@ env:
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "**" ]
   pull_request:
     branches: [ "master" ]
 
 jobs:
-  vulnerability-scan:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js ${{ env.NODE_VER }}
-        uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VER }}
-          cache: 'npm'
-      - name: Run dependency audit
-        run: npm audit --audit-level=high
-
-
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v7
         with:
@@ -46,3 +33,14 @@ jobs:
         if: success() || failure()
         with:
           report_paths: '**/junit.xml'
+  vulnerability-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Use Node.js ${{ env.NODE_VER }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VER }}
+          cache: 'npm'
+      - name: Run dependency audit
+        run: npm audit --audit-level=high
