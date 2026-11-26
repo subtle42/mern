@@ -19,7 +19,7 @@ describe('Widget API', () => {
 
         bookId = await utils.book.create(tokens[0], 'top book')
         pageId = await utils.page.create(tokens[0], bookId, 'top page')
-        sourceId = await utils.source.create(tokens[0], getTestFile('../integration/data/2012_SAT_RESULTS.csv'))
+        sourceId = await utils.source.create(tokens[0], getTestFile('../integration/data/2012_SAT_Results.csv'))
     })
 
     after(async() => {
@@ -203,7 +203,7 @@ describe('Widget Channel', () => {
 
         bookId = await utils.book.create(tokens[0], 'top book')
         pageId = await utils.page.create(tokens[0], bookId, 'top page')
-        sourceId = await utils.source.create(tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
+        sourceId = await utils.source.create(tokens[0], '../integration/data/2012_SAT_Results.csv')
         await utils.widget.create(tokens[0], pageId, sourceId, 'histogram')
     })
 

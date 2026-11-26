@@ -29,8 +29,8 @@ describe('Source API', () => {
 
         it('should return a string', async(t) => {
             const formData = new FormData()
-            const blob = new Blob([fs.readFileSync(getTestFile('../integration/data/2012_SAT_RESULTS.csv'))], {type: 'plain/text'})
-            formData.append('file', blob, '2012_SAT_RESULTS.csv')
+            const blob = new Blob([fs.readFileSync(getTestFile('../integration/data/2012_SAT_Results.csv'))], {type: 'plain/text'})
+            formData.append('file', blob, '2012_SAT_Results.csv')
 
             const res = await server.inject()
                 .post('/api/sources')
@@ -45,7 +45,7 @@ describe('Source API', () => {
         let mySource: ISource
 
         before(async() => {
-            sourceId = await utils.source.create(tokens[0], getTestFile('../integration/data/2012_SAT_RESULTS.csv'))
+            sourceId = await utils.source.create(tokens[0], getTestFile('../integration/data/2012_SAT_Results.csv'))
         })
 
         beforeEach(async() => {
@@ -151,7 +151,7 @@ describe('Source API', () => {
         // let removedIds: string[] = []
 
         before(async() => {
-            sourceId = await utils.source.create(tokens[0], '../integration/data/2012_SAT_RESULTS.csv')
+            sourceId = await utils.source.create(tokens[0], getTestFile('../integration/data/2012_SAT_Results.csv'))
         })
 
         it('should return an error if user is NOT logged in', async(t) => {
