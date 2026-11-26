@@ -44,3 +44,28 @@ jobs:
           cache: 'npm'
       - name: Run dependency audit
         run: npm audit --audit-level=high
+  zap_api_scan:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write # Needed if allow_issue_writing is true (default)
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - name: Use Node.js ${{ env.NODE_VER }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VER }}
+          cache: 'npm'
+      - name: Running install
+        run: npm ci
+      - name: Starting server
+        run: npm start -w server &
+      - name: Wait for app to respond
+        run: npx wait-on http://localhost:3333/documentation/json -t 60000
+      - name: ZAP API Scan
+        uses: zaproxy/action-api-scan@v0.7.0 # Check GitHub Marketplace for latest version
+        with:
+          target: 'https://localhost:3333/documentation/json'
+          format: 'openapi'
+          fail_action: true # Fails the workflow if ZAP finds alerts
+          allow_issue_writing: false
