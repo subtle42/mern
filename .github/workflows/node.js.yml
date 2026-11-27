@@ -55,6 +55,7 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           name: static-artifacts
+          path: server
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v7
         with:
@@ -63,7 +64,7 @@ jobs:
       - name: Running install
         run: npm ci
       - name: Installing driver
-        run: npx playwright install ${{matrix.browser}}
+        run: npx playwright install --no-progress ${{matrix.browser}}
       - name: Install e2e dependencies
         run: npx --yes playwright install-deps > /dev/null 2>&1
       - name: Starting server
