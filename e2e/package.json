@@ -8,6 +8,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"skipping\"",
+    "build": "echo \"skipping\"",
     "pree2e": "playwright install",
     "e2e": "playwright test",
     "dev": "playwright test --project chromium"
