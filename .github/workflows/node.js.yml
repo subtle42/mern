@@ -38,7 +38,7 @@ jobs:
         with:
           name: static-artifacts
           path: |
-            server/static
+            server/static/
             server/swagger.json
   e2e:
     needs: build
@@ -65,7 +65,7 @@ jobs:
       - name: Installing driver
         run: npx playwright install ${{matrix.browser}}
       - name: Install e2e dependencies
-        run: npx playwright install-deps
+        run: npx --yes playwright install-deps > /dev/null 2>&1
       - name: Starting server
         run: npm start -w server &
       - name: Wait for app to respond
