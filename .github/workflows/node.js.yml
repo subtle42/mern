@@ -48,8 +48,12 @@ jobs:
         with:
           node-version: ${{ env.NODE_VER }}
           cache: 'npm'
-      - name: Running install
+      - name: Installing libraries
         run: npm ci
+      - name: Installing driver
+        name: npx playwright install ${{matrix.browser}}
+      - name: Install e2e dependencies
+        run: npx playwright install-deps
       - name: Running build
         run: npm run build
       - name: Starting server

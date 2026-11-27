@@ -26,7 +26,7 @@ export default defineConfig({
     projects: [
         {name: 'chromium', use: {...devices["Desktop Chrome"]}},
         {name: 'firefox', use: {...devices["Desktop Firefox"]}},
-        {name: 'safari', use: {...devices["Desktop Safari"]}},
+        {name: 'webkit', use: {...devices["Desktop Safari"]}},
         {name: 'edge', use: {...devices["Desktop Edge"], channel: 'msedge'}},
         {name: 'chrome', use: {...devices["Desktop Chrome"], channel: 'chrome'}}
     ]
