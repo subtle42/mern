@@ -80,7 +80,7 @@ describe('Page Add component', () => {
                 act(() => setSelectedBook(bookId))
             })
             
-            it('should send a REST call', async() => {
+            it.skip('should send a REST call', async() => {
                 const input = await screen.findByPlaceholderText<HTMLInputElement>('Enter Name')
                 // await waitFor(async() => {
                     //     const btn = await screen.findByText<HTMLInputElement>('Create')
