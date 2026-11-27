@@ -7,7 +7,7 @@ test.describe('login page', () => {
 
     test.beforeEach(async({page}) => {
         loginPage = buildLoginPo(page)
-        await page.goto('http://localhost:5173')
+        await page.goto('http://localhost:3333')
     })
 
     test('go to page', async() => {

@@ -33,7 +33,16 @@ jobs:
         if: success() || failure()
         with:
           report_paths: '**/junit.xml'
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: my-artifact
+          path: |
+            server/static
+            server/swagger.json
+        
   e2e:
+    needs: build
     runs-on: ubuntu-latest
     strategy:
       matrix:

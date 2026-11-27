@@ -11,7 +11,7 @@
     "start": "vite",
     "build": "vite build",
     "test": "vitest run app/main/page/*.test.tsx",
-    "test:pipeline": "vitest run app/main/book/edit/*.test.* --reporter=junit --outputFile=./junit.xml"
+    "test:pipeline": "vitest run app/main/page/*.test.* --reporter=junit --outputFile=./junit.xml"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.0",
