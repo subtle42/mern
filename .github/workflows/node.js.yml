@@ -51,7 +51,7 @@ jobs:
       - name: Installing libraries
         run: npm ci
       - name: Installing driver
-        name: npx playwright install ${{matrix.browser}}
+        run: npx playwright install ${{matrix.browser}}
       - name: Install e2e dependencies
         run: npx playwright install-deps
       - name: Running build
