@@ -10,7 +10,8 @@
   "author": "",
   "workspaces": [
     "server",
-    "client"
+    "client",
+    "e2e"
   ],
   "license": "ISC",
   "nyc": {

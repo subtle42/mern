@@ -33,6 +33,34 @@ jobs:
         if: success() || failure()
         with:
           report_paths: '**/junit.xml'
+  e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser:
+          - chromium
+          - firefox
+          - safari
+    steps:
+      - uses: actions/checkout@v7
+      - name: Use Node.js ${{ env.NODE_VER }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VER }}
+          cache: 'npm'
+      - name: Running install
+        run: npm ci
+      - name: Running build
+        run: npm run build
+      - name: Starting server
+        run: npm start -w server &
+      - name: Wait for app to respond
+        run: npx wait-on http://localhost:3333/documentation/yaml -t 60000
+      # - name: Installing driver
+      #   run: npx playwright install ${{matrix.browser}}
+      - name: Running tests
+        run: npm run e2e -w e2e -- --project ${{matrix.browser}}
+
   vulnerability-scan:
     runs-on: ubuntu-latest
     steps:

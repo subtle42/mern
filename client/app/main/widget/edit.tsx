@@ -85,7 +85,7 @@ export const EditButton: React.FunctionComponent<Props> = (props: Props) => {
         setOpen(!isOpen)
     }
 
-    const getMarginForm = (): JSX.Element => {
+    const getMarginForm = (): React.JSX.Element => {
         return <Card body style={{ padding: 10 }}>
             <CardTitle style={{ display: 'flex', justifyContent: 'center' }}>
                 Margins
@@ -135,7 +135,7 @@ export const EditButton: React.FunctionComponent<Props> = (props: Props) => {
         </Card>
     }
 
-    const getModalTemplate = (): JSX.Element => {
+    const getModalTemplate = (): React.JSX.Element => {
         if (!config) return <div />
         return <Modal isOpen={isOpen}>
             <ModalHeader>Edit Widget</ModalHeader>

@@ -27,17 +27,17 @@ export const MainNavBar: React.FunctionComponent<NavProps> = (props: NavProps) =
         return myBook ? myBook.name : 'No Book Selected'
     }
 
-    const getBookDropDown = (): JSX.Element => {
+    const getBookDropDown = (): React.JSX.Element => {
         if (!user) return <div />
         return <Nav>
-            <UncontrolledDropdown nav inNavbar>
+            <UncontrolledDropdown nav inNavbar data-testId="bookDropdown">
                 <DropdownToggle nav caret>{getBookName()}</DropdownToggle>
                 <DropdownMenu right>
                     {books.map((book, index) => {
                         return <DropdownItem
                         key={index}
                         toggle={false}
-                        onClick={() => selectBook(book._id)}>
+                        onClick={() => selectBook(book._id as string)}>
                         {book.name}
                     </DropdownItem>
                     })}

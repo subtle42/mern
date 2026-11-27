@@ -11,3 +11,4 @@ swagger.json
 /client/app/mySchemas.ts
 server/static
 junit.xml
+test-results

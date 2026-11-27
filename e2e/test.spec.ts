@@ -1,35 +1,35 @@
-import { expect } from 'chai'
-import * as utils from './cleanup'
+import {test, expect} from '@playwright/test'
+import { buildLoginPo } from './po/login.po'
 
-describe('Basic User Authentication', () => {
-    beforeEach(() => {
-        browser.url('/')
+
+test.describe('login page', () => {
+    let loginPage: ReturnType<typeof buildLoginPo>
+
+    test.beforeEach(async({page}) => {
+        loginPage = buildLoginPo(page)
+        await page.goto('http://localhost:5173')
     })
 
-    before(() => {
-        return utils.cleanDb()
+    test('go to page', async() => {
+        await loginPage.goto()
+        expect(loginPage.getEmail()).toBeTruthy()
     })
 
-    it('should be able to open the page', () => {
-        browser.url('/')
-        const title = browser.getTitle()
-        expect(title).to.be.equal('Testing')
-
+    test('fail login', async({page}) => {
+        await loginPage.goto()
+        await loginPage.getEmail().fill('bad@bad.com')
+        await loginPage.getPassword().fill('notcorrect')
+        await loginPage.getSignInBtn().click()
+        expect(page.url().split('/')[3]).toEqual('login')
     })
 
-    it('should register a user', () => {
-        $('a=Register').click()
-        $(`input[name='name']`).setValue('autouser')
-        $(`input[name='email']`).setValue('auto@auto.com')
-        $(`input[name='password']`).setValue('mypassword')
-        $('button=Submit').click()
-    })
-
-    it('should login', () => {
-        $('a=Login').click()
-        $(`input[name='email']`).setValue('auto@auto.com')
-        $(`input[name='password']`).setValue('mypassword')
-        $('button=Sign in').click()
-        $('a=Logout').waitForExist()
+    test('login success', async({page}) => {
+        await loginPage.goto()
+        await loginPage.getEmail().fill('test@test.com')
+        await loginPage.getPassword().fill('test')
+        await loginPage.getSignInBtn().click()
+        expect(page.url().split('/')[3]).toEqual('about')
     })
 })
+
+
