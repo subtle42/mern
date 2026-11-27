@@ -56,14 +56,14 @@ export class Widget extends React.Component<Props, State> {
 
     componentDidUpdate () {
         setTimeout(() => {
-            const width = this.myRef.current.offsetWidth
-            const height = this.myRef.current.offsetHeight - 65
+            const width = this.myRef.current?.offsetWidth || 0
+            const height = (this.myRef.current?.offsetHeight || 0) - 65
             if (!this.state.widgetConfig) return
             if (this.state.width === width && this.state.height === height) return
             // this is needed so that the widget wont mess up on resize stop
             const tmp = store.getState().widgets.sizes[this.props._id]
             if (tmp) return
-            setWidgetSize(this.state.widgetConfig._id, width, height)
+            setWidgetSize(this.state.widgetConfig._id as string, width, height)
         }, 200)
     }
 
@@ -95,7 +95,7 @@ export class Widget extends React.Component<Props, State> {
         .catch(err => myNotifActions.error(err.message))
     }
 
-    getDropdown (): JSX.Element|undefined {
+    getDropdown (): React.JSX.Element|undefined {
         if (!this.state.widgetConfig) return
 
         const dimCount = this.state.widgetConfig.dimensions.length
@@ -156,17 +156,14 @@ export class Widget extends React.Component<Props, State> {
     }
 
     onColUpdate = (col: ISourceColumn): void => {
-        // this.state.widgetConfig.measures[0] = {
-        //     ref: col.ref
-        // }
-        alert('in fn')
-        const tmp = {...this.state.widgetConfig, measures: [col.ref]}
+        const tmp: IWidget = {...this.state.widgetConfig, measures: [{ref: col.ref}]}
+        if (!tmp) return
         updateWidget(tmp)
         .then(() => queryWidget(tmp))
         .catch(err => myNotifActions.success(err.message))
     }
 
-    getChart = (widget: IWidget): JSX.Element => {
+    getChart = (widget: IWidget): React.JSX.Element => {
         if (!widget) return <div />
         if (widget.type === 'histogram') {
             return <Histogram id={this.props._id}/>

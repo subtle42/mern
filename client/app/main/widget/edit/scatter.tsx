@@ -6,7 +6,7 @@ import FormGroup from 'reactstrap/lib/FormGroup'
 
 import { buildAxisTemplate } from './_common'
 
-export const scatterForm = (rules, setRules): JSX.Element => {
+export const scatterForm = (rules, setRules): React.JSX.Element => {
     return <Form>
         <Row>
             <Col>

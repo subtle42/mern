@@ -2,6 +2,7 @@ import * as React from 'react'
 import Card from 'reactstrap/lib/Card'
 import Row from 'reactstrap/lib/Row'
 import Col from 'reactstrap/lib/Col'
+import Label from 'reactstrap/lib/Label'
 // import CustomInput from 'reactstrap/lib/CustomInput'
 import Input from 'reactstrap/lib/Input'
 import Collapse from 'reactstrap/lib/Collapse'
@@ -10,7 +11,7 @@ import FormGroup from 'reactstrap/lib/FormGroup'
 import * as utils from '../../../_common/utils'
 import { buildInput } from '../../../_common/forms'
 
-export const buildLegendTemplate = (rules, setRules): JSX.Element => {
+export const buildLegendTemplate = (rules, setRules): React.JSX.Element => {
     return <Row>
         <Col>
             <FormGroup>
@@ -26,20 +27,20 @@ export const buildLegendTemplate = (rules, setRules): JSX.Element => {
     </Row>
 }
 
-export const buildAxisTemplate = (axis: string, rules, setRules): JSX.Element => {
+export const buildAxisTemplate = (axis: string, rules, setRules): React.JSX.Element => {
     return <Card body style={{ padding: 10 }}>
         <Row>
-            <Col>
-                <FormGroup switch style={{ display: 'flex', justifyContent: 'center' }}>
+            <FormGroup switch style={{ display: 'flex', justifyContent: 'center' }}>
+                <div>
+                    <Label>{axis}</Label>
                     <Input id={`${axis}.show`}
-                        label={axis}
                         name={`${axis}.show`}
                         type='switch'
                         checked={rules.get(axis).get('show').value}
                         onChange={utils.handleToggle(rules, setRules)}>
                     </Input>
-                </FormGroup>
-            </Col>
+                </div>
+            </FormGroup>
         </Row>
         <Collapse isOpen={rules.get(axis).get('show').value}>
             <Row>
