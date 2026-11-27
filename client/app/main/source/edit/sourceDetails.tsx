@@ -20,8 +20,8 @@ import { ColumnNameField } from './columnName'
 import { ColumnTypeDropdown } from './columnType'
 import { ISource } from '@mern/server/api/source/model'
 import { FormControl, FormCtrlArray, FormCtrlGroup } from '../../../_common/validation'
-import { mySourceActions } from '../../../../data/sources/actions'
 import { myNotifActions } from '../../../../data/notifications/actions'
+import { updateSource } from '../../../../data/sources/actions'
 
 interface Props {
     source: ISource
@@ -46,7 +46,7 @@ export const SourceDetails: React.FunctionComponent<Props> = (props: Props) => {
 
     const save = (): void => {
         const tmp = Object.assign({}, props.source, rules.value)
-        mySourceActions.update(tmp)
+        updateSource(tmp)
         .then(() => myNotifActions.success(`Updated source: ${tmp.title}`))
         .then(() => props.onDone())
         .catch(err => myNotifActions.error(err.message))
@@ -68,7 +68,7 @@ export const SourceDetails: React.FunctionComponent<Props> = (props: Props) => {
         setRules(Object.create(rules))
     }
 
-    const renderColumns = (columns: FormCtrlGroup[]): JSX.Element => {
+    const renderColumns = (columns: FormCtrlGroup[]): React.JSX.Element => {
         return <ListGroup style={{ height: 300, overflowY: 'auto' }}>
             {columns.map((sourceCol, index) => {
                 return <ListGroupItem
@@ -86,7 +86,7 @@ export const SourceDetails: React.FunctionComponent<Props> = (props: Props) => {
         </ListGroup>
     }
 
-    const getBody = (): JSX.Element => {
+    const getBody = (): React.JSX.Element => {
         return <ModalBody>
             <Form>
                 <FormGroup row>
@@ -121,7 +121,7 @@ export const SourceDetails: React.FunctionComponent<Props> = (props: Props) => {
         </ModalBody>
     }
 
-    const getFooter = (): JSX.Element => {
+    const getFooter = (): React.JSX.Element => {
         return <ModalFooter>
             <Button color='primary' onClick={e => save()}>Save</Button>
             <Button color='secondary'

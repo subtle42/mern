@@ -16,7 +16,7 @@ export class Histogram extends BaseChart {
     updateChart (data: any[]) {
         data = data.filter(d => d._id !== 'Other')
         let xDomain = [0, 0]
-        xDomain = extent(data, d => d._id)
+        xDomain = extent(data, d => d._id) as any
 
         this.step = (xDomain[1] - xDomain[0]) / (this.config.other.ticks || 20)
         xDomain[1] = xDomain[1] + this.step

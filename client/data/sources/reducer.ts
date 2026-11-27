@@ -19,11 +19,10 @@ export const SourceSlice = createSlice({
     reducers: {
         ...factory,
         addFilter: (state, {payload}: PayloadAction<SourcePayload>) => {
-            state = { ...state }
             if (!state.filters[payload._id]) {
                 state.filters[payload._id] = {}
             } else {
-                state.filters[payload._id] = { ...state.filters[payload._id] }
+                state.filters[payload._id] = state.filters[payload._id]
             }
             if (payload.filter.length === 0) {
                 delete state.filters[payload._id][payload.dimension]
@@ -37,3 +36,5 @@ export const SourceSlice = createSlice({
         }
     }
 })
+
+// export const SourceActions = SourceSlice.actions

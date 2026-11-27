@@ -7,8 +7,8 @@ import { select } from 'd3-selection'
 import { brushX } from 'd3-brush'
 import './style.css'
 import { IWidget } from '../../mySchemas'
-import { mySourceActions } from '../../../data/sources/actions'
 import { store } from '../../../data/store'
+import { addSourceFilter } from '../../../data/sources/actions'
 
 class State {
     chart: any[] = []
@@ -38,7 +38,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
     })
 
     private updateRangeFilter (range: number[]) {
-        mySourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], range)
+        addSourceFilter(this.config.sourceId, this.config.dimensions[0], range)
     }
 
     private _updateChart () {
@@ -52,7 +52,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
 
     abstract updateChart (data: any[])
     abstract resize ()
-    abstract renderChart (): JSX.Element
+    abstract renderChart (): React.JSX.Element
 
     componentDidMount () {
         this.config = store.getState().widgets.list.find(w => w._id === this.props.id) as IWidget
@@ -108,10 +108,10 @@ export abstract class BaseChart extends React.Component<Props, State> {
     }
 
     clear () {
-        mySourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], [])
+        addSourceFilter(this.config.sourceId, this.config.dimensions[0], [])
     }
 
-    getXAxis (): JSX.Element|undefined {
+    getXAxis (): React.JSX.Element|undefined {
         if (!this.xAxis || !this.config.xAxis.show) return
         return <g transform={`translate(0, ${this.getHeightWithMargins()})`}
             className='xAxis'
@@ -122,7 +122,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
         </g>
     }
 
-    getYAxis (): JSX.Element|undefined {
+    getYAxis (): React.JSX.Element|undefined {
         if (!this.yAxis || !this.config.yAxis.show) return
         return <g transform={`translate(${0}, 0)`}
             className='xAxis'
@@ -134,7 +134,7 @@ export abstract class BaseChart extends React.Component<Props, State> {
         </g>
     }
 
-    getBrush (): JSX.Element {
+    getBrush (): React.JSX.Element {
         const var1: [number, number] = [0, 0]
         const var2: [number, number] = [this.getWidthtWithMargins(), this.getHeightWithMargins()]
         this.brush.extent([var1, var2])

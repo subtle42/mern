@@ -4,7 +4,7 @@ import { extent } from 'd3-array'
 import { brush } from 'd3-brush'
 import { select, } from 'd3-selection'
 import { BaseChart } from './_base'
-import { mySourceActions } from '../../../data/sources/actions'
+import { addMultipleSourceFilters } from '../../../data/sources/actions'
 
 interface BrushBounds {
     x: number
@@ -41,7 +41,7 @@ export class Scatter extends BaseChart {
                 select(this.myRef.current as any)
                 .selectAll('circle')
                 .classed('notSelected', () => false)
-                return mySourceActions.addMultipleFilters(this.config.sourceId, this.config.dimensions.map(dim => {
+                return addMultipleSourceFilters(this.config.sourceId, this.config.dimensions.map(dim => {
                     return {
                         dimension: dim,
                         filter: []
@@ -54,7 +54,7 @@ export class Scatter extends BaseChart {
             response.push([x, x1])
             response.push([y, y1])
 
-            mySourceActions.addMultipleFilters(this.config.sourceId, response.map((row, index) => {
+            addMultipleSourceFilters(this.config.sourceId, response.map((row, index) => {
                 return {
                     dimension: this.config.dimensions[index],
                     filter: row

@@ -4,7 +4,7 @@ import { select } from 'd3-selection'
 import { BaseChart } from './_base'
 import { max } from 'd3-array'
 import { store } from '../../../data/store'
-import { mySourceActions } from '../../../data/sources/actions'
+import { addSourceFilter } from '../../../data/sources/actions'
 
 export class BarGrouped extends BaseChart {
     x = scaleBand()
@@ -34,7 +34,7 @@ export class BarGrouped extends BaseChart {
         return mappedData
     }
 
-    renderBar (row, measure: string, index: number): JSX.Element {
+    renderBar (row, measure: string, index: number): React.JSX.Element {
         return <rect key={index}
             fill='steelblue'
             x={this.xInner(measure)}
@@ -44,7 +44,7 @@ export class BarGrouped extends BaseChart {
         </rect>
     }
 
-    renderBarGroup (key: string): JSX.Element {
+    renderBarGroup (key: string): React.JSX.Element {
         let count = 0
         return this.state.chart[key].map((rows, j) => {
             return this.config.measures.map(m => {
@@ -74,14 +74,14 @@ export class BarGrouped extends BaseChart {
                 return !myFilterDimension.find(x => x === category)
             })
 
-        mySourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], myFilterDimension)
+        addSourceFilter(this.config.sourceId, this.config.dimensions[0], myFilterDimension)
     }
 
     clear () {
         select(this.myRef.current as any)
             .selectAll('rect')
             .classed('notSelected', false)
-        mySourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], [])
+        addSourceFilter(this.config.sourceId, this.config.dimensions[0], [])
     }
 
     reverseFilter (key: string, event) {
@@ -104,7 +104,7 @@ export class BarGrouped extends BaseChart {
                 const category = Object.keys(this.state.chart)[index]
                 return !myFilterDimension.find(x => x === category)
             })
-        mySourceActions.addFilter(this.config.sourceId, this.config.dimensions[0], myFilterDimension)
+        addSourceFilter(this.config.sourceId, this.config.dimensions[0], myFilterDimension)
     }
 
     renderChart () {

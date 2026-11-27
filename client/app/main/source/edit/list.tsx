@@ -13,9 +13,9 @@ import Row from 'reactstrap/lib/Row'
 import Col from 'reactstrap/lib/Col'
 import Input from 'reactstrap/lib/Input'
 import FormGroup from 'reactstrap/lib/FormGroup'
-import { ISource } from '@mern/server/api/source/model'
-import { mySourceActions } from '../../../../data/sources/actions'
 import { myNotifActions } from '../../../../data/notifications/actions'
+import { deleteSource } from '../../../../data/sources/actions'
+import { ISource } from '../../../mySchemas'
 
 interface Props {
     onDone: () => void
@@ -28,12 +28,12 @@ export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
     const [searchName, setSearchName] = React.useState('')
 
     const remove = (source: ISource) => {
-        mySourceActions.delete(source._id)
+        deleteSource(source._id as string)
         .then(() =>  myNotifActions.success(`Removed source: ${source.title}`))
         .catch(err => myNotifActions.error(err.response.data))
     }
 
-    const getDeleteButton = (source: ISource): JSX.Element => {
+    const getDeleteButton = (source: ISource): React.JSX.Element => {
         const isDisabled = source.owner !== user._id
         return <ConfirmModal header='Delete Source'
             message={`Are you sure you want to delete: ${source.title}?`}>
@@ -47,7 +47,7 @@ export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
         </ConfirmModal>
     }
 
-    const getEditButton = (source: ISource): JSX.Element => {
+    const getEditButton = (source: ISource): React.JSX.Element => {
         const userId = user._id
         const isDisabled = source.owner !== userId || source.editors.indexOf(userId) !== -1
         return <Button outline
@@ -60,7 +60,7 @@ export const SourceList: React.FunctionComponent<Props> = (props: Props) => {
         </Button>
     }
 
-    const getList = (): JSX.Element => {
+    const getList = (): React.JSX.Element => {
         return <ListGroup style={{ maxHeight: 500, overflowY: 'auto' }}>
             {sources.filter(runSourceFilter)
                 .map((source, index) => <ListGroupItem key={index} action>

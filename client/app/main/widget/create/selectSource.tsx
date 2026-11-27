@@ -12,10 +12,10 @@ import { useDropzone } from 'react-dropzone'
 
 import { useSources } from '../../../_common/hooks'
 import Input from 'reactstrap/lib/Input'
-import { ISource } from '@mern/server/api/source/model'
 import { store } from '../../../../data/store'
-import { mySourceActions } from '../../../../data/sources/actions'
 import { myNotifActions } from '../../../../data/notifications/actions'
+import { ISource } from '../../../mySchemas'
+import { createSource } from '../../../../data/sources/actions'
 
 interface Props {
     selectedId?: string
@@ -42,7 +42,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
         if (created) props.done(created)
     }
 
-    const sourceDetails = (): JSX.Element => {
+    const sourceDetails = (): React.JSX.Element => {
         if (!selected) return <div/>
 
         return <div>
@@ -57,7 +57,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
         const reader = new FileReader()
         reader.onloadend = (event) => {
             setLoading(true)
-            mySourceActions.create(acceptedFiles[0])
+            createSource(acceptedFiles[0])
             .then(sourceId => {
                 const newSource = sources.find(x => x._id === sourceId)
                 // in case REST call returns before source update
@@ -77,7 +77,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: onFileDrop })
 
-    const renderHeader = (): JSX.Element => {
+    const renderHeader = (): React.JSX.Element => {
         return <div className='modal-header' style={{display: 'flex', justifyContent:'space-between'}}>
             <h5 className='modal-title'>Sources</h5>
             <div {...getRootProps()} hidden={isLoading}>
@@ -91,7 +91,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
         </div>
     }
 
-    const largeFileDragAndDrop = (): JSX.Element => {
+    const largeFileDragAndDrop = (): React.JSX.Element => {
         return <ModalBody>
             <Row>
                 <Col xs={{ size: 6, offset: 3 }}>
@@ -113,7 +113,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
         </ModalBody>
     }
 
-    const renderBody = (): JSX.Element => {
+    const renderBody = (): React.JSX.Element => {
         if (isLoading) {
             return <ModalBody>
                 <Progress animated color='info' value={100}></Progress>
@@ -152,7 +152,7 @@ export const SelectSource: React.FunctionComponent<Props> = (props: Props) => {
             .indexOf(searchName.toLocaleLowerCase()) !== -1
     }
 
-    const renderFooter = (): JSX.Element => {
+    const renderFooter = (): React.JSX.Element => {
         return <ModalFooter style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Button color='primary'
                 disabled={!selected || isLoading}
