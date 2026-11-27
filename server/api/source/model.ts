@@ -8,7 +8,7 @@ const SourceColumnSchema = new Schema({
         required: true,
         enum: ['number', 'group', 'text', 'datetime']
     },
-    values: {type: [String], default: [], required: false},
+    values: {type: [String], required: false},
     min: Number,
     max: Number,
 })
@@ -18,7 +18,7 @@ export const SourceSchema = new Schema({
     location: { type: String, required: true },
     size: { type: Number, default: 0 },
     rowCount: { type: Number, default: 0 },
-    columns: { type: [SourceColumnSchema], default: [] },
+    columns: { type: [SourceColumnSchema], default: [], required: true},
     owner: { type: String, required: true },
     editors: { type: [{type: String, required: true}], required: true },
     viewers: { type: [{type: String, required: true}], required: true },

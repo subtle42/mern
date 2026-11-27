@@ -75,7 +75,7 @@ export const myJsonTransform = (tmp: Schema) => {
 
 const setValidators = (path: string, type: SchemaType, res: any) => {
     Object.entries(type.options).forEach(([key, val]) => {
-        if (key === 'required') res.required.push(path)
+        if (key === 'required' && val === true) res.required.push(path)
         if (key === 'max') res.properties[path] = {...res.properties[path], maximum: val}
         if (key === 'min') res.properties[path] = {...res.properties[path], minimum: val}
         if (key === 'maxLength') res.properties[path] = {...res.properties[path], maxLength: val}
