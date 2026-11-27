@@ -22,7 +22,14 @@ jobs:
         with:
           node-version: ${{ env.NODE_VER }}
           cache: 'npm'
+      - name: Restore node_modules cache
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Running install
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
       - name: Running build
         run: npm run build
@@ -57,14 +64,17 @@ jobs:
         with:
           node-version: ${{ env.NODE_VER }}
           cache: 'npm'
-      - name: Installing libraries
-        run: npm ci
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Installing driver
         run: npx playwright install ${{matrix.browser}}
       - name: Install e2e dependencies
         run: npx playwright install-deps
-      - name: Running build
-        run: npm run build
+      # - name: Running build
+      #   run: npm run build
       - name: Starting server
         run: npm start -w server &
       - name: Wait for app to respond
