@@ -43,11 +43,10 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
-          name: my-artifact
+          name: static-artifacts
           path: |
             server/static
             server/swagger.json
-        
   e2e:
     needs: build
     runs-on: ubuntu-latest
@@ -59,6 +58,10 @@ jobs:
           - webkit
     steps:
       - uses: actions/checkout@v7
+      - name: Download build artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: static-artifacts
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v7
         with:
@@ -83,8 +86,8 @@ jobs:
       #   run: npx playwright install ${{matrix.browser}}
       - name: Running tests
         run: npm run e2e -w e2e -- --project ${{matrix.browser}}
-
   vulnerability-scan:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
