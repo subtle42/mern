@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify'
-import { bookSchema } from './model'
+import { bookInputSchema, bookSchema } from './model'
 import { isAuthenticated } from '../../auth/auth.service'
 import * as ctrl from './controller'
 import { myJsonTransform } from '../utils'
@@ -9,6 +9,7 @@ export const buildBookApis = (app: FastifyInstance) => {
     app.log.info('building book apis...')
     // app.addSchema({...bookSchema.toJSONSchema(), '$id': 'Book'})
     app.addSchema({...myJsonTransform(bookSchema), '$id': 'Book'})
+    app.addSchema({...myJsonTransform(bookInputSchema), '$id': 'BookInput'})
 
     app.get('', {
         onRequest: [isAuthenticated],
@@ -55,12 +56,7 @@ export const buildBookApis = (app: FastifyInstance) => {
         onRequest: [isAuthenticated],
         schema: {
             tags: ['Books'],
-            body: {
-                type: 'object',
-                properties: {
-                    name: {type: 'string'}
-                }
-            }
+            body: {'$ref': 'BookInput'}
         }
     }, ctrl.create)
 

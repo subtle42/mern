@@ -1,15 +1,16 @@
 import * as ctrl from './controller'
 import { FastifyInstance } from 'fastify'
 import { isAuthenticated } from '../../auth/auth.service'
-import { Page, pageSchema } from './model'
+import { Page, pageInputSchema, pageSchema } from './model'
 import { myJsonTransform } from '../utils'
 
 
 
 export const buildPageApis = (app: FastifyInstance) => {
     app.log.info('buidling page apis...')
-    // app.addSchema({...pageSchema.toJSONSchema(), '$id': 'Page'})
     app.addSchema({...myJsonTransform(pageSchema), '$id': 'Page'})
+    app.addSchema({...myJsonTransform(pageInputSchema), '$id': 'PageInput'})
+
 
 
     app.get('/:bookId', {
@@ -35,13 +36,7 @@ export const buildPageApis = (app: FastifyInstance) => {
         onRequest: [isAuthenticated],
         schema: {
             tags: ['Pages'],
-            body: {
-                type: 'object',
-                properties: {
-                    name: {type: 'string'},
-                    bookId: {type: 'string'}
-                }
-            },
+            body: {'$ref': 'PageInput'},
             response: {
                 200: {}
             }

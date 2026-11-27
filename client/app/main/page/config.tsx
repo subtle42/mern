@@ -8,9 +8,7 @@ import Label from 'reactstrap/lib/Label'
 import Tooltip from 'reactstrap/lib/Tooltip'
 import Button from 'reactstrap/lib/Button'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
-import Input from 'reactstrap/lib/Input'
 import FormFeedback from 'reactstrap/lib/FormFeedback'
-import Form from 'reactstrap/lib/Form'
 import FormGroup from 'reactstrap/lib/FormGroup'
 import Card from 'reactstrap/lib/Card'
 import CardTitle from 'reactstrap/lib/CardTitle'
@@ -22,10 +20,9 @@ import './page.css'
 import { store } from '../../../data/store'
 // import { IPage } from '@mern/server/api/page/model'
 import { myNotifActions } from '../../../data/notifications/actions'
-import { SubmitHandler, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { handleRegister, hasErorrs, MyInput } from '../utils'
 import { updatePage } from '../../../data/pages/actions'
-import { ajvResolver } from '@hookform/resolvers/ajv'
 import { IPage, PageResolver} from '../../mySchemas'
 
 interface Props {
@@ -76,7 +73,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
         setTips({ ...tips })
     }
 
-    const getFormTemplate = (): JSX.Element => {
+    const getFormTemplate = (): React.JSX.Element => {
         return <div>
             <Row>
                 <Col xs={6}>
@@ -247,7 +244,7 @@ export const PageConfigButton: React.FunctionComponent<Props> = (props: Props) =
         </div>
     }
 
-    const getModal = (): JSX.Element => {
+    const getModal = (): React.JSX.Element => {
         return <Modal size='md'
             isOpen={isOpen}
             onClosed={() => setOpen(false)}>

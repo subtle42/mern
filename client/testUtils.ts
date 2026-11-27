@@ -11,8 +11,7 @@ const addItemToStore = (namespace: string, item) => {
 
 const setSelected = (namespace: string, payload: string) => {
     store.dispatch({
-        type: 'select',
-        namespace,
+        type: `${namespace}/select`,
         payload
     })
 }

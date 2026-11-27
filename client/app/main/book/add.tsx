@@ -10,34 +10,33 @@ import FormFeedback from 'reactstrap/lib/FormFeedback'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
 import Button from 'reactstrap/lib/Button'
 
-import { OnEnter } from '../../_common/onEnter'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { handleRegister, hasErorrs } from '../utils'
 import { createBook, selectBook } from '../../../data/books/actions'
 import { myNotifActions } from '../../../data/notifications/actions'
+import { BookInputResolver, IBookInput } from '../../mySchemas'
 
 interface Props {}
-type Inputs = {
-    title: string
-}
 
 
 export const CreateBookButton: React.FunctionComponent<Props> = (prop: Props) => {
     const [isOpen, setOpen] = React.useState(false)
-    const {register, handleSubmit, reset, formState: { errors, isDirty }} = useForm<Inputs>({
+    const {register, handleSubmit, reset, formState: { errors, isDirty }} = useForm<IBookInput>({
         mode: 'onChange',
+        resolver: BookInputResolver,
         reValidateMode: 'onChange',
-        defaultValues: {title: ''}
+        defaultValues: {name: ''}
     })
-    const {ref, ...titleRegister} = register('title', handleRegister({
+    const {ref, ...titleRegister} = register('name', handleRegister({
         required: true,
         minLength: 3,
         maxLength: 15
     }))
 
 
-    const save:SubmitHandler<Inputs> = async(data) => {
-        const bookId = await createBook(data.title)
+    const save:SubmitHandler<IBookInput> = async(data) => {
+        console.log('data', data)
+        const bookId = await createBook(data.name)
         selectBook(bookId)
         myNotifActions.notify('success', `Created Book`)
         setOpen(false)
@@ -50,7 +49,7 @@ export const CreateBookButton: React.FunctionComponent<Props> = (prop: Props) =>
 
     return <DropdownItem toggle={false} onClick={() => myToggle()}>
         Add Book
-        <Modal size='sm' isOpen={isOpen} autoFocus={true}>
+        <Modal size='sm' isOpen={isOpen} autoFocus={true} data-test-id="addBookBtn" role="addBookBtn">
             <ModalHeader>Create Book</ModalHeader>
             <form onSubmit={handleSubmit(save)}>
                 <ModalBody>
@@ -61,9 +60,9 @@ export const CreateBookButton: React.FunctionComponent<Props> = (prop: Props) =>
                             innerRef={ref}
                             {...titleRegister}
                             placeholder='Enter Name'
-                            invalid={!!errors.title} />
+                            invalid={!!errors.name} />
                         {/* </OnEnter> */}
-                        <FormFeedback>{errors.title?.message}</FormFeedback>
+                        <FormFeedback>{errors.name?.message}</FormFeedback>
                     </FormGroup>
                 </ModalBody>
                 <ModalFooter>

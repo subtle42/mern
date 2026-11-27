@@ -12,21 +12,21 @@ export const EditBookButton: React.FunctionComponent<Props> = (props: Props) => 
     const [isOpen, setOpen] = React.useState(false)
     const [toEdit, setEdit] = React.useState<undefined|IBook>(undefined)
 
-    const getModal = (): JSX.Element => {
+    const getModal = (): React.JSX.Element => {
         return <Modal isOpen={isOpen}
             size='md'>
             {getContent()}
         </Modal>
     }
 
-    const getBookEditForm = (): JSX.Element => {
+    const getBookEditForm = (): React.JSX.Element => {
         if (!toEdit) return <div />
         return <BookEditForm
             _id={toEdit._id}
             onDone={() => setEdit(undefined)} />
     }
 
-    const getContent = (): JSX.Element => {
+    const getContent = (): React.JSX.Element => {
         const index = !toEdit ? 0 : 1
 
         return <SwipeableViews index={index}>

@@ -10,8 +10,8 @@
     "build:types": "openapi-typescript ../server/swagger.json -o ./baseTypes.ts",
     "start": "vite",
     "build": "vite build",
-    "test": "vitest run app/main/book/edit/*.spec.*",
-    "test:pipeline": "vitest run app/main/book/edit/*.spec.* --reporter=junit --outputFile=./junit.xml"
+    "test": "vitest run app/main/page/*.test.tsx",
+    "test:pipeline": "vitest run app/main/book/edit/*.test.* --reporter=junit --outputFile=./junit.xml"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.0",
@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.13",
     "@types/node": "^24.0.10",
     "@vitejs/plugin-react": "^4.6.0",
     "jsdom": "^30.1.2",

@@ -7,7 +7,7 @@ import { createUserAndLogin } from "./testUtils"
 // buildMongoDb()
 // .then(() => buildServer())
 buildServer({
-    debug: false,
+    debug: true,
     serveSwagger: true
 })
 .then(async({server, db}) => {

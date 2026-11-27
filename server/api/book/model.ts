@@ -2,8 +2,14 @@ import { model, Schema , InferSchemaType, Document } from 'mongoose'
 import { PageDoc } from '../page/model'
 
 
-export const bookSchema = new Schema({
+const baseSchema = {
     name: { type: String, required: true, minLength: 3, maxLength: 30 },
+}
+
+export const bookInputSchema = new Schema(baseSchema)
+
+export const bookSchema = new Schema({
+    ...baseSchema,
     pages: { type: [{type: String, required: true}], required: true },
     owner: { type: String, required: true },
     editors: { type: [{type: String, required: true}], required: true },

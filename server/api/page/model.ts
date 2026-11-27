@@ -50,9 +50,17 @@ const DropConfigSchema = new Schema({
     _id: false
 })
 
-export const pageSchema = new Schema({
+const baseInput = {
     bookId: { type: String, required: true },
     name: { type: String, required: true, minLength: 3 },
+}
+
+export const pageInputSchema = new Schema(baseInput, {
+    _id: false
+})
+
+export const pageSchema = new Schema({
+    ...baseInput,
     layout: { type: [LayoutSchema], default: [], required: true },
     gridConfig: { type: GridConfigSchema, default: () => ({}),  required: true },
     resizeConfig: { type: ResizeConfigSchema, default: () => ({}), required: true },

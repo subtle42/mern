@@ -2,7 +2,7 @@ import axios from 'axios'
 import { store } from '../store'
 import { joinRoom } from '../socket'
 import { pageCmds } from './reducer'
-import { IPage } from '../../app/mySchemas'
+import { IPage, IPageInput } from '../../app/mySchemas'
 
 
 export const selectPage = (id: string) => {
@@ -10,11 +10,8 @@ export const selectPage = (id: string) => {
     joinRoom('widgets', id)
 }
 
-export const createPage = async(input: string) => {
-    const res = await axios.post<string>(`/api/pages`, {
-        name: input,
-        bookId: store.getState().books.selected
-    })
+export const createPage = async(input: IPageInput) => {
+    const res = await axios.post<string>(`/api/pages`, input)
     return res.data
 }
 

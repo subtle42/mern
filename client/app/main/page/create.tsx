@@ -14,25 +14,22 @@ import Modal from 'reactstrap/lib/Modal'
 import { OnEnter } from '../../_common/onEnter'
 import { myNotifActions } from '../../../data/notifications/actions'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { handleRegister, MyInput } from '../utils'
+import { MyInput } from '../utils'
 import { createPage, selectPage } from '../../../data/pages/actions'
+import { IPageInput, PageInputResolver } from '../../mySchemas'
+import { store } from '../../../data/store'
 
 interface Props {}
-type Inputs = {
-    title: string
-}
 
 export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) => {
-    const { register, handleSubmit, reset, formState: { errors, isDirty } , getValues} = useForm<Inputs>({
+    const bookdId = store.getState().books.selected
+    const { register, reset, formState: { errors, isDirty } , getValues} = useForm<IPageInput>({
+        resolver: PageInputResolver,
         mode: 'onChange',
-        reValidateMode: 'onChange'
+        reValidateMode: 'onChange',
+        defaultValues: {bookId: bookdId, name: ''}
     })
 
-    const { ref, ...registerTitle } = register('title', {
-        required: 'This is a required field',
-        minLength: {value: 3, message: 'Min length of 3'},
-        maxLength: {value: 15, message: 'Max lenghth of 15'}
-    })
 
     const [isOpen, setOpen] = React.useState(false)
 
@@ -43,51 +40,37 @@ export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) =
 
     const open = (event: React.FormEvent<any>) => {
         if (event) event.stopPropagation()
-        reset({title: ''})
+        reset({name: '', bookId: bookdId})
         setOpen(true)
     }
 
-    const runSubmit:SubmitHandler<Inputs> = (data) => {
-        const title: string = data.title
-        console.log('title', title)
-        createPage(title)
-        .then(pageId => selectPage(pageId))
-        .then(() => myNotifActions.notify('success', `Created page: ${title}`))
-        .then(() => setOpen(false))
-        .catch(err => myNotifActions.notify('danger', err.message))
+    const runSubmit:SubmitHandler<IPageInput> = async(data) => {
+        console.log(getValues('name'))
+        console.log('going to create', data)
+        const pageId = await createPage(data)
+        selectPage(pageId)
+        myNotifActions.notify('success', `Created page: ${data.name}`)
+        setOpen(false)
+        // .catch(err => myNotifActions.notify('danger', err.message))
     }
 
-    const close = (event: React.FormEvent<any>) => {
-        if (event) event.stopPropagation()
-
-        const title: string = getValues().title
-        createPage(title)
-        .then(pageId => selectPage(pageId))
-        .then(() => myNotifActions.notify('success', `Created page: ${title}`))
-        .then(() => setOpen(false))
-        .catch(err => myNotifActions.notify('danger', err.message))
-    }
-
-    const getModalTemplate = (): JSX.Element => {
-        return <Modal size='sm' isOpen={isOpen}>
+    const getModalTemplate = (): React.JSX.Element => {
+        return <Modal size='sm' isOpen={isOpen} data-testid='addPageModal'>
             <ModalHeader>Create Page</ModalHeader>
-            <form onSubmit={handleSubmit(runSubmit)} noValidate={true}>
+            <form onSubmit={() => {
+                console.log('testing')
+                runSubmit(getValues())}} noValidate={true}>
             <ModalBody>
                 <FormGroup>
                     <Label>Name:</Label>
                     {/* <OnEnter callback={close}> */}
                     <MyInput
-                        register={() => register('title', handleRegister({
-                            required: true,
-                            minLength: 3,
-                            maxLength: 15
-                        }))}
+                        register={() => register('name')}
                         placeholder="Enter Name"
-                        invalid={!!errors.title}
-                        name='title'
+                        invalid={!!errors.name}
                     />
                     {/* </OnEnter> */}
-                    <FormFeedback>{errors.title?.message}</FormFeedback>
+                    <FormFeedback>{errors.name?.message}</FormFeedback>
                 </FormGroup>
             </ModalBody>
             <ModalFooter>
@@ -101,7 +84,7 @@ export const CreatePageButton: React.FunctionComponent<Props> = (props: Props) =
         </Modal>
     }
 
-    return <NavItem onClick={open} style={{ cursor: 'pointer' }}>
+    return <NavItem onClick={open} style={{ cursor: 'pointer' }} data-testid="addPageBtn">
         <NavLink style={{ height: 42, paddingTop: 11 }}>
             <FontAwesome name='plus' />
         </NavLink>
