@@ -49,6 +49,8 @@ jobs:
           - chromium
           - firefox
           - webkit
+          - chrome
+          - msedge
     steps:
       - uses: actions/checkout@v7
       - name: Download build artifact
