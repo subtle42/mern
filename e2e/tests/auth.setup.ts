@@ -30,6 +30,8 @@ test.describe('login page', () => {
         await loginPage.getPassword().fill('test')
         await loginPage.getSignInBtn().click()
         expect(page.url().split('/')[3]).toEqual('about')
+        // Saving token to use in other tests
+        await page.context().storageState({ path: `./auth.json` });
     })
 })
 

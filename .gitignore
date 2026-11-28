@@ -12,3 +12,5 @@ swagger.json
 server/static
 junit.xml
 test-results
+e2e/auth*.json
+playwright-report

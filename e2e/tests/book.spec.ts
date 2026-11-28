@@ -10,7 +10,6 @@ test.describe('Creating a book', () => {
         loginPage = buildLoginPo(page)
         mainPage = buildMainPo(page)
         await page.goto('http://localhost:3333')
-        await loginPage.fullLogin()
         await mainPage.nav.getMain().click()
     })
 
@@ -58,7 +57,6 @@ test.describe('Updating book', () => {
         loginPage = buildLoginPo(page)
         mainPage = buildMainPo(page)
         await page.goto('http://localhost:3333')
-        await loginPage.fullLogin()
         await mainPage.nav.getMain().click()
     })
 

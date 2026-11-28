@@ -52,7 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Download build artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: static-artifacts
           path: server
@@ -72,7 +72,7 @@ jobs:
       - name: Wait for app to respond
         run: npx wait-on http://localhost:3333/documentation/yaml -t 60000
       - name: Running tests
-        run: npm run e2e -w e2e -- --project ${{matrix.browser}}
+        run: CI=true npm run e2e -w e2e -- --project ${{matrix.browser}}
   vulnerability-scan:
     needs: build
     runs-on: ubuntu-latest
