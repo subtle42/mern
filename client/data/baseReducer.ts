@@ -27,7 +27,7 @@ export const factory = {
     select: (state, {payload}: PayloadAction<string>) => {
         return { ...state, selected: payload }
     },
-    remove: (state, {payload}: PayloadAction<string[]>) => {
+    removed: (state, {payload}: PayloadAction<string[]>) => {
         state = { ...state }
         state.list = state.list.filter(item => payload.indexOf(item._id) === -1)
         return state

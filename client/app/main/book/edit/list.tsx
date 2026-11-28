@@ -9,10 +9,10 @@ import ModalFooter from 'reactstrap/lib/ModalFooter'
 
 import { ConfirmModal } from '../../../_common/confirmation'
 import { useBooks } from '../../../_common/hooks'
-import { IBook } from '@mern/server/api/book/model'
 import { myNotifActions } from '../../../../data/notifications/actions'
 import { store } from '../../../../data/store'
 import { deleteBook } from '../../../../data/books/actions'
+import { IBook } from '../../../mySchemas'
 
 
 interface Props {
@@ -24,13 +24,13 @@ export const BookList: React.FunctionComponent<Props> = (props: Props) => {
     const books = useBooks()
 
     const remove = async(book: IBook) => {
-        await deleteBook(book._id)
+        await deleteBook(book._id as string)
         myNotifActions.success(`Removed book: ${book.name}`)
     }
 
     const getDeleteButton = (book: IBook): React.JSX.Element => {
         if (book.owner !== store.getState().auth.me?._id) return <div/>
-        return <ConfirmModal header='Delete Source'
+        return <ConfirmModal header='Delete Book'
             message={`Are you sure you want to delete: ${book.name}?`}>
             <Button outline
                 role="delete"

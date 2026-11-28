@@ -4,6 +4,10 @@ import { Page } from "playwright/test";
 export const buildMainPo = (page: Page) => {
 
     return {
+        confirmModal: {
+            getConfirmBtn: (name='Confirm') => page.getByRole('button', { name }),
+            getCancelBtn: () => page.getByRole('button', { name: 'Cancel' }),
+        },
         nav: {
             getMain: () => page.getByText('Main'),
             getLogout: () => page.getByText('Logout'),
@@ -23,9 +27,11 @@ export const buildMainPo = (page: Page) => {
             editModal: {
                 getOpenBtn: () => page.locator('.fa-book'),
                 getEditBtn: (name: string) => page.locator('.modal-body').getByText(name).locator('.fa-edit'),
+                getDeleteBtn: (name: string) => page.locator('.modal-body').getByText(name).locator('.fa-trash'),
                 getNameInput: () => page.getByPlaceholder('Book Name'),
                 getDoneBtn: () => page.getByRole('button', { name: 'Done' }),
-                getCancelBtn: () => page.getByRole('button', { name: 'Cancel' })
+                getCancelBtn: () => page.getByRole('button', { name: 'Cancel' }),
+                getSaveBtn: () => page.getByRole('button', { name: 'Save' })
             }
         },
         page: {
