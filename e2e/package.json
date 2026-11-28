@@ -11,7 +11,7 @@
     "test:pipeline": "echo \"skipping\"",
     "build": "echo \"skipping\"",
     "e2e": "playwright test",
-    "dev": "playwright test --project chromium"
+    "dev": "playwright test --project=chromium"
   },
   "devDependencies": {
     "playwright": "^1.61.1",

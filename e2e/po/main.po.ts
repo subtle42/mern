@@ -9,16 +9,27 @@ export const buildMainPo = (page: Page) => {
             getLogout: () => page.getByText('Logout'),
         },
         book: {
+            getSelected: () => page.locator('.dropdown-toggle.nav-link').innerText(),
             dropdown: {
                 getOpenBtn: () => page.getByTestId('bookDropdown'),
                 getList: () => page.getByRole('menuitem'),
                 getAddBtn: () => page.getByText('Add Book')
             },
             addModal: {
-                getName: () => page.getByPlaceholder('Enter Name'),
-                getCreateBtn: () => page.getByText('Create'),
-                getCancelBtn: () => page.getByText('Cancel')
+                getNameInput: () => page.getByPlaceholder('Enter Name'),
+                getCreateBtn: () => page.getByRole('button', { name: 'Create' }),
+                getCancelBtn: () => page.getByRole('button', { name: 'Cancel' })
+            },
+            editModal: {
+                getOpenBtn: () => page.locator('.fa-book'),
+                getEditBtn: (name: string) => page.locator('.modal-body').getByText(name).locator('.fa-edit'),
+                getNameInput: () => page.getByPlaceholder('Book Name'),
+                getDoneBtn: () => page.getByRole('button', { name: 'Done' }),
+                getCancelBtn: () => page.getByRole('button', { name: 'Cancel' })
             }
+        },
+        page: {
+
         },
         goto: () => {},
     }

@@ -1,5 +1,5 @@
 import {test, expect} from '@playwright/test'
-import { buildLoginPo } from './po/login.po'
+import { buildLoginPo } from '../po/login.po'
 
 
 test.describe('login page', () => {
@@ -21,6 +21,7 @@ test.describe('login page', () => {
         await loginPage.getPassword().fill('notcorrect')
         await loginPage.getSignInBtn().click()
         expect(page.url().split('/')[3]).toEqual('login')
+        // TODO: add response for bad login
     })
 
     test('login success', async({page}) => {
